@@ -1,0 +1,14 @@
+﻿namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks
+{
+	public abstract class AbstractLogicBlock : AbstractAttributeInterface
+	{
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="instanceTag"></param>
+		protected AbstractLogicBlock(BiampTesiraDevice device, string instanceTag)
+			: base(device, instanceTag)
+		{
+		}
+	}
+}

@@ -1,0 +1,246 @@
+﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{6BF0A721-22BF-481E-9055-87E5507B6B8A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>ICD.Connect.Audio.Biamp</RootNamespace>
+    <AssemblyName>ICD.Connect.Audio.Biamp</AssemblyName>
+    <ProjectTypeGuids>{0B4745B0-194B-4BB6-8E21-E9057CA92500};{4D628B5B-2FBC-4AA6-8C16-197242AEB884};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <PlatformFamilyName>WindowsCE</PlatformFamilyName>
+    <PlatformID>E2BECB1F-8C8C-41ba-B736-9BE7D946A398</PlatformID>
+    <OSVersion>5.0</OSVersion>
+    <DeployDirSuffix>SmartDeviceProject1</DeployDirSuffix>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <NativePlatformName>Windows CE</NativePlatformName>
+    <FormFactorID>
+    </FormFactorID>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <AllowedReferenceRelatedFileExtensions>.allowedReferenceRelatedFileExtensions</AllowedReferenceRelatedFileExtensions>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;SIMPLSHARP</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <FileAlignment>512</FileAlignment>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <AllowedReferenceRelatedFileExtensions>.allowedReferenceRelatedFileExtensions</AllowedReferenceRelatedFileExtensions>
+    <DebugType>none</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <FileAlignment>512</FileAlignment>
+    <NoStdLib>true</NoStdLib>
+    <NoConfig>true</NoConfig>
+    <GenerateSerializationAssemblies>off</GenerateSerializationAssemblies>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="mscorlib" />
+    <Reference Include="SimplSharpCustomAttributesInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\ProgramData\Crestron\SDK\SimplSharpCustomAttributesInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="SimplSharpHelperInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\ProgramData\Crestron\SDK\SimplSharpHelperInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="SimplSharpNewtonsoft, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\ProgramData\Crestron\SDK\SimplSharpNewtonsoft.dll</HintPath>
+    </Reference>
+    <Reference Include="SimplSharpReflectionInterface, Version=1.0.5583.25238, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\ProgramData\Crestron\SDK\SimplSharpReflectionInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="SimplSharpSQLHelperInterface, Version=1.0.92.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\ProgramData\Crestron\SDK\SimplSharpSQLHelperInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AttributeInterfaces\AbstractAttributeChild.cs" />
+    <Compile Include="AttributeInterfaces\AbstractAttributeInterface.cs" />
+    <Compile Include="AttributeInterfaces\AttributeInterfaceFactory.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\AbstractControlBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\CommandStringBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\Dialer\DialerBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\Dialer\DialerCallAppearance.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\Dialer\DialerLine.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\InvertControlBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\LevelControlBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\LevelControlChannel.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\MuteControlBlock.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\MuteControlChannel.cs" />
+    <Compile Include="AttributeInterfaces\ControlBlocks\PresetControlBlock.cs" />
+    <Compile Include="AttributeInterfaces\CrossoverBlocks\AbstractCrossoverBlock.cs" />
+    <Compile Include="AttributeInterfaces\CrossoverBlocks\CrossoverBlock.cs" />
+    <Compile Include="AttributeInterfaces\DelayBlocks\AbstractDelayBlock.cs" />
+    <Compile Include="AttributeInterfaces\DelayBlocks\AudioDelayBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\AbstractDynamicBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\AgcBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\CompressorBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\DuckerBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\LevelerBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\NoiseGateBlock.cs" />
+    <Compile Include="AttributeInterfaces\DynamicBlocks\PeakLimiterBlock.cs" />
+    <Compile Include="AttributeInterfaces\EqualizerBlocks\AbstractEqualizerBlock.cs" />
+    <Compile Include="AttributeInterfaces\EqualizerBlocks\FeedbackSuppressorBlock.cs" />
+    <Compile Include="AttributeInterfaces\EqualizerBlocks\GraphicEqualizerBlock.cs" />
+    <Compile Include="AttributeInterfaces\EqualizerBlocks\ParametricEqualizerBlock.cs" />
+    <Compile Include="AttributeInterfaces\FilterBlocks\AbstractFilterBlock.cs" />
+    <Compile Include="AttributeInterfaces\FilterBlocks\AllPassFilterBlock.cs" />
+    <Compile Include="AttributeInterfaces\FilterBlocks\PassFilterBlock.cs" />
+    <Compile Include="AttributeInterfaces\FilterBlocks\ShelfFilterBlock.cs" />
+    <Compile Include="AttributeInterfaces\FilterBlocks\UberFilterBlock.cs" />
+    <Compile Include="AttributeInterfaces\GeneratorBlocks\AbstractGeneratorBlock.cs" />
+    <Compile Include="AttributeInterfaces\GeneratorBlocks\NoiseGeneratorBlock.cs" />
+    <Compile Include="AttributeInterfaces\GeneratorBlocks\ToneGeneratorBlock.cs" />
+    <Compile Include="AttributeInterfaces\IAttributeInterface.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AbstractIoBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\Aec\AecInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\Aec\AecInputChannel.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\Aec\AecProcessingBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\Aec\AecProcessingChannel.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AncInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AncProcessingBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AudioInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AudioOutputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\AudioInputChannel.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\CobraNetInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\CobraNetOutputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\DanteInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\DanteOutputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\DtmfDecodeBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\TcCallStateCommands.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\TelephoneInterface\TiControlStatusBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\TelephoneInterface\TiReceiveBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\TelephoneInterface\TiTransmitBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\UsbInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\UsbOutputBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpCallStateCommands.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpControlStatusBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpControlStatusCallAppearance.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpControlStatusLine.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpReceiveBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpReceiveLine.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoIpTransmitBlock.cs" />
+    <Compile Include="AttributeInterfaces\IoBlocks\VoIp\VoipTransmitLine.cs" />
+    <Compile Include="AttributeInterfaces\IStateAttributeInterface.cs" />
+    <Compile Include="AttributeInterfaces\IVolumeAttributeInterface.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\AbstractLogicBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\ControlVoltageBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\FlipFlopBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicDelayBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicInputBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicMeterBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicOutputBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicState\LogicStateBlock.cs" />
+    <Compile Include="AttributeInterfaces\LogicBlocks\LogicState\LogicStateChannel.cs" />
+    <Compile Include="AttributeInterfaces\MeterBlocks\AbstractMeterBlock.cs" />
+    <Compile Include="AttributeInterfaces\MeterBlocks\PeakOrRmsMeterBlock.cs" />
+    <Compile Include="AttributeInterfaces\MeterBlocks\PeakOrRmsMeterChannel.cs" />
+    <Compile Include="AttributeInterfaces\MeterBlocks\SignalPresentMeterBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\AbstractMixerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerChannel.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\GatingAutoMixerChannel.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\MicLogic.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\AbstractStandardMixerIo.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\AutoMixerCombinerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\GatingAutoMixerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\MatrixMixerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombinerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerCrosspoint.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerInput.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerOutput.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\AbstractRouterBlock.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\Router\RouterBlock.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\Router\RouterInput.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\Router\RouterOutput.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\SourceSelector\SourceSelectorBlock.cs" />
+    <Compile Include="AttributeInterfaces\RouterBlocks\SourceSelector\SourceSelectorSource.cs" />
+    <Compile Include="AttributeInterfaces\Services\AbstractService.cs" />
+    <Compile Include="AttributeInterfaces\Services\DeviceService.cs" />
+    <Compile Include="AttributeInterfaces\Services\SessionService.cs" />
+    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="BiampTesiraDevice.cs" />
+    <Compile Include="BiampTesiraDeviceSettings.cs" />
+    <Compile Include="BiampTesiraSerialBuffer.cs" />
+    <Compile Include="BiampTesiraSerialQueue.cs" />
+    <Compile Include="Controls\Dialing\AbstractBiampTesiraDialingDeviceControl.cs" />
+    <Compile Include="Controls\Dialing\TesiraConferenceSource.cs" />
+    <Compile Include="Controls\State\BiampTesiraStateDeviceControl.cs" />
+    <Compile Include="Controls\Volume\BiampTesiraVolumeDeviceControl.cs" />
+    <Compile Include="Controls\Channel.cs" />
+    <Compile Include="Controls\Dialing\Telephone\TiDialingDeviceControl.cs" />
+    <Compile Include="Controls\ControlsXmlUtils.cs" />
+    <Compile Include="Controls\Dialing\VoIP\VoIPDialingDeviceControl.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TesiraTextProtocol\Codes\AbstractCode.cs" />
+    <Compile Include="TesiraTextProtocol\Codes\CodeCallbackPair.cs" />
+    <Compile Include="TesiraTextProtocol\Codes\ICode.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\AbstractValue.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\ArrayValue.cs" />
+    <Compile Include="TesiraTextProtocol\Codes\AttributeCode.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\ControlValue.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\TtpUtils.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\Value.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\Response.cs" />
+    <Compile Include="TesiraTextProtocol\Codes\ServiceCode.cs" />
+    <None Include="Properties\ControlSystem.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ICD.Connect.API\ICD.Connect.API_SimplSharp.csproj">
+      <Project>{727F5820-5A61-440D-8899-E454FE8238D7}</Project>
+      <Name>ICD.Connect.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Common\ICD.Common_SimplSharp.csproj">
+      <Project>{CB4055C6-D59E-479E-9C56-2C92335A7D9A}</Project>
+      <Name>ICD.SimplSharp.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Connect.Conferencing\ICD.Connect.Conferencing_SimplSharp.csproj">
+      <Project>{1CCA89DA-1F1C-4997-A94F-ABCE878BD6DE}</Project>
+      <Name>RSD.SimplSharp.Conferencing</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Common.Logging.Console\ICD.Common.Logging.Console_SimplSharp.csproj">
+      <Project>{8093AE94-7250-411E-9C55-68AB2B5D705A}</Project>
+      <Name>RSD.SimplSharp.LoggingUtils</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Connect.Devices\ICD.Connect.Devices_SimplSharp.csproj">
+      <Project>{FD46A717-5836-4B73-ADD0-2706639DA8ED}</Project>
+      <Name>ICD.Connect.Devices</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Connect.Protocol.Network\ICD.Connect.Protocol.Network_SimplSharp.csproj">
+      <Project>{5ED52F05-EA6C-4FC5-8AA0-9B9727F6AECD}</Project>
+      <Name>ICD.Connect.Protocol.Network</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Connect.Protocol\ICD.Connect.Protocol_SimplSharp.csproj">
+      <Project>{2E4E01B8-D4EA-4FB1-9FCE-0A0DC8D83C8A}</Project>
+      <Name>ICD.Connect.Protocol</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ICD.Connect.Settings\ICD.Connect.Settings_SimplSharp.csproj">
+      <Project>{5B84EB3C-1C3A-4C4D-98C2-69F67CF51D5A}</Project>
+      <Name>ICD.Connect.Settings</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 5.2 --configuration-file="$(ProjectDir)ObfuscationSettings.cs"
+rem S# Pro preparation will execute after these operations</PostBuildEvent>
+  </PropertyGroup>
+</Project>
