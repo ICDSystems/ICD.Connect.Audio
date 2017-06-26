@@ -72,6 +72,7 @@
     <Compile Include="ClockAudioTs001Device.cs" />
     <Compile Include="ClockAudioTs001DeviceSettings.cs" />
     <None Include="ObfuscationSettings.cs" />
+    <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>

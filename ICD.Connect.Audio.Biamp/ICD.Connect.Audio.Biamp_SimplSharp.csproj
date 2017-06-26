@@ -190,6 +190,7 @@
     <Compile Include="Controls\Dialing\Telephone\TiDialingDeviceControl.cs" />
     <Compile Include="Controls\ControlsXmlUtils.cs" />
     <Compile Include="Controls\Dialing\VoIP\VoIPDialingDeviceControl.cs" />
+    <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TesiraTextProtocol\Codes\AbstractCode.cs" />
     <Compile Include="TesiraTextProtocol\Codes\CodeCallbackPair.cs" />

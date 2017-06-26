@@ -72,6 +72,7 @@
     <Compile Include="AbstractShureMxaDevice.cs" />
     <Compile Include="AbstractShureMxaDeviceSettings.cs" />
     <Compile Include="IShureMxaDevice.cs" />
+    <Compile Include="KrangPlugin.cs" />
     <Compile Include="LedBrightness.cs" />
     <Compile Include="LedColor.cs" />
     <None Include="ObfuscationSettings.cs" />
