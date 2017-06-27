@@ -1,4 +1,5 @@
-﻿using ICD.Common.Attributes.Properties;
+﻿using System;
+using ICD.Common.Attributes.Properties;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Settings;
@@ -31,6 +32,11 @@ namespace ICD.Connect.Audio.Biamp
 		public override string FactoryName { get { return FACTORY_NAME; } }
 
 		/// <summary>
+		/// Gets the type of the originator for this settings instance.
+		/// </summary>
+		public override Type OriginatorType { get { return typeof(BiampTesiraDevice); } }
+
+		/// <summary>
 		/// Writes property elements to xml.
 		/// </summary>
 		/// <param name="writer"></param>
@@ -46,18 +52,6 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (!string.IsNullOrEmpty(Config))
 				writer.WriteElementString(CONFIG_ELEMENT, Config);
-		}
-
-		/// <summary>
-		/// Creates a new originator instance from the settings.
-		/// </summary>
-		/// <param name="factory"></param>
-		/// <returns></returns>
-		public override IOriginator ToOriginator(IDeviceFactory factory)
-		{
-			BiampTesiraDevice output = new BiampTesiraDevice();
-			output.ApplySettings(this, factory);
-			return output;
 		}
 
 		/// <summary>

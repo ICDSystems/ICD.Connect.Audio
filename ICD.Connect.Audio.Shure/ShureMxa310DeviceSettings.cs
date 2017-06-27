@@ -1,4 +1,5 @@
-﻿using ICD.Common.Properties;
+﻿using System;
+using ICD.Common.Properties;
 using ICD.Connect.Settings;
 using ICD.Connect.Settings.Attributes.Factories;
 using ICD.Connect.Settings.Core;
@@ -15,16 +16,9 @@ namespace ICD.Connect.Audio.Shure
 		public override string FactoryName { get { return FACTORY_NAME; } }
 
 		/// <summary>
-		/// Creates a new originator instance from the settings.
+		/// Gets the type of the originator for this settings instance.
 		/// </summary>
-		/// <param name="factory"></param>
-		/// <returns></returns>
-		public override IOriginator ToOriginator(IDeviceFactory factory)
-		{
-			ShureMxa310Device output = new ShureMxa310Device();
-			output.ApplySettings(this, factory);
-			return output;
-		}
+		public override Type OriginatorType { get { return typeof(ShureMxa310Device); } }
 
 		/// <summary>
 		/// Loads the settings from XML.
