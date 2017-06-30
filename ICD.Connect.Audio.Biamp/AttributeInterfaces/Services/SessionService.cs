@@ -113,6 +113,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		private void AliasesFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			ArrayValue array = value["list"] as ArrayValue;
+			if (array == null)
+				return;
 
 			m_AliasesSection.Enter();
 

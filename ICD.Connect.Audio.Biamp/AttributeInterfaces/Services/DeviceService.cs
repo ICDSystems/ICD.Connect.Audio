@@ -46,7 +46,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		private bool m_MdnsEnabled;
 		private string m_SerialNumber;
 		private bool m_TelnetDisabled;
-		private string m_Version;
 
 		[PublicAPI]
 		public event EventHandler<StringEventArgs> OnHostnameChanged;
@@ -126,7 +125,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		}
 
 		[PublicAPI]
-		public string Version { get { return m_Version; } private set { m_Version = value; } }
+		public string Version { get; private set; }
 
 		#endregion
 

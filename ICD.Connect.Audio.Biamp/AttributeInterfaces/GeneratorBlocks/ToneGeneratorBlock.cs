@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.GeneratorBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public ToneGeneratorBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

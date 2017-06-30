@@ -210,11 +210,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private void CallStateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			ControlValue result = value["value"] as ControlValue;
+			if (result == null)
+				return;
+
 			ArrayValue callStates = result["callStateInfo"] as ArrayValue;
+			if (callStates == null)
+				return;
 
 			foreach (ControlValue callState in callStates.Cast<ControlValue>())
 			{
-				int lineId = (callState["lineId"] as Value).IntValue;
+				Value lineIdValue = callState["lineId"] as Value;
+				if (lineIdValue == null)
+					continue;
+
+				int lineId = lineIdValue.IntValue;
 				LazyLoadLine(lineId + 1).ParseCallState(callState);
 			}
 		}
@@ -236,7 +245,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void LineCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LineCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue == null)
+				return;
+
+			LineCount = innerValue.IntValue;
 		}
 
 		private void ProtocolInfoFeedback(BiampTesiraDevice sender, ControlValue value)

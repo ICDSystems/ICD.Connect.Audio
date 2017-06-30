@@ -661,7 +661,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void LineReadyFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LineReady = (value["value"] as Value).BoolValue; ;
+			LineReady = (value["value"] as Value).BoolValue;
 		}
 
 		private void LastNumberDialedFeedback(BiampTesiraDevice sender, ControlValue value)

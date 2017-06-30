@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public FlipFlopBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

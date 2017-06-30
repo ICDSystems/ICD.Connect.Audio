@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public SignalPresentMeterBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

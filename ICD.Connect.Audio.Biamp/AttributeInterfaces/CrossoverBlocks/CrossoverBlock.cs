@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.CrossoverBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public CrossoverBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public InvertControlBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

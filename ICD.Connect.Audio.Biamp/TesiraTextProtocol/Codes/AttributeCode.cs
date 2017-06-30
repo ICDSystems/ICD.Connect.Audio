@@ -173,6 +173,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 
 			// Command
 			builder.Append(' ');
+// ReSharper disable once ImpureMethodCallOnReadonlyValueField
 			builder.Append(m_Command.ToString().ToLower());
 
 			// Attribute

@@ -5,6 +5,7 @@
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		protected AbstractCrossoverBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)

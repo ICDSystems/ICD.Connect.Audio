@@ -5,6 +5,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks
 		/// <summary>
 		/// Constructor.
 		/// </summary>
+		/// <param name="device"></param>
 		/// <param name="instanceTag"></param>
 		public AutoMixerCombinerBlock(BiampTesiraDevice device, string instanceTag)
 			: base(device, instanceTag)
