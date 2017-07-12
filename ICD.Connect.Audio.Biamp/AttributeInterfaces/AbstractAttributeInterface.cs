@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.EventArguments;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Common.EventArguments;
 using ICD.Connect.Audio.Biamp.Controls;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;

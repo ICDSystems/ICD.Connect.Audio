@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using ICD.Connect.API.Commands;
 using ICD.Common.Properties;
+using ICD.Connect.API.Commands;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer

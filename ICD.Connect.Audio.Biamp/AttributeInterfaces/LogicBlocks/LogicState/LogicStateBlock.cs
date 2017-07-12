@@ -1,10 +1,10 @@
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Connect.API.Commands;
-using ICD.Connect.API.Nodes;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.API.Commands;
+using ICD.Connect.API.Nodes;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 {

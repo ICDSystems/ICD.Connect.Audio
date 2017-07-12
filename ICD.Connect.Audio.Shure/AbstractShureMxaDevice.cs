@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using ICD.Connect.API.Commands;
 using ICD.Common.EventArguments;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
+using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;

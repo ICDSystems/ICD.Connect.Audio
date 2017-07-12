@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Connect.API.Commands;
-using ICD.Connect.API.Nodes;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.API.Commands;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
