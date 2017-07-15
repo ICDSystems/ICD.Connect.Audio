@@ -122,12 +122,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Label = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Label = innerValue.StringValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		#endregion

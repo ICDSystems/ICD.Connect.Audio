@@ -463,42 +463,58 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 		private void GainResponseTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			GainResponseTime = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				GainResponseTime = innerValue.IntValue;
 		}
 
 		private void MicIsolationFactorFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MicIsolationFactor = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MicIsolationFactor = innerValue.FloatValue;
 		}
 
 		private void MixOutputLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MixOutputLabel = (value["value"] as Value).StringValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MixOutputLabel = innerValue.StringValue;
 		}
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				InputCount = innerValue.IntValue;
 		}
 
 		private void OutputMinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinLevel = innerValue.FloatValue;
 		}
 
 		private void OutputMaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxLevel = innerValue.FloatValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		#endregion

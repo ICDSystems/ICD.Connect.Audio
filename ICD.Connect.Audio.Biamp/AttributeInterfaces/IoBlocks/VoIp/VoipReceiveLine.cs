@@ -213,22 +213,30 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		private void MinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinLevel = innerValue.FloatValue;
 		}
 
 		private void MaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxLevel = innerValue.FloatValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		#endregion

@@ -175,7 +175,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void LineCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LineCount = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				LineCount = innerValue.IntValue;
 		}
 
 		#endregion

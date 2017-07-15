@@ -212,27 +212,37 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 		private void HoldEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HoldEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HoldEnabled = innerValue.BoolValue;
 		}
 
 		private void HoldTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HoldTime = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HoldTime = innerValue.FloatValue;
 		}
 
 		private void HoldIndefinitelyFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HoldIndefinitely = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HoldIndefinitely = innerValue.BoolValue;
 		}
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Label = (value["value"] as Value).StringValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Label = innerValue.StringValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		#endregion

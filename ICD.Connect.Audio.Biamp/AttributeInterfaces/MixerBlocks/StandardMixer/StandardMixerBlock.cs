@@ -335,12 +335,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				InputCount = innerValue.IntValue;
 		}
 
 		private void OutputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OutputCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				OutputCount = innerValue.IntValue;
 		}
 
 		private void CrosspointColumnOnFeedback(BiampTesiraDevice sender, ControlValue value)

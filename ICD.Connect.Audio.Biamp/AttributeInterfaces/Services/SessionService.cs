@@ -134,7 +134,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void VerboseOutputEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			VerboseOutputEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				VerboseOutputEnabled = innerValue.BoolValue;
 		}
 
 		#endregion

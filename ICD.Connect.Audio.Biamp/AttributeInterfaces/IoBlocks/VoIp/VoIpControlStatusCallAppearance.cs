@@ -295,14 +295,22 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		internal void ParseCallState(ControlValue callState)
 		{
-			State = (callState["state"] as Value).GetObjectValue(s_CallStateSerials);
-			Prompt = (callState["prompt"] as Value).GetObjectValue(s_PromptSerials);
+			Value stateValue = callState["state"] as Value;
+			if (stateValue != null)
+				State = stateValue.GetObjectValue(s_CallStateSerials);
 
-			Value cid = callState["cid"] as Value;
-			string[] cidSplit = cid.GetStringValues().ToArray();
+			Value promptValue = callState["prompt"] as Value;
+			if (promptValue != null)
+				Prompt = promptValue.GetObjectValue(s_PromptSerials);
 
-			CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
-			CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
+			Value cidValue = callState["cid"] as Value;
+			if (cidValue != null)
+			{
+				string[] cidSplit = cidValue.GetStringValues().ToArray();
+
+				CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
+				CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
+			}
 		}
 
 		#region Services
@@ -387,7 +395,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void LineInUseFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LineInUse = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				LineInUse = innerValue.BoolValue;
 		}
 
 		#endregion

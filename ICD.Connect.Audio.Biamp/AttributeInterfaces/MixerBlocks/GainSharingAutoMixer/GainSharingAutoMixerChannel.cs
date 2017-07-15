@@ -348,42 +348,58 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 		private void InputLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputLabel = (value["value"] as Value).StringValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				InputLabel = innerValue.StringValue;
 		}
 
 		private void MaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxLevel = innerValue.FloatValue;
 		}
 
 		private void MinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinLevel = innerValue.FloatValue;
 		}
 
 		private void InputMuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputMute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				InputMute = innerValue.BoolValue;
 		}
 
 		private void GainReductionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			GainReduction = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				GainReduction = innerValue.FloatValue;
 		}
 
 		private void CrosspointOnFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			CrosspointOn = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				CrosspointOn = innerValue.BoolValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		#endregion

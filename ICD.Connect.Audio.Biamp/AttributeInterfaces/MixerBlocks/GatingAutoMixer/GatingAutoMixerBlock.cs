@@ -513,52 +513,72 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				InputCount = innerValue.IntValue;
 		}
 
 		private void LogicOutputsFollowMicLogicFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LogicOutputsFollowMicLogic = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				LogicOutputsFollowMicLogic = innerValue.BoolValue;
 		}
 
 		private void MicLogicTypeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MicLogic = (value["value"] as Value).GetObjectValue(s => GatingAutoMixer.MicLogic.SerialToMicLogic(s));
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MicLogic = innerValue.GetObjectValue(s => GatingAutoMixer.MicLogic.SerialToMicLogic(s));
 		}
 
 		private void MixOutputLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MixOutputLabel = (value["value"] as Value).StringValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MixOutputLabel = innerValue.StringValue;
 		}
 
 		private void OpenMicLimitFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OpenMicLimit = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				OpenMicLimit = innerValue.IntValue;
 		}
 
 		private void OpenMicLimitEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OpenMicLimitEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				OpenMicLimitEnabled = innerValue.BoolValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		private void MinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinLevel = innerValue.FloatValue;
 		}
 
 		private void MaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxLevel = innerValue.FloatValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		#endregion

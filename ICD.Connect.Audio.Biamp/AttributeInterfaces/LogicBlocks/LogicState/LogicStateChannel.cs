@@ -116,12 +116,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Label = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Label = innerValue.StringValue;
 		}
 
 		private void StateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			State = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				State = innerValue.BoolValue;
 		}
 
 		#endregion

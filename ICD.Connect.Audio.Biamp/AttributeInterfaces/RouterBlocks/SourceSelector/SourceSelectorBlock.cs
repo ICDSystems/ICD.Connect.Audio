@@ -405,37 +405,51 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			InputCount = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				InputCount = innerValue.IntValue;
 		}
 
 		private void OutputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OutputCount = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				OutputCount = innerValue.IntValue;
 		}
 
 		private void SourceCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			SourceCount = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				SourceCount = innerValue.IntValue;
 		}
 
 		private void MinOutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinOutputLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				MinOutputLevel = innerValue.FloatValue;
 		}
 
 		private void MaxOutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxOutputLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				MaxOutputLevel = innerValue.FloatValue;
 		}
 
 		private void OutputMuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OutputMute = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				OutputMute = innerValue.BoolValue;
 		}
 
 		private void StereoEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			StereoEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				StereoEnabled = innerValue.BoolValue;
 		}
 
 		/// <summary>
@@ -445,7 +459,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 		/// <param name="value"></param>
 		private void OutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			OutputLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				OutputLevel = innerValue.FloatValue;
 		}
 
 		/// <summary>
@@ -455,7 +471,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 		/// <param name="value"></param>
 		private void SourceSelectionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			SourceSelection = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				SourceSelection = innerValue.IntValue;
 		}
 
 		#endregion

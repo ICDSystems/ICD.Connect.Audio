@@ -135,12 +135,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Label = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Label = innerValue.StringValue;
 		}
 
 		private void InputFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Input = (value["value"] as Value).IntValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Input = innerValue.IntValue;
 		}
 
 		#endregion

@@ -308,7 +308,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void HostnameFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Hostname = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Hostname = innerValue.StringValue;
 		}
 
 		private void ResolverHostsTableFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -319,7 +321,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void MdnsEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MdnsEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				MdnsEnabled = innerValue.BoolValue;
 		}
 
 		private void NetworkStatusFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -330,17 +334,23 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void SerialNumberFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			SerialNumber = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				SerialNumber = innerValue.StringValue;
 		}
 
 		private void TelnetDisabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			TelnetDisabled = (value["disabled"] as Value).BoolValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				TelnetDisabled = innerValue.BoolValue;
 		}
 
 		private void FirmwareVersionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Version = (value["value"] as Value).StringValue;
+			Value innerValue = (value["value"] as Value);
+			if (innerValue != null)
+				Version = innerValue.StringValue;
 		}
 
 		private void KnownRedundantDeviceStatesFeedback(BiampTesiraDevice sender, ControlValue value)

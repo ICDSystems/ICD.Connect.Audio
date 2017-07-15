@@ -861,7 +861,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		/// <param name="value"></param>
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Level = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Level = innerValue.FloatValue;
 		}
 
 		/// <summary>
@@ -871,97 +873,135 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		/// <param name="value"></param>
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Mute = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Mute = innerValue.BoolValue;
 		}
 
 		private void AecEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			AecEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				AecEnabled = innerValue.BoolValue;
 		}
 
 		private void AecResetFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ResetAec = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				ResetAec = innerValue.BoolValue;
 		}
 
 		private void AgcBypassFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			BypassAgc = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				BypassAgc = innerValue.BoolValue;
 		}
 
 		private void ConferencingModeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ConferencingMode = (value["value"] as Value).GetObjectValue(s_ConferencingModes);
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				ConferencingMode = innerValue.GetObjectValue(s_ConferencingModes);
 		}
 
 		private void HoldTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HoldTime = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HoldTime = innerValue.IntValue;
 		}
 
 		private void HpfBypassFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HpfBypass = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HpfBypass = innerValue.BoolValue;
 		}
 
 		private void HpfCenterFreqFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			HpfCenterFreq = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				HpfCenterFreq = innerValue.FloatValue;
 		}
 
 		private void InvertFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Invert = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				Invert = innerValue.BoolValue;
 		}
 
 		private void LimiterEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LimiterEnabled = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				LimiterEnabled = innerValue.BoolValue;
 		}
 
 		private void MaxAttenuationFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxAttenuation = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxAttenuation = innerValue.FloatValue;
 		}
 
 		private void MaxGainFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxGain = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxGain = innerValue.FloatValue;
 		}
 
 		private void MaxGainAdjRateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MaxGainAdjRate = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MaxGainAdjRate = innerValue.FloatValue;
 		}
 
 		private void MinSnrFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinSnr = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinSnr = innerValue.FloatValue;
 		}
 
 		private void MinThresholdFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			MinThreshold = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				MinThreshold = innerValue.FloatValue;
 		}
 
 		private void NoiseReductionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			NoiseReduction = (value["value"] as Value).GetObjectValue(s_NoiseReductionEnums);
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				NoiseReduction = innerValue.GetObjectValue(s_NoiseReductionEnums);
 		}
 
 		private void PreEmphasisSlopeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			PreEmphasisSlope = (value["value"] as Value).GetObjectValue(s_PreEmphasisSlopeEnums);
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				PreEmphasisSlope = innerValue.GetObjectValue(s_PreEmphasisSlopeEnums);
 		}
 
 		private void SpeechModeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			SpeechMode = (value["value"] as Value).BoolValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				SpeechMode = innerValue.BoolValue;
 		}
 
 		private void TargetLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			TargetLevel = (value["value"] as Value).FloatValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				TargetLevel = innerValue.FloatValue;
 		}
 
 		#endregion

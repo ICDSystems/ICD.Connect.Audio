@@ -133,7 +133,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 		private void ChannelCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ChannelCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				ChannelCount = innerValue.IntValue;
 		}
 
 		#endregion

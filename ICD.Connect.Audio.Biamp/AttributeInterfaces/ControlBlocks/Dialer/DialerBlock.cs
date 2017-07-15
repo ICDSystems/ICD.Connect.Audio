@@ -211,12 +211,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 		private void DisplayNameLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			DisplayNameLabel = (value["value"] as Value).StringValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				DisplayNameLabel = innerValue.StringValue;
 		}
 
 		private void LineCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			LineCount = (value["value"] as Value).IntValue;
+			Value innerValue = value["value"] as Value;
+			if (innerValue != null)
+				LineCount = innerValue.IntValue;
 		}
 
 		#endregion
