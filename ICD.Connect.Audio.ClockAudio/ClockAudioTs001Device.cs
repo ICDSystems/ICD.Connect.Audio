@@ -18,9 +18,9 @@ namespace ICD.Connect.Audio.ClockAudio
 	public sealed class ClockAudioTs001Device : AbstractDevice<ClockAudioTs001DeviceSettings>
 	{
 		private const int BUTTON_INDEX = 0;
-		private const int RED_LED_INDEX = 0;
-		private const int GREEN_LED_INDEX = 0;
-		private const int VOLTAGE_INDEX = 0;
+		private const int RED_LED_INDEX = 1;
+		private const int GREEN_LED_INDEX = 2;
+		private const int VOLTAGE_INDEX = 3;
 
 		/// <summary>
 		/// Raised when the microphone button is pressed.
