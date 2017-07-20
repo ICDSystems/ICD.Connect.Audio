@@ -228,6 +228,10 @@ namespace ICD.Connect.Audio.ClockAudio
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
+			// Can be called before constructor
+			if (m_PortsSection == null || m_Ports == null)
+				return false;
+
 			m_PortsSection.Enter();
 
 			try
