@@ -1,7 +1,7 @@
-﻿using ICD.SimplSharp.BiampTesira.TesiraTextProtocol.Codes;
-using ICD.SimplSharp.BiampTesira.TesiraTextProtocol.Parsing;
-using NUnit.Framework;
-using ICD.SimplSharp.Common.Annotations;
+﻿using NUnit.Framework;
+using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
+using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
+using ICD.Common.Properties;
 
 namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Codes
 {

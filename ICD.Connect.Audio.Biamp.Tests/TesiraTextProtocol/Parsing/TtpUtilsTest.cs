@@ -1,7 +1,7 @@
 ﻿using System.Linq;
-using ICD.SimplSharp.BiampTesira.TesiraTextProtocol.Parsing;
 using NUnit.Framework;
-using ICD.SimplSharp.Common.Annotations;
+using ICD.Common.Properties;
+using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 {
