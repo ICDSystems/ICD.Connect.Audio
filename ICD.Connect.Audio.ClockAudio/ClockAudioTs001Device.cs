@@ -418,7 +418,7 @@ namespace ICD.Connect.Audio.ClockAudio
 			IIoPort redLedInputPort = GetPortFromSettings(factory, settings.RedLedOutputPort);
 			IIoPort greenLedInputPort = GetPortFromSettings(factory, settings.GreenLedOutputPort);
 
-			SetPorts(buttonInputPort, voltageInputPort, greenLedInputPort, redLedInputPort);
+			SetPorts(buttonInputPort, redLedInputPort, greenLedInputPort, voltageInputPort);
 		}
 
 		private IIoPort GetPortFromSettings(IDeviceFactory factory, int? portId)
