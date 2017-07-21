@@ -101,7 +101,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						break;
 
 					default:
-						IcdErrorLog.Error("Unable to create control for unknown type \"{0}\"", controlElement);
+						IcdErrorLog.Error("Unable to create control for unknown type \"{0}\"", type);
 						continue;
 				}
 
