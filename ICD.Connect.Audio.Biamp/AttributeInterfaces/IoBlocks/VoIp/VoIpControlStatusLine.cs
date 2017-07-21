@@ -29,7 +29,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		}
 
 		private static readonly Dictionary<string, eAutoAnswerRingCount> s_AutoAnswerRingCountSerials =
-			new Dictionary<string, eAutoAnswerRingCount>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eAutoAnswerRingCount>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"AA_IMMEDIATELY", eAutoAnswerRingCount.Immediately},
 				{"AA_ONE_RING", eAutoAnswerRingCount.OneRing},
@@ -38,7 +38,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			};
 
 		private static readonly Dictionary<string, eRingType> s_RingTypeSerials =
-			new Dictionary<string, eRingType>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eRingType>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"RING_TYPE_CLASSIC", eRingType.Classic},
 				{"RING_TYPE_SILENT", eRingType.Silent}

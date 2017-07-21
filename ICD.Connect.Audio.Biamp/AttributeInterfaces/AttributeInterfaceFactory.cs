@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		private readonly BiampTesiraDevice m_Device;
 
 		private static readonly Dictionary<string, Type> s_ServiceTags =
-			new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase)
 		{
 			{DeviceService.INSTANCE_TAG, typeof(DeviceService)},
 			{SessionService.INSTANCE_TAG, typeof(SessionService)}
@@ -135,7 +135,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// </summary>
 		static AttributeInterfaceFactory()
 		{
-			s_NameToAttributeInterface = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
+			s_NameToAttributeInterface = new Dictionary<string, Type>(StringComparer.OrdinalIgnoreCase);
 			foreach (Type type in s_AttributeInterfaceTypes)
 				s_NameToAttributeInterface[type.Name] = type;
 		}

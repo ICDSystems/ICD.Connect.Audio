@@ -20,7 +20,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 		}
 
 		private static readonly Dictionary<string, eDirectOutput> s_DirectOutputModes
-			= new Dictionary<string, eDirectOutput>(StringComparer.InvariantCultureIgnoreCase)
+			= new Dictionary<string, eDirectOutput>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"POST_GATE_PRE_NOM", eDirectOutput.PostGatePreNom},
 				{"POST_GATE_POST_NOM", eDirectOutput.PostGatePostNom}

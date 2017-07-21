@@ -67,7 +67,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		}
 
 		private static readonly Dictionary<string, eVoIpCallState> s_CallStateSerials =
-			new Dictionary<string, eVoIpCallState>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eVoIpCallState>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"VOIP_CALL_STATE_INIT", eVoIpCallState.Init},
 				{"VOIP_CALL_STATE_FAULT", eVoIpCallState.Fault},
@@ -90,7 +90,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			};
 
 		private static readonly Dictionary<string, eVoIpPrompt> s_PromptSerials =
-			new Dictionary<string, eVoIpPrompt>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eVoIpPrompt>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"VOIP_PROMPT_NONE", eVoIpPrompt.None},
 				{"VOIP_PROMPT_STARTING", eVoIpPrompt.Starting},

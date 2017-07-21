@@ -30,7 +30,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 		}
 
 		private static readonly Dictionary<string, eTiCallState> s_CallStateSerials =
-			new Dictionary<string, eTiCallState>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eTiCallState>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"TI_CALL_STATE_IDLE", eTiCallState.Idle},
 				{"TI_CALL_STATE_DIALING", eTiCallState.Dialing},
@@ -113,7 +113,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 		}
 
 		private static readonly Dictionary<string, eAutoAnswerRingCount> s_AutoAnswerRingCountSerials =
-			new Dictionary<string, eAutoAnswerRingCount>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eAutoAnswerRingCount>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"AA_ONE_RING", eAutoAnswerRingCount.OneRing},
 				{"AA_TWO_RINGS", eAutoAnswerRingCount.TwoRings},
@@ -123,7 +123,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			};
 
 		private static readonly Dictionary<string, eAutoDisconnecType> s_AutoDisconnectTypeSerials =
-			new Dictionary<string, eAutoDisconnecType>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eAutoDisconnecType>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"AD_NONE", eAutoDisconnecType.None},
 				{"AD_LOOP_DROP", eAutoDisconnecType.LoopDrop},
@@ -132,7 +132,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			};
 
 		private static readonly Dictionary<string, eLineFaultConditions> s_LineFaultConditionsSerials =
-			new Dictionary<string, eLineFaultConditions>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eLineFaultConditions>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"LINE_NO_FAULT", eLineFaultConditions.NoFault},
 				{"LINE_OVERCURRENT_FAULT", eLineFaultConditions.OverCurrent},
@@ -143,7 +143,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			};
 
 		private static readonly Dictionary<string, eHookState> s_HookStateSerials =
-			new Dictionary<string, eHookState>(StringComparer.InvariantCultureIgnoreCase)
+			new Dictionary<string, eHookState>(StringComparer.OrdinalIgnoreCase)
 			{
 				{"OFFHOOK", eHookState.OffHook},
 				{"ONHOOK", eHookState.OnHook}

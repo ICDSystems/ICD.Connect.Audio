@@ -40,7 +40,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		}
 
 		private static readonly Dictionary<string, eConferencingMode> s_ConferencingModes
-			= new Dictionary<string, eConferencingMode>(StringComparer.InvariantCultureIgnoreCase)
+			= new Dictionary<string, eConferencingMode>(StringComparer.OrdinalIgnoreCase)
 		{
 			{"TEST", eConferencingMode.Test},
 			{"TELEPHONE", eConferencingMode.Telephone},
@@ -50,7 +50,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		};
 
 		private static readonly Dictionary<string, eNoiseReduction> s_NoiseReductionEnums
-			= new Dictionary<string, eNoiseReduction>(StringComparer.InvariantCultureIgnoreCase)
+			= new Dictionary<string, eNoiseReduction>(StringComparer.OrdinalIgnoreCase)
 		{
 			{"OFF", eNoiseReduction.Off},
 			{"LOW", eNoiseReduction.Low},
@@ -60,7 +60,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		};
 
 		private static readonly Dictionary<string, ePreEmphasisSlope> s_PreEmphasisSlopeEnums
-			= new Dictionary<string, ePreEmphasisSlope>(StringComparer.InvariantCultureIgnoreCase)
+			= new Dictionary<string, ePreEmphasisSlope>(StringComparer.OrdinalIgnoreCase)
 		{
 			{"Slope_0", ePreEmphasisSlope.Slope0},
 			{"Slope_1", ePreEmphasisSlope.Slope1},
