@@ -387,11 +387,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// <param name="callState"></param>
 		internal void ParseCallState(ControlValue callState)
 		{
-			Value innerValue = (callState["value"] as Value);
-			if (innerValue == null)
+			Value callIdValue = (callState["callId"] as Value);
+			if (callIdValue == null)
 				return;
 
-			int callId = innerValue.IntValue;
+			int callId = callIdValue.IntValue;
 			VoIpControlStatusCallAppearance callAppearance = LazyLoadCallAppearance(callId + 1);
 			callAppearance.ParseCallState(callState);
 		}
