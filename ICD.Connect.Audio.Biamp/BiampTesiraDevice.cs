@@ -11,6 +11,7 @@ using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
 using ICD.Common.Utils.Timers;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Biamp.Controls;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -684,6 +685,21 @@ namespace ICD.Connect.Audio.Biamp
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
 				LoadControls(settings.Config);
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Calls the delegate for each console status item.
+		/// </summary>
+		/// <param name="addRow"></param>
+		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+		{
+			base.BuildConsoleStatus(addRow);
+
+			addRow("Initialized", Initialized);
 		}
 
 		#endregion

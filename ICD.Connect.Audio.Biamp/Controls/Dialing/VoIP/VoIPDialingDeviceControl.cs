@@ -21,6 +21,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 
 		/// <summary>
+		/// Gets the type of conference this dialer supports.
+		/// </summary>
+		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
+
+		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
@@ -60,11 +65,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		#region Methods
 
 		/// <summary>
-		/// Gets the type of conference this dialer supports.
-		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
-
-		/// <summary>
 		/// Gets the active conference sources.
 		/// </summary>
 		/// <returns></returns>
@@ -90,7 +90,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 				if (callAppearance == null)
 				{
-					IcdErrorLog.Error("Unable to dial - all call appearances are in use");
+					IcdErrorLog.Error("Unable to dial - could not find an unused call appearance");
 					return;
 				}
 

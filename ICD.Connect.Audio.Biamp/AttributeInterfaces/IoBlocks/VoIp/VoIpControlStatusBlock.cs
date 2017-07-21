@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.EventArguments;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -22,31 +21,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private const string PROTOCOL_INFO_ATTRIBUTE = "protocols";
 		private const string SYNCHRONIZED_TIME_ATTRIBUTE = "syncTime";
 
-		[PublicAPI]
-		public event EventHandler<IntEventArgs> OnLineCountChanged; 
-
 		private readonly Dictionary<int, VoIpControlStatusLine> m_Lines;
 		private readonly SafeCriticalSection m_LinesSection;
-
-		private int m_LineCount;
 
 		#region Properties
 
 		[PublicAPI]
 		public int LineCount
 		{
-			get { return m_LineCount; }
-			private set
-			{
-				if (value == m_LineCount)
-					return;
-
-				m_LineCount = value;
-
-				RebuildLines();
-
-				OnLineCountChanged.Raise(this, new IntEventArgs(m_LineCount));
-			}
+			get { return 2; }
 		}
 
 		#endregion
@@ -73,8 +56,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// </summary>
 		public override void Dispose()
 		{
-			OnLineCountChanged = null;
-
 			base.Dispose();
 
 			// Unsubscribe
@@ -92,6 +73,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// </summary>
 		public override void Initialize()
 		{
+			RebuildLines();
+
 			base.Initialize();
 
 			// Get initial values
@@ -99,7 +82,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			//RequestAttribute(StatisticsFeedback, AttributeCode.eCommand.Get, STATISTICS_ATTRIBUTE, null);
 			RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Get, NAT_INFO_ATTRIBUTE, null);
 			RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Get, NETWORK_INFO_ATTRIBUTE, null);
-			RequestAttribute(LineCountFeedback, AttributeCode.eCommand.Get, LINE_COUNT_ATTRIBUTE, null);
 			RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Get, PROTOCOL_INFO_ATTRIBUTE, null);
 
 			// Subscribe
@@ -155,7 +137,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 			try
 			{
-				DisposeLines();
 				Enumerable.Range(1, LineCount).ForEach(i => LazyLoadLine(i));
 			}
 			finally
@@ -241,15 +222,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private void NetworkInfoFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			// todo
-		}
-
-		private void LineCountFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue == null)
-				return;
-
-			LineCount = innerValue.IntValue;
 		}
 
 		private void ProtocolInfoFeedback(BiampTesiraDevice sender, ControlValue value)
