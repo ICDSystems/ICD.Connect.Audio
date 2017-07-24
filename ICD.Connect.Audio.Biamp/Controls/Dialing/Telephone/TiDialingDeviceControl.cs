@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
@@ -33,6 +34,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <summary>
 		/// Gets the hold state.
 		/// </summary>
+		[PublicAPI]
 		public bool IsOnHold
 		{
 			get { return m_Hold; }

@@ -152,7 +152,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			get { return m_OutputLevel; }
 			private set
 			{
-				if (value == m_OutputLevel)
+				if (Math.Abs(value - m_OutputLevel) < 0.01f)
 					return;
 
 				m_OutputLevel = value;
@@ -170,7 +170,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			get { return m_MinOutputLevel; }
 			private set
 			{
-				if (value == m_MinOutputLevel)
+				if (Math.Abs(value - m_MinOutputLevel) < 0.01f)
 					return;
 
 				m_MinOutputLevel = value;
@@ -188,7 +188,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			get { return m_MaxOutputLevel; }
 			private set
 			{
-				if (value == m_MaxOutputLevel)
+				if (Math.Abs(value - m_MaxOutputLevel) < 0.01f)
 					return;
 
 				m_MaxOutputLevel = value;

@@ -176,7 +176,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;
@@ -191,7 +191,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 			get { return m_MinLevel; }
 			private set
 			{
-				if (value == m_MinLevel)
+				if (Math.Abs(value - m_MinLevel) < 0.01f)
 					return;
 
 				m_MinLevel = value;
@@ -206,7 +206,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 			get { return m_MaxLevel; }
 			private set
 			{
-				if (value == m_MaxLevel)
+				if (Math.Abs(value - m_MaxLevel) < 0.01f)
 					return;
 
 				m_MaxLevel = value;

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
@@ -25,11 +26,13 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <summary>
 		/// Gets the channel type.
 		/// </summary>
+		[PublicAPI]
 		public eChannelType ChannelType { get { return m_ChannelType; } }
 
 		/// <summary>
 		/// Gets the indices for the channel. This will be a single item for an input/output, but 2 for a crosspoint.
 		/// </summary>
+		[PublicAPI]
 		public IEnumerable<int> Indices { get { return m_Indices.ToArray(); } } 
 
 		/// <summary>

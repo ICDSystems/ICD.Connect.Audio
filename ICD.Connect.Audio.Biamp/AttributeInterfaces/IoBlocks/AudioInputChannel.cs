@@ -73,7 +73,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			}
 			private set
 			{
-				if (value == m_Gain)
+				if (Math.Abs(value - m_Gain) < 0.01f)
 					return;
 
 				m_Gain = value;
@@ -106,7 +106,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;

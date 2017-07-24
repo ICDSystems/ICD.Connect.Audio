@@ -49,7 +49,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			}
 			private set
 			{
-				if (value == m_Gain)
+				if (Math.Abs(value - m_Gain) < 0.01f)
 					return;
 
 				m_Gain = value;

@@ -178,6 +178,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Subscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
 		}
 
+		[PublicAPI]
 		public void ManualFailover(int unitNumber)
 		{
 			RequestService(MANUAL_FAILOVER_SERVICE, new Value(unitNumber));
@@ -186,6 +187,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// <summary>
 		/// Reboots the device.
 		/// </summary>
+		[PublicAPI]
 		public void Reboot()
 		{
 			RequestService(REBOOT_SEVICE, null);
@@ -194,6 +196,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// <summary>
 		/// Resets the device.
 		/// </summary>
+		[PublicAPI]
 		public void Reset()
 		{
 			RequestService(RESET_SERVICE, null);
@@ -203,6 +206,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Recall the preset with the given id.
 		/// </summary>
 		/// <param name="id"></param>
+		[PublicAPI]
 		public void RecallPreset(int id)
 		{
 			RequestService(RECALL_PRESET_SERVICE, new Value(id));
@@ -212,6 +216,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Recall the preset with the given id and show failures.
 		/// </summary>
 		/// <param name="id"></param>
+		[PublicAPI]
 		public void RecallPresetShowFailures(int id)
 		{
 			RequestService(RECALL_PRESET_AND_SHOW_FAILURES_SERVICE, new Value(id));
@@ -221,6 +226,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Recall the preset with the given name.
 		/// </summary>
 		/// <param name="name"></param>
+		[PublicAPI]
 		public void RecallPresetByName(string name)
 		{
 			RequestService(RECALL_PRESET_BY_NAME_SERVICE, new Value(name));
@@ -230,6 +236,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Saves the preset to the given id.
 		/// </summary>
 		/// <param name="id"></param>
+		[PublicAPI]
 		public void SavePreset(int id)
 		{
 			RequestService(SAVE_PRESET_SERVICE, new Value(id));
@@ -239,6 +246,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Save the preset to the given name.
 		/// </summary>
 		/// <param name="name"></param>
+		[PublicAPI]
 		public void SavePresetByName(string name)
 		{
 			RequestService(SAVE_PRESET_BY_NAME_SERVICE, new Value(name));
@@ -247,6 +255,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// <summary>
 		/// Starts system audio.
 		/// </summary>
+		[PublicAPI]
 		public void StartAudio()
 		{
 			RequestService(START_AUDIO_SERVICE, null);
@@ -255,6 +264,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// <summary>
 		/// Stops system audio.
 		/// </summary>
+		[PublicAPI]
 		public void StopAudio()
 		{
 			RequestService(STOP_AUDIO_SERVICE, null);
@@ -264,6 +274,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Starts audio for the partition with the given id.
 		/// </summary>
 		/// <param name="partitionId"></param>
+		[PublicAPI]
 		public void StartPartitionAudio(int partitionId)
 		{
 			RequestService(START_PARTITION_AUDIO_SERVICE, new Value(partitionId));
@@ -273,6 +284,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		/// Stops audio for the partition with the given id.
 		/// </summary>
 		/// <param name="partitionId"></param>
+		[PublicAPI]
 		public void StopPartitionAudio(int partitionId)
 		{
 			RequestService(STOP_PARTITION_AUDIO_SERVICE, new Value(partitionId));

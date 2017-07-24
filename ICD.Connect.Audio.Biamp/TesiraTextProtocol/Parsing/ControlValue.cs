@@ -50,7 +50,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public ControlValue(IDictionary<string, AbstractValue> values)
+		private ControlValue(IDictionary<string, AbstractValue> values)
 			: this((IEnumerable<KeyValuePair<string, AbstractValue>>)values)
 		{
 		}
@@ -59,7 +59,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Constructor.
 		/// </summary>
 		/// <param name="getKeyedValues"></param>
-		public ControlValue(IEnumerable<KeyValuePair<string, AbstractValue>> getKeyedValues)
+		private ControlValue(IEnumerable<KeyValuePair<string, AbstractValue>> getKeyedValues)
 		{
 			m_Values = new Dictionary<string, AbstractValue>();
 			m_Values.AddRange(getKeyedValues);

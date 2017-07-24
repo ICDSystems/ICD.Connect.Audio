@@ -276,7 +276,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_HpfCenterFreq; }
 			private set
 			{
-				if (value == m_HpfCenterFreq)
+				if (Math.Abs(value - m_HpfCenterFreq) < 0.01f)
 					return;
 
 				m_HpfCenterFreq = value;
@@ -306,7 +306,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;
@@ -336,7 +336,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_MaxAttenuation; }
 			private set
 			{
-				if (value == m_MaxAttenuation)
+				if (Math.Abs(value - m_MaxAttenuation) < 0.01f)
 					return;
 
 				m_MaxAttenuation = value;
@@ -351,7 +351,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_MaxGain; }
 			private set
 			{
-				if (value == m_MaxGain)
+				if (Math.Abs(value - m_MaxGain) < 0.01f)
 					return;
 
 				m_MaxGain = value;
@@ -366,7 +366,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_MaxGainAdjRate; }
 			private set
 			{
-				if (value == m_MaxGainAdjRate)
+				if (Math.Abs(value - m_MaxGainAdjRate) < 0.01f)
 					return;
 
 				m_MaxGainAdjRate = value;
@@ -381,7 +381,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_MinSnr; }
 			private set
 			{
-				if (value == m_MinSnr)
+				if (Math.Abs(value - m_MinSnr) < 0.01f)
 					return;
 
 				m_MinSnr = value;
@@ -396,7 +396,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_MinThreshold; }
 			private set
 			{
-				if (value == m_MinThreshold)
+				if (Math.Abs(value - m_MinThreshold) < 0.01f)
 					return;
 
 				m_MinThreshold = value;
@@ -479,7 +479,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			get { return m_TargetLevel; }
 			private set
 			{
-				if (value == m_TargetLevel)
+				if (Math.Abs(value - m_TargetLevel) < 0.01f)
 					return;
 
 				m_TargetLevel = value;

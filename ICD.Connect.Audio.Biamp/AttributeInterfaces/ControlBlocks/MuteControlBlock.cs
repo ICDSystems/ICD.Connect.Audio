@@ -16,7 +16,10 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		private const string CHANNEL_COUNT_ATTRIBUTE = "numChannels";
 		private const string CHANNELS_GANGED_ATTRIBUTE = "ganged";
 
+		[PublicAPI]
 		public event EventHandler<IntEventArgs> OnChannelCountChanged;
+
+		[PublicAPI]
 		public event EventHandler<BoolEventArgs> OnGangedChanged;
 
 		private readonly Dictionary<int, MuteControlChannel> m_Channels;

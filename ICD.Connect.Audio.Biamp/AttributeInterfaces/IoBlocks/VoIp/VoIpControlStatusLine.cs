@@ -161,7 +161,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			get { return m_CallProgressToneLevel; }
 			private set
 			{
-				if (value == m_CallProgressToneLevel)
+				if (Math.Abs(value - m_CallProgressToneLevel) < 0.01f)
 					return;
 
 				m_CallProgressToneLevel = value;
@@ -266,7 +266,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			get { return m_DtmfLocalLevel; }
 			private set
 			{
-				if (value == m_DtmfLocalLevel)
+				if (Math.Abs(value - m_DtmfLocalLevel) < 0.01f)
 					return;
 
 				m_DtmfLocalLevel = value;

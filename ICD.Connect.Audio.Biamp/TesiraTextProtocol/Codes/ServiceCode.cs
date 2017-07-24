@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Text;
+using ICD.Common.Properties;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
@@ -8,6 +9,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 	{
 		private readonly string m_Service;
 
+		[PublicAPI]
 		public string Service { get { return m_Service; } }
 
 		#region Constructors
@@ -57,10 +59,10 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 			StringBuilder builder = new StringBuilder();
 
 			// Instance
-			if (InstanceTag.Any(char.IsWhiteSpace))
-				builder.Append(string.Format("\"{0}\"", InstanceTag));
-			else
-				builder.Append(InstanceTag);
+			string instanceTag = InstanceTag.Any(char.IsWhiteSpace)
+				                     ? string.Format("\"{0}\"", InstanceTag)
+				                     : InstanceTag;
+			builder.Append(instanceTag);
 
 			// Service
 			builder.Append(' ');

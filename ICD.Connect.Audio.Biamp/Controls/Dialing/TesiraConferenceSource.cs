@@ -1,5 +1,6 @@
 ﻿using System;
 using ICD.Common.EventArguments;
+using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Conferencing.Cameras;
 using ICD.Connect.Conferencing.ConferenceSources;
@@ -122,10 +123,19 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// </summary>
 		ICamera IConferenceSource.Camera { get { return null; } }
 
+		[PublicAPI]
 		internal Action AnswerCallback { get; set; }
+
+		[PublicAPI]
 		internal Action HoldCallback { get; set; }
+
+		[PublicAPI]
 		internal Action ResumeCallback { get; set; }
+
+		[PublicAPI]
 		internal Action HangupCallback { get; set; }
+
+		[PublicAPI]
 		internal Action<string> SendDtmfCallback { get; set; }
 
 		#endregion

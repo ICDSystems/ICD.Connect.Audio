@@ -9,8 +9,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 	/// </summary>
 	public static class MicLogic
 	{
-		public const int MIC_LOGIC_LASTHOLD = -1;
-		public const int MIC_LOGIC_NONE = 0;
+		private const int MIC_LOGIC_LASTHOLD = -1;
+		private const int MIC_LOGIC_NONE = 0;
 
 		public const string MIC_LOGIC_NONE_SERIAL = "NONE";
 		public const string MIC_LOGIC_LASTHOLD_SERIAL = "LASTHOLD";

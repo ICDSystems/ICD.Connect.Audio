@@ -53,7 +53,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 			get { return m_HoldTime; }
 			private set
 			{
-				if (value == m_HoldTime)
+				if (Math.Abs(value - m_HoldTime) < 0.01f)
 					return;
 
 				m_HoldTime = value;
@@ -98,7 +98,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;

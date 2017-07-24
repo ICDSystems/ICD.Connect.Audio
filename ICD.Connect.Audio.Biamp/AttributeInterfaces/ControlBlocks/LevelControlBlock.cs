@@ -18,8 +18,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		private const string CHANNELS_GANGED_ATTRIBUTE = "ganged";
 		private const string USE_RAMPING_ATTRIBUTE = "useRamping";
 
+		[PublicAPI]
 		public event EventHandler<IntEventArgs> OnChannelCountChanged;
+
+		[PublicAPI]
 		public event EventHandler<BoolEventArgs> OnGangedChanged;
+
+		[PublicAPI]
 		public event EventHandler<BoolEventArgs> OnUseRampingChanged; 
 
 		private readonly Dictionary<int, LevelControlChannel> m_Channels;
