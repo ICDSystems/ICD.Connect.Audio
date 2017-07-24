@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -28,6 +29,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 					return;
 
 				m_Label = value;
+
+				Log(eSeverity.Debug, "Label set to {0}", m_Label);
 
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}

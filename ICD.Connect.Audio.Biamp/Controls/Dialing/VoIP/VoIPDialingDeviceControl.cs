@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
@@ -90,7 +91,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 				if (callAppearance == null)
 				{
-					IcdErrorLog.Error("Unable to dial - could not find an unused call appearance");
+					Parent.Log(eSeverity.Error, "Unable to dial - could not find an unused call appearance");
 					return;
 				}
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -35,10 +36,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;
+
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -50,10 +53,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			get { return m_MinLevel; }
 			private set
 			{
-				if (value == m_MinLevel)
+				if (Math.Abs(value - m_MinLevel) < 0.01f)
 					return;
 
 				m_MinLevel = value;
+
+				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
 
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
@@ -65,10 +70,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			get { return m_MaxLevel; }
 			private set
 			{
-				if (value == m_MaxLevel)
+				if (Math.Abs(value - m_MaxLevel) < 0.01f)
 					return;
 
 				m_MaxLevel = value;
+
+				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
@@ -84,6 +91,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_Mute = value;
+
+				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}

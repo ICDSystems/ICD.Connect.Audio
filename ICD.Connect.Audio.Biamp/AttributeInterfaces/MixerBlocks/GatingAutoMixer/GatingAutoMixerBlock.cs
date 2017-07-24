@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -86,6 +87,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_LogicOutputsFollowMicLogic = value;
 
+				Log(eSeverity.Debug, "LogicOutputsFollowMicLogic set to {0}", m_LogicOutputsFollowMicLogic);
+
 				OnLogicOutputsFollowMicLogicChanged.Raise(this, new BoolEventArgs(m_LogicOutputsFollowMicLogic));
 			}
 		}
@@ -100,6 +103,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_MicLogic = value;
+
+				Log(eSeverity.Debug, "MicLogic set to {0}", m_MicLogic);
 
 				OnMicLogicChanged.Raise(this, new IntEventArgs(m_MicLogic));
 			}
@@ -116,6 +121,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_MixOutputLabel = value;
 
+				Log(eSeverity.Debug, "MixOutputLabel set to {0}", m_MixOutputLabel);
+
 				OnMixOutputLabelChanged.Raise(this, new StringEventArgs(m_MixOutputLabel));
 			}
 		}
@@ -131,6 +138,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_OpenMicLimit = value;
 
+				Log(eSeverity.Debug, "OpenMicLimit set to {0}", m_OpenMicLimit);
+
 				OnOpenMicLimitChanged.Raise(this, new IntEventArgs(m_OpenMicLimit));
 			}
 		}
@@ -145,6 +154,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_OpenMicLimitEnabled = value;
+
+				Log(eSeverity.Debug, "OpenMicLimitEnabled set to {0}", m_OpenMicLimitEnabled);
 
 				OnOpenMicLimitEnabledChanged.Raise(this, new BoolEventArgs(m_OpenMicLimitEnabled));
 			}
@@ -164,6 +175,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_InputCount = value;
 
+				Log(eSeverity.Debug, "InputCount set to {0}", m_InputCount);
+
 				RebuildInputs();
 
 				OnInputCountChanged.Raise(this, new IntEventArgs(m_InputCount));
@@ -181,6 +194,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_Level = value;
 
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
 		}
@@ -195,6 +210,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_MinLevel = value;
+
+				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
 
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
@@ -211,6 +228,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_MaxLevel = value;
 
+				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
+
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
 		}
@@ -225,6 +244,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_Mute = value;
+
+				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}

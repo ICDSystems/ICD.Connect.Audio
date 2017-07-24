@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -101,6 +102,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_CrosspointOn = value;
 
+				Log(eSeverity.Debug, "CrosspointOn set to {0}", m_CrosspointOn);
+
 				OnCrosspointOnChanged.Raise(this, new BoolEventArgs(m_CrosspointOn));
 			}
 		}
@@ -115,6 +118,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_DirectOutput = value;
+
+				Log(eSeverity.Debug, "DirectOutput set to {0}", m_DirectOutput);
 
 				DirectOutputCallback handler = OnDirectOutputChanged;
 				if (handler != null)
@@ -133,6 +138,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_GateHoldTime = value;
 
+				Log(eSeverity.Debug, "GateHoldTime set to {0}", m_GateHoldTime);
+
 				OnGateHoldTimeChanged.Raise(this, new FloatEventArgs(m_GateHoldTime));
 			}
 		}
@@ -148,6 +155,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_Label = value;
 
+				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}
 		}
@@ -155,13 +164,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 		[PublicAPI]
 		public float Level
 		{
-			get { return m_MaxLevel; }
+			get { return m_Level; }
 			private set
 			{
 				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;
+
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -178,6 +189,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_MaxLevel = value;
 
+				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
+
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
 		}
@@ -193,6 +206,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_MinLevel = value;
 
+				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
+
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
 		}
@@ -207,6 +222,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_Mute = value;
+
+				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -227,6 +244,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_Manual = value;
 
+				Log(eSeverity.Debug, "Manual set to {0}", m_Manual);
+
 				OnManualChanged.Raise(this, new BoolEventArgs(m_Manual));
 			}
 		}
@@ -242,6 +261,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 
 				m_NomGainEnabled = value;
 
+				Log(eSeverity.Debug, "NomGainEnabled set to {0}", m_NomGainEnabled);
+
 				OnNomGainEnabledChanged.Raise(this, new BoolEventArgs(m_NomGainEnabled));
 			}
 		}
@@ -256,6 +277,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixe
 					return;
 
 				m_OffAttenuation = value;
+
+				Log(eSeverity.Debug, "OffAttenuation set to {0}", m_OffAttenuation);
 
 				OnOffAttenuationChanged.Raise(this, new FloatEventArgs(m_OffAttenuation));
 			}

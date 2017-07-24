@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
@@ -149,7 +150,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			if (m_HoldControl == null)
 			{
-				IcdErrorLog.Error("{0} unable to hold - control is null", Name);
+				Parent.Log(eSeverity.Error, "{0} unable to hold - control is null", Name);
 				return;
 			}
 

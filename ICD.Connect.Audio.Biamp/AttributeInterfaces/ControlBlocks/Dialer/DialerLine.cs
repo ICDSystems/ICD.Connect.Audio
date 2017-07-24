@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -55,6 +56,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_AutoAnswer = value;
 
+				Log(eSeverity.Debug, "AutoAnswer set to {0}", m_AutoAnswer);
+
 				OnAutoAnswerChanged.Raise(this, new BoolEventArgs(m_AutoAnswer));
 			}
 		}
@@ -70,6 +73,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_LastNumber = value;
 
+				Log(eSeverity.Debug, "LastNumber set to {0}", m_LastNumber);
+
 				OnLastNumberChanged.Raise(this, new StringEventArgs(m_LastNumber));
 			}
 		}
@@ -84,6 +89,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 					return;
 
 				m_LineLabel = value;
+
+				Log(eSeverity.Debug, "LineLabel set to {0}", m_LineLabel);
 
 				OnLineLabelChanged.Raise(this, new StringEventArgs(m_LineLabel));
 			}

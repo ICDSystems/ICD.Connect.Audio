@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -62,6 +63,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_Label = value;
 
+				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}
 		}
@@ -79,6 +82,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_Level = value;
+
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -98,6 +103,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_MinLevel = value;
 
+				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
+
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
 		}
@@ -115,6 +122,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_MaxLevel = value;
+
+				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}

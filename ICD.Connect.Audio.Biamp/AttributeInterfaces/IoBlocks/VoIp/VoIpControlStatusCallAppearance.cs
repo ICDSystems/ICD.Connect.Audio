@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -179,6 +180,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_LineInUse = value;
 
+				Log(eSeverity.Debug, "LineInUse set to {0}", m_LineInUse);
+
 				OnLineInUseChanged.Raise(this, new BoolEventArgs(m_LineInUse));
 			}
 		}
@@ -193,6 +196,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_Prompt = value;
+
+				Log(eSeverity.Debug, "Prompt set to {0}", m_Prompt);
 
 				PromptCallback handler = OnPromptChanged;
 				if (handler != null)
@@ -211,6 +216,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_State = value;
 
+				Log(eSeverity.Debug, "State set to {0}", m_State);
+
 				CallStateCallback handler = OnCallStateChanged;
 				if (handler != null)
 					handler(this, m_State);
@@ -228,6 +235,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_CallerNumber = value;
 
+				Log(eSeverity.Debug, "CallerNumber set to {0}", m_CallerNumber);
+
 				OnCallerNumberChanged.Raise(this, new StringEventArgs(m_CallerNumber));
 			}
 		}
@@ -242,6 +251,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_CallerName = value;
+
+				Log(eSeverity.Debug, "CallerName set to {0}", m_CallerName);
 
 				OnCallerNameChanged.Raise(this, new StringEventArgs(m_CallerName));
 			}

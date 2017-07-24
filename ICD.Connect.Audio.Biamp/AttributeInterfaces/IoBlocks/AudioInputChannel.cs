@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -67,16 +68,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 		[PublicAPI]
 		public float Gain
 		{
-			get
-			{
-				return m_Gain;
-			}
+			get { return m_Gain; }
 			private set
 			{
 				if (Math.Abs(value - m_Gain) < 0.01f)
 					return;
 
 				m_Gain = value;
+
+				Log(eSeverity.Debug, "Gain set to {0}", m_Gain);
 
 				OnGainChanged.Raise(this, new FloatEventArgs(m_Gain));
 			}
@@ -85,16 +85,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 		[PublicAPI]
 		public bool Invert
 		{
-			get
-			{
-				return m_Invert;
-			}
+			get { return m_Invert; }
 			private set
 			{
 				if (value == m_Invert)
 					return;
 
 				m_Invert = value;
+
+				Log(eSeverity.Debug, "Invert set to {0}", m_Invert);
 
 				OnInvertChanged.Raise(this, new BoolEventArgs(m_Invert));
 			}
@@ -111,6 +110,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_Level = value;
 
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
 		}
@@ -125,6 +126,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 					return;
 
 				m_Mute = value;
+
+				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -145,6 +148,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_PeakOccurring = value;
 
+				Log(eSeverity.Debug, "PeakOccurring set to {0}", m_PeakOccurring);
+
 				OnPeakOccurringChanged.Raise(this, new BoolEventArgs(m_PeakOccurring));
 			}
 		}
@@ -159,6 +164,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 					return;
 
 				m_PhantomPower = value;
+
+				Log(eSeverity.Debug, "PhantomPower set to {0}", m_PhantomPower);
 
 				OnPhantomPowerChanged.Raise(this, new BoolEventArgs(m_PhantomPower));
 			}

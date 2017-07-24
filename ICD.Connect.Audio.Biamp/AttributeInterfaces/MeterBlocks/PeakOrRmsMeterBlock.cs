@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -31,6 +32,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 					return;
 
 				m_ChannelCount = value;
+
+				Log(eSeverity.Debug, "ChannelCount set to {0}", m_ChannelCount);
 
 				RebuildChannels();
 

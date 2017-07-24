@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -43,16 +44,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		[PublicAPI]
 		public float Gain
 		{
-			get
-			{
-				return m_Gain;
-			}
+			get { return m_Gain; }
 			private set
 			{
 				if (Math.Abs(value - m_Gain) < 0.01f)
 					return;
 
 				m_Gain = value;
+
+				Log(eSeverity.Debug, "Gain set to {0}", m_Gain);
 
 				OnGainChanged.Raise(this, new FloatEventArgs(m_Gain));
 			}
@@ -69,6 +69,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_PeakOccurring = value;
 
+				Log(eSeverity.Debug, "PeakOccurring set to {0}", m_PeakOccurring);
+
 				OnPeakOccurringChanged.Raise(this, new BoolEventArgs(m_PeakOccurring));
 			}
 		}
@@ -83,6 +85,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 					return;
 
 				m_PhantomPower = value;
+
+				Log(eSeverity.Debug, "PhantomPower set to {0}", m_PhantomPower);
 
 				OnPhantomPowerChanged.Raise(this, new BoolEventArgs(m_PhantomPower));
 			}

@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.Utils;
+using ICD.Common.Services;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
@@ -101,7 +102,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						break;
 
 					default:
-						IcdErrorLog.Error("Unable to create control for unknown type \"{0}\"", type);
+						ServiceProvider.GetService<ILoggerService>()
+						               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
 						continue;
 				}
 

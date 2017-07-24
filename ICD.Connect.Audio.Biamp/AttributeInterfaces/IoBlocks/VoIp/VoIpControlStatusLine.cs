@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -134,6 +135,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_AutoAnswer = value;
 
+				Log(eSeverity.Debug, "AutoAnswer set to {0}", m_AutoAnswer);
+
 				OnAutoAnswerChanged.Raise(this, new BoolEventArgs(m_AutoAnswer));
 			}
 		}
@@ -148,6 +151,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_AutoAnswerRingCount = value;
+
+				Log(eSeverity.Debug, "AutoAnswerRingCount set to {0}", m_AutoAnswerRingCount);
 
 				AutoAnswerRingCountCallback handler = OnAutoAnswerRingCountChanged;
 				if (handler != null)
@@ -166,6 +171,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_CallProgressToneLevel = value;
 
+				Log(eSeverity.Debug, "CallProgressToneLevel set to {0}", m_CallProgressToneLevel);
+
 				OnCallProgressToneLevelChanged.Raise(this, new FloatEventArgs(m_CallProgressToneLevel));
 			}
 		}
@@ -180,6 +187,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_DialingTimeout = value;
+
+				Log(eSeverity.Debug, "DialingTimeout set to {0}", m_DialingTimeout);
 
 				OnDialingTimeoutChanged.Raise(this, new IntEventArgs(m_DialingTimeout));
 			}
@@ -196,6 +205,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_DtmfOffTime = value;
 
+				Log(eSeverity.Debug, "DtmfOffTime set to {0}", m_DtmfOffTime);
+
 				OnDtmfOffTimeChanged.Raise(this, new IntEventArgs(m_DtmfOffTime));
 			}
 		}
@@ -210,6 +221,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_DtmfOnTime = value;
+
+				Log(eSeverity.Debug, "DtmfOnTime set to {0}", m_DtmfOnTime);
 
 				OnDtmfOnTimeChanged.Raise(this, new IntEventArgs(m_DtmfOnTime));
 			}
@@ -226,6 +239,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_LastNumberDialed = value;
 
+				Log(eSeverity.Debug, "LastNumberDialed set to {0}", m_LastNumberDialed);
+
 				OnLastNumberDialedChanged.Raise(this, new StringEventArgs(m_LastNumberDialed));
 			}
 		}
@@ -240,6 +255,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_LineReady = value;
+
+				Log(eSeverity.Debug, "LineReady set to {0}", m_LineReady);
 
 				OnLineReadyChanged.Raise(this, new BoolEventArgs(m_LineReady));
 			}
@@ -256,6 +273,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_DtmfLocalMute = value;
 
+				Log(eSeverity.Debug, "DtmfLocalMute set to {0}", m_DtmfLocalMute);
+
 				OnDtmfLocalMuteChanged.Raise(this, new BoolEventArgs(m_DtmfLocalMute));
 			}
 		}
@@ -270,6 +289,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_DtmfLocalLevel = value;
+
+				Log(eSeverity.Debug, "DtmfLocalLevel set to {0}", m_DtmfLocalLevel);
 
 				OnDtmfLocalLevelChanged.Raise(this, new FloatEventArgs(m_DtmfLocalLevel));
 			}
@@ -286,6 +307,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_RedialEnabled = value;
 
+				Log(eSeverity.Debug, "RedialEnabled set to {0}", m_RedialEnabled);
+
 				OnRedialEnabledChanged.Raise(this, new BoolEventArgs(m_RedialEnabled));
 			}
 		}
@@ -300,6 +323,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 					return;
 
 				m_RingType = value;
+
+				Log(eSeverity.Debug, "RingType set to {0}", m_RingType);
 
 				RingTypeCallback handler = OnRingTypeChanged;
 				if (handler != null)

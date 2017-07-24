@@ -1,5 +1,6 @@
 ﻿using System;
 using ICD.Common.EventArguments;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
@@ -84,7 +85,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		{
 			if (m_DoNotDisturbControl == null)
 			{
-				IcdErrorLog.Error("{0} unable to set Do-Not-Disturb - control is null", Name);
+				Parent.Log(eSeverity.Error, "{0} unable to set Do-Not-Disturb - control is null", Name);
 				return;
 			}
 
@@ -99,7 +100,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		{
 			if (m_PrivacyMuteControl == null)
 			{
-				IcdErrorLog.Error("{0} unable to set Privacy Mute - control is null", Name);
+				Parent.Log(eSeverity.Error, "{0} unable to set Privacy Mute - control is null", Name);
 				return;
 			}
 

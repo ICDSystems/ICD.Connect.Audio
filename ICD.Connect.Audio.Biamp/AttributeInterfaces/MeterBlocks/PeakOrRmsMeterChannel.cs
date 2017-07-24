@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -43,6 +44,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 				m_HoldEnabled = value;
 
+				Log(eSeverity.Debug, "HoldEnabled set to {0}", m_HoldEnabled);
+
 				OnHoldEnabledChanged.Raise(this, new BoolEventArgs(m_HoldEnabled));
 			}
 		}
@@ -57,6 +60,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 					return;
 
 				m_HoldTime = value;
+
+				Log(eSeverity.Debug, "HoldTime set to {0}", m_HoldTime);
 
 				OnHoldTimeChanged.Raise(this, new FloatEventArgs(m_HoldTime));
 			}
@@ -73,6 +78,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 				m_HoldIndefinitely = value;
 
+				Log(eSeverity.Debug, "HoldIndefinitely set to {0}", m_HoldIndefinitely);
+
 				OnHoldIndefinitelyChanged.Raise(this, new BoolEventArgs(m_HoldIndefinitely));
 			}
 		}
@@ -88,6 +95,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 				m_Label = value;
 
+				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}
 		}
@@ -102,6 +111,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 					return;
 
 				m_Level = value;
+
+				Log(eSeverity.Debug, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}

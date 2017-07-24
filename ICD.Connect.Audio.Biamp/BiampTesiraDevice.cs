@@ -232,7 +232,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				IcdErrorLog.Error("Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Log(eSeverity.Error, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 				return;
 			}
 
@@ -374,11 +374,12 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="severity"></param>
 		/// <param name="message"></param>
 		/// <param name="args"></param>
-		private void Log(eSeverity severity, string message, params object[] args)
+		public void Log(eSeverity severity, string message, params object[] args)
 		{
 			message = string.Format(message, args);
+			message = AddLogPrefix(message);
 
-			ServiceProvider.GetService<ILoggerService>().AddEntry(severity, AddLogPrefix(message));
+			Logger.AddEntry(severity, message);
 		}
 
 		#endregion
@@ -553,9 +554,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				IcdErrorLog.Error(eventArgs.Data.Serialize());
-				IcdErrorLog.Exception(e, e.Message);
-				throw;
+				Log(eSeverity.Error, "Failed to parse {0} - {1}", eventArgs.Data, e.Message);
 			}
 		}
 
@@ -613,8 +612,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				string message = string.Format("{0} - {1}", e.Message, responseString);
-				IcdErrorLog.Exception(e, message);
+				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}", responseString, e.Message);
 			}
 		}
 
@@ -677,7 +675,7 @@ namespace ICD.Connect.Audio.Biamp
 			{
 				port = factory.GetPortById((int)settings.Port) as ISerialPort;
 				if (port == null)
-					IcdErrorLog.Error("No serial Port with id {0}", settings.Port);
+					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
 			}
 
 			SetPort(port);

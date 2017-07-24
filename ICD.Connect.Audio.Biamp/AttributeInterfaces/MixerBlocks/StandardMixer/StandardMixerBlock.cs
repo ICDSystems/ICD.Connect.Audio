@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Nodes;
@@ -58,6 +59,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 
 				m_InputCount = value;
 
+				Log(eSeverity.Debug, "InputCount set to {0}", m_InputCount);
+
 				RebuildInputs();
 
 				OnInputCountChanged.Raise(this, new IntEventArgs(m_InputCount));
@@ -77,6 +80,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 					return;
 
 				m_OutputCount = value;
+
+				Log(eSeverity.Debug, "OutputCount set to {0}", m_OutputCount);
 
 				RebuildOutputs();
 

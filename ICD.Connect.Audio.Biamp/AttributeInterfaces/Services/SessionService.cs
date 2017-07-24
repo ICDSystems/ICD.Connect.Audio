@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -42,6 +43,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 					return;
 
 				m_VerboseOutputEnabled = value;
+
+				Log(eSeverity.Debug, "VerboseOutputEnabled set to {0}", m_VerboseOutputEnabled);
 
 				OnVerboseOutputEnabledChanged.Raise(this, new BoolEventArgs(m_VerboseOutputEnabled));
 			}

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
+using ICD.Common.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Controls;
@@ -83,6 +84,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		#endregion
 
 		#region Protected Methods
+
+		/// <summary>
+		/// Logs the message with the device configured logger.
+		/// </summary>
+		/// <param name="severity"></param>
+		/// <param name="message"></param>
+		/// <param name="args"></param>
+		protected virtual void Log(eSeverity severity, string message, params object[] args)
+		{
+			message = string.Format("{0} - {1}", InstanceTag, message);
+			Device.Log(severity, message, args);
+		}
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

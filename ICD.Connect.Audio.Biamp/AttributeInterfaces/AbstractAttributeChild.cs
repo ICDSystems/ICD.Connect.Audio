@@ -1,4 +1,6 @@
-﻿namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
+﻿using ICD.Common.Services.Logging;
+
+namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 {
 	/// <summary>
 	/// Base class for attribute children. E.g. an AudioInputBlock has child AudioInputChannels.
@@ -30,6 +32,19 @@
 		{
 			m_Parent = parent;
 			m_Index = index;
+		}
+
+		/// <summary>
+		/// Logs the message with the device configured logger.
+		/// </summary>
+		/// <param name="severity"></param>
+		/// <param name="message"></param>
+		/// <param name="args"></param>
+		protected override void Log(eSeverity severity, string message, params object[] args)
+		{
+			message = string.Format("{0} - {1}", Index, message);
+
+			base.Log(severity, message, args);
 		}
 	}
 }

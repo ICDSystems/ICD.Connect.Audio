@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Nodes;
@@ -42,6 +43,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_ChannelCount = value;
 
+				Log(eSeverity.Debug, "ChannelCount set to {0}", m_ChannelCount);
+
 				RebuildChannels();
 
 				OnChannelCountChanged.Raise(this, new IntEventArgs(m_ChannelCount));
@@ -58,6 +61,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 					return;
 
 				m_Ganged = value;
+
+				Log(eSeverity.Debug, "Ganged set to {0}", m_Ganged);
 
 				OnGangedChanged.Raise(this, new BoolEventArgs(m_Ganged));
 			}

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -75,6 +76,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 				m_Hostname = value;
 
+				Log(eSeverity.Debug, "Hostname set to {0}", m_Hostname);
+
 				OnHostnameChanged.Raise(this, new StringEventArgs(m_Hostname));
 			}
 		}
@@ -89,6 +92,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 					return;
 
 				m_MdnsEnabled = value;
+
+				Log(eSeverity.Debug, "MdnsEnabled set to {0}", m_MdnsEnabled);
 
 				OnMdnsEnabledChanged.Raise(this, new BoolEventArgs(m_MdnsEnabled));
 			}
@@ -105,6 +110,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 				m_SerialNumber = value;
 
+				Log(eSeverity.Debug, "SerialNumber set to {0}", m_SerialNumber);
+
 				OnSerialNumberChanged.Raise(this, new StringEventArgs(m_SerialNumber));
 			}
 		}
@@ -119,6 +126,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 					return;
 
 				m_TelnetDisabled = value;
+
+				Log(eSeverity.Debug, "TelnetDisabled set to {0}", m_TelnetDisabled);
 
 				OnTelnetDisabledChanged.Raise(this, new BoolEventArgs(m_TelnetDisabled));
 			}

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -53,6 +54,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_DisplayNameLabel = value;
 
+				Log(eSeverity.Debug, "DisplayNameLabel set to {0}", m_DisplayNameLabel);
+
 				OnDisplayNameLabelChanged.Raise(this, new StringEventArgs(m_DisplayNameLabel));
 			}
 		}
@@ -70,6 +73,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 					return;
 
 				m_LineCount = value;
+
+				Log(eSeverity.Debug, "LineCount set to {0}", m_LineCount);
 
 				RebuildLines();
 

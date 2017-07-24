@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
@@ -83,6 +84,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_InputCount = value;
 
+				Log(eSeverity.Debug, "InputCount set to {0}", m_InputCount);
+
 				OnInputCountChanged.Raise(this, new IntEventArgs(m_InputCount));
 			}
 		}
@@ -101,6 +104,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_OutputCount = value;
 
+				Log(eSeverity.Debug, "OutputCount set to {0}", m_OutputCount);
+
 				OnOutputCountChanged.Raise(this, new IntEventArgs(m_OutputCount));
 			}
 		}
@@ -118,6 +123,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_SourceCount = value;
+
+				Log(eSeverity.Debug, "SourceCount set to {0}", m_SourceCount);
 
 				RebuildSources();
 
@@ -139,6 +146,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_SourceSelection = value;
 
+				Log(eSeverity.Debug, "SourceSelection set to {0}", m_SourceSelection);
+
 				OnSourceSelectionChanged.Raise(this, new IntEventArgs(m_SourceSelection));
 			}
 		}
@@ -156,6 +165,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_OutputLevel = value;
+
+				Log(eSeverity.Debug, "OutputLevel set to {0}", m_OutputLevel);
 
 				OnOutputLevelChanged.Raise(this, new FloatEventArgs(m_OutputLevel));
 			}
@@ -175,6 +186,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_MinOutputLevel = value;
 
+				Log(eSeverity.Debug, "MinOutputLevel set to {0}", m_MinOutputLevel);
+
 				OnMinOutputLevelChanged.Raise(this, new FloatEventArgs(m_MinOutputLevel));
 			}
 		}
@@ -192,6 +205,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_MaxOutputLevel = value;
+
+				Log(eSeverity.Debug, "MaxOutputLevel set to {0}", m_MaxOutputLevel);
 
 				OnMaxOutputLevelChanged.Raise(this, new FloatEventArgs(m_MaxOutputLevel));
 			}
@@ -211,6 +226,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 				m_OutputMute = value;
 
+				Log(eSeverity.Debug, "OutputMute set to {0}", m_OutputMute);
+
 				OnOutputMuteChanged.Raise(this, new BoolEventArgs(m_OutputMute));
 			}
 		}
@@ -228,6 +245,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 					return;
 
 				m_StereoEnabled = value;
+
+				Log(eSeverity.Debug, "StereoEnabled set to {0}", m_StereoEnabled);
 
 				OnStereoEnabledChanged.Raise(this, new BoolEventArgs(m_StereoEnabled));
 			}
