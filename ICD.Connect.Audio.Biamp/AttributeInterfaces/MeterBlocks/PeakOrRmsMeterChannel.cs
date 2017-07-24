@@ -212,37 +212,32 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 		private void HoldEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				HoldEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			HoldEnabled = innerValue.BoolValue;
 		}
 
 		private void HoldTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				HoldTime = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			HoldTime = innerValue.FloatValue;
 		}
 
 		private void HoldIndefinitelyFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				HoldIndefinitely = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			HoldIndefinitely = innerValue.BoolValue;
 		}
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Label = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Label = innerValue.StringValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Level = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Level = innerValue.FloatValue;
 		}
 
 		#endregion

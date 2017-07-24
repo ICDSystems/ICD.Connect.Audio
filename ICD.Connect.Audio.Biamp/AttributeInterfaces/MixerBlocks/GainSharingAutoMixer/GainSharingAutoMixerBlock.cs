@@ -463,58 +463,50 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 		private void GainResponseTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				GainResponseTime = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			GainResponseTime = innerValue.IntValue;
 		}
 
 		private void MicIsolationFactorFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MicIsolationFactor = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MicIsolationFactor = innerValue.FloatValue;
 		}
 
 		private void MixOutputLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MixOutputLabel = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MixOutputLabel = innerValue.StringValue;
 		}
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				InputCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			InputCount = innerValue.IntValue;
 		}
 
 		private void OutputMinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MinLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MinLevel = innerValue.FloatValue;
 		}
 
 		private void OutputMaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MaxLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MaxLevel = innerValue.FloatValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Level = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Level = innerValue.FloatValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Mute = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Mute = innerValue.BoolValue;
 		}
 
 		#endregion

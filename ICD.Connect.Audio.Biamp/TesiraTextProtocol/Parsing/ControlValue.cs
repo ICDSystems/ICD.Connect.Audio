@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
@@ -19,23 +21,6 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Gets the number of child values.
 		/// </summary>
 		public int Count { get { return m_Values.Count; } }
-
-		/// <summary>
-		/// Gets the child value with the given key.
-		/// </summary>
-		/// <param name="key"></param>
-		/// <returns></returns>
-		public AbstractValue this[string key]
-		{
-			get
-			{
-				if (m_Values.ContainsKey(key))
-					return m_Values[key];
-
-				string message = string.Format("{0} does not contain key \"{1}\"", GetType().Name, key);
-				throw new KeyNotFoundException(message);
-			}
-		}
 
 		#region Constructors
 
@@ -68,6 +53,29 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Gets the child value with the given key.
+		/// </summary>
+		/// <param name="key"></param>
+		/// <returns></returns>
+		[NotNull]
+		public T GetValue<T>(string key)
+			where T : AbstractValue
+		{
+			AbstractValue value;
+			if (!m_Values.TryGetValue(key, out value))
+			{
+				string message1 = string.Format("{0} does not contain key \"{1}\"", GetType().Name, key);
+				throw new KeyNotFoundException(message1);
+			}
+
+			if (value is T)
+				return (T)value;
+
+			string message2 = string.Format("Value \"{0}\" is not of type {1}", key, typeof(T).Name);
+			throw new InvalidOperationException(message2);
+		}
 
 		/// <summary>
 		/// Parses a string in the format

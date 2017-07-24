@@ -238,23 +238,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoAnswer = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			AutoAnswer = innerValue.BoolValue;
 		}
 
 		private void LastNumberDialedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LastNumber = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LastNumber = innerValue.StringValue;
 		}
 
 		private void LineLabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineLabel = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineLabel = innerValue.StringValue;
 		}
 
 		#endregion

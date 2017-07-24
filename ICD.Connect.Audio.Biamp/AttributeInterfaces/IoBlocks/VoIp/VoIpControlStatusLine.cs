@@ -387,11 +387,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// <param name="callState"></param>
 		internal void ParseCallState(ControlValue callState)
 		{
-			Value callIdValue = (callState["callId"] as Value);
-			if (callIdValue == null)
-				return;
-
+			Value callIdValue = callState.GetValue<Value>("callId");
 			int callId = callIdValue.IntValue;
+
 			VoIpControlStatusCallAppearance callAppearance = LazyLoadCallAppearance(callId + 1);
 			callAppearance.ParseCallState(callState);
 		}
@@ -615,86 +613,74 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoAnswer = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			AutoAnswer = innerValue.BoolValue;
 		}
 
 		private void AutoAnswerRingCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoAnswerRingCount = innerValue.GetObjectValue(s_AutoAnswerRingCountSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			AutoAnswerRingCount = innerValue.GetObjectValue(s_AutoAnswerRingCountSerials);
 		}
 
 		private void CallProgressToneLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				CallProgressToneLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			CallProgressToneLevel = innerValue.FloatValue;
 		}
 
 		private void DialingTimeoutFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DialingTimeout = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DialingTimeout = innerValue.IntValue;
 		}
 
 		private void DtmfOffTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DtmfOffTime = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DtmfOffTime = innerValue.IntValue;
 		}
 
 		private void DtmfOnTimeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DtmfOnTime = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DtmfOnTime = innerValue.IntValue;
 		}
 
 		private void DtmfLocalMuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DtmfLocalMute = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DtmfLocalMute = innerValue.BoolValue;
 		}
 
 		private void DtmfLocalLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DtmfLocalLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DtmfLocalLevel = innerValue.FloatValue;
 		}
 
 		private void RedialEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				RedialEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			RedialEnabled = innerValue.BoolValue;
 		}
 
 		private void RingTypeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				RingType = innerValue.GetObjectValue(s_RingTypeSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			RingType = innerValue.GetObjectValue(s_RingTypeSerials);
 		}
 
 		private void LineReadyFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineReady = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineReady = innerValue.BoolValue;
 		}
 
 		private void LastNumberDialedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LastNumberDialed = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LastNumberDialed = innerValue.StringValue;
 		}
 
 		#endregion

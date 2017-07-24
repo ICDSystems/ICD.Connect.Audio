@@ -405,51 +405,44 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				InputCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			InputCount = innerValue.IntValue;
 		}
 
 		private void OutputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				OutputCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			OutputCount = innerValue.IntValue;
 		}
 
 		private void SourceCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				SourceCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			SourceCount = innerValue.IntValue;
 		}
 
 		private void MinOutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				MinOutputLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MinOutputLevel = innerValue.FloatValue;
 		}
 
 		private void MaxOutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				MaxOutputLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MaxOutputLevel = innerValue.FloatValue;
 		}
 
 		private void OutputMuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				OutputMute = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			OutputMute = innerValue.BoolValue;
 		}
 
 		private void StereoEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				StereoEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			StereoEnabled = innerValue.BoolValue;
 		}
 
 		/// <summary>
@@ -459,9 +452,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 		/// <param name="value"></param>
 		private void OutputLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				OutputLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			OutputLevel = innerValue.FloatValue;
 		}
 
 		/// <summary>
@@ -471,9 +463,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 		/// <param name="value"></param>
 		private void SourceSelectionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				SourceSelection = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			SourceSelection = innerValue.IntValue;
 		}
 
 		#endregion

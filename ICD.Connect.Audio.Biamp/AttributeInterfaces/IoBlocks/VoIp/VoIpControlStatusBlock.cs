@@ -190,19 +190,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		private void CallStateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue result = value["value"] as ControlValue;
-			if (result == null)
-				return;
-
-			ArrayValue callStates = result["callStateInfo"] as ArrayValue;
-			if (callStates == null)
-				return;
+			ControlValue result = value.GetValue<ControlValue>("value");
+			ArrayValue callStates = result.GetValue<ArrayValue>("callStateInfo");
 
 			foreach (ControlValue callState in callStates.Cast<ControlValue>())
 			{
-				Value lineIdValue = callState["lineId"] as Value;
-				if (lineIdValue == null)
-					continue;
+				Value lineIdValue = callState.GetValue<Value>("lineId");
 
 				int lineId = lineIdValue.IntValue;
 				LazyLoadLine(lineId + 1).ParseCallState(callState);

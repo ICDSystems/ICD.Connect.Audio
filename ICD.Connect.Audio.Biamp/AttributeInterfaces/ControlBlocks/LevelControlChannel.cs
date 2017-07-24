@@ -317,51 +317,44 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 		private void LabelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Label = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Label = innerValue.StringValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Level = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Level = innerValue.FloatValue;
 		}
 
 		private void MinLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MinLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MinLevel = innerValue.FloatValue;
 		}
 
 		private void MaxLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				MaxLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MaxLevel = innerValue.FloatValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Mute = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Mute = innerValue.BoolValue;
 		}
 
 		private void RampIntervalFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				RampInterval = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			RampInterval = innerValue.FloatValue;
 		}
 
 		private void RampStepFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				RampStep = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			RampStep = innerValue.FloatValue;
 		}
 
 		#endregion

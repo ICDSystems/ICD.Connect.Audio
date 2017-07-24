@@ -112,9 +112,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void AliasesFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ArrayValue array = value["list"] as ArrayValue;
-			if (array == null)
-				return;
+			ArrayValue array = value.GetValue<ArrayValue>("list");
 
 			m_AliasesSection.Enter();
 
@@ -134,9 +132,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void VerboseOutputEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				VerboseOutputEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			VerboseOutputEnabled = innerValue.BoolValue;
 		}
 
 		#endregion

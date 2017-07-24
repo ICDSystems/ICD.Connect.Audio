@@ -935,60 +935,47 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoAnswer = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			AutoAnswer = innerValue.BoolValue;
 		}
 
 		private void AutoAnswerRingCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoAnswerRingCount = innerValue.GetObjectValue(s_AutoAnswerRingCountSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			AutoAnswerRingCount = innerValue.GetObjectValue(s_AutoAnswerRingCountSerials);
 		}
 
 		private void AutoDisconnectTypeFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				AutoDisconnectType = innerValue.GetObjectValue(s_AutoDisconnectTypeSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			AutoDisconnectType = innerValue.GetObjectValue(s_AutoDisconnectTypeSerials);
 		}
 
 		private void BusyToneDetectedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				BusyToneDetected = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			BusyToneDetected = innerValue.BoolValue;
 		}
 
 		private void CallerIdEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				CallerIdEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			CallerIdEnabled = innerValue.BoolValue;
 		}
 
 		private void CallStateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue innerValue = value["value"] as ControlValue;
-			if (innerValue == null)
-				return;
-
-			ArrayValue callStates = innerValue["callStateInfo"] as ArrayValue;
-			if (callStates == null)
-				return;
+			ControlValue innerValue = value.GetValue<ControlValue>("value");
+			ArrayValue callStates = innerValue.GetValue<ArrayValue>("callStateInfo");
 
 			ControlValue callState = callStates.Cast<ControlValue>().First();
 			if (callState == null)
 				return;
 
-			Value stateValue = value["state"] as Value;
-			if (stateValue != null)
-				State = stateValue.GetObjectValue(s_CallStateSerials);
+			Value stateValue = value.GetValue<Value>("state");
+			State = stateValue.GetObjectValue(s_CallStateSerials);
 
-			Value cidValue = callState["cid"] as Value;
-			if (cidValue == null)
-				return;
+			Value cidValue = callState.GetValue<Value>("cid");
 
 			string[] cidSplit = cidValue.GetStringValues().ToArray();
 
@@ -998,121 +985,104 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 		private void DialingFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Dialing = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Dialing = innerValue.BoolValue;
 		}
 
 		private void DialToneDetectedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DialToneDetected = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DialToneDetected = innerValue.BoolValue;
 		}
 
 		private void DialToneLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DialToneLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DialToneLevel = innerValue.FloatValue;
 		}
 
 		private void LineFaultConditionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineFaultCondition = innerValue.GetObjectValue(s_LineFaultConditionsSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			LineFaultCondition = innerValue.GetObjectValue(s_LineFaultConditionsSerials);
 		}
 
 		private void HookStateFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				HookState = innerValue.GetObjectValue(s_HookStateSerials);
+			Value innerValue = value.GetValue<Value>("value");
+			HookState = innerValue.GetObjectValue(s_HookStateSerials);
 		}
 
 		private void LastNumberDialedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LastNumberDialed = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LastNumberDialed = innerValue.StringValue;
 		}
 
 		private void LineFaultFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineFault = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineFault = innerValue.BoolValue;
 		}
 
 		private void LineIntrusionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineIntrusion = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineIntrusion = innerValue.BoolValue;
 		}
 
 		private void LineInUseFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineInUse = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineInUse = innerValue.BoolValue;
 		}
 
 		private void LineReadyFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineReady = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineReady = innerValue.BoolValue;
 		}
 
 		private void LineVoltageFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LineVoltage = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LineVoltage = innerValue.FloatValue;
 		}
 
 		private void DtmfLocalLevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				DtmfLocalLevel = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			DtmfLocalLevel = innerValue.FloatValue;
 		}
 
 		private void LoopCurrentFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				LoopCurrent = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			LoopCurrent = innerValue.FloatValue;
 		}
 
 		private void RingBackToneDetectedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				RingBackToneDetected = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			RingBackToneDetected = innerValue.BoolValue;
 		}
 
 		private void RingingFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Ringing = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Ringing = innerValue.BoolValue;
 		}
 
 		private void UseRedialFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				UseRedial = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			UseRedial = innerValue.BoolValue;
 		}
 
 		private void WaitForDialToneFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				WaitForDialTone = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			WaitForDialTone = innerValue.BoolValue;
 		}
 
 		#endregion

@@ -181,16 +181,14 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 		private void ChannelCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				ChannelCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			ChannelCount = innerValue.IntValue;
 		}
 
 		private void GangedFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Ganged = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Ganged = innerValue.BoolValue;
 		}
 
 		#endregion

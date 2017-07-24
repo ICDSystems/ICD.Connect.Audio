@@ -296,78 +296,73 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void ActiveFaultsFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ArrayValue activeFaults = value["value"] as ArrayValue;
+			ArrayValue activeFaults = value.GetValue<ArrayValue>("value");
 			// todo
 		}
 
 		private void DiscoveredServersFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ArrayValue discoveredServers = value["value"] as ArrayValue;
+			ArrayValue discoveredServers = value.GetValue<ArrayValue>("value");
 			// todo
 		}
 
 		private void DnsConfigFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue dnsConfig = value["value"] as ControlValue;
+			ControlValue dnsConfig = value.GetValue<ControlValue>("value");
 			// todo
 		}
 
 		private void DnsStatusFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue dnsStatus = value["value"] as ControlValue;
+			ControlValue dnsStatus = value.GetValue<ControlValue>("value");
 			// todo
 		}
 
 		private void HostnameFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				Hostname = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Hostname = innerValue.StringValue;
 		}
 
 		private void ResolverHostsTableFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue hostTable = value["value"] as ControlValue;
+			ControlValue hostTable = value.GetValue<ControlValue>("value");
 			// todo
 		}
 
 		private void MdnsEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				MdnsEnabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			MdnsEnabled = innerValue.BoolValue;
 		}
 
 		private void NetworkStatusFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ControlValue networkStatus = value["value"] as ControlValue;
+			ControlValue networkStatus = value.GetValue<ControlValue>("value");
 			// todo
 		}
 
 		private void SerialNumberFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				SerialNumber = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			SerialNumber = innerValue.StringValue;
 		}
 
 		private void TelnetDisabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				TelnetDisabled = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			TelnetDisabled = innerValue.BoolValue;
 		}
 
 		private void FirmwareVersionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = (value["value"] as Value);
-			if (innerValue != null)
-				Version = innerValue.StringValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Version = innerValue.StringValue;
 		}
 
 		private void KnownRedundantDeviceStatesFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ArrayValue deviceStates = value["deviceStates"] as ArrayValue;
+			ArrayValue deviceStates = value.GetValue<ArrayValue>("deviceStates");
 			// todo
 		}
 

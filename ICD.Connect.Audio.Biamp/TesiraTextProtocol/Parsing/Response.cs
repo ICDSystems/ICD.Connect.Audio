@@ -57,14 +57,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <summary>
 		/// Shorthand for getting the subscription feedback publishToken value.
 		/// </summary>
-		public string PublishToken
-		{
-			get
-			{
-				Value value = Values[PUBLISH_TOKEN] as Value;
-				return value == null ? null : value.StringValue;
-			}
-		}
+		public string PublishToken { get { return Values.GetValue<Value>(PUBLISH_TOKEN).StringValue; } }
 
 		#endregion
 

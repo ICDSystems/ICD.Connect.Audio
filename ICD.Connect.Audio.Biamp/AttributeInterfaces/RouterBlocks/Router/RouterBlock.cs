@@ -254,16 +254,14 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 		private void InputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				InputCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			InputCount = innerValue.IntValue;
 		}
 
 		private void OutputCountFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				OutputCount = innerValue.IntValue;
+			Value innerValue = value.GetValue<Value>("value");
+			OutputCount = innerValue.IntValue;
 		}
 
 		#endregion

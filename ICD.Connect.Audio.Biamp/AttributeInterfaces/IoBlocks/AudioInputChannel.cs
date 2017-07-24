@@ -313,44 +313,38 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 		private void GainFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Gain = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Gain = innerValue.FloatValue;
 		}
 
 		private void LevelFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Level = innerValue.FloatValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Level = innerValue.FloatValue;
 		}
 
 		private void InvertFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Invert = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Invert = innerValue.BoolValue;
 		}
 
 		private void MuteFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				Mute = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			Mute = innerValue.BoolValue;
 		}
 
 		private void PeakOccurringFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				PeakOccurring = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			PeakOccurring = innerValue.BoolValue;
 		}
 
 		private void PhantomPowerOnFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value["value"] as Value;
-			if (innerValue != null)
-				PhantomPower = innerValue.BoolValue;
+			Value innerValue = value.GetValue<Value>("value");
+			PhantomPower = innerValue.BoolValue;
 		}
 
 		#endregion
