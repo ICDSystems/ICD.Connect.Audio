@@ -171,7 +171,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			m_AppearanceSourcesSection.Enter();
 
-			var source = GetSource(index);
+			TesiraConferenceSource source = GetSource(index);
 
 			try
 			{
@@ -206,6 +206,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			return source;
 		}
 
+		[CanBeNull]
 		private TesiraConferenceSource GetSource(int index)
 		{
 			return m_AppearanceSourcesSection.Execute(() => m_AppearanceSources.GetDefault(index));
@@ -235,7 +236,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					SendDtmfCallback = dtmf => SendDtmfCallback(dtmf)
 				};
 
-				var callAppearance = m_Line.GetCallAppearance(index);
+				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
 				UpdateSource(source, callAppearance);
 
 				m_AppearanceSources.Add(index, source);
