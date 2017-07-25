@@ -62,7 +62,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			get { return m_Level; }
 			private set
 			{
-				if (value == m_Level)
+				if (Math.Abs(value - m_Level) < 0.01f)
 					return;
 
 				m_Level = value;
@@ -79,7 +79,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			get { return m_MinLevel; }
 			private set
 			{
-				if (value == m_MinLevel)
+				if (Math.Abs(value - m_MinLevel) < 0.01f)
 					return;
 
 				m_MinLevel = value;
@@ -96,7 +96,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			get { return m_MaxLevel; }
 			private set
 			{
-				if (value == m_MaxLevel)
+				if (Math.Abs(value - m_MaxLevel) < 0.01f)
 					return;
 
 				m_MaxLevel = value;
@@ -133,7 +133,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			get { return m_RampInterval; }
 			private set
 			{
-				if (value == m_RampInterval)
+				if (Math.Abs(value - m_RampInterval) < 0.01f)
 					return;
 
 				m_RampInterval = value;
@@ -150,7 +150,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			get { return m_RampStep; }
 			private set
 			{
-				if (value == m_RampStep)
+				if (Math.Abs(value - m_RampStep) < 0.01f)
 					return;
 
 				m_RampStep = value;
