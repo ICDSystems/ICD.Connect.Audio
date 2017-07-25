@@ -36,6 +36,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 			}
 		}
 
+
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "Input"; } }
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>

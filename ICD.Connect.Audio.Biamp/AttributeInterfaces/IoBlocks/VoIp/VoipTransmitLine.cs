@@ -101,6 +101,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		public float AttributeMinLevel { get { return -100.0f; } }
 		public float AttributeMaxLevel { get { return 12.0f; } }
 
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "Line"; } }
+
 		#endregion
 
 		/// <summary>

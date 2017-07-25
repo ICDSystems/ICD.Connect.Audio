@@ -23,6 +23,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		public int Index { get { return m_Index; } }
 
 		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected abstract string IndexName { get; }
+
+		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="parent"></param>
@@ -40,11 +45,10 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// <param name="severity"></param>
 		/// <param name="message"></param>
 		/// <param name="args"></param>
-		protected override void Log(eSeverity severity, string message, params object[] args)
+		public sealed override void Log(eSeverity severity, string message, params object[] args)
 		{
-			message = string.Format("{0} - {1}", Index, message);
-
-			base.Log(severity, message, args);
+			message = string.Format("{0} {1} - {2}", IndexName, Index, message);
+			Parent.Log(severity, message, args);
 		}
 	}
 }

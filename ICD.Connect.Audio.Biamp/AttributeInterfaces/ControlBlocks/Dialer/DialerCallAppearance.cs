@@ -26,6 +26,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 		private int Line { get { return Parent.Index; } }
 
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "CallAppearance"; } }
+
 		#endregion
 
 		/// <summary>

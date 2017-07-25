@@ -332,6 +332,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			}
 		}
 
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "Line"; } }
+
 		#endregion
 
 		/// <summary>

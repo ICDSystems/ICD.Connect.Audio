@@ -171,6 +171,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			}
 		}
 
+
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "InputChannel"; } }
+
 		#endregion
 
 		/// <summary>

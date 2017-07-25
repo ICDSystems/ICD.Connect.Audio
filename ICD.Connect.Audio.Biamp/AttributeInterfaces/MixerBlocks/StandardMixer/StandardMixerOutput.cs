@@ -20,6 +20,12 @@
 
 		protected override string MuteAttribute { get { return OUTPUT_MUTE_ATTRIBUTE; } }
 
+
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "Output"; } }
+
 		#endregion
 
 		/// <summary>

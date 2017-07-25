@@ -198,6 +198,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			}
 		}
 
+
+		/// <summary>
+		/// Gets the name of the index, used with logging.
+		/// </summary>
+		protected override string IndexName { get { return "Channel"; } }
+
 		#endregion
 
 		/// <summary>
