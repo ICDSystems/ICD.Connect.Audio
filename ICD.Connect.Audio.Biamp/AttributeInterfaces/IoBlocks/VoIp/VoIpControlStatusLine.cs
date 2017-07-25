@@ -350,6 +350,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			m_CallAppearances = new Dictionary<int, VoIpControlStatusCallAppearance>();
 			m_CallAppearancesSection = new SafeCriticalSection();
 
+			RebuildCallAppearances();
+
 			if (Device.Initialized)
 				Initialize();
 		}
@@ -388,8 +390,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// </summary>
 		public override void Initialize()
 		{
-			RebuildCallAppearances();
-
 			base.Initialize();
 
 			// Get initial values

@@ -45,6 +45,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			m_Lines = new Dictionary<int, VoIpControlStatusLine>();
 			m_LinesSection = new SafeCriticalSection();
 
+			RebuildLines();
+
 			if (device.Initialized)
 				Initialize();
 		}
@@ -73,8 +75,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		/// </summary>
 		public override void Initialize()
 		{
-			RebuildLines();
-
 			base.Initialize();
 
 			// Get initial values
