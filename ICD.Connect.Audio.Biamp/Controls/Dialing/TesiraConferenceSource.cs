@@ -147,6 +147,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// </summary>
 		public void Answer()
 		{
+			if (AnswerCallback == null)
+				throw new InvalidOperationException("No AnswerCallback assigned");
+
 			AnswerCallback();
 		}
 
@@ -155,6 +158,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// </summary>
 		public void Hold()
 		{
+			if (HoldCallback == null)
+				throw new InvalidOperationException("No HoldCallback assigned");
+
 			HoldCallback();
 		}
 
@@ -163,6 +169,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// </summary>
 		public void Resume()
 		{
+			if (ResumeCallback == null)
+				throw new InvalidOperationException("No ResumeCallback assigned");
+
 			ResumeCallback();
 		}
 
@@ -171,6 +180,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// </summary>
 		public void Hangup()
 		{
+			if (HangupCallback == null)
+				throw new InvalidOperationException("No HangupCallback assigned");
+
 			HangupCallback();
 		}
 
@@ -180,6 +192,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// <param name="data"></param>
 		public void SendDtmf(string data)
 		{
+			if (SendDtmfCallback == null)
+				throw new InvalidOperationException("No SendDtmfCallback assigned");
+
 			SendDtmfCallback(data);
 		}
 
