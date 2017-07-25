@@ -17,6 +17,7 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
@@ -112,6 +113,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <summary>
 		/// Provides features for lazy loading attribute interface blocks and services.
 		/// </summary>
+		[PublicAPI]
 		public AttributeInterfaceFactory AttributeInterfaces { get { return m_AttributeInterfaces; } }
 
 		#endregion
@@ -549,7 +551,7 @@ namespace ICD.Connect.Audio.Biamp
 					return;
 
 				if (pair != null && pair.Callback != null)
-					SafeCallback(pair.Callback, response, eventArgs.Response);
+					SafeExecuteCallback(pair.Callback, eventArgs.Data, response, eventArgs.Response);
 			}
 			catch (Exception e)
 			{
@@ -584,7 +586,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			foreach (SubscriptionCallback callback in callbacksArray)
-				SafeCallback(callback, response, eventArgs.Data);
+				SafeExecuteCallback(callback, response, eventArgs.Data);
 		}
 
 		/// <summary>
@@ -603,19 +605,53 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="callback"></param>
 		/// <param name="response"></param>
 		/// <param name="responseString"></param>
-		private void SafeCallback(SubscriptionCallback callback, Response response, string responseString)
+		private void SafeExecuteCallback(SubscriptionCallback callback, Response response, string responseString)
 		{
 			try
 			{
-				callback(this, response.Values);
+				ExecuteCallback(callback, response);
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}", responseString, e.Message);
+				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}",
+				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message);
 			}
 		}
 
-		private Response Deserialize(string feedback)
+		/// <summary>
+		/// Executes the callback for the given response. Logs exceptions instead of raising.
+		/// </summary>
+		/// <param name="callback"></param>
+		/// <param name="request"></param>
+		/// <param name="response"></param>
+		/// <param name="responseString"></param>
+		private void SafeExecuteCallback(SubscriptionCallback callback, ISerialData request, Response response,
+		                                 string responseString)
+		{
+			try
+			{
+				ExecuteCallback(callback, response);
+			}
+			catch (Exception e)
+			{
+				Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}",
+				    StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
+				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
+				    e.Message);
+			}
+		}
+
+		/// <summary>
+		/// Executes the given callback.
+		/// </summary>
+		/// <param name="callback"></param>
+		/// <param name="response"></param>
+		private void ExecuteCallback(SubscriptionCallback callback, Response response)
+		{
+			callback(this, response.Values);
+		}
+
+		private static Response Deserialize(string feedback)
 		{
 			try
 			{
