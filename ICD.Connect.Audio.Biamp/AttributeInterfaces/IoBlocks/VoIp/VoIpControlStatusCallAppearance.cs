@@ -180,7 +180,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_LineInUse = value;
 
-				Log(eSeverity.Debug, "LineInUse set to {0}", m_LineInUse);
+				Log(eSeverity.Informational, "LineInUse set to {0}", m_LineInUse);
 
 				OnLineInUseChanged.Raise(this, new BoolEventArgs(m_LineInUse));
 			}
@@ -197,7 +197,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_Prompt = value;
 
-				Log(eSeverity.Debug, "Prompt set to {0}", m_Prompt);
+				Log(eSeverity.Informational, "Prompt set to {0}", m_Prompt);
 
 				PromptCallback handler = OnPromptChanged;
 				if (handler != null)
@@ -216,7 +216,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_State = value;
 
-				Log(eSeverity.Debug, "State set to {0}", m_State);
+				Log(eSeverity.Informational, "State set to {0}", m_State);
 
 				CallStateCallback handler = OnCallStateChanged;
 				if (handler != null)
@@ -235,7 +235,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_CallerNumber = value;
 
-				Log(eSeverity.Debug, "CallerNumber set to {0}", m_CallerNumber);
+				Log(eSeverity.Informational, "CallerNumber set to {0}", m_CallerNumber);
 
 				OnCallerNumberChanged.Raise(this, new StringEventArgs(m_CallerNumber));
 			}
@@ -252,7 +252,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_CallerName = value;
 
-				Log(eSeverity.Debug, "CallerName set to {0}", m_CallerName);
+				Log(eSeverity.Informational, "CallerName set to {0}", m_CallerName);
 
 				OnCallerNameChanged.Raise(this, new StringEventArgs(m_CallerName));
 			}

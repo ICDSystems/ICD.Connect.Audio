@@ -77,7 +77,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_GainResponseTime = value;
 
-				Log(eSeverity.Debug, "GainResponseTime set to {0}", m_GainResponseTime);
+				Log(eSeverity.Informational, "GainResponseTime set to {0}", m_GainResponseTime);
 
 				OnGainResponseTimeChanged.Raise(this, new IntEventArgs(m_GainResponseTime));
 			}
@@ -94,7 +94,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_MicIsolationFactor = value;
 
-				Log(eSeverity.Debug, "MicIsolationFactor set to {0}", m_MicIsolationFactor);
+				Log(eSeverity.Informational, "MicIsolationFactor set to {0}", m_MicIsolationFactor);
 
 				OnMicIsolationFactorChanged.Raise(this, new FloatEventArgs(m_MicIsolationFactor));
 			}
@@ -111,7 +111,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_MixOutputLabel = value;
 
-				Log(eSeverity.Debug, "MixOutputLabel set to {0}", m_MixOutputLabel);
+				Log(eSeverity.Informational, "MixOutputLabel set to {0}", m_MixOutputLabel);
 
 				OnMixOutputLabelChanged.Raise(this, new StringEventArgs(m_MixOutputLabel));
 			}
@@ -131,7 +131,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_InputCount = value;
 
-				Log(eSeverity.Debug, "InputCount set to {0}", m_InputCount);
+				Log(eSeverity.Informational, "InputCount set to {0}", m_InputCount);
 
 				RebuildInputs();
 
@@ -150,7 +150,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_Level = value;
 
-				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -167,7 +167,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_MinLevel = value;
 
-				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
+				Log(eSeverity.Informational, "MinLevel set to {0}", m_MinLevel);
 
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
@@ -184,7 +184,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_MaxLevel = value;
 
-				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
+				Log(eSeverity.Informational, "MaxLevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
@@ -201,7 +201,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 				m_Mute = value;
 
-				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
+				Log(eSeverity.Informational, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}

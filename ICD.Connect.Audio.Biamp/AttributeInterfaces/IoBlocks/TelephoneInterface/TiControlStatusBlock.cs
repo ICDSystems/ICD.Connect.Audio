@@ -231,7 +231,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_AutoAnswer = value;
 
-				Log(eSeverity.Debug, "AutoAnswer set to {0}", m_AutoAnswer);
+				Log(eSeverity.Informational, "AutoAnswer set to {0}", m_AutoAnswer);
 
 				OnAutoAnswerChanged.Raise(this, new BoolEventArgs(m_AutoAnswer));
 			}
@@ -248,7 +248,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_AutoAnswerRingCount = value;
 
-				Log(eSeverity.Debug, "AutoAnswerRingCount set to {0}", m_AutoAnswerRingCount);
+				Log(eSeverity.Informational, "AutoAnswerRingCount set to {0}", m_AutoAnswerRingCount);
 
 				AutoAnswerRingCountCallback handler = OnAutoAnswerRingCountChanged;
 				if (handler != null)
@@ -267,7 +267,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_AutoDisconnectType = value;
 
-				Log(eSeverity.Debug, "AutoDisconnectType set to {0}", m_AutoDisconnectType);
+				Log(eSeverity.Informational, "AutoDisconnectType set to {0}", m_AutoDisconnectType);
 
 				AutoDisconnectTypeCallback handler = OnAutoDisconnectTypeChanged;
 				if (handler != null)
@@ -286,7 +286,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_BusyToneDetected = value;
 
-				Log(eSeverity.Debug, "BusyToneDetected set to {0}", m_BusyToneDetected);
+				Log(eSeverity.Informational, "BusyToneDetected set to {0}", m_BusyToneDetected);
 
 				OnBusyToneDetectedChanged.Raise(this, new BoolEventArgs(m_BusyToneDetected));
 			}
@@ -303,7 +303,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_CallerIdEnabled = value;
 
-				Log(eSeverity.Debug, "CallerIdEnabled set to {0}", m_CallerIdEnabled);
+				Log(eSeverity.Informational, "CallerIdEnabled set to {0}", m_CallerIdEnabled);
 
 				OnCallerIdEnabledChanged.Raise(this, new BoolEventArgs(m_CallerIdEnabled));
 			}
@@ -320,7 +320,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_Dialing = value;
 
-				Log(eSeverity.Debug, "Dialing set to {0}", m_Dialing);
+				Log(eSeverity.Informational, "Dialing set to {0}", m_Dialing);
 
 				OnDialingChanged.Raise(this, new BoolEventArgs(m_Dialing));
 			}
@@ -337,7 +337,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_DialToneDetected = value;
 
-				Log(eSeverity.Debug, "DialToneDetected set to {0}", m_DialToneDetected);
+				Log(eSeverity.Informational, "DialToneDetected set to {0}", m_DialToneDetected);
 
 				OnDialToneDetectedChanged.Raise(this, new BoolEventArgs(m_DialToneDetected));
 			}
@@ -354,7 +354,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_DialToneLevel = value;
 
-				Log(eSeverity.Debug, "DialToneLevel set to {0}", m_DialToneLevel);
+				Log(eSeverity.Informational, "DialToneLevel set to {0}", m_DialToneLevel);
 
 				OnDialToneLevelChanged.Raise(this, new FloatEventArgs(m_DialToneLevel));
 			}
@@ -371,7 +371,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineFaultCondition = value;
 
-				Log(eSeverity.Debug, "LineFaultCondition set to {0}", m_LineFaultCondition);
+				Log(eSeverity.Informational, "LineFaultCondition set to {0}", m_LineFaultCondition);
 
 				LineFaultConditionsCallback handler = OnLineFaultConditionChanged;
 				if (handler != null)
@@ -390,7 +390,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_HookState = value;
 
-				Log(eSeverity.Debug, "HookState set to {0}", m_HookState);
+				Log(eSeverity.Informational, "HookState set to {0}", m_HookState);
 
 				HookStateCallback handler = OnHookStateChanged;
 				if (handler != null)
@@ -409,7 +409,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LastNumberDialed = value;
 
-				Log(eSeverity.Debug, "LastNumberDialed set to {0}", m_LastNumberDialed);
+				Log(eSeverity.Informational, "LastNumberDialed set to {0}", m_LastNumberDialed);
 
 				OnLastNumberDialedChanged.Raise(this, new StringEventArgs(m_LastNumberDialed));
 			}
@@ -426,7 +426,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineFault = value;
 
-				Log(eSeverity.Debug, "LineFault set to {0}", m_LineFault);
+				Log(eSeverity.Informational, "LineFault set to {0}", m_LineFault);
 
 				OnLineFaultChanged.Raise(this, new BoolEventArgs(m_LineFault));
 			}
@@ -443,7 +443,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineIntrusion = value;
 
-				Log(eSeverity.Debug, "LineIntrusion set to {0}", m_LineIntrusion);
+				Log(eSeverity.Informational, "LineIntrusion set to {0}", m_LineIntrusion);
 
 				OnLineIntrusionChanged.Raise(this, new BoolEventArgs(m_LineIntrusion));
 			}
@@ -460,7 +460,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineInUse = value;
 
-				Log(eSeverity.Debug, "LineInUse set to {0}", m_LineInUse);
+				Log(eSeverity.Informational, "LineInUse set to {0}", m_LineInUse);
 
 				OnLineInUseChanged.Raise(this, new BoolEventArgs(m_LineInUse));
 			}
@@ -477,7 +477,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineReady = value;
 
-				Log(eSeverity.Debug, "LineReady set to {0}", m_LineReady);
+				Log(eSeverity.Informational, "LineReady set to {0}", m_LineReady);
 
 				OnLineReadyChanged.Raise(this, new BoolEventArgs(m_LineReady));
 			}
@@ -494,7 +494,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineVoltage = value;
 
-				Log(eSeverity.Debug, "LineVoltage set to {0}", m_LineVoltage);
+				Log(eSeverity.Informational, "LineVoltage set to {0}", m_LineVoltage);
 
 				OnLineVoltageChanged.Raise(this, new FloatEventArgs(m_LineVoltage));
 			}
@@ -511,7 +511,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_DtmfLocalLevel = value;
 
-				Log(eSeverity.Debug, "DtmfLocalLevel set to {0}", m_DtmfLocalLevel);
+				Log(eSeverity.Informational, "DtmfLocalLevel set to {0}", m_DtmfLocalLevel);
 
 				OnDtmfLocalLevelChanged.Raise(this, new FloatEventArgs(m_DtmfLocalLevel));
 			}
@@ -528,7 +528,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LoopCurrent = value;
 
-				Log(eSeverity.Debug, "LoopCurrent set to {0}", m_LoopCurrent);
+				Log(eSeverity.Informational, "LoopCurrent set to {0}", m_LoopCurrent);
 
 				OnLoopCurrentChanged.Raise(this, new FloatEventArgs(m_LoopCurrent));
 			}
@@ -545,7 +545,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_RingBackToneDetected = value;
 
-				Log(eSeverity.Debug, "RingBackToneDetected set to {0}", m_RingBackToneDetected);
+				Log(eSeverity.Informational, "RingBackToneDetected set to {0}", m_RingBackToneDetected);
 
 				OnRingBackToneDetectedChanged.Raise(this, new BoolEventArgs(m_RingBackToneDetected));
 			}
@@ -562,7 +562,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_Ringing = value;
 
-				Log(eSeverity.Debug, "Ringing set to {0}", m_Ringing);
+				Log(eSeverity.Informational, "Ringing set to {0}", m_Ringing);
 
 				OnRingingChanged.Raise(this, new BoolEventArgs(m_Ringing));
 			}
@@ -579,7 +579,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_UseRedial = value;
 
-				Log(eSeverity.Debug, "UseRedial set to {0}", m_UseRedial);
+				Log(eSeverity.Informational, "UseRedial set to {0}", m_UseRedial);
 
 				OnUseRedialChanged.Raise(this, new BoolEventArgs(m_UseRedial));
 			}
@@ -596,7 +596,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_WaitForDialTone = value;
 
-				Log(eSeverity.Debug, "WaitForDialTone set to {0}", m_WaitForDialTone);
+				Log(eSeverity.Informational, "WaitForDialTone set to {0}", m_WaitForDialTone);
 
 				OnWaitForDialToneChanged.Raise(this, new BoolEventArgs(m_WaitForDialTone));
 			}
@@ -613,7 +613,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 				
 				m_State = value;
 
-				Log(eSeverity.Debug, "State set to {0}", m_State);
+				Log(eSeverity.Informational, "State set to {0}", m_State);
 
 				CallStateCallback handler = OnCallStateChanged;
 				if (handler != null)
@@ -632,7 +632,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_CallerNumber = value;
 
-				Log(eSeverity.Debug, "CallerNumber set to {0}", m_CallerNumber);
+				Log(eSeverity.Informational, "CallerNumber set to {0}", m_CallerNumber);
 
 				OnCallerNumberChanged.Raise(this, new StringEventArgs(m_CallerNumber));
 			}
@@ -649,7 +649,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_CallerName = value;
 
-				Log(eSeverity.Debug, "CallerName set to {0}", m_CallerName);
+				Log(eSeverity.Informational, "CallerName set to {0}", m_CallerName);
 
 				OnCallerNameChanged.Raise(this, new StringEventArgs(m_CallerName));
 			}

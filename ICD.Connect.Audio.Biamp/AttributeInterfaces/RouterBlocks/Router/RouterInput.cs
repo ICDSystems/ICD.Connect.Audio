@@ -30,7 +30,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 				m_Label = value;
 
-				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+				Log(eSeverity.Informational, "Label set to {0}", m_Label);
 
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}

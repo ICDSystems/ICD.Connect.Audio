@@ -54,7 +54,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_DisplayNameLabel = value;
 
-				Log(eSeverity.Debug, "DisplayNameLabel set to {0}", m_DisplayNameLabel);
+				Log(eSeverity.Informational, "DisplayNameLabel set to {0}", m_DisplayNameLabel);
 
 				OnDisplayNameLabelChanged.Raise(this, new StringEventArgs(m_DisplayNameLabel));
 			}
@@ -74,7 +74,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_LineCount = value;
 
-				Log(eSeverity.Debug, "LineCount set to {0}", m_LineCount);
+				Log(eSeverity.Informational, "LineCount set to {0}", m_LineCount);
 
 				RebuildLines();
 

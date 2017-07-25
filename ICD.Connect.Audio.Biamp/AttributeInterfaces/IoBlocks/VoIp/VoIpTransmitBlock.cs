@@ -35,7 +35,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				m_LineCount = value;
 
-				Log(eSeverity.Debug, "LineCount set to {0}", m_LineCount);
+				Log(eSeverity.Informational, "LineCount set to {0}", m_LineCount);
 
 				RebuildLines();
 

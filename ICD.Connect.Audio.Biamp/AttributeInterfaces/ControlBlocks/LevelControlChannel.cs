@@ -50,7 +50,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_Label = value;
 
-				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+				Log(eSeverity.Informational, "Label set to {0}", m_Label);
 
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}
@@ -67,7 +67,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_Level = value;
 
-				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -84,7 +84,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_MinLevel = value;
 
-				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
+				Log(eSeverity.Informational, "MinLevel set to {0}", m_MinLevel);
 
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
@@ -101,7 +101,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_MaxLevel = value;
 
-				Log(eSeverity.Debug, "MinLMaxLevelevel set to {0}", m_MaxLevel);
+				Log(eSeverity.Informational, "MinLMaxLevelevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
@@ -118,7 +118,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_Mute = value;
 
-				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
+				Log(eSeverity.Informational, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -138,7 +138,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_RampInterval = value;
 
-				Log(eSeverity.Debug, "RampInterval set to {0}", m_RampInterval);
+				Log(eSeverity.Informational, "RampInterval set to {0}", m_RampInterval);
 
 				OnRampIntervalChanged.Raise(this, new FloatEventArgs(m_RampInterval));
 			}
@@ -155,7 +155,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_RampStep = value;
 
-				Log(eSeverity.Debug, "RampStep set to {0}", m_RampStep);
+				Log(eSeverity.Informational, "RampStep set to {0}", m_RampStep);
 
 				OnRampStepChanged.Raise(this, new FloatEventArgs(m_RampStep));
 			}

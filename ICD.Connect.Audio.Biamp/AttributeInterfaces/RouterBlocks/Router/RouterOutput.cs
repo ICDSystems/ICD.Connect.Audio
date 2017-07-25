@@ -35,7 +35,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 				m_Input = value;
 
-				Log(eSeverity.Debug, "Input set to {0}", m_Input);
+				Log(eSeverity.Informational, "Input set to {0}", m_Input);
 
 				OnInputChanged.Raise(this, new IntEventArgs(m_Input));
 			}
@@ -52,7 +52,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 				m_Label = value;
 
-				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+				Log(eSeverity.Informational, "Label set to {0}", m_Label);
 
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}

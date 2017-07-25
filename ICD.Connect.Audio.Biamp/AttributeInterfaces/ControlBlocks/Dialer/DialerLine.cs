@@ -56,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_AutoAnswer = value;
 
-				Log(eSeverity.Debug, "AutoAnswer set to {0}", m_AutoAnswer);
+				Log(eSeverity.Informational, "AutoAnswer set to {0}", m_AutoAnswer);
 
 				OnAutoAnswerChanged.Raise(this, new BoolEventArgs(m_AutoAnswer));
 			}
@@ -73,7 +73,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_LastNumber = value;
 
-				Log(eSeverity.Debug, "LastNumber set to {0}", m_LastNumber);
+				Log(eSeverity.Informational, "LastNumber set to {0}", m_LastNumber);
 
 				OnLastNumberChanged.Raise(this, new StringEventArgs(m_LastNumber));
 			}
@@ -90,7 +90,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 				m_LineLabel = value;
 
-				Log(eSeverity.Debug, "LineLabel set to {0}", m_LineLabel);
+				Log(eSeverity.Informational, "LineLabel set to {0}", m_LineLabel);
 
 				OnLineLabelChanged.Raise(this, new StringEventArgs(m_LineLabel));
 			}

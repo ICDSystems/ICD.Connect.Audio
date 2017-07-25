@@ -35,7 +35,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 
 				m_Label = value;
 
-				Log(eSeverity.Debug, "Label set to {0}", m_Label);
+				Log(eSeverity.Informational, "Label set to {0}", m_Label);
 
 				OnLabelChanged.Raise(this, new StringEventArgs(m_Label));
 			}
@@ -52,7 +52,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 
 				m_State = value;
 
-				Log(eSeverity.Debug, "State set to {0}", m_State);
+				Log(eSeverity.Informational, "State set to {0}", m_State);
 
 				OnStateChanged.Raise(this, new BoolEventArgs(m_State));
 			}

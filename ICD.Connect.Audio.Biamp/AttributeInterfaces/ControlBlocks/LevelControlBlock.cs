@@ -48,7 +48,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_ChannelCount = value;
 
-				Log(eSeverity.Debug, "ChannelCount set to {0}", m_ChannelCount);
+				Log(eSeverity.Informational, "ChannelCount set to {0}", m_ChannelCount);
 
 				RebuildChannels();
 
@@ -67,7 +67,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_Ganged = value;
 
-				Log(eSeverity.Debug, "Ganged set to {0}", m_Ganged);
+				Log(eSeverity.Informational, "Ganged set to {0}", m_Ganged);
 
 				OnGangedChanged.Raise(this, new BoolEventArgs(m_Ganged));
 			}
@@ -84,7 +84,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_UseRamping = value;
 
-				Log(eSeverity.Debug, "UseRamping set to {0}", m_UseRamping);
+				Log(eSeverity.Informational, "UseRamping set to {0}", m_UseRamping);
 
 				OnUseRampingChanged.Raise(this, new BoolEventArgs(m_UseRamping));
 			}

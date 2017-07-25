@@ -76,7 +76,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_Gain = value;
 
-				Log(eSeverity.Debug, "Gain set to {0}", m_Gain);
+				Log(eSeverity.Informational, "Gain set to {0}", m_Gain);
 
 				OnGainChanged.Raise(this, new FloatEventArgs(m_Gain));
 			}
@@ -93,7 +93,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_Invert = value;
 
-				Log(eSeverity.Debug, "Invert set to {0}", m_Invert);
+				Log(eSeverity.Informational, "Invert set to {0}", m_Invert);
 
 				OnInvertChanged.Raise(this, new BoolEventArgs(m_Invert));
 			}
@@ -110,7 +110,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_Level = value;
 
-				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -127,7 +127,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_Mute = value;
 
-				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
+				Log(eSeverity.Informational, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -148,7 +148,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_PeakOccurring = value;
 
-				Log(eSeverity.Debug, "PeakOccurring set to {0}", m_PeakOccurring);
+				Log(eSeverity.Informational, "PeakOccurring set to {0}", m_PeakOccurring);
 
 				OnPeakOccurringChanged.Raise(this, new BoolEventArgs(m_PeakOccurring));
 			}
@@ -165,7 +165,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 				m_PhantomPower = value;
 
-				Log(eSeverity.Debug, "PhantomPower set to {0}", m_PhantomPower);
+				Log(eSeverity.Informational, "PhantomPower set to {0}", m_PhantomPower);
 
 				OnPhantomPowerChanged.Raise(this, new BoolEventArgs(m_PhantomPower));
 			}

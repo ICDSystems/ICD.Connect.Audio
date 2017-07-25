@@ -44,7 +44,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 				m_VerboseOutputEnabled = value;
 
-				Log(eSeverity.Debug, "VerboseOutputEnabled set to {0}", m_VerboseOutputEnabled);
+				Log(eSeverity.Informational, "VerboseOutputEnabled set to {0}", m_VerboseOutputEnabled);
 
 				OnVerboseOutputEnabledChanged.Raise(this, new BoolEventArgs(m_VerboseOutputEnabled));
 			}

@@ -190,7 +190,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_AecEnabled = value;
 
-				Log(eSeverity.Debug, "AecEnabled set to {0}", m_AecEnabled);
+				Log(eSeverity.Informational, "AecEnabled set to {0}", m_AecEnabled);
 
 				OnAecEnabledChanged.Raise(this, new BoolEventArgs(m_AecEnabled));
 			}
@@ -207,7 +207,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_ResetAec = value;
 
-				Log(eSeverity.Debug, "ResetAec set to {0}", m_ResetAec);
+				Log(eSeverity.Informational, "ResetAec set to {0}", m_ResetAec);
 
 				OnResetAecChanged.Raise(this, new BoolEventArgs(m_ResetAec));
 			}
@@ -224,7 +224,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_BypassAgc = value;
 
-				Log(eSeverity.Debug, "BypassAgc set to {0}", m_BypassAgc);
+				Log(eSeverity.Informational, "BypassAgc set to {0}", m_BypassAgc);
 
 				OnBypassAgcChanged.Raise(this, new BoolEventArgs(m_BypassAgc));
 			}
@@ -241,7 +241,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_ConferencingMode = value;
 
-				Log(eSeverity.Debug, "ConferencingMode set to {0}", m_ConferencingMode);
+				Log(eSeverity.Informational, "ConferencingMode set to {0}", m_ConferencingMode);
 
 				ConferencingModeCallback handler = OnConferencingModeChanged;
 				if (handler != null)
@@ -260,7 +260,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_HoldTime = value;
 
-				Log(eSeverity.Debug, "HoldTime set to {0}", m_HoldTime);
+				Log(eSeverity.Informational, "HoldTime set to {0}", m_HoldTime);
 
 				OnHoldTimeChanged.Raise(this, new IntEventArgs(m_HoldTime));
 			}
@@ -277,7 +277,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_HpfBypass = value;
 
-				Log(eSeverity.Debug, "HpfBypass set to {0}", m_HpfBypass);
+				Log(eSeverity.Informational, "HpfBypass set to {0}", m_HpfBypass);
 
 				OnHpfBypassChanged.Raise(this, new BoolEventArgs(m_HpfBypass));
 			}
@@ -294,7 +294,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_HpfCenterFreq = value;
 
-				Log(eSeverity.Debug, "HpfCenterFreq set to {0}", m_HpfCenterFreq);
+				Log(eSeverity.Informational, "HpfCenterFreq set to {0}", m_HpfCenterFreq);
 
 				OnHpfCenterFreqChanged.Raise(this, new FloatEventArgs(m_HpfCenterFreq));
 			}
@@ -311,7 +311,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_Invert = value;
 
-				Log(eSeverity.Debug, "Invert set to {0}", m_Invert);
+				Log(eSeverity.Informational, "Invert set to {0}", m_Invert);
 
 				OnInvertChanged.Raise(this, new BoolEventArgs(m_Invert));
 			}
@@ -328,7 +328,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_Level = value;
 
-				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -345,7 +345,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_LimiterEnabled = value;
 
-				Log(eSeverity.Debug, "LimiterEnabled set to {0}", m_LimiterEnabled);
+				Log(eSeverity.Informational, "LimiterEnabled set to {0}", m_LimiterEnabled);
 
 				OnLimiterEnabledChanged.Raise(this, new BoolEventArgs(m_LimiterEnabled));
 			}
@@ -362,7 +362,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_MaxAttenuation = value;
 
-				Log(eSeverity.Debug, "MaxAttenuation set to {0}", m_MaxAttenuation);
+				Log(eSeverity.Informational, "MaxAttenuation set to {0}", m_MaxAttenuation);
 
 				OnMaxAttenuationChanged.Raise(this, new FloatEventArgs(m_MaxAttenuation));
 			}
@@ -379,7 +379,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_MaxGain = value;
 
-				Log(eSeverity.Debug, "MaxGain set to {0}", m_MaxGain);
+				Log(eSeverity.Informational, "MaxGain set to {0}", m_MaxGain);
 
 				OnMaxGainChanged.Raise(this, new FloatEventArgs(m_MaxGain));
 			}
@@ -396,7 +396,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_MaxGainAdjRate = value;
 				
-				Log(eSeverity.Debug, "MaxGainAdjRate set to {0}", m_MaxGainAdjRate);
+				Log(eSeverity.Informational, "MaxGainAdjRate set to {0}", m_MaxGainAdjRate);
 
 				OnMaxGainAdjRateChanged.Raise(this, new FloatEventArgs(m_MaxGainAdjRate));
 			}
@@ -413,7 +413,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_MinSnr = value;
 
-				Log(eSeverity.Debug, "MinSnr set to {0}", m_MinSnr);
+				Log(eSeverity.Informational, "MinSnr set to {0}", m_MinSnr);
 
 				OnMinSnrChanged.Raise(this, new FloatEventArgs(m_MinSnr));
 			}
@@ -430,7 +430,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_MinThreshold = value;
 
-				Log(eSeverity.Debug, "MinThreshold set to {0}", m_MinThreshold);
+				Log(eSeverity.Informational, "MinThreshold set to {0}", m_MinThreshold);
 
 				OnMinThresholdChanged.Raise(this, new FloatEventArgs(m_MinThreshold));
 			}
@@ -447,7 +447,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_Mute = value;
 
-				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
+				Log(eSeverity.Informational, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -468,7 +468,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_NoiseReduction = value;
 
-				Log(eSeverity.Debug, "NoiseReduction set to {0}", m_NoiseReduction);
+				Log(eSeverity.Informational, "NoiseReduction set to {0}", m_NoiseReduction);
 
 				NoiseReductionCallback handler = OnNoiseReductionChanged;
 				if (handler != null)
@@ -487,7 +487,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_PreEmphasisSlope = value;
 
-				Log(eSeverity.Debug, "PreEmphasisSlope set to {0}", m_PreEmphasisSlope);
+				Log(eSeverity.Informational, "PreEmphasisSlope set to {0}", m_PreEmphasisSlope);
 
 				PreEmphasisSlopeCallback handler = OnPreEmphasisSlopeChanged;
 				if (handler != null)
@@ -506,7 +506,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_SpeechMode = value;
 
-				Log(eSeverity.Debug, "SpeechMode set to {0}", m_SpeechMode);
+				Log(eSeverity.Informational, "SpeechMode set to {0}", m_SpeechMode);
 
 				OnSpeechModeChanged.Raise(this, new BoolEventArgs(m_SpeechMode));
 			}
@@ -523,7 +523,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 
 				m_TargetLevel = value;
 
-				Log(eSeverity.Debug, "TargetLevel set to {0}", m_TargetLevel);
+				Log(eSeverity.Informational, "TargetLevel set to {0}", m_TargetLevel);
 
 				OnTargetLevelChanged.Raise(this, new FloatEventArgs(m_TargetLevel));
 			}

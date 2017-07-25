@@ -47,7 +47,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_LineEchoCancel = value;
 
-				Log(eSeverity.Debug, "LineEchoCancel set to {0}", m_LineEchoCancel);
+				Log(eSeverity.Informational, "LineEchoCancel set to {0}", m_LineEchoCancel);
 
 				OnLineEchoCancelChanged.Raise(this, new BoolEventArgs(m_LineEchoCancel));
 			}
@@ -64,7 +64,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_Level = value;
 
-				Log(eSeverity.Debug, "Level set to {0}", m_Level);
+				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
 				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
@@ -81,7 +81,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_MinLevel = value;
 
-				Log(eSeverity.Debug, "MinLevel set to {0}", m_MinLevel);
+				Log(eSeverity.Informational, "MinLevel set to {0}", m_MinLevel);
 
 				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_MinLevel));
 			}
@@ -98,7 +98,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_MaxLevel = value;
 
-				Log(eSeverity.Debug, "MaxLevel set to {0}", m_MaxLevel);
+				Log(eSeverity.Informational, "MaxLevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
@@ -115,7 +115,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_Mute = value;
 
-				Log(eSeverity.Debug, "Mute set to {0}", m_Mute);
+				Log(eSeverity.Informational, "Mute set to {0}", m_Mute);
 
 				OnMuteChanged.Raise(this, new BoolEventArgs(m_Mute));
 			}
@@ -132,7 +132,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 				m_RingToneLevel = value;
 
-				Log(eSeverity.Debug, "RingToneLevel set to {0}", m_RingToneLevel);
+				Log(eSeverity.Informational, "RingToneLevel set to {0}", m_RingToneLevel);
 
 				OnRingToneLevelChanged.Raise(this, new FloatEventArgs(m_RingToneLevel));
 			}

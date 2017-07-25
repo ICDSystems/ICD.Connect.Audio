@@ -33,7 +33,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks
 
 				m_ChannelCount = value;
 
-				Log(eSeverity.Debug, "ChannelCount set to {0}", m_ChannelCount);
+				Log(eSeverity.Informational, "ChannelCount set to {0}", m_ChannelCount);
 
 				RebuildChannels();
 

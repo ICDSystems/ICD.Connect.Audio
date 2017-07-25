@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 				m_InputCount = value;
 
-				Log(eSeverity.Debug, "InputCount set to {0}", m_InputCount);
+				Log(eSeverity.Informational, "InputCount set to {0}", m_InputCount);
 
 				RebuildInputs();
 
@@ -61,7 +61,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router
 
 				m_OutputCount = value;
 
-				Log(eSeverity.Debug, "OutputCount set to {0}", m_OutputCount);
+				Log(eSeverity.Informational, "OutputCount set to {0}", m_OutputCount);
 
 				RebuildOutputs();
 
