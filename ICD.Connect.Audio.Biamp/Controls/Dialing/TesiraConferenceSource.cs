@@ -1,6 +1,9 @@
 ﻿using System;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
+using ICD.Common.Services;
+using ICD.Common.Services.Logging;
+using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Conferencing.Cameras;
 using ICD.Connect.Conferencing.ConferenceSources;
@@ -27,6 +30,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		private string m_Number;
 		private eConferenceSourceStatus m_Status;
 		private eConferenceSourceAnswerState m_AnswerState;
+		private DateTime? m_Start;
+		private DateTime? m_End;
 
 		#region Properties
 
@@ -42,6 +47,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 					return;
 
 				m_Name = value;
+
+				Log(eSeverity.Informational, "Name set to {1}", this, m_Name);
 
 				OnNameChanged.Raise(this, new StringEventArgs(m_Name));
 			}
@@ -60,6 +67,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 				
 				m_Number = value;
 
+				Log(eSeverity.Informational, "Number set to {1}", this, m_Number);
+
 				OnNumberChanged.Raise(this, new StringEventArgs(m_Number));
 			}
 		}
@@ -76,6 +85,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 					return;
 
 				m_Status = value;
+
+				Log(eSeverity.Informational, "Status set to {1}", this, m_Status);
 
 				OnStatusChanged.Raise(this, new ConferenceSourceStatusEventArgs(m_Status));
 			}
@@ -99,6 +110,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 
 				m_AnswerState = value;
 
+				Log(eSeverity.Informational, "AnswerState set to {1}", this, m_AnswerState);
+
 				OnAnswerStateChanged.Raise(this, new ConferenceSourceAnswerStateEventArgs(m_AnswerState));
 			}
 		}
@@ -106,12 +119,36 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// <summary>
 		/// The time the conference ended.
 		/// </summary>
-		public DateTime? Start { get; internal set; }
+		public DateTime? Start
+		{
+			get { return m_Start; }
+			internal set
+			{
+				if (value == m_Start)
+					return;
+
+				m_Start = value;
+
+				Log(eSeverity.Informational, "Start set to {0}", m_Start);
+			}
+		}
 
 		/// <summary>
 		/// The time the call ended.
 		/// </summary>
-		public DateTime? End { get; internal set; }
+		public DateTime? End
+		{
+			get { return m_End; }
+			internal set
+			{
+				if (value == m_End)
+					return;
+
+				m_End = value;
+
+				Log(eSeverity.Informational, "Start set to {0}",  m_Start);
+			}
+		}
 
 		/// <summary>
 		/// Gets the source type.
@@ -141,6 +178,16 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		#endregion
 
 		#region Methods
+
+		/// <summary>
+		/// Gets the string representation for this instance.
+		/// </summary>
+		/// <returns></returns>
+		public override string ToString()
+		{
+			return string.Format("{0}(Name={1}, Number={2})", GetType().Name, StringUtils.ToRepresentation(Name),
+			                     StringUtils.ToRepresentation(Number));
+		}
 
 		/// <summary>
 		/// Answers the incoming source.
@@ -199,5 +246,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		}
 
 		#endregion
+
+		private void Log(eSeverity severity, string message, params object[] args)
+		{
+			message = string.Format("{0} - {1}", this, message);
+			ServiceProvider.GetService<ILoggerService>().AddEntry(severity, message, args);
+		}
 	}
 }
