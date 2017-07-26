@@ -613,8 +613,9 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}",
-				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message);
+				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}{2}{3}",
+				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message,
+				    IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
@@ -634,10 +635,10 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}",
+				Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}{3}{4}",
 				    StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
 				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
-				    e.Message);
+				    e.Message, IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
