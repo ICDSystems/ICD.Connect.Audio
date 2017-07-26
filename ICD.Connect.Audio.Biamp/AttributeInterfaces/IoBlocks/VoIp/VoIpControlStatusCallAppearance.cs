@@ -321,6 +321,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			Value cidValue = callState.GetValue<Value>("cid");
 			string[] cidSplit = cidValue.GetStringValues().ToArray();
 
+			// First portion is datetime
 			CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
 			CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
 		}

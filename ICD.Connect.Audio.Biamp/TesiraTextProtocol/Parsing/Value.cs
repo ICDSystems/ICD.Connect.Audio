@@ -237,7 +237,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 
 			return string.IsNullOrEmpty(stringValue)
 				       ? Enumerable.Empty<string>()
-				       : stringValue.Substring(1, stringValue.Length - 2).Split("\"\"");
+				       : stringValue.Substring(1, stringValue.Length - 2).Split(@"\""\""");
 		}
 
 		#endregion
