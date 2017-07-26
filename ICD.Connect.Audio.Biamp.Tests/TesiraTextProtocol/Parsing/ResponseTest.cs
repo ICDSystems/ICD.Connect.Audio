@@ -49,20 +49,20 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Response ok2 = Response.Deserialize(OK2);
 			Response feedback = Response.Deserialize(FEEDBACK);
 
-			Assert.Throws<KeyNotFoundException>(() => { AbstractValue a = err.Values["test"]; });
+			Assert.Throws<KeyNotFoundException>(() => { AbstractValue a = err.Values.GetValue<Value>("test"); });
 
-			Assert.AreEqual(0, (err.Values["deviceId"] as Value).IntValue);
-			Assert.AreEqual(0, (err.Values["classCode"] as Value).IntValue);
-			Assert.AreEqual(0, (err.Values["instanceNum"] as Value).IntValue);
+			Assert.AreEqual(0, err.Values.GetValue<Value>("deviceId").IntValue);
+			Assert.AreEqual(0, err.Values.GetValue<Value>("classCode").IntValue);
+			Assert.AreEqual(0, err.Values.GetValue<Value>("instanceNum").IntValue);
 
-			Assert.AreEqual(0.0f, (ok1.Values["value"] as Value).FloatValue);
+			Assert.AreEqual(0.0f, ok1.Values.GetValue<Value>("value").FloatValue);
 
-			Assert.AreEqual("12:00", (ok2.Values["time"] as Value).StringValue);
-			Assert.AreEqual("503-367-3568", (ok2.Values["number"] as Value).StringValue);
-			Assert.AreEqual("2", (ok2.Values["line"] as Value).StringValue);
+			Assert.AreEqual("12:00", ok2.Values.GetValue<Value>("time").StringValue);
+			Assert.AreEqual("503-367-3568", ok2.Values.GetValue<Value>("number").StringValue);
+			Assert.AreEqual("2", ok2.Values.GetValue<Value>("line").StringValue);
 
-			Assert.AreEqual("my meter", (feedback.Values["publishToken"] as Value).StringValue);
-			Assert.AreEqual(-100.0f, (feedback.Values["value"] as Value).FloatValue);
+			Assert.AreEqual("my meter", feedback.Values.GetValue<Value>("publishToken").StringValue);
+			Assert.AreEqual(-100.0f, feedback.Values.GetValue<Value>("value").FloatValue);
 		}
 	}
 }
