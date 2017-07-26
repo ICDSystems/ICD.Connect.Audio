@@ -9,6 +9,7 @@ using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.EventArguments;
+using ICD.Common.Properties;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 {
