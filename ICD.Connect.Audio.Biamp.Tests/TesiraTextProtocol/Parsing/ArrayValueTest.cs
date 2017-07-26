@@ -40,8 +40,8 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Assert.AreEqual(childValue.IntValue, deserializedChildValue.IntValue);
 
 			ControlValue deserializedChildControl = deserialized[1] as ControlValue;
-			Value cdeserializedChildControlValueA = deserializedChildControl["A"] as Value;
-			Value deserializedChildControlValueB = deserializedChildControl["B"] as Value;
+			Value cdeserializedChildControlValueA = deserializedChildControl.GetValue<Value>("A");
+			Value deserializedChildControlValueB = deserializedChildControl.GetValue<Value>("B");
 			Assert.AreEqual(childControlValueA.IntValue, cdeserializedChildControlValueA.IntValue);
 			Assert.AreEqual(childControlValueB.IntValue, deserializedChildControlValueB.IntValue);
 
@@ -64,9 +64,9 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Assert.AreEqual(10, deserializedChildValue.IntValue);
 
 			ControlValue deserializedChildControl = deserialized[1] as ControlValue;
-			Value cdeserializedChildControlValueA = deserializedChildControl["A"] as Value;
-			Value deserializedChildControlValueB = deserializedChildControl["B"] as Value;
-			Assert.AreEqual(1, cdeserializedChildControlValueA.IntValue);
+            Value cdeserializedChildControlValueA = deserializedChildControl.GetValue<Value>("A");
+            Value deserializedChildControlValueB = deserializedChildControl.GetValue<Value>("B");
+            Assert.AreEqual(1, cdeserializedChildControlValueA.IntValue);
 			Assert.AreEqual(2, deserializedChildControlValueB.IntValue);
 
 			ArrayValue deserializedChildArray = deserialized[2] as ArrayValue;

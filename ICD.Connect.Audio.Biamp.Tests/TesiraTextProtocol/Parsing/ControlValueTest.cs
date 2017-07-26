@@ -44,13 +44,13 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 		public void KeyTest()
 		{
 			ControlValue a = new ControlValue();
-			Assert.Throws<KeyNotFoundException>(() => { object test = a["test"]; });
+			Assert.Throws<KeyNotFoundException>(() => { object test = a.GetValue<Value>("test"); });
 
 			Value value = new Value(0);
 			ControlValue b = new ControlValue(new Dictionary<string, AbstractValue> {{"test", value}});
 
-			Assert.DoesNotThrow(() => { object test = b["test"]; });
-			Assert.AreEqual(value, b["test"]);
+			Assert.DoesNotThrow(() => { object test = b.GetValue<Value>("test"); });
+			Assert.AreEqual(value, b.GetValue<Value>("test"));
 		}
 
 		[Test, UsedImplicitly]
@@ -58,36 +58,36 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 		{
 			ControlValue control = ControlValue.Deserialize(CONTROL_SERIALIZED);
 
-			Assert.AreEqual(2, (control["schemaVersion"] as Value).IntValue);
-			Assert.AreEqual("TesiraServer91", (control["hostname"] as Value).StringValue);
-			Assert.AreEqual("0.0.0.0", (control["defaultGatewayStatus"] as Value).StringValue);
-			Assert.AreEqual(true, (control["mDNSEnabled"] as Value).BoolValue);
-			Assert.AreEqual(false, (control["telnetDisabled"] as Value).BoolValue);
+			Assert.AreEqual(2, control.GetValue<Value>("schemaVersion").IntValue);
+			Assert.AreEqual("TesiraServer91", control.GetValue<Value>("hostname").StringValue);
+			Assert.AreEqual("0.0.0.0", control.GetValue<Value>("defaultGatewayStatus").StringValue);
+			Assert.AreEqual(true, control.GetValue<Value>("mDNSEnabled").BoolValue);
+			Assert.AreEqual(false, control.GetValue<Value>("telnetDisabled").BoolValue);
 
-			ControlValue dnsStatus = control["dnsStatus"] as ControlValue;
+			ControlValue dnsStatus = control.GetValue<ControlValue>("dnsStatus");
 
-			Assert.AreEqual("0.0.0.0", (dnsStatus["primaryDNSServer"] as Value).StringValue);
-			Assert.AreEqual("0.0.0.0", (dnsStatus["secondaryDNSServer"] as Value).StringValue);
-			Assert.AreEqual("", (dnsStatus["domainName"] as Value).StringValue);
+			Assert.AreEqual("0.0.0.0", dnsStatus.GetValue<Value>("primaryDNSServer").StringValue);
+			Assert.AreEqual("0.0.0.0", dnsStatus.GetValue<Value>("secondaryDNSServer").StringValue);
+			Assert.AreEqual("", dnsStatus.GetValue<Value>("domainName").StringValue);
 
-			ArrayValue networkInterfaceStatusWithName = control["networkInterfaceStatusWithName"] as ArrayValue;
+			ArrayValue networkInterfaceStatusWithName = control.GetValue<ArrayValue>("networkInterfaceStatusWithName");
 
 			Assert.AreEqual(1, networkInterfaceStatusWithName.Count);
 
 			ControlValue arrayItemControl = networkInterfaceStatusWithName[0] as ControlValue;
 
-			Assert.AreEqual("control", (arrayItemControl["interfaceId"] as Value).StringValue);
+			Assert.AreEqual("control", arrayItemControl.GetValue<Value>("interfaceId").StringValue);
 
-			ControlValue newtworkStatus = arrayItemControl["networkInterfaceStatus"] as ControlValue;
+			ControlValue newtworkStatus = arrayItemControl.GetValue<ControlValue>("networkInterfaceStatus");
 
-			Assert.AreEqual("00:90:5e:13:3b:27", (newtworkStatus["macAddress"] as Value).StringValue);
+			Assert.AreEqual("00:90:5e:13:3b:27", newtworkStatus.GetValue<Value>("macAddress").StringValue);
 			//Assert.AreEqual(, (newtworkStatus["linkStatus"] as Value).StringValue);
 			//Assert.AreEqual(, (newtworkStatus["addressSource"] as Value).StringValue);
-			Assert.AreEqual("10.30.150.62", (newtworkStatus["ip"] as Value).StringValue);
-			Assert.AreEqual("255.255.0.0", (newtworkStatus["netmask"] as Value).StringValue);
-			Assert.AreEqual("", (newtworkStatus["dhcpLeaseObtainedDate"] as Value).StringValue);
-			Assert.AreEqual("", (newtworkStatus["dhcpLeaseExpiresDate"] as Value).StringValue);
-			Assert.AreEqual("0.0.0.0", (newtworkStatus["gateway"] as Value).StringValue);
+			Assert.AreEqual("10.30.150.62", newtworkStatus.GetValue<Value>("ip").StringValue);
+			Assert.AreEqual("255.255.0.0", newtworkStatus.GetValue<Value>("netmask").StringValue);
+			Assert.AreEqual("", newtworkStatus.GetValue<Value>("dhcpLeaseObtainedDate").StringValue);
+			Assert.AreEqual("", newtworkStatus.GetValue<Value>("dhcpLeaseExpiresDate").StringValue);
+			Assert.AreEqual("0.0.0.0", newtworkStatus.GetValue<Value>("gateway").StringValue);
 		}
 
 		[Test, UsedImplicitly]
@@ -115,12 +115,12 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			// Compare results
 			Assert.AreEqual(control.Count, control.Count);
 
-			Value deserializedControlValueA = deserialized["A"] as Value;
-			Value deserializedControlValueB = deserialized["B"] as Value;
+			Value deserializedControlValueA = deserialized.GetValue<Value>("A");
+			Value deserializedControlValueB = deserialized.GetValue<Value>("B");
 			Assert.AreEqual(childControlValueA.IntValue, deserializedControlValueA.IntValue);
 			Assert.AreEqual(childControlValueB.IntValue, deserializedControlValueB.IntValue);
 
-			ArrayValue deserializedChildArray = deserialized["Array"] as ArrayValue;
+			ArrayValue deserializedChildArray = deserialized.GetValue<ArrayValue>("Array");
 			Value deserializedChildArrayValueA = deserializedChildArray[0] as Value;
 			Value deserializedChildArrayValueB = deserializedChildArray[1] as Value;
 			Assert.AreEqual(childArrayValueA.IntValue, deserializedChildArrayValueA.IntValue);

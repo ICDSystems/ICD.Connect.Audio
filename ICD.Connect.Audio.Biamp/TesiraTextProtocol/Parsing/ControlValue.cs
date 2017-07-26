@@ -32,19 +32,19 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		{
 		}
 
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		private ControlValue(IDictionary<string, AbstractValue> values)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        public ControlValue(IDictionary<string, AbstractValue> values)
 			: this((IEnumerable<KeyValuePair<string, AbstractValue>>)values)
 		{
 		}
 
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="getKeyedValues"></param>
-		private ControlValue(IEnumerable<KeyValuePair<string, AbstractValue>> getKeyedValues)
+        /// <summary>
+        /// Constructor.
+        /// </summary>
+        /// <param name="getKeyedValues"></param>
+        public ControlValue(IEnumerable<KeyValuePair<string, AbstractValue>> getKeyedValues)
 		{
 			m_Values = new Dictionary<string, AbstractValue>();
 			m_Values.AddRange(getKeyedValues);
