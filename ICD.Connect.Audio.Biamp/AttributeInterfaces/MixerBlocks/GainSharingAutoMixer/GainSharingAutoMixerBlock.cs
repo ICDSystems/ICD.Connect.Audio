@@ -246,12 +246,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_MUTE_ATTRIBUTE, null);
-
 			DisposeInputs();
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+
+            // Unsubscribe
+            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
+            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_MUTE_ATTRIBUTE, null);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

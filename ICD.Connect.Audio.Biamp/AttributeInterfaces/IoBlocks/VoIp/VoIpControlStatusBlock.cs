@@ -60,13 +60,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		{
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Unsubscribe, CALL_STATE_ATTRIBUTE, null);
-			//RequestAttribute(StatisticsFeedback, AttributeCode.eCommand.Unsubscribe, STATISTICS_ATTRIBUTE, null);
-			RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Unsubscribe, NAT_INFO_ATTRIBUTE, null);
-			RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Unsubscribe, NETWORK_INFO_ATTRIBUTE, null);
-			RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Unsubscribe, PROTOCOL_INFO_ATTRIBUTE, null);
-
 			DisposeLines();
 		}
 
@@ -92,7 +85,19 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Subscribe, PROTOCOL_INFO_ATTRIBUTE, null);
 		}
 
-		[PublicAPI]
+	    public override void Deinitialize()
+	    {
+	        base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Unsubscribe, CALL_STATE_ATTRIBUTE, null);
+            //RequestAttribute(StatisticsFeedback, AttributeCode.eCommand.Unsubscribe, STATISTICS_ATTRIBUTE, null);
+            RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Unsubscribe, NAT_INFO_ATTRIBUTE, null);
+            RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Unsubscribe, NETWORK_INFO_ATTRIBUTE, null);
+            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Unsubscribe, PROTOCOL_INFO_ATTRIBUTE, null);
+	    }
+
+	    [PublicAPI]
 		public IEnumerable<VoIpControlStatusLine> GetLines()
 		{
 			return m_LinesSection.Execute(() => m_Lines.OrderValuesByKey().ToArray());

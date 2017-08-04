@@ -293,10 +293,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			OnCallerNumberChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Unsubscribe, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Unsubscribe, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

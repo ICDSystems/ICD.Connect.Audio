@@ -157,10 +157,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		public override void Dispose()
 		{
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Unsubscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+
+            // Unsubscribe
+            RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Unsubscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

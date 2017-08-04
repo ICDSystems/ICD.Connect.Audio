@@ -207,9 +207,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(PeakOccurringFeedback, AttributeCode.eCommand.Unsubscribe, PEAK_OCCURRING_ATTRIBUTE, null, Index);
+
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(PeakOccurringFeedback, AttributeCode.eCommand.Unsubscribe, PEAK_OCCURRING_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

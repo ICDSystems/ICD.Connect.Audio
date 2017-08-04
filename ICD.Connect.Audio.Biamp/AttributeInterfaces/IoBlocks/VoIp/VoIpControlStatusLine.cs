@@ -378,12 +378,17 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null, Index);
-
 			DisposeCallAppearances();
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
+            RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

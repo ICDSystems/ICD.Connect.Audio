@@ -170,10 +170,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			OnRingToneLevelChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

@@ -288,12 +288,17 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Unsubscribe, SOURCE_SELECTION_ATTRIBUTE, null);
-
 			DisposeSources();
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
+            RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Unsubscribe, SOURCE_SELECTION_ATTRIBUTE, null);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

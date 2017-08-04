@@ -162,10 +162,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			OnMaxLevelChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

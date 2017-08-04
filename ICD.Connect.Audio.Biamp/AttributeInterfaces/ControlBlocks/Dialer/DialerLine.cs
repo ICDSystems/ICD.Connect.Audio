@@ -128,13 +128,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 		{
 			base.Dispose();
 
-			// Unsubscribe
-			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Unsubscribe, AUTO_ANSWER_ATTRIBUTE, null, Index);
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-			RequestAttribute(LineLabelFeedback, AttributeCode.eCommand.Unsubscribe, LINE_LABEL_ATTRIBUTE, null, Index);
-
 			DisposeCallAppearances();
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Unsubscribe, AUTO_ANSWER_ATTRIBUTE, null, Index);
+            RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
+            RequestAttribute(LineLabelFeedback, AttributeCode.eCommand.Unsubscribe, LINE_LABEL_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

@@ -104,6 +104,10 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		{
 		}
 
+	    public virtual void Deinitialize()
+	    {
+	    }
+
 		/// <summary>
 		/// Builds an attribute code and sends it to the device.
 		/// </summary>

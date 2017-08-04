@@ -235,14 +235,19 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			OnInputMuteChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
-			RequestAttribute(CrosspointOnFeedback, AttributeCode.eCommand.Unsubscribe, CROSSPOINT_ON_ATTRIBUTE, null, Index);
-			RequestAttribute(GainReductionFeedback, AttributeCode.eCommand.Unsubscribe, GAIN_REDUCTION_ATTRIBUTE, null, Index);
-			RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Unsubscribe, INPUT_MUTE_ATTRIBUTE, null, Index);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
+            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
+            RequestAttribute(CrosspointOnFeedback, AttributeCode.eCommand.Unsubscribe, CROSSPOINT_ON_ATTRIBUTE, null, Index);
+            RequestAttribute(GainReductionFeedback, AttributeCode.eCommand.Unsubscribe, GAIN_REDUCTION_ATTRIBUTE, null, Index);
+            RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Unsubscribe, INPUT_MUTE_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.

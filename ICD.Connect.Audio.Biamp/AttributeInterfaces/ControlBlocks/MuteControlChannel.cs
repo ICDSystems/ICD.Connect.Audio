@@ -89,10 +89,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			OnMuteChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
 		}
+
+        public override void Deinitialize()
+        {
+            base.Deinitialize();
+
+            // Unsubscribe
+            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
+        }
 
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
