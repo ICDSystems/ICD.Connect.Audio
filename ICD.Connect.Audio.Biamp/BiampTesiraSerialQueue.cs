@@ -51,7 +51,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraSerialQueue()
 		{
-			m_DelayTimer = new IcdTimer(50);
+			m_DelayTimer = new IcdTimer(RATE_LIMIT);
 			m_DelayTimer.OnElapsed += CommandDelayCallback;
 		}
 
