@@ -130,7 +130,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_SerialQueue = new BiampTesiraSerialQueue
 			{
-				Timeout = 10 * 1000
+				Timeout = 20 * 1000
 			};
 			m_SerialQueue.SetBuffer(new BiampTesiraSerialBuffer());
 
