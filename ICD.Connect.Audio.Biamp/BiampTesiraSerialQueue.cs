@@ -1,5 +1,7 @@
 ﻿using System;
 using ICD.Common.EventArguments;
+using ICD.Common.Services;
+using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
@@ -37,7 +39,7 @@ namespace ICD.Connect.Audio.Biamp
 	/// </summary>
 	public sealed class BiampTesiraSerialQueue : AbstractSerialQueue
 	{
-		private const long RATE_LIMIT = 100;
+		private const long RATE_LIMIT = 150;
 
 		/// <summary>
 		/// Raised when the biamp sends subscription feedback data.
@@ -110,7 +112,15 @@ namespace ICD.Connect.Audio.Biamp
 			// Handle subscription feedback seperately
 			if (args.Data.StartsWith(Response.FEEDBACK))
 			{
-				OnSubscriptionFeedback.Raise(this, new StringEventArgs(args.Data));
+				try
+				{
+					OnSubscriptionFeedback.Raise(this, new StringEventArgs(args.Data));
+				}
+				catch (Exception e)
+				{
+					ServiceProvider.GetService<ILoggerService>()
+					               .AddEntry(eSeverity.Error, e, "Failed to raise subscription feedback event - {0}", e.Message);
+				}
 				return;
 			}
 
