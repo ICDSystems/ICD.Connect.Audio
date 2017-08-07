@@ -37,7 +37,7 @@ namespace ICD.Connect.Audio.Biamp
 	/// </summary>
 	public sealed class BiampTesiraSerialQueue : AbstractSerialQueue
 	{
-		private const long RATE_LIMIT = 100;
+		private const long RATE_LIMIT = 150;
 
 		/// <summary>
 		/// Raised when the biamp sends subscription feedback data.
