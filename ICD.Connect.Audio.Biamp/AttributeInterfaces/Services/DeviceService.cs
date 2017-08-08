@@ -528,7 +528,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void TelnetDisabledFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			Value innerValue = value.GetValue<Value>("value");
+			Value innerValue = value.GetValue<Value>("disabled");
 			TelnetDisabled = innerValue.BoolValue;
 		}
 
