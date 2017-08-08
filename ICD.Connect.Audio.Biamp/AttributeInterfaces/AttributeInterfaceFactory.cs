@@ -272,7 +272,24 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 			return LazyLoadAttributeInterface(typeof(T).Name, instanceTag) as T;
 		}
 
-		/// <summary>
+	    [PublicAPI]
+	    public bool TryGetAttributeInterface<T>(out T attributeInterface)
+	        where T : AbstractAttributeInterface
+	    {
+            attributeInterface = null;
+
+	        foreach (var kvp in m_Cache)
+	        {
+	            if (!(kvp.Value is T))
+	                continue;
+	            attributeInterface = kvp.Value as T;
+	            return true;
+	        }
+	        
+	        return false;
+	    }
+
+	    /// <summary>
 		/// Gets the existing AttributeInterface of the given type with the given instance tag, or instantiates a new one.
 		/// </summary>
 		/// <param name="type"></param>
