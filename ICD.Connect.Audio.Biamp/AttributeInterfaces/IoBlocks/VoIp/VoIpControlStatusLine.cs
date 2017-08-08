@@ -8,6 +8,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Biamp.AttributeInterfaces.Services;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
@@ -29,6 +30,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			Silent
 		}
 
+        public enum eRegistrationStatus
+        {
+            VOIP_REGISTERED,
+            VOIP_UNREGISTER
+        }
+
 		private static readonly Dictionary<string, eAutoAnswerRingCount> s_AutoAnswerRingCountSerials =
 			new Dictionary<string, eAutoAnswerRingCount>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -45,6 +52,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				{"RING_TYPE_SILENT", eRingType.Silent}
 			};
 
+	    public static readonly Dictionary<string, eRegistrationStatus> s_RegistrationStatus =
+	        new Dictionary<string, eRegistrationStatus>(StringComparer.OrdinalIgnoreCase)
+	        {
+	            {"VOIP_REGISTERED", eRegistrationStatus.VOIP_REGISTERED},
+	            {"VOIP_UNREGISTER", eRegistrationStatus.VOIP_UNREGISTER}
+	        };
+
 		private const string DTMF_SERVICE = "dtmf";
 
 		private const string AUTO_ANSWER_ATTRIBUTE = "autoAnswer";
@@ -59,10 +73,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private const string DTMF_LOCAL_LEVEL_ATTRIBUTE = "localDtmfToneLevel";
 		private const string REDIAL_ENABLED_ATTRIBUTE = "redialEnable";
 		private const string RING_TYPE_ATTRIBUTE = "ringType";
+        private const string PROTOCOL_INFO_ATTRIBUTE = "protocols";
 
 		public delegate void AutoAnswerRingCountCallback(VoIpControlStatusLine sender, eAutoAnswerRingCount count);
 
 		public delegate void RingTypeCallback(VoIpControlStatusLine sender, eRingType ringType);
+
+	    public delegate void RegistrationStatusCallback(VoIpControlStatusLine sender, eRegistrationStatus status);
 
 		[PublicAPI]
 		public event EventHandler<BoolEventArgs> OnAutoAnswerChanged;
@@ -100,6 +117,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public event RingTypeCallback OnRingTypeChanged;
 
+	    [PublicAPI]
+	    public event RegistrationStatusCallback OnRegistrationStatusChanged;
+
 		private readonly Dictionary<int, VoIpControlStatusCallAppearance> m_CallAppearances;
 		private readonly SafeCriticalSection m_CallAppearancesSection;
 
@@ -114,6 +134,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private bool m_DtmfLocalMute;
 		private float m_DtmfLocalLevel;
 		private bool m_RedialEnabled;
+	    private eRegistrationStatus m_RegistrationStatus;
 		private eRingType m_RingType;
 
 		#region Properties
@@ -332,6 +353,24 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			}
 		}
 
+        [PublicAPI]
+        public eRegistrationStatus RegistrationStatus
+        {
+            get { return m_RegistrationStatus; }
+            private set
+            {
+                if (m_RegistrationStatus == value)
+                    return;
+
+                m_RegistrationStatus = value;
+                Log(eSeverity.Informational, "Registration Status set to {0}", m_RegistrationStatus);
+                RegistrationStatusCallback handler = OnRegistrationStatusChanged;
+                if (handler != null)
+                    handler(this, m_RegistrationStatus);
+
+            }
+        }
+
 		/// <summary>
 		/// Gets the name of the index, used with logging.
 		/// </summary>
@@ -356,7 +395,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				Initialize();
 		}
 
-		#region Methods
+	    #region Methods
 
 		/// <summary>
 		/// Release resources.
@@ -375,6 +414,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			OnDtmfLocalLevelChanged = null;
 			OnRedialEnabledChanged = null;
 			OnRingTypeChanged = null;
+		    OnRegistrationStatusChanged = null;
 
 			base.Dispose();
 
@@ -388,6 +428,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
             // Unsubscribe
             RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
             RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null, Index);
+            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Unsubscribe, PROTOCOL_INFO_ATTRIBUTE, null);
         }
 
 		/// <summary>
@@ -410,9 +451,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(DtmfLocalLevelFeedback, AttributeCode.eCommand.Get, DTMF_LOCAL_LEVEL_ATTRIBUTE, null, Index);
 			RequestAttribute(RedialEnabledFeedback, AttributeCode.eCommand.Get, REDIAL_ENABLED_ATTRIBUTE, null, Index);
 			RequestAttribute(RingTypeFeedback, AttributeCode.eCommand.Get, RING_TYPE_ATTRIBUTE, null, Index);
+            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Get, PROTOCOL_INFO_ATTRIBUTE, null);
+
 
 			// Subscribe
 			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Subscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
+            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Subscribe, PROTOCOL_INFO_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Subscribe, LINE_READY_ATTRIBUTE, null, Index);
 		}
 
@@ -428,6 +472,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			VoIpControlStatusCallAppearance callAppearance = LazyLoadCallAppearance(callId + 1);
 			callAppearance.ParseCallState(callState);
 		}
+
+        private void ProtocolInfoFeedback(BiampTesiraDevice sender, ControlValue value)
+        {
+            ControlValue cardSipInfo = value.GetValue<ControlValue>("value");
+            ArrayValue channelProtoSipInfo = cardSipInfo.GetValue<ArrayValue>("channelProtoSipInfo");
+
+            ControlValue registrationControlValue = channelProtoSipInfo[Index-1] as ControlValue;
+
+            if (registrationControlValue != null)
+                RegistrationStatus =
+                    registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus);
+        }
 
 		[PublicAPI]
 		public VoIpControlStatusCallAppearance GetCallAppearance(int index)
