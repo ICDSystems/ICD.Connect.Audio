@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Common.EventArguments;
 using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
@@ -13,6 +14,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 {
 	public sealed class DeviceService : AbstractService
 	{
+        public enum eLinkStatus
+        {
+            LINK_1_GB,
+        }
+
+        private static readonly Dictionary<string, eLinkStatus> s_LinkStatus
+            = new Dictionary<string, eLinkStatus>(StringComparer.OrdinalIgnoreCase)
+			{
+				{"LINK_1_GB", eLinkStatus.LINK_1_GB},
+			};
+
+
 		public const string INSTANCE_TAG = "DEVICE";
 
 		private const string MANUAL_FAILOVER_SERVICE = "manualFailover";
@@ -43,10 +56,21 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		private const string TELNET_DISABLED_ATTRIBUTE = "telnetDisabled";
 		private const string FIRMWARE_VERSION_ATTRIBUTE = "version";
 
+	    private const string VOIP_CONTROL_STATUS = "protocols";
+
+        public delegate void LinkStatusCallback(DeviceService sender, eLinkStatus status);
+
 		private string m_Hostname;
 		private bool m_MdnsEnabled;
 		private string m_SerialNumber;
 		private bool m_TelnetDisabled;
+	    private string m_IpAddress;
+	    private string m_FaultStatus;
+	    private string m_DefaultGateway;
+	    private eLinkStatus m_LinkStatus;
+	    private string m_SubnetMask;
+	    private string m_MacAddress;
+	    private string m_Registration;
 
 		[PublicAPI]
 		public event EventHandler<StringEventArgs> OnHostnameChanged;
@@ -61,9 +85,45 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		public event EventHandler<BoolEventArgs> OnTelnetDisabledChanged;
 
 		[PublicAPI]
-		public event EventHandler<StringEventArgs> OnVersionChanged; 
+		public event EventHandler<StringEventArgs> OnVersionChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnFaultStatusChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnDefaultGatewayChanged;
+
+        [PublicAPI]
+	    public event LinkStatusCallback OnLinkStatusChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnIpAddressChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnSubnetMaskChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnMacAddressChanged;
+
+	    [PublicAPI]
+	    public event EventHandler<StringEventArgs> OnRegistrationChanged;
 
 		#region Properties
+
+	    [PublicAPI]
+	    public string ActiveFaultStatus
+	    {
+	        get { return m_FaultStatus; }
+	        private set
+	        {
+	            if (value == m_FaultStatus)
+	                return;
+	            m_FaultStatus = value;
+                Log(eSeverity.Informational, "Active Fault Status set to {0}", m_FaultStatus);
+
+	            OnFaultStatusChanged.Raise(this, new StringEventArgs(m_FaultStatus));
+	        }
+	    }
 
 		[PublicAPI]
 		public string Hostname
@@ -81,6 +141,66 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 				OnHostnameChanged.Raise(this, new StringEventArgs(m_Hostname));
 			}
 		}
+
+	    [PublicAPI]
+	    public string DefaultGateway
+	    {
+            get { return m_DefaultGateway; }
+	        private set
+	        {
+	            if (value == m_DefaultGateway)
+	                return;
+	            m_DefaultGateway = value;
+	            Log(eSeverity.Informational, "Default Gateway set to {0}", m_DefaultGateway);
+                OnDefaultGatewayChanged.Raise(this, new StringEventArgs(m_DefaultGateway));
+	        }
+	    }
+
+	    [PublicAPI]
+	    public eLinkStatus LinkStatus
+	    {
+	        get { return m_LinkStatus; }
+	        private set
+	        {
+	            if (value == m_LinkStatus)
+	                return;
+	            m_LinkStatus = value;
+                Log(eSeverity.Informational, "Link Status set to {0}", m_LinkStatus);
+
+	            LinkStatusCallback handler = OnLinkStatusChanged;
+                if (handler != null)
+                    handler(this, m_LinkStatus);
+	        }
+	    }
+
+	    [PublicAPI]
+	    public string IpAddress 
+        { 
+            get { return m_IpAddress; }
+	        private set
+	        {
+	            if (value == m_IpAddress)
+	                return;
+	            m_IpAddress = value;
+	            Log(eSeverity.Informational, "IP Address set to {0}", m_IpAddress);
+	            OnIpAddressChanged.Raise(this, new StringEventArgs(m_IpAddress));
+	        }
+	    }
+
+	    [PublicAPI]
+	    public string SubnetMask
+	    {
+	        get { return m_SubnetMask; }
+	        private set
+	        {
+	            if (value == m_SubnetMask)
+	                return;
+	            m_SubnetMask = value;
+                Log(eSeverity.Informational, "Subnet Mask set to {0}", m_SubnetMask);
+
+	            OnSubnetMaskChanged.Raise(this, new StringEventArgs(m_SubnetMask));
+	        }
+	    }
 
 		[PublicAPI]
 		public bool MdnsEnabled
@@ -132,6 +252,34 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 				OnTelnetDisabledChanged.Raise(this, new BoolEventArgs(m_TelnetDisabled));
 			}
 		}
+
+	    [PublicAPI]
+	    public string MacAddress
+	    {
+	        get { return m_MacAddress; }
+	        private set
+	        {
+	            if (value == m_MacAddress)
+	                return;
+	            m_MacAddress = value;
+                Log(eSeverity.Informational, "Mac Address set to {0}", m_MacAddress);
+                OnMacAddressChanged.Raise(this, new StringEventArgs(m_MacAddress));
+	        }
+	    }
+
+	    [PublicAPI]
+	    public string Registration
+	    {
+	        get { return m_Registration; }
+	        private set
+	        {
+	            if (value == m_Registration)
+	                return;
+	            m_Registration = value;
+                Log(eSeverity.Informational, "Registration set to {0}", m_Registration);
+                OnRegistrationChanged.Raise(this, new StringEventArgs(m_Registration));
+	        }
+	    }
 
 		[PublicAPI]
 		public string Version { get; private set; }
@@ -311,8 +459,10 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		private void ActiveFaultsFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
-			ArrayValue activeFaults = value.GetValue<ArrayValue>("value");
-			// todo
+			ControlValue activeFaults = value.GetValue<ArrayValue>("value").FirstOrDefault() as ControlValue;
+		    if (activeFaults == null)
+		        return;
+		    ActiveFaultStatus = activeFaults.GetValue<Value>("name").StringValue;
 		}
 
 		private void DiscoveredServersFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -354,7 +504,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		private void NetworkStatusFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			ControlValue networkStatus = value.GetValue<ControlValue>("value");
-			// todo
+		    Hostname = networkStatus.GetValue<Value>("hostname").StringValue;
+		    DefaultGateway = networkStatus.GetValue<Value>("defaultGatewayStatus").StringValue;
+		    ArrayValue networkInterfaceValueWithName = networkStatus.GetValue<ArrayValue>("networkInterfaceStatusWithName");
+		    ControlValue networkInterface = networkInterfaceValueWithName.FirstOrDefault() as ControlValue;
+            
+            if (networkInterface == null)
+		        return;
+
+		    ControlValue networkInterfaceStatus = networkInterface.GetValue<ControlValue>("networkInterfaceStatus");
+
+            LinkStatus = networkInterfaceStatus.GetValue<Value>("linkStatus").GetObjectValue(s_LinkStatus);
+		    MacAddress = networkInterfaceStatus.GetValue<Value>("macAddress").StringValue;
+		    IpAddress = networkInterfaceStatus.GetValue<Value>("ip").StringValue;
+		    SubnetMask = networkInterfaceStatus.GetValue<Value>("netmask").StringValue;
 		}
 
 		private void SerialNumberFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -394,6 +557,14 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			base.BuildConsoleStatus(addRow);
 
 			addRow("Hostname", Hostname);
+		    addRow("IP Address", IpAddress);
+		    addRow("Default Gateway", DefaultGateway);
+		    addRow("Registration Status", Registration);
+            addRow("Active Fault Status", ActiveFaultStatus);
+		    addRow("Host Name", Hostname);
+		    addRow("Link Status", LinkStatus);
+		    addRow("Subnet Mask", SubnetMask);
+		    addRow("Mac Address", MacAddress);
 			addRow("MDNS Enabled", MdnsEnabled);
 			addRow("Serial Number", SerialNumber);
 			addRow("Telnet Disabled", TelnetDisabled);
