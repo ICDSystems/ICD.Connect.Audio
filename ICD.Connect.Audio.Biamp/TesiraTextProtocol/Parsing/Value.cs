@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 
@@ -199,6 +200,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <typeparam name="T"></typeparam>
 		/// <param name="objectMap">Maps the TTP string representation to a C# object.</param>
 		/// <returns></returns>
+		[NotNull]
 		public T GetObjectValue<T>(IDictionary<string, T> objectMap)
 		{
 			return GetObjectValue(arg =>
