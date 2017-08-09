@@ -158,6 +158,7 @@
     <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerChannel.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\GatingAutoMixerChannel.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\MicLogic.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombinerWall.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\AbstractStandardMixerIo.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\AutoMixerCombinerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerBlock.cs" />
