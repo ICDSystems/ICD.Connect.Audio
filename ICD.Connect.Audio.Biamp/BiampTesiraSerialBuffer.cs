@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using ICD.Common.EventArguments;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -14,7 +13,7 @@ namespace ICD.Connect.Audio.Biamp
 	{
 		public event EventHandler<StringEventArgs> OnCompletedSerial;
 
-		private readonly StringBuilder m_RxData;
+		private string m_Remainder;
 		private readonly Queue<string> m_Queue;
 
 		private readonly SafeCriticalSection m_QueueSection;
@@ -31,7 +30,6 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraSerialBuffer()
 		{
-			m_RxData = new StringBuilder();
 			m_Queue = new Queue<string>();
 
 			m_QueueSection = new SafeCriticalSection();
@@ -58,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				m_RxData.Clear();
+				m_Remainder = null;
 				m_Queue.Clear();
 			}
 			finally
@@ -83,35 +81,32 @@ namespace ICD.Connect.Audio.Biamp
 
 				while (m_QueueSection.Execute(() => m_Queue.Dequeue(out data)))
 				{
-					foreach (char c in data)
+					// Prepend anything left from the previous pass
+					m_Remainder = (m_Remainder ?? string.Empty) + data;
+					if (m_Remainder.Length == 0)
+						continue;
+
+					// First check for telnet negotiation
+					while (m_Remainder.Length >= 3 && m_Remainder[0] == TelnetControl.HEADER)
 					{
-						m_RxData.Append(c);
+						string output = m_Remainder.Substring(0, 3);
+						m_Remainder = m_Remainder.Substring(3);
 
-						string stringData = m_RxData.ToString();
+						OnCompletedSerial.Raise(this, new StringEventArgs(output));
+					}
 
-						// Negotiate telnet
-						if (stringData.Length == 3 && stringData[0] == TelnetControl.HEADER)
-						{
-							string output = m_RxData.Pop();
-							if (!string.IsNullOrEmpty(output))
-								OnCompletedSerial.Raise(this, new StringEventArgs(output));
-						}
-
-						// Split on delimiters
-						foreach (char delimiter in m_Delimiters)
-						{
-							if (!stringData.EndsWith(delimiter))
-								continue;
-
-							m_RxData.Remove(stringData.Length - 1, 1);
-							if (m_RxData.Length == 0)
-								continue;
-
-							string output = m_RxData.Pop().Trim();
-							if (!string.IsNullOrEmpty(output))
-								OnCompletedSerial.Raise(this, new StringEventArgs(output));
+					// Look for delimiters
+					while (m_Remainder.Length > 0)
+					{
+						int index = m_Remainder.IndexOfAny(m_Delimiters);
+						if (index < 0)
 							break;
-						}
+
+						string output = m_Remainder.Substring(0, index);
+						m_Remainder = m_Remainder.Substring(index + 1);
+
+						if (!string.IsNullOrEmpty(output))
+							OnCompletedSerial.Raise(this, new StringEventArgs(output));
 					}
 				}
 			}
