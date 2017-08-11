@@ -28,10 +28,13 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			if (!serialized.StartsWith('"'))
 				return serialized;
 
-			string[] split = serialized.Split(':', 2).ToArray();
+			int delimiterIndex = serialized.IndexOf(':');
+			if (delimiterIndex < 0)
+				return serialized;
 
-			key = split.Length > 1 ? RemoveQuotes(split[0].Trim()) : null;
-			return split.Length > 0 ? split[split.Length - 1].Trim() : null;
+			key = RemoveQuotes(serialized.Substring(0, delimiterIndex));
+
+			return serialized.Substring(delimiterIndex + 1).Trim();
 		}
 
 		/// <summary>

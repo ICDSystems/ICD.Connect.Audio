@@ -1,9 +1,8 @@
 ﻿using ICD.Common.EventArguments;
-using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using NUnit.Framework;
 using System.Collections.Generic;
 
-namespace ICD.Connect.Audio.Biamp.Tests_NetStandard
+namespace ICD.Connect.Audio.Biamp.Tests
 {
     [TestFixture]
     public sealed class BiampTesiraSerialBufferTest
