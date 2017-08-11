@@ -736,6 +736,23 @@ namespace ICD.Connect.Audio.Biamp
 			addRow("Initialized", Initialized);
 		}
 
-		#endregion
+	    /// <summary>
+	    /// Gets the child console nodes.
+	    /// </summary>
+	    /// <returns></returns>
+	    public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+	    {
+	        foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+	            yield return node;
+
+	        yield return ConsoleNodeGroup.IndexNodeMap("Attributes", AttributeInterfaces.GetAttributeInterfaces());
+	    }
+
+	    private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+	    {
+	        return base.GetConsoleNodes();
+	    }
+
+	    #endregion
 	}
 }
