@@ -24,6 +24,7 @@ using ICD.Connect.Audio.Biamp.AttributeInterfaces.MeterBlocks;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAutoMixer;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GatingAutoMixer;
+using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.Router;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelector;

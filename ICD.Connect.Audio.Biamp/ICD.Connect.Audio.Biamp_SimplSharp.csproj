@@ -158,13 +158,15 @@
     <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerChannel.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\GatingAutoMixerChannel.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\MicLogic.cs" />
-    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombinerWall.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombiner\RoomCombinerRoom.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombiner\RoomCombinerSource.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombiner\RoomCombinerWall.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\AbstractStandardMixerIo.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\AutoMixerCombinerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GainSharingAutoMixer\GainSharingAutoMixerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\GatingAutoMixer\GatingAutoMixerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\MatrixMixerBlock.cs" />
-    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombinerBlock.cs" />
+    <Compile Include="AttributeInterfaces\MixerBlocks\RoomCombiner\RoomCombinerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerBlock.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerCrosspoint.cs" />
     <Compile Include="AttributeInterfaces\MixerBlocks\StandardMixer\StandardMixerInput.cs" />
