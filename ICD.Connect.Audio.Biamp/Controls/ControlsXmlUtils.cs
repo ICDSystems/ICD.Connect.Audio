@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Services;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
@@ -8,10 +9,13 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
+using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone;
 using ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP;
+using ICD.Connect.Audio.Biamp.Controls.Partitioning;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Audio.Biamp.Controls.Volume;
+using ICD.Connect.Conferencing.Controls;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls
@@ -38,6 +42,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		// Dialer controls are dependent on state controls for handling hold, do-not-disturb and privacy mute
 		private static readonly string[] s_ParseOrder =
 		{
+			"partition",
 			"state",
 			"volume",
 			"voip",
@@ -52,65 +57,133 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		public static IEnumerable<IDeviceControl> GetControlsFromXml(string xml, AttributeInterfaceFactory factory)
 		{
-			List<IDeviceControl> output = new List<IDeviceControl>();
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
+			Dictionary<string, IDeviceControl> output = new Dictionary<string, IDeviceControl>(StringComparer.OrdinalIgnoreCase);
 
 			foreach (string controlElement in GetControlElementsOrderedByType(xml))
 			{
-				string type = XmlUtils.GetAttributeAsString(controlElement, "type");
-				IDeviceControl control;
+				IDeviceControl control = GetControlFromXml(controlElement, factory, output);
+				if (control == null)
+					continue;
 
-				switch (type.ToLower())
-				{
-					case "volume":
-						control = GetControlFromXml<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
-							(controlElement, factory, (id, name, attributeInterface) =>
-													  new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
-						break;
-
-					case "state":
-						control = GetControlFromXml<BiampTesiraStateDeviceControl, IStateAttributeInterface>
-							(controlElement, factory, (id, name, attributeInterface) =>
-													  new BiampTesiraStateDeviceControl(id, name, attributeInterface));
-						break;
-
-					case "voip":
-					case "ti":
-						string doNotDisturbName = XmlUtils.TryReadChildElementContentAsString(controlElement, "DoNotDisturb");
-						string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(controlElement, "PrivacyMute");
-						string holdName = XmlUtils.TryReadChildElementContentAsString(controlElement, "Hold");
-
-						BiampTesiraStateDeviceControl doNotDisturbControl =
-							output.FirstOrDefault(c => c.Name == doNotDisturbName) as BiampTesiraStateDeviceControl;
-						BiampTesiraStateDeviceControl privacyMuteControl =
-							output.FirstOrDefault(c => c.Name == privacyMuteName) as BiampTesiraStateDeviceControl;
-						BiampTesiraStateDeviceControl holdControl =
-							output.FirstOrDefault(c => c.Name == holdName) as BiampTesiraStateDeviceControl;
-
-						if (type.ToLower() == "voip")
-						{
-							control = GetControlFromXml<VoIpDialingDeviceControl, VoIpControlStatusLine>
-								(controlElement, factory, (id, name, attributeInterface) =>
-											   new VoIpDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl));
-						}
-						else
-						{
-							control = GetControlFromXml<TiDialingDeviceControl, TiControlStatusBlock>
-								(controlElement, factory, (id, name, attributeInterface) =>
-											   new TiDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl, holdControl));
-						}
-
-						break;
-
-					default:
-						ServiceProvider.GetService<ILoggerService>()
-						               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
-						continue;
-				}
-
-				output.Add(control);
+				output.Add(control.Name, control);
 			}
 
-			return output;
+			return output.Values;
+		}
+
+		/// <summary>
+		/// Instantiates a control from the given xml element.
+		/// </summary>
+		/// <param name="xml"></param>
+		/// <param name="factory"></param>
+		/// <param name="cache"></param>
+		/// <returns></returns>
+		[CanBeNull]
+		private static IDeviceControl GetControlFromXml(string xml, AttributeInterfaceFactory factory,
+		                                                IDictionary<string, IDeviceControl> cache)
+		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+			if (cache == null)
+				throw new ArgumentNullException("cache");
+
+			string type = XmlUtils.GetAttributeAsString(xml, "type");
+
+			switch (type.ToLower())
+			{
+				case "partition":
+					return GetRoomCombinerWallFromXml(xml, factory);
+				case "volume":
+					return GetControlFromXml<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
+						(xml, factory, (id, name, attributeInterface) =>
+						               new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
+				case "state":
+					return GetControlFromXml<BiampTesiraStateDeviceControl, IStateAttributeInterface>
+						(xml, factory, (id, name, attributeInterface) =>
+						               new BiampTesiraStateDeviceControl(id, name, attributeInterface));
+				case "voip":
+				case "ti":
+					return GetDialingControlFromXml(xml, factory, cache);
+
+				default:
+					ServiceProvider.GetService<ILoggerService>()
+					               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
+					return null;
+			}
+		}
+
+		/// <summary>
+		/// Instantiates a room combiner wall control from the given xml element.
+		/// </summary>
+		/// <param name="xml"></param>
+		/// <param name="factory"></param>
+		/// <returns></returns>
+		private static IDeviceControl GetRoomCombinerWallFromXml(string xml, AttributeInterfaceFactory factory)
+		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
+			int wall = XmlUtils.ReadChildElementContentAsInt(xml, "Wall");
+
+			return GetControlFromXml<BiampTesiraPartitionDeviceControl, RoomCombinerBlock>
+						(xml, factory, (id, name, attributeInterface) =>
+									   new BiampTesiraPartitionDeviceControl(id, name, attributeInterface.GetWall(wall)));
+		}
+
+		/// <summary>
+		/// Instantiates a dialing control from the given xml element.
+		/// </summary>
+		/// <param name="xml"></param>
+		/// <param name="factory"></param>
+		/// <param name="cache"></param>
+		/// <returns></returns>
+		[CanBeNull]
+		private static IDialingDeviceControl GetDialingControlFromXml(string xml, AttributeInterfaceFactory factory,
+		                                                              IDictionary<string, IDeviceControl> cache)
+		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+			if (cache == null)
+				throw new ArgumentNullException("cache");
+
+			string type = XmlUtils.GetAttributeAsString(xml, "type");
+
+			string doNotDisturbName = XmlUtils.TryReadChildElementContentAsString(xml, "DoNotDisturb");
+			string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMute");
+			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "Hold");
+
+			BiampTesiraStateDeviceControl doNotDisturbControl = doNotDisturbName == null
+				                                                    ? null
+				                                                    : cache.GetDefault(doNotDisturbName, null) as
+				                                                      BiampTesiraStateDeviceControl;
+			BiampTesiraStateDeviceControl privacyMuteControl = privacyMuteName == null
+				                                                   ? null
+				                                                   : cache.GetDefault(privacyMuteName, null) as
+				                                                     BiampTesiraStateDeviceControl;
+			BiampTesiraStateDeviceControl holdControl = holdName == null
+				                                            ? null
+				                                            : cache.GetDefault(holdName, null) as BiampTesiraStateDeviceControl;
+
+			switch (type.ToLower())
+			{
+				case "voip":
+					return GetControlFromXml<VoIpDialingDeviceControl, VoIpControlStatusLine>
+						(xml, factory, (id, name, attributeInterface) =>
+						               new VoIpDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl));
+				case "ti":
+					return GetControlFromXml<TiDialingDeviceControl, TiControlStatusBlock>
+						(xml, factory, (id, name, attributeInterface) =>
+						               new TiDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl,
+						                                          holdControl));
+
+				default:
+					ServiceProvider.GetService<ILoggerService>()
+					               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
+					return null;
+			}
 		}
 
 		/// <summary>
@@ -121,13 +194,18 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		private static IEnumerable<string> GetControlElementsOrderedByType(string xml)
 		{
 			return XmlUtils.GetChildElementsAsString(xml, "Control")
-			               .OrderBy(e =>
-			                        {
-				                        string type = XmlUtils.GetAttributeAsString(e, "type");
-				                        return
-					                        s_ParseOrder.FindIndex(s =>
-					                                               String.Equals(s, type, StringComparison.CurrentCultureIgnoreCase));
-			                        });
+						   .OrderBy(e => GetIndexFromControlElement(e));
+		}
+
+		/// <summary>
+		/// Pulls the type attribute from a Control element and returns the ordered index.
+		/// </summary>
+		/// <param name="element"></param>
+		/// <returns></returns>
+		private static int GetIndexFromControlElement(string element)
+		{
+			string type = XmlUtils.GetAttributeAsString(element, "type");
+			return s_ParseOrder.FindIndex(s => String.Equals(s, type, StringComparison.CurrentCultureIgnoreCase));
 		}
 
 		/// <summary>
@@ -145,6 +223,11 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			where TControl : IDeviceControl
 			where TAttributeInterface : class, IAttributeInterface
 		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+			if (constructor == null)
+				throw new ArgumentNullException("constructor");
+
 			int id = XmlUtils.GetAttributeAsInt(xml, "id");
 			string name = XmlUtils.GetAttributeAsString(xml, "name");
 			IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
@@ -166,6 +249,9 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		private static IAttributeInterface GetAttributeInterfaceFromXml(string xml, AttributeInterfaceFactory factory)
 		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
 			string block = XmlUtils.ReadChildElementContentAsString(xml, "Block");
 			string instanceTag = XmlUtils.ReadChildElementContentAsString(xml, "InstanceTag");
 
