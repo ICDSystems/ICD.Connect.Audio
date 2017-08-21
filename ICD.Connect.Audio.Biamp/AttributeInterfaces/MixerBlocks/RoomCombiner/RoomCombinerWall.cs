@@ -23,20 +23,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
         public event EventHandler<IntEventArgs> OnRoomPrecedenceChanged;
 
 
-        private bool m_WallState;
+        private bool m_WallClosed;
         private int m_RoomPrecedence;
 
         [PublicAPI]
         public bool WallClosed
         {
-            get { return m_WallState; }
+            get { return m_WallClosed; }
             private set
             {
-                if (value == m_WallState)
+                if (value == m_WallClosed)
                     return;
-                m_WallState = value;
-                Log(eSeverity.Informational, "Wall Closed set to {0}", m_WallState);
-                OnWallClosedChanged.Raise(this, new BoolEventArgs(m_WallState));
+                m_WallClosed = value;
+                Log(eSeverity.Informational, "Wall Closed set to {0}", m_WallClosed);
+                OnWallClosedChanged.Raise(this, new BoolEventArgs(m_WallClosed));
             }
         }
 
@@ -90,7 +90,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 
             RequestAttribute(WallStateFeedback, AttributeCode.eCommand.Get, WALL_STATE_ATTRIBUTE, null, Index);
             RequestAttribute(RoomPrecedenceFeedback, AttributeCode.eCommand.Get, WALL_ROOM_PRECEDENCE, null, Index);
-
         }
 
         [PublicAPI]
