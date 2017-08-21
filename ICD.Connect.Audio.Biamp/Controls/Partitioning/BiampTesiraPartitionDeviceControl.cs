@@ -31,6 +31,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 			m_Wall = wall;
 
 			Subscribe(m_Wall);
+
+			IsOpen = !wall.WallClosed;
 		}
 
 		/// <summary>
