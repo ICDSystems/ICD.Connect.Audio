@@ -8,7 +8,6 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Biamp.AttributeInterfaces.Services;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
@@ -32,8 +31,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
         public enum eRegistrationStatus
         {
-            VOIP_REGISTERED,
-            VOIP_UNREGISTER
+            VoipRegistered,
+            VoipUnregister
         }
 
 		private static readonly Dictionary<string, eAutoAnswerRingCount> s_AutoAnswerRingCountSerials =
@@ -52,11 +51,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				{"RING_TYPE_SILENT", eRingType.Silent}
 			};
 
-	    public static readonly Dictionary<string, eRegistrationStatus> s_RegistrationStatus =
+	    private static readonly Dictionary<string, eRegistrationStatus> s_RegistrationStatus =
 	        new Dictionary<string, eRegistrationStatus>(StringComparer.OrdinalIgnoreCase)
 	        {
-	            {"VOIP_REGISTERED", eRegistrationStatus.VOIP_REGISTERED},
-	            {"VOIP_UNREGISTER", eRegistrationStatus.VOIP_UNREGISTER}
+	            {"VOIP_REGISTERED", eRegistrationStatus.VoipRegistered},
+	            {"VOIP_UNREGISTER", eRegistrationStatus.VoipUnregister}
 	        };
 
 		private const string DTMF_SERVICE = "dtmf";
