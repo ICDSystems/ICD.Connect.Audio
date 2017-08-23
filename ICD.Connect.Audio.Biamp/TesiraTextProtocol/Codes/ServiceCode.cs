@@ -5,7 +5,7 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 {
-	public sealed class ServiceCode : AbstractCode
+	public sealed class ServiceCode : AbstractCode<ServiceCode>
 	{
 		private readonly string m_Service;
 
@@ -30,7 +30,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <param name="instanceTag"></param>
 		/// <param name="service"></param>
 		/// <param name="value"></param>
-		public ServiceCode(string instanceTag, string service, AbstractValue value)
+		public ServiceCode(string instanceTag, string service, IValue value)
 			: this(instanceTag, service, value, new object[0])
 		{
 		}
@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <param name="service"></param>
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
-		public ServiceCode(string instanceTag, string service, AbstractValue value, object[] indices)
+		public ServiceCode(string instanceTag, string service, IValue value, object[] indices)
 			: base(instanceTag, value, indices)
 		{
 			m_Service = service;
@@ -86,6 +86,16 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 			builder.Append(TtpUtils.LF);
 
 			return builder.ToString();
+		}
+
+		/// <summary>
+		/// Returns true if the code is equal to the given other code.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected override bool CompareEquality(ServiceCode other)
+		{
+			return Service == other.Service && base.CompareEquality(other);
 		}
 	}
 }

@@ -17,7 +17,7 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Value childControlValueA = new Value(1);
 			Value childControlValueB = new Value(2);
 			ControlValue childControl =
-				new ControlValue(new Dictionary<string, AbstractValue>
+				new ControlValue(new Dictionary<string, IValue>
 				{
 					{"A", childControlValueA},
 					{"B", childControlValueB}
@@ -25,9 +25,9 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 
 			Value childArrayValueA = new Value(1);
 			Value childArrayValueB = new Value(2);
-			ArrayValue childArray = new ArrayValue(new AbstractValue[] {childArrayValueA, childArrayValueB});
+			ArrayValue childArray = new ArrayValue(new IValue[] {childArrayValueA, childArrayValueB});
 
-			ArrayValue array = new ArrayValue(new AbstractValue[] { childValue, childControl, childArray });
+			ArrayValue array = new ArrayValue(new IValue[] { childValue, childControl, childArray });
 
 			// Serialize and deserialize
 			string serialized = array.Serialize();

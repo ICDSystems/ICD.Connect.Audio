@@ -62,7 +62,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// </summary>
 		/// <param name="serialized"></param>
 		/// <returns></returns>
-		public static AbstractValue DeserializeValue(string serialized)
+		public static IValue DeserializeValue(string serialized)
 		{
 			if (serialized == null)
 				throw new ArgumentNullException("serialized");
@@ -89,7 +89,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// </summary>
 		/// <param name="serialized"></param>
 		/// <returns></returns>
-		public static IEnumerable<KeyValuePair<string, AbstractValue>> GetKeyedValues(string serialized)
+		public static IEnumerable<KeyValuePair<string, IValue>> GetKeyedValues(string serialized)
 		{
 			if (serialized == null)
 				throw new ArgumentNullException("serialized");
@@ -114,7 +114,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 					throw new FormatException(message);
 				}
 
-				yield return new KeyValuePair<string, AbstractValue>(key, DeserializeValue(item));
+				yield return new KeyValuePair<string, IValue>(key, DeserializeValue(item));
 			}
 		}
 
@@ -123,7 +123,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// </summary>
 		/// <param name="serialized"></param>
 		/// <returns></returns>
-		public static IEnumerable<AbstractValue> GetArrayValues(string serialized)
+		public static IEnumerable<IValue> GetArrayValues(string serialized)
 		{
 			if (serialized == null)
 				throw new ArgumentNullException("serialized");

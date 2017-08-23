@@ -52,7 +52,7 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Response ok2 = Response.Deserialize(OK2);
 			Response feedback = Response.Deserialize(FEEDBACK);
 
-			Assert.Throws<KeyNotFoundException>(() => { AbstractValue a = err.Values.GetValue<Value>("test"); });
+			Assert.Throws<KeyNotFoundException>(() => { IValue a = err.Values.GetValue<Value>("test"); });
 
 			Assert.AreEqual(0, err.Values.GetValue<Value>("deviceId").IntValue);
 			Assert.AreEqual(0, err.Values.GetValue<Value>("classCode").IntValue);

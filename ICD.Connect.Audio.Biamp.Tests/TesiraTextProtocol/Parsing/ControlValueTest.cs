@@ -47,7 +47,7 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Assert.Throws<KeyNotFoundException>(() => { object test = a.GetValue<Value>("test"); });
 
 			Value value = new Value(0);
-			ControlValue b = new ControlValue(new Dictionary<string, AbstractValue> {{"test", value}});
+			ControlValue b = new ControlValue(new Dictionary<string, IValue> {{"test", value}});
 
 			Assert.DoesNotThrow(() => { object test = b.GetValue<Value>("test"); });
 			Assert.AreEqual(value, b.GetValue<Value>("test"));
@@ -96,12 +96,12 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			// Build a hierarchy of values
 			Value childArrayValueA = new Value(1);
 			Value childArrayValueB = new Value(2);
-			ArrayValue childArray = new ArrayValue(new AbstractValue[] { childArrayValueA, childArrayValueB });
+			ArrayValue childArray = new ArrayValue(new IValue[] { childArrayValueA, childArrayValueB });
 
 			Value childControlValueA = new Value(1);
 			Value childControlValueB = new Value(2);
 			ControlValue control =
-				new ControlValue(new Dictionary<string, AbstractValue>
+				new ControlValue(new Dictionary<string, IValue>
 				{
 					{"A", childControlValueA},
 					{"B", childControlValueB},

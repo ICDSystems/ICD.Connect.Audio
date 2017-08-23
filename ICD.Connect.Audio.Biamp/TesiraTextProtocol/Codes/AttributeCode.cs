@@ -20,7 +20,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 	/// 
 	///		MatMix_1 set crosspointLevel 4 6 -4 LF
 	/// </summary>
-	public sealed class AttributeCode : AbstractCode
+	public sealed class AttributeCode : AbstractCode<AttributeCode>
 	{
 		public enum eCommand
 		{
@@ -56,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <param name="attribute"></param>
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
-		private AttributeCode(string instanceTag, eCommand command, string attribute, AbstractValue value,
+		private AttributeCode(string instanceTag, eCommand command, string attribute, IValue value,
 		                     object[] indices)
 			: base(instanceTag, value, indices)
 		{
@@ -84,7 +84,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
 		/// <returns></returns>
-		public static AttributeCode Set(string instanceTag, string attribute, AbstractValue value, params int[] indices)
+		public static AttributeCode Set(string instanceTag, string attribute, IValue value, params int[] indices)
 		{
 			return new AttributeCode(instanceTag, eCommand.Set, attribute, value, indices.Cast<object>().ToArray());
 		}
@@ -202,6 +202,19 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 			builder.Append(TtpUtils.LF);
 
 			return builder.ToString();
+		}
+
+		/// <summary>
+		/// Returns true if the code is equal to the given other code.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected override bool CompareEquality(AttributeCode other)
+		{
+			if (Command != other.Command)
+				return false;
+
+			return Attribute == other.Attribute && base.CompareEquality(other);
 		}
 	}
 }

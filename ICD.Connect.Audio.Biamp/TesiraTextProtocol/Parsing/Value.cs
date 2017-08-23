@@ -11,7 +11,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 	/// <summary>
 	/// Represents a singular TTP value. Serialized data surrounded with quotes is assumed to be a string.
 	/// </summary>
-	public sealed class Value : AbstractValue
+	public sealed class Value : AbstractValue<Value>
 	{
 		// hh:mm:ss:MM:DD:YYYY
 		// hh = Hours
@@ -182,6 +182,16 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		public override string Serialize()
 		{
 			return m_Value;
+		}
+
+		/// <summary>
+		/// Compares this values equality with the given other value.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected override bool CompareEquality(Value other)
+		{
+			return m_Value == other.m_Value;
 		}
 
 		/// <summary>

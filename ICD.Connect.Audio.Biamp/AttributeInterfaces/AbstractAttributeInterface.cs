@@ -117,7 +117,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
 		protected void RequestAttribute(BiampTesiraDevice.SubscriptionCallback callback, AttributeCode.eCommand command,
-		                                string attribute, AbstractValue value, params int[] indices)
+										string attribute, IValue value, params int[] indices)
 		{
 			AttributeCode code;
 
@@ -176,7 +176,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// <param name="service"></param>
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
-		protected void RequestService(string service, AbstractValue value, params int[] indices)
+		protected void RequestService(string service, IValue value, params int[] indices)
 		{
 			ServiceCode code = new ServiceCode(m_InstanceTag, service, value, indices.Cast<object>().ToArray());
 			m_Device.SendData(code);

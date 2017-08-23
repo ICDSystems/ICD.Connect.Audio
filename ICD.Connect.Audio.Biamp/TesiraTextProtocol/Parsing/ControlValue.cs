@@ -13,9 +13,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 	/// 
 	/// Strings are wrapped with quotations.
 	/// </summary>
-	public sealed class ControlValue : AbstractValue
+	public sealed class ControlValue : AbstractValue<ControlValue>
 	{
-		private readonly Dictionary<string, AbstractValue> m_Values;
+		private readonly Dictionary<string, IValue> m_Values;
 
 		/// <summary>
 		/// Gets the number of child values.
@@ -28,15 +28,15 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Constructor.
 		/// </summary>
 		public ControlValue()
-			: this(new Dictionary<string, AbstractValue>())
+			: this(new Dictionary<string, IValue>())
 		{
 		}
 
         /// <summary>
         /// Constructor.
         /// </summary>
-        public ControlValue(IDictionary<string, AbstractValue> values)
-			: this((IEnumerable<KeyValuePair<string, AbstractValue>>)values)
+		public ControlValue(IDictionary<string, IValue> values)
+			: this((IEnumerable<KeyValuePair<string, IValue>>)values)
 		{
 		}
 
@@ -44,9 +44,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
         /// Constructor.
         /// </summary>
         /// <param name="getKeyedValues"></param>
-        public ControlValue(IEnumerable<KeyValuePair<string, AbstractValue>> getKeyedValues)
+		public ControlValue(IEnumerable<KeyValuePair<string, IValue>> getKeyedValues)
 		{
-			m_Values = new Dictionary<string, AbstractValue>();
+			m_Values = new Dictionary<string, IValue>();
 			m_Values.AddRange(getKeyedValues);
 		}
 
@@ -61,9 +61,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		[NotNull]
 		public T GetValue<T>(string key)
-			where T : AbstractValue
+			where T : IValue
 		{
-			AbstractValue value;
+			IValue value;
 			if (!m_Values.TryGetValue(key, out value))
 			{
 				string message1 = string.Format("{0} does not contain key \"{1}\"", GetType().Name, key);
@@ -85,7 +85,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		public static ControlValue Deserialize(string serial)
 		{
-			Dictionary<string, AbstractValue> keyedValues = new Dictionary<string, AbstractValue>();
+			Dictionary<string, IValue> keyedValues = new Dictionary<string, IValue>();
 			keyedValues.AddRange(TtpUtils.GetKeyedValues(serial));
 
 			return new ControlValue(keyedValues);
@@ -108,6 +108,16 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			return builder.ToString();
 		}
 
+		/// <summary>
+		/// Compares this values equality with the given other value.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected override bool CompareEquality(ControlValue other)
+		{
+			return m_Values.DictionaryEqual(other.m_Values, (a, b) => a.CompareEquality(b));
+		}
+
 		#endregion
 
 		#region Private Methods
@@ -127,7 +137,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <param name="key"></param>
 		/// <param name="value"></param>
 		/// <returns></returns>
-		private static string GetKvpAsString(string key, AbstractValue value)
+		private static string GetKvpAsString(string key, IValue value)
 		{
 			string valueString = value == null ? string.Empty : value.Serialize();
 			return string.Format("\"{0}\":{1}", key, valueString);

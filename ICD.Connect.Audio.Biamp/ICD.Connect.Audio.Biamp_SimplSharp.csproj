@@ -203,6 +203,7 @@
     <Compile Include="TesiraTextProtocol\Parsing\ArrayValue.cs" />
     <Compile Include="TesiraTextProtocol\Codes\AttributeCode.cs" />
     <Compile Include="TesiraTextProtocol\Parsing\ControlValue.cs" />
+    <Compile Include="TesiraTextProtocol\Parsing\IValue.cs" />
     <Compile Include="TesiraTextProtocol\Parsing\TtpUtils.cs" />
     <Compile Include="TesiraTextProtocol\Parsing\Value.cs" />
     <Compile Include="TesiraTextProtocol\Parsing\Response.cs" />

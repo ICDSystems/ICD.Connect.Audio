@@ -366,7 +366,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			CodeCallbackPair pair = new CodeCallbackPair(data, callback);
-			m_SerialQueue.Enqueue(pair);
+			m_SerialQueue.Enqueue(pair, (a, b) => a.Code.CompareEquality(b.Code));
 		}
 
 		/// <summary>

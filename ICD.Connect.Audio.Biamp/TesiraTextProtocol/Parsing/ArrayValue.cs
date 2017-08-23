@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ICD.Common.Utils.Extensions;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 {
@@ -13,16 +14,16 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 	/// +OK "list":["123" "AudioMeter1" "AudioMeter2" "AudioMeter3" "DEVICE"
 	///				"Input1" "Mixer1" "Mute1" "Level1" "Output1"]
 	/// </summary>
-	public sealed class ArrayValue : AbstractValue, ICollection<AbstractValue>
+	public sealed class ArrayValue : AbstractValue<ArrayValue>, ICollection<IValue>
 	{
-		private readonly List<AbstractValue> m_Values;
+		private readonly List<IValue> m_Values;
 
 		/// <summary>
 		/// Gets the child value at the given index.
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		public AbstractValue this[int index]
+		public IValue this[int index]
 		{
 			get
 			{
@@ -40,7 +41,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Constructor.
 		/// </summary>
 		public ArrayValue()
-			: this(Enumerable.Empty<AbstractValue>())
+			: this(Enumerable.Empty<IValue>())
 		{
 		}
 
@@ -48,9 +49,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Constructor.
 		/// </summary>
 		/// <param name="values"></param>
-		public ArrayValue(IEnumerable<AbstractValue> values)
+		public ArrayValue(IEnumerable<IValue> values)
 		{
-			m_Values = new List<AbstractValue>(values);
+			m_Values = new List<IValue>(values);
 		}
 
 		/// <summary>
@@ -60,7 +61,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		public static ArrayValue Deserialize(string serialized)
 		{
-			IEnumerable<AbstractValue> values = TtpUtils.GetArrayValues(serialized);
+			IEnumerable<IValue> values = TtpUtils.GetArrayValues(serialized);
 			return new ArrayValue(values);
 		}
 
@@ -86,11 +87,21 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			return builder.ToString();
 		}
 
+		/// <summary>
+		/// Compares this values equality with the given other value.
+		/// </summary>
+		/// <param name="other"></param>
+		/// <returns></returns>
+		protected override bool CompareEquality(ArrayValue other)
+		{
+			return other.SequenceEqual(other, (a, b) => a.CompareEquality(b));
+		}
+
 		#endregion
 
 		#region IEnumerable
 
-		public IEnumerator<AbstractValue> GetEnumerator()
+		public IEnumerator<IValue> GetEnumerator()
 		{
 			return m_Values.ToList().GetEnumerator();
 		}
@@ -104,7 +115,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 
 		#region ICollections Methods
 
-		public void Add(AbstractValue item)
+		public void Add(IValue item)
 		{
 			m_Values.Add(item);
 		}
@@ -114,17 +125,17 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			m_Values.Clear();
 		}
 
-		public bool Contains(AbstractValue item)
+		public bool Contains(IValue item)
 		{
 			return m_Values.Contains(item);
 		}
 
-		public void CopyTo(AbstractValue[] array, int arrayIndex)
+		public void CopyTo(IValue[] array, int arrayIndex)
 		{
 			m_Values.CopyTo(array, arrayIndex);
 		}
 
-		public bool Remove(AbstractValue item)
+		public bool Remove(IValue item)
 		{
 			return m_Values.Remove(item);
 		}
