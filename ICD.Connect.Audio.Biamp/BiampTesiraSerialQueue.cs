@@ -70,6 +70,16 @@ namespace ICD.Connect.Audio.Biamp
 
 		private void CommandDelayCallback(object sender, EventArgs args)
 		{
+			HandleNextCommand();
+		}
+
+		protected override void CommandAdded()
+		{
+			HandleNextCommand();
+		}
+
+		private void HandleNextCommand()
+		{
 			if (!IsCommandInProgress && CommandCount > 0)
 				SendImmediate();
 
@@ -77,16 +87,6 @@ namespace ICD.Connect.Audio.Biamp
 				m_DelayTimer.Stop();
 			else
 				m_DelayTimer.Restart(RATE_LIMIT);
-		}
-
-		protected override void CommandAdded()
-		{
-			if (m_DelayTimer.IsRunning)
-				return;
-
-			SendImmediate();
-
-			m_DelayTimer.Restart(RATE_LIMIT);
 		}
 
 		protected override void CommandFinished()
