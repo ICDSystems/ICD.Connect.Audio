@@ -137,7 +137,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 
 			serialized = serialized.Substring(1, serialized.Length - 2);
 
-			return SplitValues(serialized)
+			return SplitArrayValues(serialized)
 				.Select(s => DeserializeValue(s));
 		}
 
@@ -151,76 +151,112 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			if (serialized == null)
 				throw new ArgumentNullException("serialized");
 
-			int controlCount = 0;
-			int arrayCount = 0;
-			bool quoted = false;
-			bool escaped = false;
-			bool skipWhitespace = true;
-			string output;
+            // The split logic doesn't handle values with spaces very well, so we
+            // simply append values without keys to the previous item
+            string previous = null;
 
-			StringBuilder builder = new StringBuilder();
+            foreach (string item in SplitArrayValues(serialized))
+            {
+                if (item.Contains(':'))
+                {
+                    // Clear out the previous item
+                    if (previous != null)
+                    {
+                        yield return previous;
+                        previous = null;
+                    }
+                }
 
-			foreach (char character in serialized)
-			{
-				if (char.IsWhiteSpace(character))
-				{
-					if (skipWhitespace)
-						continue;
+                if (previous == null)
+                    previous = item;
+                else
+                    previous += " " + item;
+            }
 
-					if (arrayCount == 0 &&
-					    controlCount == 0 &&
-					    !quoted &&
-					    !escaped)
-					{
-						output = builder.Pop().Trim();
-						if (!string.IsNullOrEmpty(output))
-							yield return output;
-					}
-				}
+            if (previous != null)
+                yield return previous;
+        }
 
-				switch (character)
-				{
-					case '{':
-						if (!escaped)
-							controlCount++;
-						break;
-					case '}':
-						if (!escaped)
-							controlCount--;
-						break;
+        /// <summary>
+        /// Given a sequence of values, returns the individual serialized items.
+        /// </summary>
+        /// <param name="serialized"></param>
+        /// <returns></returns>
+        private static IEnumerable<string> SplitArrayValues(string serialized)
+        {
+            if (serialized == null)
+                throw new ArgumentNullException("serialized");
 
-					case '[':
-						if (!escaped)
-							arrayCount++;
-						break;
-					case ']':
-						if (!escaped)
-							arrayCount--;
-						break;
+            int controlCount = 0;
+            int arrayCount = 0;
+            bool quoted = false;
+            bool escaped = false;
+            bool skipWhitespace = true;
+            string output;
 
-					case '"':
-						if (!escaped)
-							quoted = !quoted;
-						break;
-				}
+            StringBuilder builder = new StringBuilder();
 
-				// Handle escaped characters
-				escaped = !escaped && character == '\\';
+            foreach (char character in serialized)
+            {
+                if (char.IsWhiteSpace(character))
+                {
+                    if (skipWhitespace)
+                        continue;
 
-				// Skip whitespace if we are at a <key>: and looking for the value.
-				skipWhitespace = character == ':' &&
-				                 arrayCount == 0 &&
-				                 controlCount == 0 &&
-				                 !quoted &&
-				                 !escaped;
+                    if (arrayCount == 0 &&
+                        controlCount == 0 &&
+                        !quoted &&
+                        !escaped)
+                    {
+                        output = builder.Pop().Trim();
+                        if (!string.IsNullOrEmpty(output))
+                            yield return output;
+                    }
+                }
 
-				builder.Append(character);
-			}
+                switch (character)
+                {
+                    case '{':
+                        if (!escaped)
+                            controlCount++;
+                        break;
+                    case '}':
+                        if (!escaped)
+                            controlCount--;
+                        break;
 
-			output = builder.Pop().Trim();
+                    case '[':
+                        if (!escaped)
+                            arrayCount++;
+                        break;
+                    case ']':
+                        if (!escaped)
+                            arrayCount--;
+                        break;
 
-			if (!string.IsNullOrEmpty(output))
-				yield return output;
-		}
+                    case '"':
+                        if (!escaped)
+                            quoted = !quoted;
+                        break;
+                }
+
+                // Handle escaped characters
+                escaped = !escaped && character == '\\';
+
+                // Skip whitespace if we are at a <key>: and looking for the value.
+                skipWhitespace = character == ':' &&
+                                 arrayCount == 0 &&
+                                 controlCount == 0 &&
+                                 !quoted &&
+                                 !escaped;
+
+                builder.Append(character);
+            }
+
+            output = builder.Pop().Trim();
+
+            if (!string.IsNullOrEmpty(output))
+                yield return output;
+        }
 	}
 }

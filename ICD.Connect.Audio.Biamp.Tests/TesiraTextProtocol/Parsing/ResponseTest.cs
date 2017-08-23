@@ -9,11 +9,14 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 	public sealed class ResponseTest
 	{
 		private const string ERR = @"-ERR address not found: {""deviceId"":0 ""classCode"":0 ""instanceNum"":0}";
-		private const string OK1 = @"+OK ""value"":0.000000";
-		private const string FEEDBACK = @"! ""publishToken"":""my meter"" ""value"":-100.000000";
-		private const string OK2 = @"+OK ""time"":""12:00"" ""number"":""503-367-3568"" ""line"":""2""";
 
-		[Test, UsedImplicitly]
+		private const string OK1 = @"+OK ""value"":0.000000";
+        private const string OK2 = @"+OK ""time"":""12:00"" ""number"":""503-367-3568"" ""line"":""2""";
+
+        private const string FEEDBACK = @"! ""publishToken"":""my meter"" ""value"":-100.000000";
+        private const string FEEDBACK_SPACE = @"! ""publishToken"":INVALID TEST ""value"":-100.000000";
+
+        [Test, UsedImplicitly]
 		public void ResponseTypeTest()
 		{
 			Response err = Response.Deserialize(ERR);
@@ -64,5 +67,16 @@ namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
 			Assert.AreEqual("my meter", feedback.Values.GetValue<Value>("publishToken").StringValue);
 			Assert.AreEqual(-100.0f, feedback.Values.GetValue<Value>("value").FloatValue);
 		}
+
+        [Test, UsedImplicitly]
+        public void FeedbackSpaceTest()
+        {
+            Response feedback = Response.Deserialize(FEEDBACK_SPACE);
+
+            Assert.AreEqual(Response.eResponseType.Feedback, feedback.ResponseType);
+            Assert.AreEqual(string.Empty, feedback.Message);
+            Assert.AreEqual("INVALID TEST", feedback.Values.GetValue<Value>("publishToken").GetObjectValue(s => s));
+            Assert.AreEqual(-100.0f, feedback.Values.GetValue<Value>("value").FloatValue);
+        }
 	}
 }
