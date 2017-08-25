@@ -1,7 +1,6 @@
 ﻿using System;
 using ICD.Common.EventArguments;
 using ICD.Common.Services.Logging;
-using ICD.Common.Utils;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls;

@@ -299,18 +299,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		#region Methods
 
-		/// <summary>
-		/// Release resources.
-		/// </summary>
-		public override void Dispose()
-		{
-			base.Dispose();
-		}
-
         public override void Deinitialize()
         {
             base.Deinitialize();
-
 
             // Unsubscribe
             RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Unsubscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);

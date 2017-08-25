@@ -76,11 +76,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
         /// </summary>
         protected override string IndexName { get { return "Wall"; } }
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-        }
-
         /// <summary>
         /// Override to request initial values from the device, and subscribe for feedback.
         /// </summary>
