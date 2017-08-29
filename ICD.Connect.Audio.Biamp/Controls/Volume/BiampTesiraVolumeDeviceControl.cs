@@ -1,4 +1,4 @@
-﻿using ICD.Common.EventArguments;
+﻿using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Devices.Controls;
 

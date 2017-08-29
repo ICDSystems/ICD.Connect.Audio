@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using ICD.Common.EventArguments;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Connect.API.Commands;

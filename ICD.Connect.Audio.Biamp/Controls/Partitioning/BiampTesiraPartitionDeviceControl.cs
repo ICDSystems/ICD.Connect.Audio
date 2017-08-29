@@ -1,4 +1,4 @@
-﻿using ICD.Common.EventArguments;
+﻿using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Partitioning.Controls;
 

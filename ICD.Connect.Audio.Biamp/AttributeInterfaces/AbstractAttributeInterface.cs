@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.EventArguments;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;

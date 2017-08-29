@@ -1,4 +1,4 @@
-﻿using ICD.Common.EventArguments;
+﻿using ICD.Common.Utils.EventArguments;
 using NUnit.Framework;
 using System.Collections.Generic;
 

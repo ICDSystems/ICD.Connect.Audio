@@ -1,5 +1,5 @@
 ﻿using System;
-using ICD.Common.EventArguments;
+using ICD.Common.Utils.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 {
