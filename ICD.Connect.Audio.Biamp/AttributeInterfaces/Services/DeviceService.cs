@@ -16,13 +16,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 	{
         public enum eLinkStatus
         {
-            LINK_1_GB,
+            Link1Gb,
         }
 
         private static readonly Dictionary<string, eLinkStatus> s_LinkStatus
             = new Dictionary<string, eLinkStatus>(StringComparer.OrdinalIgnoreCase)
 			{
-				{"LINK_1_GB", eLinkStatus.LINK_1_GB},
+				{"LINK_1_GB", eLinkStatus.Link1Gb},
 			};
 
 
