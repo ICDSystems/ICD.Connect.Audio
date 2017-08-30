@@ -49,6 +49,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			"ti"
 		};
 
+		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
+
 		/// <summary>
 		/// Instantiates device controls from the given xml document.
 		/// </summary>
@@ -109,8 +111,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					return GetDialingControlFromXml(xml, factory, cache);
 
 				default:
-					ServiceProvider.GetService<ILoggerService>()
-					               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
+					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
 					return null;
 			}
 		}
@@ -180,8 +181,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						                                          holdControl));
 
 				default:
-					ServiceProvider.GetService<ILoggerService>()
-					               .AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
+					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
 					return null;
 			}
 		}
