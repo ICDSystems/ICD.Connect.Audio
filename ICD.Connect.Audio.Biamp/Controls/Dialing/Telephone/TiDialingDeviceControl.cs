@@ -50,6 +50,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
+		/// <summary>
+		/// Gets the type of conference this dialer supports.
+		/// </summary>
+		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
+
 		#endregion
 
 		/// <summary>
@@ -77,11 +82,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		}
 
 		#region Methods
-
-		/// <summary>
-		/// Gets the type of conference this dialer supports.
-		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
 
 		/// <summary>
 		/// Gets the active conference sources.
@@ -157,17 +157,167 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_HoldControl.SetState(hold);
 		}
 
+		/// <summary>
+		/// Updates the source to match the state of the TI block.
+		/// </summary>
+		/// <param name="source"></param>
+		private void UpdateSource(TesiraConferenceSource source)
+		{
+			if (source == null)
+				return;
+
+			eConferenceSourceStatus status = TiControlStateToSourceStatus(m_TiControl.State);
+
+			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
+							  ? m_TiControl.CallerNumber
+							  : m_TiControl.CallerName;
+			source.Number = m_TiControl.CallerNumber;
+			source.Status = status;
+
+			// Assume the call is outgoing unless we discover otherwise.
+			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
+			if (direction == eConferenceSourceDirection.Incoming)
+				source.Direction = eConferenceSourceDirection.Incoming;
+			else if (source.Direction != eConferenceSourceDirection.Incoming)
+				source.Direction = eConferenceSourceDirection.Outgoing;
+
+			// Don't update the answer state if we can't determine the current answer state
+			eConferenceSourceAnswerState answerState = TiControlStateToAnswerState(m_TiControl.State);
+			if (answerState != eConferenceSourceAnswerState.Unknown)
+				source.AnswerState = answerState;
+
+			// Start/End
+			switch (status)
+			{
+				case eConferenceSourceStatus.Connected:
+					source.Start = source.Start ?? IcdEnvironment.GetLocalTime();
+					break;
+				case eConferenceSourceStatus.Disconnected:
+					source.End = source.End ?? IcdEnvironment.GetLocalTime();
+					break;
+			}
+		}
+
+		private static eConferenceSourceDirection TiControlStateToDirection(TiControlStatusBlock.eTiCallState state)
+		{
+			switch (state)
+			{
+				case TiControlStatusBlock.eTiCallState.Ringing:
+					return eConferenceSourceDirection.Incoming;
+
+				default:
+					return eConferenceSourceDirection.Undefined;
+			}
+		}
+
+		private static eConferenceSourceAnswerState TiControlStateToAnswerState(TiControlStatusBlock.eTiCallState state)
+		{
+
+			switch (state)
+			{
+				case TiControlStatusBlock.eTiCallState.Fault:
+				case TiControlStatusBlock.eTiCallState.Idle:
+				case TiControlStatusBlock.eTiCallState.Init:
+				case TiControlStatusBlock.eTiCallState.BusyTone:
+				case TiControlStatusBlock.eTiCallState.ErrorTone:
+				case TiControlStatusBlock.eTiCallState.Dropped:
+					return eConferenceSourceAnswerState.Unknown;
+
+				case TiControlStatusBlock.eTiCallState.Dialing:
+				case TiControlStatusBlock.eTiCallState.RingBack:
+				case TiControlStatusBlock.eTiCallState.Ringing:
+					return eConferenceSourceAnswerState.Unanswered;
+
+				case TiControlStatusBlock.eTiCallState.Connected:
+				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+					return eConferenceSourceAnswerState.Answered;
+
+				default:
+					throw new ArgumentOutOfRangeException("state");
+			}
+		}
+
+		private static eConferenceSourceStatus TiControlStateToSourceStatus(TiControlStatusBlock.eTiCallState state)
+		{
+			switch (state)
+			{
+				case TiControlStatusBlock.eTiCallState.Init:
+				case TiControlStatusBlock.eTiCallState.Fault:
+				case TiControlStatusBlock.eTiCallState.ErrorTone:
+					return eConferenceSourceStatus.Undefined;
+
+				case TiControlStatusBlock.eTiCallState.Dialing:
+					return eConferenceSourceStatus.Dialing;
+
+				case TiControlStatusBlock.eTiCallState.RingBack:
+				case TiControlStatusBlock.eTiCallState.Ringing:
+					return eConferenceSourceStatus.Ringing;
+
+				case TiControlStatusBlock.eTiCallState.BusyTone:
+				case TiControlStatusBlock.eTiCallState.Dropped:
+				case TiControlStatusBlock.eTiCallState.Idle:
+					return eConferenceSourceStatus.Disconnected;
+
+				case TiControlStatusBlock.eTiCallState.Connected:
+				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+					return eConferenceSourceStatus.Connected;
+
+				default:
+					throw new ArgumentOutOfRangeException("state");
+			}
+		}
+
 		#endregion
 
 		#region Sources
+
+		/// <summary>
+		/// Creates a source if a call is active but no source exists yet. Clears the source if an existing call becomes inactive.
+		/// </summary>
+		/// <param name="state"></param>
+		/// <returns></returns>
+		private void CreateOrRemoveSourceForCallState(TiControlStatusBlock.eTiCallState state)
+		{
+			eConferenceSourceStatus status = TiControlStateToSourceStatus(state);
+
+			m_ActiveSourceSection.Enter();
+
+			try
+			{
+				switch (status)
+				{
+					case eConferenceSourceStatus.Dialing:
+					case eConferenceSourceStatus.Ringing:
+					case eConferenceSourceStatus.Connecting:
+					case eConferenceSourceStatus.Connected:
+					case eConferenceSourceStatus.OnHold:
+					case eConferenceSourceStatus.EarlyMedia:
+					case eConferenceSourceStatus.Preserved:
+					case eConferenceSourceStatus.RemotePreserved:
+						if (m_ActiveSource == null)
+							CreateActiveSource();
+						break;
+
+					case eConferenceSourceStatus.Undefined:
+					case eConferenceSourceStatus.Idle:
+					case eConferenceSourceStatus.Disconnecting:
+					case eConferenceSourceStatus.Disconnected:
+						if (m_ActiveSource != null)
+							ClearCurrentSource();
+						break;
+				}
+			}
+			finally
+			{
+				m_ActiveSourceSection.Leave();
+			}
+		}
 
 		/// <summary>
 		/// Instantiates a new active source.
 		/// </summary>
 		private void CreateActiveSource()
 		{
-			IConferenceSource source;
-
 			m_ActiveSourceSection.Enter();
 
 			try
@@ -184,16 +334,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				};
 
 				// Setup the source properties
-				throw new NotImplementedException();
-
-				source = m_ActiveSource;
+				UpdateSource(m_ActiveSource);
 			}
 			finally
 			{
 				m_ActiveSourceSection.Leave();
 			}
 
-			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(source));
+			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
 		}
 
 		/// <summary>
@@ -213,6 +361,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				m_ActiveSource.ResumeCallback = null;
 				m_ActiveSource.HangupCallback = null;
 				m_ActiveSource.SendDtmfCallback = null;
+
+				m_ActiveSource = null;
 			}
 			finally
 			{
@@ -294,6 +444,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Subscribe(TiControlStatusBlock attributeInterface)
 		{
 			attributeInterface.OnAutoAnswerChanged += AttributeInterfaceOnAutoAnswerChanged;
+			attributeInterface.OnCallStateChanged += AttributeInterfaceOnCallStateChanged;
 		}
 
 		/// <summary>
@@ -303,11 +454,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Unsubscribe(TiControlStatusBlock attributeInterface)
 		{
 			attributeInterface.OnAutoAnswerChanged -= AttributeInterfaceOnAutoAnswerChanged;
+			attributeInterface.OnCallStateChanged -= AttributeInterfaceOnCallStateChanged;
 		}
 
 		private void AttributeInterfaceOnAutoAnswerChanged(object sender, BoolEventArgs args)
 		{
 			AutoAnswer = args.Data;
+		}
+
+		private void AttributeInterfaceOnCallStateChanged(TiControlStatusBlock sender, TiControlStatusBlock.eTiCallState callState)
+		{
+			CreateOrRemoveSourceForCallState(callState);
 		}
 
 		#endregion
