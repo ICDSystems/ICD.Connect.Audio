@@ -717,7 +717,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Unsubscribe, LINE_IN_USE_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null);
 			RequestAttribute(LineVoltageFeedback, AttributeCode.eCommand.Unsubscribe, LINE_VOLTAGE_ATTRIBUTE, null);
-			RequestAttribute(DtmfLocalLevelFeedback, AttributeCode.eCommand.Unsubscribe, DTMF_LOCAL_LEVEL_ATTRIBUTE, null);
 			RequestAttribute(LoopCurrentFeedback, AttributeCode.eCommand.Unsubscribe, LOOP_CURRENT_ATTRIBUTE, null);
 			RequestAttribute(RingBackToneDetectedFeedback, AttributeCode.eCommand.Unsubscribe, RING_BACK_TONE_DETECTED_ATTRIBUTE, null);
 			RequestAttribute(RingingFeedback, AttributeCode.eCommand.Unsubscribe, RINGING_ATTRIBUTE, null);
@@ -768,7 +767,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Subscribe, LINE_IN_USE_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Subscribe, LINE_READY_ATTRIBUTE, null);
 			RequestAttribute(LineVoltageFeedback, AttributeCode.eCommand.Subscribe, LINE_VOLTAGE_ATTRIBUTE, null);
-			RequestAttribute(DtmfLocalLevelFeedback, AttributeCode.eCommand.Subscribe, DTMF_LOCAL_LEVEL_ATTRIBUTE, null);
 			RequestAttribute(LoopCurrentFeedback, AttributeCode.eCommand.Subscribe, LOOP_CURRENT_ATTRIBUTE, null);
 			RequestAttribute(RingBackToneDetectedFeedback, AttributeCode.eCommand.Subscribe, RING_BACK_TONE_DETECTED_ATTRIBUTE, null);
 			RequestAttribute(RingingFeedback, AttributeCode.eCommand.Subscribe, RINGING_ATTRIBUTE, null);
