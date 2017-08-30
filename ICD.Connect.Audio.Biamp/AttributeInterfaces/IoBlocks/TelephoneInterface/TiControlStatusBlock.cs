@@ -958,7 +958,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			if (callState == null)
 				return;
 
-			Value stateValue = value.GetValue<Value>("state");
+			Value stateValue = callState.GetValue<Value>("state");
 			State = stateValue.GetObjectValue(s_CallStateSerials);
 
 			Value cidValue = callState.GetValue<Value>("cid");
