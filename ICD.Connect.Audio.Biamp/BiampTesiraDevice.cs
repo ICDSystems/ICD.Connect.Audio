@@ -225,19 +225,16 @@ namespace ICD.Connect.Audio.Biamp
 			m_Config = path;
 
 			string fullPath = PathUtils.GetDefaultConfigPath("Tesira", path);
-			string xml;
 
 			try
 			{
-				xml = IcdFile.ReadToEnd(fullPath, Encoding.UTF8);
+				string xml = IcdFile.ReadToEnd(fullPath, Encoding.UTF8);
+				ParseXml(xml);
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to load integration config {0} - {1}", fullPath, e.Message);
-				return;
+				Logger.AddEntry(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 			}
-
-			ParseXml(xml);
 		}
 
 		/// <summary>
