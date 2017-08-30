@@ -62,7 +62,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			if (factory == null)
 				throw new ArgumentNullException("factory");
 
-			Dictionary<string, IDeviceControl> output = new Dictionary<string, IDeviceControl>(StringComparer.OrdinalIgnoreCase);
+			Dictionary<int, IDeviceControl> output = new Dictionary<int, IDeviceControl>();
 
 			foreach (string controlElement in GetControlElementsOrderedByType(xml))
 			{
@@ -70,7 +70,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 				if (control == null)
 					continue;
 
-				output.Add(control.Name, control);
+				output.Add(control.Id, control);
 			}
 
 			return output.Values;
@@ -85,7 +85,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		[CanBeNull]
 		private static IDeviceControl GetControlFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                IDictionary<string, IDeviceControl> cache)
+		                                                Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
@@ -143,7 +143,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		[CanBeNull]
 		private static IDialingDeviceControl GetDialingControlFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                              IDictionary<string, IDeviceControl> cache)
+		                                                              Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
@@ -152,21 +152,15 @@ namespace ICD.Connect.Audio.Biamp.Controls
 
 			string type = XmlUtils.GetAttributeAsString(xml, "type");
 
-			string doNotDisturbName = XmlUtils.TryReadChildElementContentAsString(xml, "DoNotDisturb");
-			string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMute");
-			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "Hold");
+			int doNotDisturbId = XmlUtils.TryReadChildElementContentAsInt(xml, "DoNotDisturb") ?? 0;
+			int privacyMuteId = XmlUtils.TryReadChildElementContentAsInt(xml, "PrivacyMute") ?? 0;
+			int holdId = XmlUtils.TryReadChildElementContentAsInt(xml, "Hold") ?? 0;
 
-			BiampTesiraStateDeviceControl doNotDisturbControl = doNotDisturbName == null
-				                                                    ? null
-				                                                    : cache.GetDefault(doNotDisturbName, null) as
-				                                                      BiampTesiraStateDeviceControl;
-			BiampTesiraStateDeviceControl privacyMuteControl = privacyMuteName == null
-				                                                   ? null
-				                                                   : cache.GetDefault(privacyMuteName, null) as
-				                                                     BiampTesiraStateDeviceControl;
-			BiampTesiraStateDeviceControl holdControl = holdName == null
-				                                            ? null
-				                                            : cache.GetDefault(holdName, null) as BiampTesiraStateDeviceControl;
+			BiampTesiraStateDeviceControl doNotDisturbControl =
+				cache.GetDefault(doNotDisturbId, null) as BiampTesiraStateDeviceControl;
+			BiampTesiraStateDeviceControl privacyMuteControl =
+				cache.GetDefault(privacyMuteId, null) as BiampTesiraStateDeviceControl;
+			BiampTesiraStateDeviceControl holdControl = cache.GetDefault(holdId, null) as BiampTesiraStateDeviceControl;
 
 			switch (type.ToLower())
 			{
