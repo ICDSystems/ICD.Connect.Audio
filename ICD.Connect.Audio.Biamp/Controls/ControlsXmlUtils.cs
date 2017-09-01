@@ -226,13 +226,20 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			string name = XmlUtils.GetAttributeAsString(xml, "name");
 			IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
 
-			TAttributeInterface concreteAttributeInterface = (TAttributeInterface)attributeInterface;
-			if (concreteAttributeInterface != null)
-				return constructor(id, name, concreteAttributeInterface);
+			TAttributeInterface concreteAttributeInterface;
 
-			string message = string.Format("{0} is not a {1}", attributeInterface.GetType().Name,
-			                               typeof(TAttributeInterface).Name);
-			throw new FormatException(message);
+			try
+			{
+				concreteAttributeInterface = (TAttributeInterface)attributeInterface;
+			}
+			catch (InvalidCastException e)
+			{
+				string castMessage = string.Format("{0} is not of type {1}", attributeInterface.GetType().Name,
+				                                   typeof(TAttributeInterface).Name);
+				throw new InvalidCastException(castMessage, e);
+			}
+
+			return constructor(id, name, concreteAttributeInterface);
 		}
 
 		/// <summary>
