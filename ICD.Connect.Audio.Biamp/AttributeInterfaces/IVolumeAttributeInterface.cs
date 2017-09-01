@@ -18,13 +18,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		float Level { get; }
 
 		[PublicAPI]
+		float MinLevel { get; }
+
+		[PublicAPI]
+		float MaxLevel { get; }
+
+		[PublicAPI]
 		bool Mute { get; }
-
-		[PublicAPI]
-		float AttributeMinLevel { get; }
-
-		[PublicAPI]
-		float AttributeMaxLevel { get; }
 
 		#endregion
 

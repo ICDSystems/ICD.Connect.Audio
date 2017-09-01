@@ -19,12 +19,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// <summary>
 		/// The min volume.
 		/// </summary>
-		public override float RawVolumeMin { get { return m_VolumeInterface.AttributeMinLevel; } }
+		public override float RawVolumeMin { get { return m_VolumeInterface.MinLevel; } }
 
 		/// <summary>
 		/// The max volume.
 		/// </summary>
-		public override float RawVolumeMax { get { return m_VolumeInterface.AttributeMaxLevel; } }
+		public override float RawVolumeMax { get { return m_VolumeInterface.MaxLevel; } }
 		
 		/// <summary>
 		/// The volume the control is set to when the device comes online.

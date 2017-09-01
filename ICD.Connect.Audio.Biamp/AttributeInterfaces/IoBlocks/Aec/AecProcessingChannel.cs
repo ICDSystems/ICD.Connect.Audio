@@ -334,6 +334,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			}
 		}
 
+		float IVolumeAttributeInterface.MinLevel { get { return AttributeMinLevel; } }
+		float IVolumeAttributeInterface.MaxLevel { get { return AttributeMaxLevel; } }
+
 		[PublicAPI]
 		public bool LimiterEnabled
 		{

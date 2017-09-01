@@ -116,6 +116,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			}
 		}
 
+		float IVolumeAttributeInterface.MinLevel { get { return AttributeMinLevel; } }
+		float IVolumeAttributeInterface.MaxLevel { get { return AttributeMaxLevel; } }
+
 		[PublicAPI]
 		public bool Mute
 		{
