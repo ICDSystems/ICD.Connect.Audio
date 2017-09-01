@@ -5,6 +5,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Biamp.Controls;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 {
@@ -54,6 +55,23 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.LogicBlocks.LogicState
 			finally
 			{
 				m_ChannelsSection.Leave();
+			}
+		}
+
+		/// <summary>
+		/// Gets the child attribute interface at the given path.
+		/// </summary>
+		/// <param name="channelType"></param>
+		/// <param name="indices"></param>
+		/// <returns></returns>
+		public override IAttributeInterface GetAttributeInterface(eChannelType channelType, params int[] indices)
+		{
+			switch (channelType)
+			{
+				case eChannelType.None:
+					return GetChannel(indices[0]);
+				default:
+					return base.GetAttributeInterface(channelType, indices);
 			}
 		}
 
