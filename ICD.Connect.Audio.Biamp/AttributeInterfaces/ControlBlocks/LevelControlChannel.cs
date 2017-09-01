@@ -101,7 +101,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 				m_MaxLevel = value;
 
-				Log(eSeverity.Informational, "MinLMaxLevelevel set to {0}", m_MaxLevel);
+				Log(eSeverity.Informational, "MaxLevel set to {0}", m_MaxLevel);
 
 				OnMaxLevelChanged.Raise(this, new FloatEventArgs(m_MaxLevel));
 			}
