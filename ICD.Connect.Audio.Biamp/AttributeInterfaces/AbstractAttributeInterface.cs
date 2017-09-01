@@ -77,7 +77,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 			switch (channelType)
 			{
 				default:
-					throw new ArgumentOutOfRangeException("channelType");
+					string message = string.Format("{0} has no channel type {1}", GetType().Name, channelType);
+					throw new ArgumentOutOfRangeException("channelType", message);
 			}
 		}
 
