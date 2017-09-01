@@ -472,18 +472,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			callAppearance.ParseCallState(callState);
 		}
 
-        private void ProtocolInfoFeedback(BiampTesiraDevice sender, ControlValue value)
-        {
-            ControlValue cardSipInfo = value.GetValue<ControlValue>("value");
-            ArrayValue channelProtoSipInfo = cardSipInfo.GetValue<ArrayValue>("channelProtoSipInfo");
-
-            ControlValue registrationControlValue = channelProtoSipInfo[Index-1] as ControlValue;
-
-            if (registrationControlValue != null)
-                RegistrationStatus =
-                    registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus);
-        }
-
 		[PublicAPI]
 		public VoIpControlStatusCallAppearance GetCallAppearance(int index)
 		{
@@ -700,6 +688,22 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		#endregion
 
 		#region Subscription Callbacks
+
+		private void ProtocolInfoFeedback(BiampTesiraDevice sender, ControlValue value)
+		{
+			ControlValue cardSipInfo = value.GetValue<ControlValue>("value");
+			ArrayValue channelProtoSipInfo = cardSipInfo.GetValue<ArrayValue>("channelProtoSipInfo");
+
+			int arrayIndex = Index - 1;
+			if (channelProtoSipInfo.Count <= arrayIndex)
+				return;
+
+			ControlValue registrationControlValue = channelProtoSipInfo[Index - 1] as ControlValue;
+
+			if (registrationControlValue != null)
+				RegistrationStatus =
+					registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus);
+		}
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
