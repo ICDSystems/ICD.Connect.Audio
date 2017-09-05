@@ -186,7 +186,6 @@
     <Compile Include="BiampTesiraSerialBuffer.cs" />
     <Compile Include="BiampTesiraSerialQueue.cs" />
     <Compile Include="Controls\Dialing\AbstractBiampTesiraDialingDeviceControl.cs" />
-    <Compile Include="Controls\Dialing\TesiraConferenceSource.cs" />
     <Compile Include="Controls\Partitioning\BiampTesiraPartitionDeviceControl.cs" />
     <Compile Include="Controls\State\BiampTesiraStateDeviceControl.cs" />
     <Compile Include="Controls\Volume\BiampTesiraVolumeDeviceControl.cs" />

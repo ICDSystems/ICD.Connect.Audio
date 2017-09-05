@@ -27,7 +27,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private bool m_Hold;
 
-		private TesiraConferenceSource m_ActiveSource;
+		private ThinConferenceSource m_ActiveSource;
 		private readonly SafeCriticalSection m_ActiveSourceSection;
 
 		#region Properties
@@ -161,7 +161,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Updates the source to match the state of the TI block.
 		/// </summary>
 		/// <param name="source"></param>
-		private void UpdateSource(TesiraConferenceSource source)
+		private void UpdateSource(ThinConferenceSource source)
 		{
 			if (source == null)
 				return;
@@ -324,7 +324,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				ClearCurrentSource();
 
-				m_ActiveSource = new TesiraConferenceSource
+				m_ActiveSource = new ThinConferenceSource
 				{
 					AnswerCallback = AnswerCallback,
 					HoldCallback = HoldCallback,

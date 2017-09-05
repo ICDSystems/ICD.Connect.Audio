@@ -19,7 +19,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		private readonly VoIpControlStatusLine m_Line;
 
-		private readonly Dictionary<int, TesiraConferenceSource> m_AppearanceSources;
+		private readonly Dictionary<int, ThinConferenceSource> m_AppearanceSources;
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 
 		/// <summary>
@@ -40,7 +40,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		                                BiampTesiraStateDeviceControl privacyMuteControl)
 			: base(id, name, line.Device, doNotDisturbControl, privacyMuteControl)
 		{
-			m_AppearanceSources = new Dictionary<int, TesiraConferenceSource>();
+			m_AppearanceSources = new Dictionary<int, ThinConferenceSource>();
 			m_AppearanceSourcesSection = new SafeCriticalSection();
 
 			m_Line = line;
@@ -122,7 +122,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// </summary>
 		/// <param name="source"></param>
 		/// <param name="callAppearance"></param>
-		private void UpdateSource(TesiraConferenceSource source, VoIpControlStatusCallAppearance callAppearance)
+		private void UpdateSource(ThinConferenceSource source, VoIpControlStatusCallAppearance callAppearance)
 		{
 			if (source == null || callAppearance == null)
 				return;
@@ -165,14 +165,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="index"></param>
 		/// <param name="state"></param>
 		/// <returns></returns>
-		private TesiraConferenceSource CreateOrRemoveSourceForCallState(int index,
+		private ThinConferenceSource CreateOrRemoveSourceForCallState(int index,
 		                                                                VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
 			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(state);
 
 			m_AppearanceSourcesSection.Enter();
 
-			TesiraConferenceSource source = GetSource(index);
+			ThinConferenceSource source = GetSource(index);
 
 			try
 			{
@@ -208,7 +208,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		}
 
 		[CanBeNull]
-		private TesiraConferenceSource GetSource(int index)
+		private ThinConferenceSource GetSource(int index)
 		{
 			return m_AppearanceSourcesSection.Execute(() => m_AppearanceSources.GetDefault(index));
 		}
@@ -218,9 +218,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		private TesiraConferenceSource CreateSource(int index)
+		private ThinConferenceSource CreateSource(int index)
 		{
-			TesiraConferenceSource source;
+			ThinConferenceSource source;
 
 			m_AppearanceSourcesSection.Enter();
 
@@ -228,7 +228,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				source = new TesiraConferenceSource
+				source = new ThinConferenceSource
 				{
 					AnswerCallback = () => AnswerCallback(index),
 					HoldCallback = () => HoldCallback(index),
@@ -261,7 +261,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				TesiraConferenceSource source;
+				ThinConferenceSource source;
 				if (!m_AppearanceSources.TryGetValue(index, out source))
 					return;
 
@@ -469,7 +469,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			if (callAppearance == null)
 				return;
 
-			TesiraConferenceSource source = GetSource(callAppearance.Index);
+			ThinConferenceSource source = GetSource(callAppearance.Index);
 			UpdateSource(source, callAppearance);
 		}
 
@@ -480,7 +480,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="state"></param>
 		private void AppearanceOnCallStateChanged(VoIpControlStatusCallAppearance callAppearance, VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
-			TesiraConferenceSource source = CreateOrRemoveSourceForCallState(callAppearance.Index, state);
+			ThinConferenceSource source = CreateOrRemoveSourceForCallState(callAppearance.Index, state);
 			UpdateSource(source, callAppearance);
 		}
 
