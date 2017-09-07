@@ -228,14 +228,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				source = new ThinConferenceSource
-				{
-					AnswerCallback = () => AnswerCallback(index),
-					HoldCallback = () => HoldCallback(index),
-					ResumeCallback = () => ResumeCallback(index),
-					HangupCallback = () => HangupCallback(index),
-					SendDtmfCallback = dtmf => SendDtmfCallback(dtmf)
-				};
+				source = new ThinConferenceSource();
+
+				Subscribe(source);
 
 				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
 				UpdateSource(source, callAppearance);
@@ -265,11 +260,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				if (!m_AppearanceSources.TryGetValue(index, out source))
 					return;
 
-				source.AnswerCallback = null;
-				source.HoldCallback = null;
-				source.ResumeCallback = null;
-				source.HangupCallback = null;
-				source.SendDtmfCallback = null;
+				Unsubscribe(source);
 
 				m_AppearanceSources.Remove(index);
 			}
@@ -370,29 +361,70 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		#region Source Callbacks
 
-		private void AnswerCallback(int index)
+		private void Subscribe(ThinConferenceSource source)
 		{
-			m_Line.GetCallAppearance(index).Answer();
+			source.OnAnswerCallback += AnswerCallback;
+			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.OnHangupCallback += HangupCallback;
+			source.OnResumeCallback += ResumeCallback;
+			source.OnHoldCallback += HoldCallback;
 		}
 
-		private void SendDtmfCallback(string keys)
+		private void Unsubscribe(ThinConferenceSource source)
 		{
-			keys.ForEach(c => m_Line.Dtmf(c));
+			source.OnAnswerCallback -= AnswerCallback;
+			source.OnSendDtmfCallback -= SendDtmfCallback;
+			source.OnHangupCallback -= HangupCallback;
+			source.OnResumeCallback -= ResumeCallback;
+			source.OnHoldCallback -= HoldCallback;
 		}
 
-		private void HangupCallback(int index)
+		private void AnswerCallback(object sender, EventArgs eventArgs)
 		{
-			m_Line.GetCallAppearance(index).End();
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).Answer();
 		}
 
-		private void ResumeCallback(int index)
+		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
 		{
-			m_Line.GetCallAppearance(index).Resume();
+			foreach (char digit in stringEventArgs.Data)
+				m_Line.Dtmf(digit);
 		}
 
-		private void HoldCallback(int index)
+		private void HangupCallback(object sender, EventArgs eventArgs)
 		{
-			m_Line.GetCallAppearance(index).Hold();
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).End();
+		}
+
+		private void ResumeCallback(object sender, EventArgs eventArgs)
+		{
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).Resume();
+		}
+
+		private void HoldCallback(object sender, EventArgs eventArgs)
+		{
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).Hold();
+		}
+
+		private bool TryGetCallAppearance(ThinConferenceSource source, out int index)
+		{
+			m_AppearanceSourcesSection.Enter();
+
+			try
+			{
+				return m_AppearanceSources.TryGetKey(source, out index);
+			}
+			finally
+			{
+				m_AppearanceSourcesSection.Leave();
+			}
 		}
 
 		#endregion

@@ -324,14 +324,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinConferenceSource
-				{
-					AnswerCallback = AnswerCallback,
-					HoldCallback = HoldCallback,
-					ResumeCallback = ResumeCallback,
-					HangupCallback = HangupCallback,
-					SendDtmfCallback = SendDtmfCallback
-				};
+				m_ActiveSource = new ThinConferenceSource();
+				Subscribe(m_ActiveSource);
 
 				// Setup the source properties
 				UpdateSource(m_ActiveSource);
@@ -356,12 +350,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				if (m_ActiveSource == null)
 					return;
 
-				m_ActiveSource.AnswerCallback = null;
-				m_ActiveSource.HoldCallback = null;
-				m_ActiveSource.ResumeCallback = null;
-				m_ActiveSource.HangupCallback = null;
-				m_ActiveSource.SendDtmfCallback = null;
-
+				Unsubscribe(m_ActiveSource);
 				m_ActiveSource = null;
 			}
 			finally
@@ -370,27 +359,54 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
-		private void SendDtmfCallback(string keys)
+		/// <summary>
+		/// Setup the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
+		private void Subscribe(ThinConferenceSource source)
 		{
-			keys.ForEach(c => m_TiControl.Dtmf(c));
+			source.OnAnswerCallback += AnswerCallback;
+			source.OnHoldCallback += HoldCallback;
+			source.OnResumeCallback += ResumeCallback;
+			source.OnHangupCallback += HangupCallback;
+			source.OnSendDtmfCallback += SendDtmfCallback;
 		}
 
-		private void HangupCallback()
+		/// <summary>
+		/// Remove the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
+		private void Unsubscribe(ThinConferenceSource source)
+		{
+			source.OnAnswerCallback += AnswerCallback;
+			source.OnHoldCallback += HoldCallback;
+			source.OnResumeCallback += ResumeCallback;
+			source.OnHangupCallback += HangupCallback;
+			source.OnSendDtmfCallback += SendDtmfCallback;
+		}
+
+		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
+		{
+			foreach (char digit in stringEventArgs.Data)
+				m_TiControl.Dtmf(digit);
+		}
+
+		private void HangupCallback(object sender, EventArgs eventArgs)
 		{
 			m_TiControl.End();
 		}
 
-		private void ResumeCallback()
+		private void ResumeCallback(object sender, EventArgs eventArgs)
 		{
 			SetHold(false);
 		}
 
-		private void HoldCallback()
+		private void HoldCallback(object sender, EventArgs eventArgs)
 		{
 			SetHold(true);
 		}
 
-		private void AnswerCallback()
+		private void AnswerCallback(object sender, EventArgs eventArgs)
 		{
 			m_TiControl.Answer();
 		}
