@@ -70,6 +70,8 @@ namespace ICD.Connect.Audio.ClockAudio
 
 				m_Voltage = value;
 
+				Logger.AddEntry(eSeverity.Informational, "{0} - Voltage changed to {1}", this, m_Voltage);
+
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
 		}
@@ -87,6 +89,8 @@ namespace ICD.Connect.Audio.ClockAudio
 					return;
 
 				m_ButtonPressed = value;
+
+				Logger.AddEntry(eSeverity.Informational, "{0} - Button pressed changed to {1}", this, m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -106,6 +110,8 @@ namespace ICD.Connect.Audio.ClockAudio
 
 				m_RedLedEnabled = value;
 
+				Logger.AddEntry(eSeverity.Informational, "{0} - Red LED enabled changed to {1}", this, m_RedLedEnabled);
+
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
 		}
@@ -123,6 +129,8 @@ namespace ICD.Connect.Audio.ClockAudio
 					return;
 
 				m_GreenLedEnabled = value;
+
+				Logger.AddEntry(eSeverity.Informational, "{0} - Green LED enabled changed to {1}", this, m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}
