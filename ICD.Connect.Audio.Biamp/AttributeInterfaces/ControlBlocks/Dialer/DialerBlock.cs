@@ -111,10 +111,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 
 			base.Dispose();
 
+			DisposeLines();
+		}
+
+		public override void Deinitialize()
+		{
+			base.Deinitialize();
+
 			// Unsubscribe
 			RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Unsubscribe, CALL_STATE_ATTRIBUTE, null);
-
-			DisposeLines();
 		}
 
 		/// <summary>
