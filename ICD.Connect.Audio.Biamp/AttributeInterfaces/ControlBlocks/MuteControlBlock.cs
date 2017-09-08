@@ -93,10 +93,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		public override void Dispose()
 		{
 			OnChannelCountChanged = null;
+			OnGangedChanged = null;
 
 			base.Dispose();
 
-			DisposeLines();
+			DisposeChannels();
 		}
 
 		/// <summary>
@@ -165,7 +166,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		/// <summary>
 		/// Disposes the existing channels.
 		/// </summary>
-		private void DisposeLines()
+		private void DisposeChannels()
 		{
 			m_ChannelsSection.Enter();
 
