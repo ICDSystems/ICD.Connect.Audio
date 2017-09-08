@@ -52,8 +52,12 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		public override string ToString()
 		{
-			return string.Format("{0}(ChannelType={1}, Indices={2})", GetType().Name, ChannelType,
-			                     StringUtils.ArrayFormat(Indices));
+			ReprBuilder builder = new ReprBuilder(this);
+
+			builder.AppendProperty("ChannelType", ChannelType);
+			builder.AppendProperty("Indices", StringUtils.ArrayFormat(Indices));
+
+			return builder.ToString();
 		}
 
 		/// <summary>
