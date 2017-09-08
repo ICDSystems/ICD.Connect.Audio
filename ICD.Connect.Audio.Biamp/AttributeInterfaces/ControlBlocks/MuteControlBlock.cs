@@ -7,6 +7,7 @@ using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Biamp.Controls;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
@@ -119,6 +120,40 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		public IEnumerable<MuteControlChannel> GetChannels()
 		{
 			return m_ChannelsSection.Execute(() => m_Channels.OrderValuesByKey().ToArray());
+		}
+
+		[PublicAPI]
+		public MuteControlChannel GetChannel(int channel)
+		{
+			m_ChannelsSection.Enter();
+
+			try
+			{
+				if (!m_Channels.ContainsKey(channel))
+					m_Channels[channel] = new MuteControlChannel(this, channel);
+				return m_Channels[channel];
+			}
+			finally
+			{
+				m_ChannelsSection.Leave();
+			}
+		}
+
+		/// <summary>
+		/// Gets the child attribute interface at the given path.
+		/// </summary>
+		/// <param name="channelType"></param>
+		/// <param name="indices"></param>
+		/// <returns></returns>
+		public override IAttributeInterface GetAttributeInterface(eChannelType channelType, params int[] indices)
+		{
+			switch (channelType)
+			{
+				case eChannelType.None:
+					return GetChannel(indices[0]);
+				default:
+					return base.GetAttributeInterface(channelType, indices);
+			}
 		}
 
 		#endregion

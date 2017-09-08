@@ -11,7 +11,7 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 {
-	public sealed class MuteControlChannel : AbstractAttributeChild<MuteControlBlock>
+	public sealed class MuteControlChannel : AbstractAttributeChild<MuteControlBlock>, IStateAttributeInterface
 	{
 		private const string LABEL_ATTRIBUTE = "label";
 		private const string MUTE_ATTRIBUTE = "mute";
@@ -185,6 +185,23 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
 		{
 			return base.GetConsoleCommands();
+		}
+
+		#endregion
+
+		#region IStateAttributeInterface 
+
+		event EventHandler<BoolEventArgs> IStateAttributeInterface.OnStateChanged
+		{
+			add { OnMuteChanged += value; }
+			remove { OnMuteChanged -= value; }
+		}
+
+		bool IStateAttributeInterface.State { get { return Mute; } }
+
+		void IStateAttributeInterface.SetState(bool state)
+		{
+			Mute = state;
 		}
 
 		#endregion
