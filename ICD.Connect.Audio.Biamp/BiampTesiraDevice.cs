@@ -10,6 +10,7 @@ using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
 using ICD.Common.Utils.Timers;
+using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Biamp.Controls;
@@ -733,7 +734,30 @@ namespace ICD.Connect.Audio.Biamp
 			addRow("Initialized", Initialized);
 		}
 
-	    /// <summary>
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+
+			yield return new GenericConsoleCommand<string>("LoadControls", "LoadControls <PATH>", p => LoadControls(p));
+			yield return new ConsoleCommand("ReloadControls", "Reloads the controls from the most recent path",
+			                                () => LoadControls(m_Config));
+		}
+
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
+		}
+
+		/// <summary>
 	    /// Gets the child console nodes.
 	    /// </summary>
 	    /// <returns></returns>
@@ -745,6 +769,10 @@ namespace ICD.Connect.Audio.Biamp
 	        yield return ConsoleNodeGroup.IndexNodeMap("Attributes", AttributeInterfaces.GetAttributeInterfaces());
 	    }
 
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
 	    private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
 	    {
 	        return base.GetConsoleNodes();
