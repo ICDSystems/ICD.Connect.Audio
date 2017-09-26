@@ -2,8 +2,8 @@
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Services.Logging;
 using ICD.Connect.Audio.Biamp.Controls.State;
-using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls;
+using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 {
