@@ -3,7 +3,7 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Settings.Attributes;
-using ICD.Connect.Settings.Attributes.Factories;
+using ICD.Connect.Settings.Attributes;
 
 namespace ICD.Connect.Audio.ClockAudio
 {
@@ -57,7 +57,7 @@ namespace ICD.Connect.Audio.ClockAudio
 		/// </summary>
 		/// <param name="xml"></param>
 		/// <returns></returns>
-		[PublicAPI, XmlDeviceSettingsFactoryMethod(FACTORY_NAME)]
+		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
 		public static ClockAudioTs001DeviceSettings FromXml(string xml)
 		{
 			ClockAudioTs001DeviceSettings output = new ClockAudioTs001DeviceSettings

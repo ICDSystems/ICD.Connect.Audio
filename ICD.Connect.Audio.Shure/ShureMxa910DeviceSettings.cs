@@ -1,6 +1,6 @@
 ﻿using System;
 using ICD.Common.Properties;
-using ICD.Connect.Settings.Attributes.Factories;
+using ICD.Connect.Settings.Attributes;
 
 namespace ICD.Connect.Audio.Shure
 {
@@ -23,7 +23,7 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="xml"></param>
 		/// <returns></returns>
-		[PublicAPI, XmlDeviceSettingsFactoryMethod(FACTORY_NAME)]
+		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
 		public static ShureMxa910DeviceSettings FromXml(string xml)
 		{
 			ShureMxa910DeviceSettings output = new ShureMxa910DeviceSettings();
