@@ -11,7 +11,7 @@ using System.Collections.Generic;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 {
-	public sealed class RoomCombinerRoom : AbstractAttributeChild<RoomCombinerBlock>
+	public sealed class RoomCombinerRoom : AbstractAttributeChild<RoomCombinerBlock>, IVolumeAttributeInterface
 	{
 		private const string ROOM_GROUP_ATTRIBUTE = "group";
 		private const string INPUT_LEVEL_ATTRIBUTE = "levelIn";
@@ -369,6 +369,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		}
 
 		[PublicAPI]
+		public void IncrementOutputLevel()
+		{
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Increment, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
+		}
+
+		[PublicAPI]
+		public void DecrementOutputLevel()
+		{
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Decrement, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
+		}
+
+		[PublicAPI]
 		public void SetMaxOutputLevel(float level)
 		{
 			RequestAttribute(MaxOutputLevelFeedback, AttributeCode.eCommand.Set, MAX_OUTPUT_LEVEL_ATTRIBUTE, new Value(level),
@@ -557,6 +569,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			yield return new GenericConsoleCommand<float>("SetMinInputLevel", "SetMinInputLevel <LEVEL>", f => SetMinInputLevel(f));
 
 			yield return new GenericConsoleCommand<float>("SetOutputLevel", "SetOutputLevel <LEVEL>", f => SetOutputLevel(f));
+			yield return new ConsoleCommand("IncrementOutputLevel", "", () => IncrementOutputLevel());
+			yield return new ConsoleCommand("DecrementOutputLevel", "", () => DecrementOutputLevel());
 			yield return new GenericConsoleCommand<float>("SetMaxOutputLevel", "SetMaxOutputLevel <LEVEL>", f => SetMaxOutputLevel(f));
 			yield return new GenericConsoleCommand<float>("SetMinOutputLevel", "SetMinOutputLevel <LEVEL>", f => SetMinOutputLevel(f));
 
@@ -576,6 +590,50 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
 		{
 			return base.GetConsoleCommands();
+		}
+
+		#endregion
+
+		#region Volume Attribute Interface Members
+
+		event EventHandler<FloatEventArgs> IVolumeAttributeInterface.OnLevelChanged
+		{
+			add { OnOutputLevelChanged += value; }
+			remove { OnOutputLevelChanged -= value; }
+		}
+
+		event EventHandler<BoolEventArgs> IVolumeAttributeInterface.OnMuteChanged
+		{
+			add { OnOutputMuteChanged += value; }
+			remove { OnOutputMuteChanged -= value; }
+		}
+
+		float IVolumeAttributeInterface.Level { get { return OutputLevel; } }
+
+		float IVolumeAttributeInterface.MinLevel { get { return MinOutputLevel; } }
+
+		float IVolumeAttributeInterface.MaxLevel { get { return MaxOutputLevel; } }
+
+		bool IVolumeAttributeInterface.Mute { get { return OutputMute; } }
+
+		void IVolumeAttributeInterface.SetLevel(float level)
+		{
+			SetOutputLevel(level);
+		}
+
+		void IVolumeAttributeInterface.IncrementLevel()
+		{
+			IncrementOutputLevel();
+		}
+
+		void IVolumeAttributeInterface.DecrementLevel()
+		{
+			DecrementOutputLevel();
+		}
+
+		void IVolumeAttributeInterface.SetMute(bool mute)
+		{
+			SetOutputMute(mute);
 		}
 
 		#endregion
