@@ -5,6 +5,7 @@ using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.Audio.Biamp.Controls;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.API.Nodes;
@@ -111,6 +112,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 
 			m_Sources = new Dictionary<int, RoomCombinerSource>();
 			m_SourcesSection = new SafeCriticalSection();
+		}
+
+		/// <summary>
+		/// Gets the child attribute interface at the given path.
+		/// </summary>
+		/// <param name="channelType"></param>
+		/// <param name="indices"></param>
+		/// <returns></returns>
+		public override IAttributeInterface GetAttributeInterface(eChannelType channelType, params int[] indices)
+		{
+			switch (channelType)
+			{
+				case eChannelType.Output:
+					if (indices.Length != 1)
+						throw new ArgumentOutOfRangeException("indices");
+					return GetRoom(indices[0]);
+				default:
+					return base.GetAttributeInterface(channelType, indices);
+			}
 		}
 
 		public override void Initialize()
