@@ -7,7 +7,8 @@ using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 {
-	public abstract class AbstractBiampTesiraDialingDeviceControl : AbstractDialingDeviceControl<BiampTesiraDevice>
+	public abstract class AbstractBiampTesiraDialingDeviceControl : AbstractDialingDeviceControl<BiampTesiraDevice>,
+	                                                                IBiampTesiraDialingDeviceControl
 	{
 		private readonly string m_Name;
 		private readonly BiampTesiraStateDeviceControl m_DoNotDisturbControl;

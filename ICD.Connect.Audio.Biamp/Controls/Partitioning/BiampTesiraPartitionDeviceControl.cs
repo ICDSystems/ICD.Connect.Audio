@@ -4,7 +4,7 @@ using ICD.Connect.Partitioning.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 {
-	public sealed class BiampTesiraPartitionDeviceControl : AbstractPartitionDeviceControl<BiampTesiraDevice>
+	public sealed class BiampTesiraPartitionDeviceControl : AbstractPartitionDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl
 	{
 		private readonly RoomCombinerWall m_Wall;
 		private readonly string m_Name;
