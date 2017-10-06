@@ -12,7 +12,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		None,
 		Input,
 		Output,
-		Crosspoint
+		Crosspoint,
+		Source
 	}
 
 	/// <summary>
