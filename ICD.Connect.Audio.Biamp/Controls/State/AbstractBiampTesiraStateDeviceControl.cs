@@ -4,7 +4,6 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls.State
@@ -17,7 +16,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		public event EventHandler<BoolEventArgs> OnStateChanged;
 
 		private readonly string m_Name;
-		private readonly IStateAttributeInterface m_StateAttribute;
 		private bool m_State;
 
 		#region Properties
@@ -51,15 +49,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="name"></param>
-		/// <param name="stateAttribute"></param>
-		protected AbstractBiampTesiraStateDeviceControl(int id, string name, IStateAttributeInterface stateAttribute)
-			: base(stateAttribute.Device, id)
+		/// <param name="device"></param>
+		protected AbstractBiampTesiraStateDeviceControl(int id, string name, BiampTesiraDevice device)
+			: base(device, id)
 		{
 			m_Name = name;
-			m_StateAttribute = stateAttribute;
-
-			Subscribe(m_StateAttribute);
-			State = m_StateAttribute.State;
 		}
 
 		/// <summary>
@@ -71,37 +65,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 			OnStateChanged = null;
 
 			base.DisposeFinal(disposing);
-
-			Unsubscribe(m_StateAttribute);
 		}
 
 		/// <summary>
 		/// Sets the state.
 		/// </summary>
 		/// <param name="state"></param>
-		public virtual void SetState(bool state)
-		{
-			m_StateAttribute.SetState(state);
-		}
-
-		#region Channel Callbacks
-
-		private void Subscribe(IStateAttributeInterface stateChannel)
-		{
-			stateChannel.OnStateChanged += StateChannelOnStateChanged;
-		}
-
-		private void Unsubscribe(IStateAttributeInterface stateChannel)
-		{
-			stateChannel.OnStateChanged -= StateChannelOnStateChanged;
-		}
-
-		private void StateChannelOnStateChanged(object sender, BoolEventArgs args)
-		{
-			State = args.Data;
-		}
-
-		#endregion
+		public abstract void SetState(bool state);
 
 		#region Console
 

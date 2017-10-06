@@ -44,6 +44,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		{
 			"partition",
 			"state",
+			"roomcombinersource",
 			"volume",
 			"voip",
 			"ti"
@@ -106,6 +107,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					return GetControlFromXml<BiampTesiraStateDeviceControl, IStateAttributeInterface>
 						(xml, factory, (id, name, attributeInterface) =>
 						               new BiampTesiraStateDeviceControl(id, name, attributeInterface));
+				case "roomcombinersource":
+					return GetRoomCombinerSourceFromXml(xml, factory, cache);
 				case "voip":
 				case "ti":
 					return GetDialingControlFromXml(xml, factory, cache);
@@ -114,6 +117,38 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
 					return null;
 			}
+		}
+
+		/// <summary>
+		/// Instantiates a room combiner source control from the given xml element.
+		/// </summary>
+		/// <param name="xml"></param>
+		/// <param name="factory"></param>
+		/// <param name="cache"></param>
+		/// <returns></returns>
+		private static IDeviceControl GetRoomCombinerSourceFromXml(string xml, AttributeInterfaceFactory factory,
+		                                                           Dictionary<int, IDeviceControl> cache)
+		{
+			if (factory == null)
+				throw new ArgumentNullException("factory");
+
+			if (cache == null)
+				throw new ArgumentNullException("cache");
+
+			int source = XmlUtils.ReadChildElementContentAsInt(xml, "Source");
+			int? feedbackId = XmlUtils.TryReadChildElementContentAsInt(xml, "Feedback");
+			string muteLabel = XmlUtils.TryReadChildElementContentAsString(xml, "MuteLabel");
+			string unmuteLabel = XmlUtils.TryReadChildElementContentAsString(xml, "UnmuteLabel");
+
+			IBiampTesiraStateDeviceControl feedbackControl = feedbackId.HasValue
+				                                                 ? cache.GetDefault(feedbackId.Value, null) as
+				                                                   IBiampTesiraStateDeviceControl
+				                                                 : null;
+
+			return GetControlFromXml<RoomCombinerSourceStateControl, RoomCombinerBlock>
+				(xml, factory, (id, name, attributeInterface) =>
+				               new RoomCombinerSourceStateControl(id, name, muteLabel, unmuteLabel,
+				                                                  attributeInterface.GetSource(source), feedbackControl));
 		}
 
 		/// <summary>
@@ -143,7 +178,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <returns></returns>
 		[CanBeNull]
 		private static IDialingDeviceControl GetDialingControlFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                              Dictionary<int, IDeviceControl> cache)
+		                                                              IDictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");

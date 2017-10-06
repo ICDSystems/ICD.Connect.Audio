@@ -129,11 +129,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 						throw new ArgumentOutOfRangeException("indices");
 					return GetRoom(indices[0]);
 
-				case eChannelType.Source:
-					if (indices.Length != 1)
-						throw new ArgumentOutOfRangeException("indices");
-					return GetSource(indices[0]);
-
 				default:
 					return base.GetAttributeInterface(channelType, indices);
 			}

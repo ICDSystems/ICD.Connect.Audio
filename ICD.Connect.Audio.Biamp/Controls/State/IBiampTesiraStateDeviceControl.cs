@@ -14,5 +14,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// Gets the state of the control.
 		/// </summary>
 		bool State { get; }
+
+		/// <summary>
+		/// Sets the state of the control.
+		/// </summary>
+		/// <param name="state"></param>
+		void SetState(bool state);
 	}
 }
