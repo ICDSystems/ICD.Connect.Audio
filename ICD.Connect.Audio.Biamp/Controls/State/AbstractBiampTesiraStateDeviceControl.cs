@@ -79,7 +79,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// Sets the state.
 		/// </summary>
 		/// <param name="state"></param>
-		public void SetState(bool state)
+		public virtual void SetState(bool state)
 		{
 			m_StateAttribute.SetState(state);
 		}
