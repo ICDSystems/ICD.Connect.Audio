@@ -22,6 +22,7 @@ using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
+using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Biamp
@@ -206,6 +207,9 @@ namespace ICD.Connect.Audio.Biamp
 			if (port == m_Port)
 				return;
 
+			if (port is IComPort)
+				ConfigureComPort(port as IComPort);
+
 			Unsubscribe(m_Port);
 
 			m_Port = port;
@@ -214,6 +218,23 @@ namespace ICD.Connect.Audio.Biamp
 			Subscribe(m_Port);
 
 			UpdateCachedOnlineStatus();
+		}
+
+		/// <summary>
+		///     Configures a com port for communication with the physical display.
+		/// </summary>
+		/// <param name="port"></param>
+		[PublicAPI]
+		public static void ConfigureComPort(IComPort port)
+		{
+			port.SetComPortSpec(eComBaudRates.ComspecBaudRate115200,
+								eComDataBits.ComspecDataBits8,
+								eComParityType.ComspecParityNone,
+								eComStopBits.ComspecStopBits1,
+								eComProtocolType.ComspecProtocolRS232,
+								eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
+								eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
+								false);
 		}
 
 		/// <summary>
