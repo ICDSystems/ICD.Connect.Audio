@@ -310,7 +310,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			base.Deinitialize();
 
 			// Unsubscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
 		}
 
 		public override void Initialize()
@@ -334,7 +334,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Get, SOURCE_SELECTION_ATTRIBUTE, null, Index);
 
 			// Subscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]
