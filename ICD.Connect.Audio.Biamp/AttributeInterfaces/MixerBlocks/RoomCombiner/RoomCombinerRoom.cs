@@ -298,7 +298,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="index"></param>
-		public RoomCombinerRoom(RoomCombinerBlock parent, int index) : base(parent, index)
+		public RoomCombinerRoom(RoomCombinerBlock parent, int index)
+			: base(parent, index)
 		{
 			if (Device.Initialized)
 				Initialize();
