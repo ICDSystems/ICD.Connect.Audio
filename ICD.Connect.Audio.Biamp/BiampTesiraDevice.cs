@@ -179,6 +179,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_Port.Connect();
 			IsConnected = m_Port.IsConnected;
+
+			if (IsConnected)
+				m_InitializationTimer.Reset(INITIALIZATION_DELAY);
 		}
 
 		/// <summary>
@@ -217,11 +220,14 @@ namespace ICD.Connect.Audio.Biamp
 
 			Subscribe(m_Port);
 
+			if (m_Port != null)
+				Connect();
+
 			UpdateCachedOnlineStatus();
 		}
 
 		/// <summary>
-		///     Configures a com port for communication with the physical display.
+		/// Configures a com port for communication with the hardware.
 		/// </summary>
 		/// <param name="port"></param>
 		[PublicAPI]
