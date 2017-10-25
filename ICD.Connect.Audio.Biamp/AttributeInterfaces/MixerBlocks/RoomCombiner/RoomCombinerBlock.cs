@@ -138,9 +138,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		{
 			base.Initialize();
 
-			RequestAttribute(LastMicHoldEnabledFeedback, AttributeCode.eCommand.Get, LAST_MIC_HOLD_ENABLED_ATTRIBUTE, null);
-			RequestAttribute(OpenMicLimitFeedback, AttributeCode.eCommand.Get, OPEN_MIC_LIMIT_ATTRIBUTE, null);
-			RequestAttribute(OpenMicLimitEnabledFeedback, AttributeCode.eCommand.Get, OPEN_MIC_LIMIT_ENABLED_ATTRIBUTE, null);
+			//RequestAttribute(LastMicHoldEnabledFeedback, AttributeCode.eCommand.Get, LAST_MIC_HOLD_ENABLED_ATTRIBUTE, null);
+			//RequestAttribute(OpenMicLimitFeedback, AttributeCode.eCommand.Get, OPEN_MIC_LIMIT_ATTRIBUTE, null);
+			//RequestAttribute(OpenMicLimitEnabledFeedback, AttributeCode.eCommand.Get, OPEN_MIC_LIMIT_ENABLED_ATTRIBUTE, null);
 		}
 
 		[PublicAPI]
