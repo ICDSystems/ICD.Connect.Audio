@@ -73,7 +73,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 					break;
 
 				default:
-					throw new ArgumentOutOfRangeException("callType");
+					throw new ArgumentOutOfRangeException("callType", string.Format("Unable to place {0} call", callType));
 			}
 		}
 
