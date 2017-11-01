@@ -179,10 +179,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			return base.GetConsoleCommands();
 		}
 
-		private void PrintAliases()
+		private string PrintAliases()
 		{
-			foreach (string alias in GetAliases())
-				IcdConsole.ConsoleCommandResponseLine(alias);
+			return string.Join(IcdEnvironment.NewLine, GetAliases().ToArray());
 		}
 
 		#endregion
