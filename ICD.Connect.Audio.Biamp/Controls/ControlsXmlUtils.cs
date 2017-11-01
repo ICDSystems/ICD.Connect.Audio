@@ -106,8 +106,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
 						                                      new BiampTesiraStateDeviceControl(id, name, attributeInterface));
-				case "roomcombinersource":
-					return LazyLoadRoomCombinerSource(id, factory, controlElements, cache);
+				case "roomcombinerroom":
+					return LazyLoadRoomCombinerRoom(id, factory, controlElements, cache);
 				case "voip":
 				case "ti":
 					return LazyLoadDialingControl(id, factory, controlElements, cache);
@@ -126,7 +126,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <param name="controlElements"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
-		private static IDeviceControl LazyLoadRoomCombinerSource(int id, AttributeInterfaceFactory factory,
+		private static IDeviceControl LazyLoadRoomCombinerRoom(int id, AttributeInterfaceFactory factory,
 		                                                         Dictionary<int, string> controlElements,
 		                                                         Dictionary<int, IDeviceControl> cache)
 		{
@@ -144,10 +144,10 @@ namespace ICD.Connect.Audio.Biamp.Controls
 
 			string xml = controlElements[id];
 
-			int source = XmlUtils.ReadChildElementContentAsInt(xml, "Source");
+			int room = XmlUtils.ReadChildElementContentAsInt(xml, "Room");
 			int? feedbackId = XmlUtils.TryReadChildElementContentAsInt(xml, "Feedback");
-			string muteLabel = XmlUtils.TryReadChildElementContentAsString(xml, "MuteLabel");
-			string unmuteLabel = XmlUtils.TryReadChildElementContentAsString(xml, "UnmuteLabel");
+			int muteSource = XmlUtils.TryReadChildElementContentAsInt(xml, "MuteSource") ?? 0;
+			int unmuteSource = XmlUtils.TryReadChildElementContentAsInt(xml, "UnmuteSource") ?? 0;
 
 			IBiampTesiraStateDeviceControl feedbackControl = feedbackId.HasValue
 				                                                 ? LazyLoadControl(feedbackId.Value, factory, controlElements,
@@ -155,11 +155,11 @@ namespace ICD.Connect.Audio.Biamp.Controls
 				                                                   IBiampTesiraStateDeviceControl
 				                                                 : null;
 
-			return LazyLoadControl<RoomCombinerSourceStateControl, RoomCombinerBlock>
+			return LazyLoadControl<RoomCombinerRoomStateControl, RoomCombinerBlock>
 				(id, factory, controlElements, cache, (name, attributeInterface) =>
-				                                      new RoomCombinerSourceStateControl(id, name, muteLabel, unmuteLabel,
-				                                                                         attributeInterface.GetSource(source),
-				                                                                         feedbackControl));
+				                                      new RoomCombinerRoomStateControl(id, name, muteSource, unmuteSource,
+				                                                                       attributeInterface.GetRoom(room),
+				                                                                       feedbackControl));
 		}
 
 		/// <summary>

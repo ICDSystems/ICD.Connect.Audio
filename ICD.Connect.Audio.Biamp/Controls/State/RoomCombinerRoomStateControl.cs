@@ -4,13 +4,13 @@ using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 namespace ICD.Connect.Audio.Biamp.Controls.State
 {
 	/// <summary>
-	/// Mutes/unmutes a room combiner source by setting the source label.
+	/// Mutes/unmutes a room combiner room by setting the source.
 	/// </summary>
-	public sealed class RoomCombinerSourceStateControl : AbstractBiampTesiraStateDeviceControl
+	public sealed class RoomCombinerRoomStateControl : AbstractBiampTesiraStateDeviceControl
 	{
-		private readonly string m_MuteLabel;
-		private readonly string m_UnmuteLabel;
-		private readonly RoomCombinerSource m_Source;
+		private readonly int m_MuteSource;
+		private readonly int m_UnmuteSource;
+		private readonly RoomCombinerRoom m_Room;
 		private readonly IBiampTesiraStateDeviceControl m_Feedback;
 
 		/// <summary>
@@ -18,19 +18,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="name"></param>
-		/// <param name="unmuteLabel"></param>
-		/// <param name="source"></param>
+		/// <param name="unmuteSource"></param>
+		/// <param name="room"></param>
 		/// <param name="feedback"></param>
-		/// <param name="muteLabel"></param>
-		public RoomCombinerSourceStateControl(int id, string name, string muteLabel, string unmuteLabel,
-											  RoomCombinerSource source, IBiampTesiraStateDeviceControl feedback)
-			: base(id, name, source.Device)
+		/// <param name="muteSource"></param>
+		public RoomCombinerRoomStateControl(int id, string name, int muteSource, int unmuteSource,
+		                                    RoomCombinerRoom room, IBiampTesiraStateDeviceControl feedback)
+			: base(id, name, room.Device)
 		{
-			m_MuteLabel = muteLabel;
-			m_UnmuteLabel = unmuteLabel;
-			m_Source = source;
-
-			m_Source = source;
+			m_MuteSource = muteSource;
+			m_UnmuteSource = unmuteSource;
+			m_Room = room;
 			m_Feedback = feedback;
 
 			Subscribe(m_Feedback);
@@ -54,7 +52,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// <param name="state"></param>
 		public override void SetState(bool state)
 		{
-			m_Source.SetLabel(state ? m_MuteLabel : m_UnmuteLabel);
+			m_Room.SetSourceSelection(state ? m_MuteSource : m_UnmuteSource);
 		}
 
 		#region Feedback Callbacks
