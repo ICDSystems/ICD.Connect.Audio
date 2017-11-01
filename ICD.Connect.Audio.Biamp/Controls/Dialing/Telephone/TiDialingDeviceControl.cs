@@ -6,6 +6,7 @@ using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
@@ -23,7 +24,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
 
 		private readonly TiControlStatusBlock m_TiControl;
-		private readonly BiampTesiraStateDeviceControl m_HoldControl;
+		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
 
 		private bool m_Hold;
 
@@ -50,11 +51,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
-		/// <summary>
-		/// Gets the type of conference this dialer supports.
-		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
-
 		#endregion
 
 		/// <summary>
@@ -67,9 +63,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="privacyMuteControl"></param>
 		/// <param name="holdControl"></param>
 		public TiDialingDeviceControl(int id, string name, TiControlStatusBlock tiControl,
-		                              BiampTesiraStateDeviceControl doNotDisturbControl,
-		                              BiampTesiraStateDeviceControl privacyMuteControl,
-		                              BiampTesiraStateDeviceControl holdControl)
+									  IBiampTesiraStateDeviceControl doNotDisturbControl,
+									  IBiampTesiraStateDeviceControl privacyMuteControl,
+									  IBiampTesiraStateDeviceControl holdControl)
 			: base(id, name, tiControl.Device, doNotDisturbControl, privacyMuteControl)
 		{
 			m_ActiveSourceSection = new SafeCriticalSection();
@@ -419,7 +415,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Subscribe to the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Subscribe(BiampTesiraStateDeviceControl holdControl)
+		private void Subscribe(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
@@ -431,7 +427,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Unsubscribe from the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Unsubscribe(BiampTesiraStateDeviceControl holdControl)
+		private void Unsubscribe(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
@@ -481,6 +477,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void AttributeInterfaceOnCallStateChanged(TiControlStatusBlock sender, TiControlStatusBlock.eTiCallState callState)
 		{
 			CreateOrRemoveSourceForCallState(callState);
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Calls the delegate for each console status item.
+		/// </summary>
+		/// <param name="addRow"></param>
+		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+		{
+			base.BuildConsoleStatus(addRow);
+
+			addRow("IsOnHold", IsOnHold);
+			addRow("Hold Control", m_Hold);
 		}
 
 		#endregion

@@ -23,11 +23,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 
 		/// <summary>
-		/// Gets the type of conference this dialer supports.
-		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
-
-		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
@@ -36,8 +31,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
 		public VoIpDialingDeviceControl(int id, string name, VoIpControlStatusLine line,
-		                                BiampTesiraStateDeviceControl doNotDisturbControl,
-		                                BiampTesiraStateDeviceControl privacyMuteControl)
+										IBiampTesiraStateDeviceControl doNotDisturbControl,
+										IBiampTesiraStateDeviceControl privacyMuteControl)
 			: base(id, name, line.Device, doNotDisturbControl, privacyMuteControl)
 		{
 			m_AppearanceSources = new Dictionary<int, ThinConferenceSource>();

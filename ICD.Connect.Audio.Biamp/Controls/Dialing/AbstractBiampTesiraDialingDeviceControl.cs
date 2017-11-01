@@ -1,6 +1,7 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Services.Logging;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.Controls;
 using ICD.Connect.Conferencing.EventArguments;
@@ -11,8 +12,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 	                                                                IBiampTesiraDialingDeviceControl
 	{
 		private readonly string m_Name;
-		private readonly BiampTesiraStateDeviceControl m_DoNotDisturbControl;
-		private readonly BiampTesiraStateDeviceControl m_PrivacyMuteControl;
+		private readonly IBiampTesiraStateDeviceControl m_DoNotDisturbControl;
+		private readonly IBiampTesiraStateDeviceControl m_PrivacyMuteControl;
 
 		#region Properties
 
@@ -20,6 +21,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// Gets the human readable name for this control.
 		/// </summary>
 		public override string Name { get { return m_Name; } }
+
+		/// <summary>
+		/// Gets the type of conference this dialer supports.
+		/// </summary>
+		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
 
 		#endregion
 
@@ -32,8 +38,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
 		protected AbstractBiampTesiraDialingDeviceControl(int id, string name, BiampTesiraDevice parent,
-		                                                  BiampTesiraStateDeviceControl doNotDisturbControl,
-		                                                  BiampTesiraStateDeviceControl privacyMuteControl)
+														  IBiampTesiraStateDeviceControl doNotDisturbControl,
+														  IBiampTesiraStateDeviceControl privacyMuteControl)
 			: base(parent, id)
 		{
 			m_Name = name;
@@ -111,7 +117,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 
 		#region Do Not Disturb Callbacks
 
-		private void SubscribeDoNotDisturb(BiampTesiraStateDeviceControl doNotDisturbControl)
+		private void SubscribeDoNotDisturb(IBiampTesiraStateDeviceControl doNotDisturbControl)
 		{
 			if (doNotDisturbControl == null)
 				return;
@@ -119,7 +125,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 			doNotDisturbControl.OnStateChanged += DoNotDisturbControlOnStateChanged;
 		}
 
-		private void UnsubscribeDoNotDisturb(BiampTesiraStateDeviceControl doNotDisturbControl)
+		private void UnsubscribeDoNotDisturb(IBiampTesiraStateDeviceControl doNotDisturbControl)
 		{
 			if (doNotDisturbControl == null)
 				return;
@@ -136,7 +142,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 
 		#region Privacy Mute Callbacks
 
-		private void SubscribePrivacyMute(BiampTesiraStateDeviceControl privacyMuteControl)
+		private void SubscribePrivacyMute(IBiampTesiraStateDeviceControl privacyMuteControl)
 		{
 			if (privacyMuteControl == null)
 				return;
@@ -144,7 +150,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 			privacyMuteControl.OnStateChanged += PrivacyMuteControlOnStateChanged;
 		}
 
-		private void UnsubscribePrivacyMute(BiampTesiraStateDeviceControl privacyMuteControl)
+		private void UnsubscribePrivacyMute(IBiampTesiraStateDeviceControl privacyMuteControl)
 		{
 			if (privacyMuteControl == null)
 				return;
@@ -155,6 +161,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		private void PrivacyMuteControlOnStateChanged(object sender, BoolEventArgs args)
 		{
 			PrivacyMuted = args.Data;
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Calls the delegate for each console status item.
+		/// </summary>
+		/// <param name="addRow"></param>
+		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+		{
+			base.BuildConsoleStatus(addRow);
+
+			addRow("PrivacyMute Control", m_PrivacyMuteControl);
+			addRow("DoNotDisturb Control", m_DoNotDisturbControl);
 		}
 
 		#endregion
