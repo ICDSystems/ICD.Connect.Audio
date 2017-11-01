@@ -13,7 +13,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 {
     public sealed class RoomCombinerSource : AbstractAttributeChild<RoomCombinerBlock>
     {
-	    private const string SOURCE_LABEL_ATTRIBUTE = "sourceSelection";
+	    private const string SOURCE_LABEL_ATTRIBUTE = "sourceLabel";
 
 	    [PublicAPI]
 		public event EventHandler<StringEventArgs> OnLabelChanged;
