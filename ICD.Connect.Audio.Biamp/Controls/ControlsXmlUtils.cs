@@ -4,7 +4,6 @@ using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Services;
 using ICD.Common.Services.Logging;
-using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
@@ -25,7 +24,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/*
 		XML controls are in one of 2 formats:
 		
-		<Control type="Volume" name="Line Volume">
+		<Control type="Volume" id="1" name="Line Volume">
 			<Block>SomethingBlock</Block>
 			<InstanceTag>SomethingBlock1</InstanceTag>
 			<Channel type="Input">
@@ -33,22 +32,11 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			</Channel>
 		</Control>
 		
-		<Control type="Volume" name="Volume">
+		<Control type="Volume" id="2" name="Volume">
 			<Block>SomethingBlock</Block>
 			<InstanceTag>SomethingBlock1</InstanceTag>
 		</Control>
 		*/
-
-		// Dialer controls are dependent on state controls for handling hold, do-not-disturb and privacy mute
-		private static readonly string[] s_ParseOrder =
-		{
-			"partition",
-			"state",
-			"roomcombinersource",
-			"volume",
-			"voip",
-			"ti"
-		};
 
 		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 
@@ -63,55 +51,66 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			if (factory == null)
 				throw new ArgumentNullException("factory");
 
-			Dictionary<int, IDeviceControl> output = new Dictionary<int, IDeviceControl>();
-
-			foreach (string controlElement in GetControlElementsOrderedByType(xml))
+			// First build a map of id to control elements
+			Dictionary<int, string> controlElements = new Dictionary<int, string>();
+			foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
 			{
-				IDeviceControl control = GetControlFromXml(controlElement, factory, output);
-				if (control == null)
-					continue;
-
-				output.Add(control.Id, control);
+				int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
+				controlElements.Add(id, controlElement);
 			}
 
-			return output.Values;
+			// Now build the controls
+			Dictionary<int, IDeviceControl> cache = new Dictionary<int, IDeviceControl>();
+			foreach (int id in controlElements.Keys)
+				LazyLoadControl(id, factory, controlElements, cache);
+
+			return cache.Values.Where(v => v != null);
 		}
 
 		/// <summary>
 		/// Instantiates a control from the given xml element.
 		/// </summary>
-		/// <param name="xml"></param>
+		/// <param name="id"></param>
 		/// <param name="factory"></param>
+		/// <param name="controlElements"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
-		[CanBeNull]
-		private static IDeviceControl GetControlFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                Dictionary<int, IDeviceControl> cache)
+		private static IDeviceControl LazyLoadControl(int id, AttributeInterfaceFactory factory,
+		                                              Dictionary<int, string> controlElements,
+		                                              Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
+
+			if (controlElements == null)
+				throw new ArgumentNullException("controlElements");
+
 			if (cache == null)
 				throw new ArgumentNullException("cache");
 
+			if (!controlElements.ContainsKey(id))
+				throw new KeyNotFoundException(string.Format("No control element with id {0}", id));
+
+			string xml = controlElements[id];
 			string type = XmlUtils.GetAttributeAsString(xml, "type");
 
 			switch (type.ToLower())
 			{
 				case "partition":
-					return GetRoomCombinerWallFromXml(xml, factory);
+					return LazyLoadRoomCombinerWall(id, factory, controlElements, cache);
 				case "volume":
-					return GetControlFromXml<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
-						(xml, factory, (id, name, attributeInterface) =>
-						               new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
+					return LazyLoadControl<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
+						(id, factory, controlElements, cache, (name, attributeInterface) =>
+						                                      new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
 				case "state":
-					return GetControlFromXml<BiampTesiraStateDeviceControl, IStateAttributeInterface>
-						(xml, factory, (id, name, attributeInterface) =>
-						               new BiampTesiraStateDeviceControl(id, name, attributeInterface));
+					return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
+						(id, factory, controlElements, cache, (name, attributeInterface) =>
+						                                      new BiampTesiraStateDeviceControl(id, name, attributeInterface));
 				case "roomcombinersource":
-					return GetRoomCombinerSourceFromXml(xml, factory, cache);
+					return LazyLoadRoomCombinerSource(id, factory, controlElements, cache);
 				case "voip":
 				case "ti":
-					return GetDialingControlFromXml(xml, factory, cache);
+					return LazyLoadDialingControl(id, factory, controlElements, cache);
 
 				default:
 					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
@@ -122,18 +121,28 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <summary>
 		/// Instantiates a room combiner source control from the given xml element.
 		/// </summary>
-		/// <param name="xml"></param>
+		/// <param name="id"></param>
 		/// <param name="factory"></param>
+		/// <param name="controlElements"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
-		private static IDeviceControl GetRoomCombinerSourceFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                           Dictionary<int, IDeviceControl> cache)
+		private static IDeviceControl LazyLoadRoomCombinerSource(int id, AttributeInterfaceFactory factory,
+		                                                         Dictionary<int, string> controlElements,
+		                                                         Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
 
+			if (controlElements == null)
+				throw new ArgumentNullException("controlElements");
+
 			if (cache == null)
 				throw new ArgumentNullException("cache");
+
+			if (!controlElements.ContainsKey(id))
+				throw new KeyNotFoundException(string.Format("No control element with id {0}", id));
+
+			string xml = controlElements[id];
 
 			int source = XmlUtils.ReadChildElementContentAsInt(xml, "Source");
 			int? feedbackId = XmlUtils.TryReadChildElementContentAsInt(xml, "Feedback");
@@ -141,73 +150,110 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			string unmuteLabel = XmlUtils.TryReadChildElementContentAsString(xml, "UnmuteLabel");
 
 			IBiampTesiraStateDeviceControl feedbackControl = feedbackId.HasValue
-				                                                 ? cache.GetDefault(feedbackId.Value, null) as
+				                                                 ? LazyLoadControl(feedbackId.Value, factory, controlElements,
+				                                                                   cache) as
 				                                                   IBiampTesiraStateDeviceControl
 				                                                 : null;
 
-			return GetControlFromXml<RoomCombinerSourceStateControl, RoomCombinerBlock>
-				(xml, factory, (id, name, attributeInterface) =>
-				               new RoomCombinerSourceStateControl(id, name, muteLabel, unmuteLabel,
-				                                                  attributeInterface.GetSource(source), feedbackControl));
+			return LazyLoadControl<RoomCombinerSourceStateControl, RoomCombinerBlock>
+				(id, factory, controlElements, cache, (name, attributeInterface) =>
+				                                      new RoomCombinerSourceStateControl(id, name, muteLabel, unmuteLabel,
+				                                                                         attributeInterface.GetSource(source),
+				                                                                         feedbackControl));
 		}
 
 		/// <summary>
 		/// Instantiates a room combiner wall control from the given xml element.
 		/// </summary>
-		/// <param name="xml"></param>
+		/// <param name="id"></param>
 		/// <param name="factory"></param>
+		/// <param name="controlElements"></param>
+		/// <param name="cache"></param>
 		/// <returns></returns>
-		private static IDeviceControl GetRoomCombinerWallFromXml(string xml, AttributeInterfaceFactory factory)
+		private static IDeviceControl LazyLoadRoomCombinerWall(int id, AttributeInterfaceFactory factory,
+		                                                       Dictionary<int, string> controlElements,
+		                                                       Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
 
+			if (controlElements == null)
+				throw new ArgumentNullException("controlElements");
+
+			if (cache == null)
+				throw new ArgumentNullException("cache");
+
+			if (!controlElements.ContainsKey(id))
+				throw new KeyNotFoundException(string.Format("No control element with id {0}", id));
+
+			string xml = controlElements[id];
 			int wall = XmlUtils.ReadChildElementContentAsInt(xml, "Wall");
 
-			return GetControlFromXml<BiampTesiraPartitionDeviceControl, RoomCombinerBlock>
-						(xml, factory, (id, name, attributeInterface) =>
-									   new BiampTesiraPartitionDeviceControl(id, name, attributeInterface.GetWall(wall)));
+			return LazyLoadControl<BiampTesiraPartitionDeviceControl, RoomCombinerBlock>
+				(id, factory, controlElements, cache, (name, attributeInterface) =>
+				                                      new BiampTesiraPartitionDeviceControl(id, name,
+				                                                                            attributeInterface.GetWall(wall)));
 		}
 
 		/// <summary>
 		/// Instantiates a dialing control from the given xml element.
 		/// </summary>
-		/// <param name="xml"></param>
+		/// <param name="id"></param>
 		/// <param name="factory"></param>
+		/// <param name="controlElements"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
 		[CanBeNull]
-		private static IDialingDeviceControl GetDialingControlFromXml(string xml, AttributeInterfaceFactory factory,
-		                                                              IDictionary<int, IDeviceControl> cache)
+		private static IDialingDeviceControl LazyLoadDialingControl(int id, AttributeInterfaceFactory factory,
+		                                                            Dictionary<int, string> controlElements,
+		                                                            Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
+
+			if (controlElements == null)
+				throw new ArgumentNullException("controlElements");
+
 			if (cache == null)
 				throw new ArgumentNullException("cache");
 
+			if (!controlElements.ContainsKey(id))
+				throw new KeyNotFoundException(string.Format("No control element with id {0}", id));
+
+			string xml = controlElements[id];
 			string type = XmlUtils.GetAttributeAsString(xml, "type");
 
-			int doNotDisturbId = XmlUtils.TryReadChildElementContentAsInt(xml, "DoNotDisturb") ?? 0;
-			int privacyMuteId = XmlUtils.TryReadChildElementContentAsInt(xml, "PrivacyMute") ?? 0;
-			int holdId = XmlUtils.TryReadChildElementContentAsInt(xml, "Hold") ?? 0;
+			int? doNotDisturbId = XmlUtils.TryReadChildElementContentAsInt(xml, "DoNotDisturb");
+			int? privacyMuteId = XmlUtils.TryReadChildElementContentAsInt(xml, "PrivacyMute");
+			int? holdId = XmlUtils.TryReadChildElementContentAsInt(xml, "Hold");
 
-			BiampTesiraStateDeviceControl doNotDisturbControl =
-				cache.GetDefault(doNotDisturbId, null) as BiampTesiraStateDeviceControl;
-			BiampTesiraStateDeviceControl privacyMuteControl =
-				cache.GetDefault(privacyMuteId, null) as BiampTesiraStateDeviceControl;
-			BiampTesiraStateDeviceControl holdControl = cache.GetDefault(holdId, null) as BiampTesiraStateDeviceControl;
+			IBiampTesiraStateDeviceControl doNotDisturbControl = doNotDisturbId.HasValue
+				                                                    ? LazyLoadControl(doNotDisturbId.Value, factory, controlElements,
+																					  cache) as IBiampTesiraStateDeviceControl
+				                                                    : null;
+
+			IBiampTesiraStateDeviceControl privacyMuteControl = privacyMuteId.HasValue
+				                                                   ? LazyLoadControl(privacyMuteId.Value, factory, controlElements,
+																					 cache) as IBiampTesiraStateDeviceControl
+				                                                   : null;
+
+			IBiampTesiraStateDeviceControl holdControl = holdId.HasValue
+				                                             ? LazyLoadControl(holdId.Value, factory, controlElements, cache) as
+				                                               IBiampTesiraStateDeviceControl
+				                                             : null;
 
 			switch (type.ToLower())
 			{
 				case "voip":
-					return GetControlFromXml<VoIpDialingDeviceControl, VoIpControlStatusLine>
-						(xml, factory, (id, name, attributeInterface) =>
-						               new VoIpDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl));
+					return LazyLoadControl<VoIpDialingDeviceControl, VoIpControlStatusLine>
+						(id, factory, controlElements, cache, (name, attributeInterface) =>
+						                                      new VoIpDialingDeviceControl(id, name, attributeInterface,
+						                                                                   doNotDisturbControl, privacyMuteControl));
 				case "ti":
-					return GetControlFromXml<TiDialingDeviceControl, TiControlStatusBlock>
-						(xml, factory, (id, name, attributeInterface) =>
-						               new TiDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl, privacyMuteControl,
-						                                          holdControl));
+					return LazyLoadControl<TiDialingDeviceControl, TiControlStatusBlock>
+						(id, factory, controlElements, cache, (name, attributeInterface) =>
+						                                      new TiDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl,
+						                                                                 privacyMuteControl, holdControl));
 
 				default:
 					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
@@ -216,65 +262,63 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		}
 
 		/// <summary>
-		/// Orders the control elements based on the s_ParseOrder array.
-		/// </summary>
-		/// <param name="xml"></param>
-		/// <returns></returns>
-		private static IEnumerable<string> GetControlElementsOrderedByType(string xml)
-		{
-			return XmlUtils.GetChildElementsAsString(xml, "Control")
-						   .OrderBy(e => GetIndexFromControlElement(e));
-		}
-
-		/// <summary>
-		/// Pulls the type attribute from a Control element and returns the ordered index.
-		/// </summary>
-		/// <param name="element"></param>
-		/// <returns></returns>
-		private static int GetIndexFromControlElement(string element)
-		{
-			string type = XmlUtils.GetAttributeAsString(element, "type");
-			return s_ParseOrder.FindIndex(s => String.Equals(s, type, StringComparison.CurrentCultureIgnoreCase));
-		}
-
-		/// <summary>
 		/// Shorthand for instantiating a device control from xml.
 		/// </summary>
 		/// <typeparam name="TControl"></typeparam>
 		/// <typeparam name="TAttributeInterface"></typeparam>
-		/// <param name="xml"></param>
+		/// <param name="id"></param>
 		/// <param name="factory"></param>
+		/// <param name="controlElements"></param>
+		/// <param name="cache"></param>
 		/// <param name="constructor"></param>
 		/// <returns></returns>
-		private static TControl GetControlFromXml<TControl, TAttributeInterface>(string xml, AttributeInterfaceFactory factory,
-		                                                                         Func<int, string, TAttributeInterface, TControl>
-			                                                                         constructor)
-			where TControl : IDeviceControl
+		private static TControl LazyLoadControl<TControl, TAttributeInterface>(int id, AttributeInterfaceFactory factory,
+		                                                                       Dictionary<int, string> controlElements,
+		                                                                       Dictionary<int, IDeviceControl> cache,
+		                                                                       Func<string, TAttributeInterface, TControl>
+			                                                                       constructor)
+			where TControl : class, IDeviceControl
 			where TAttributeInterface : class, IAttributeInterface
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
+
+			if (controlElements == null)
+				throw new ArgumentNullException("controlElements");
+
+			if (cache == null)
+				throw new ArgumentNullException("cache");
+
 			if (constructor == null)
 				throw new ArgumentNullException("constructor");
 
-			int id = XmlUtils.GetAttributeAsInt(xml, "id");
-			string name = XmlUtils.GetAttributeAsString(xml, "name");
-			IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
+			if (!controlElements.ContainsKey(id))
+				throw new KeyNotFoundException(string.Format("No control element with id {0}", id));
 
-			TAttributeInterface concreteAttributeInterface;
-
-			try
+			if (!cache.ContainsKey(id))
 			{
-				concreteAttributeInterface = (TAttributeInterface)attributeInterface;
-			}
-			catch (InvalidCastException e)
-			{
-				string castMessage = string.Format("{0} is not of type {1}", attributeInterface.GetType().Name,
-				                                   typeof(TAttributeInterface).Name);
-				throw new InvalidCastException(castMessage, e);
+				string xml = controlElements[id];
+				string name = XmlUtils.GetAttributeAsString(xml, "name");
+				IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
+
+				TAttributeInterface concreteAttributeInterface;
+
+				try
+				{
+					concreteAttributeInterface = (TAttributeInterface)attributeInterface;
+				}
+				catch (InvalidCastException e)
+				{
+					string castMessage = string.Format("{0} is not of type {1}", attributeInterface.GetType().Name,
+					                                   typeof(TAttributeInterface).Name);
+					throw new InvalidCastException(castMessage, e);
+				}
+
+				TControl control = constructor(name, concreteAttributeInterface);
+				cache.Add(id, control);
 			}
 
-			return constructor(id, name, concreteAttributeInterface);
+			return cache[id] as TControl;
 		}
 
 		/// <summary>
