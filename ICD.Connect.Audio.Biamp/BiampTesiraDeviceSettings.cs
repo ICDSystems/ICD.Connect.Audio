@@ -14,6 +14,10 @@ namespace ICD.Connect.Audio.Biamp
 		private const string USERNAME_ELEMENT = "Username";
 		private const string CONFIG_ELEMENT = "Config";
 
+		private const string DEFAULT_CONFIG_PATH = "ControlConfig.xml";
+
+		private string m_ConfigPath;
+
 		/// <summary>
 		/// The port id.
 		/// </summary>
@@ -22,7 +26,16 @@ namespace ICD.Connect.Audio.Biamp
 
 		public string Username { get; set; }
 
-		public string Config { get; set; }
+		public string Config
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_ConfigPath))
+					m_ConfigPath = DEFAULT_CONFIG_PATH;
+				return m_ConfigPath;
+			}
+			set { m_ConfigPath = value; }
+		}
 
 		/// <summary>
 		/// Gets the originator factory name.
