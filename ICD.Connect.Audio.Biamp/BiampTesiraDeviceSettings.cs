@@ -4,6 +4,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Attributes;
+using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Biamp
 {
@@ -22,11 +23,12 @@ namespace ICD.Connect.Audio.Biamp
 		/// <summary>
 		/// The port id.
 		/// </summary>
-		[SettingsProperty(SettingsProperty.ePropertyType.Id, typeof(ISerialPort))]
+		[OriginatorIdSettingsProperty(typeof(ISerialPort))]
 		public int? Port { get; set; }
 
 		public string Username { get; set; }
 
+		[PathSettingsProperty("Tesira", ".xml")]
 		public string Config
 		{
 			get

@@ -5,6 +5,7 @@ using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes;
+using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.ClockAudio
 {
@@ -17,16 +18,16 @@ namespace ICD.Connect.Audio.ClockAudio
 		private const string GREEN_LED_OUTPUT_PORT_ELEMENT = "GreenLedOutputPort";
 		private const string VOLTAGE_INPUT_PORT_ELEMENT = "VoltageInputPort";
 
-		[SettingsProperty(SettingsProperty.ePropertyType.Id, typeof(IDigitalInputPort))]
+		[OriginatorIdSettingsProperty(typeof(IDigitalInputPort))]
 		public int? ButtonInputPort { get; set; }
 
-		[SettingsProperty(SettingsProperty.ePropertyType.Id, typeof(IIoPort))]
+		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? RedLedOutputPort { get; set; }
 
-		[SettingsProperty(SettingsProperty.ePropertyType.Id, typeof(IIoPort))]
+		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? GreenLedOutputPort { get; set; }
 
-		[SettingsProperty(SettingsProperty.ePropertyType.Id, typeof(IIoPort))]
+		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? VoltageInputPort { get; set; }
 
 		/// <summary>
