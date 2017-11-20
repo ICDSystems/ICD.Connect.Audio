@@ -16,8 +16,10 @@ namespace ICD.Connect.Audio.Biamp
 		private const string USERNAME_ELEMENT = "Username";
 		private const string CONFIG_ELEMENT = "Config";
 
+		private const string DEFAULT_USERNAME = "default";
 		private const string DEFAULT_CONFIG_PATH = "ControlConfig.xml";
 
+		private string m_UserName;
 		private string m_ConfigPath;
 
 		/// <summary>
@@ -26,7 +28,16 @@ namespace ICD.Connect.Audio.Biamp
 		[OriginatorIdSettingsProperty(typeof(ISerialPort))]
 		public int? Port { get; set; }
 
-		public string Username { get; set; }
+		public string Username
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_UserName))
+					m_UserName = DEFAULT_USERNAME;
+				return m_UserName;
+			}
+			set { m_UserName = value; }
+		}
 
 		[PathSettingsProperty("Tesira", ".xml")]
 		public string Config
@@ -58,14 +69,9 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.WriteElements(writer);
 
-			if (Port != null)
-				writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString((int)Port));
-
-			if (!string.IsNullOrEmpty(Username))
-				writer.WriteElementString(USERNAME_ELEMENT, Username);
-
-			if (!string.IsNullOrEmpty(Config))
-				writer.WriteElementString(CONFIG_ELEMENT, Config);
+			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
+			writer.WriteElementString(USERNAME_ELEMENT, Username);
+			writer.WriteElementString(CONFIG_ELEMENT, Config);
 		}
 
 		/// <summary>
