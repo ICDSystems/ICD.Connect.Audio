@@ -161,8 +161,6 @@ namespace ICD.Connect.Audio.Biamp
 			Unsubscribe(m_Port);
 
 			m_AttributeInterfaces.Dispose();
-
-			Disconnect();
 		}
 
 		/// <summary>
@@ -212,6 +210,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (port is IComPort)
 				ConfigureComPort(port as IComPort);
+
+			if (m_Port != null)
+				Disconnect();
 
 			Unsubscribe(m_Port);
 
