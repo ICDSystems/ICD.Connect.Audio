@@ -153,9 +153,9 @@ namespace ICD.Connect.Audio.Biamp
 			OnInitializedChanged = null;
 			OnConnectedStateChanged = null;
 
-			base.DisposeFinal(disposing);
-
 			m_ConnectionTimer.Dispose();
+
+			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_SerialQueue);
 			Unsubscribe(m_Port);
