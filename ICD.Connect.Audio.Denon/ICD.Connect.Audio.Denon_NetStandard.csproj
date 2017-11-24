@@ -25,4 +25,9 @@
     <None Remove=".gitignore" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_NetStandard.csproj" />
+    <ProjectReference Include="..\..\ICD.Connect.Protocol\ICD.Connect.Protocol\ICD.Connect.Protocol_NetStandard.csproj" />
+  </ItemGroup>
+
 </Project>
