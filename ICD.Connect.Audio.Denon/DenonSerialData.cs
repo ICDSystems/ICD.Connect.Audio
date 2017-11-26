@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Denon
@@ -7,6 +8,8 @@ namespace ICD.Connect.Audio.Denon
 	{
 		public const char DELIMITER = '\r';
 		private const char REQUEST = '?';
+
+		private const string REGEX = @"([a-zA-Z]+)\ *([\d]*)";
 
 		private readonly string m_Data;
 
@@ -63,7 +66,22 @@ namespace ICD.Connect.Audio.Denon
 		/// <returns></returns>
 		public string GetCommand()
 		{
-			return m_Data.Replace(REQUEST.ToString(), "").Trim();
+			Regex regex = new Regex(REGEX);
+			Match match = regex.Match(m_Data);
+
+			return match.Success ? match.Groups[1].Value : null;
+		}
+
+		/// <summary>
+		/// Gets the numeric portion from the data.
+		/// </summary>
+		/// <returns></returns>
+		public string GetValue()
+		{
+			Regex regex = new Regex(REGEX);
+			Match match = regex.Match(m_Data);
+
+			return match.Success ? match.Groups[2].Value : null;
 		}
 
 		/// <summary>

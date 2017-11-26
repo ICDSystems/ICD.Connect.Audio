@@ -1,4 +1,5 @@
-﻿using ICD.Common.Utils;
+﻿using System;
+using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Devices.Controls;
 
@@ -16,7 +17,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		private const string MUTE_OFF = MUTE + "OFF";
 
 		private const int VOLUME_MIN = 0;
-		private const int VOLUME_MAX = 99;
+		private const int VOLUME_MAX = 98;
 
 		#region Properties
 
@@ -48,9 +49,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		public override void SetRawVolume(float volume)
 		{
-			int vol = (int)MathUtils.Clamp(volume, VOLUME_MIN, VOLUME_MAX);
-
-			DenonSerialData data = DenonSerialData.Command(MASTER_VOLUME_SET, vol);
+			DenonSerialData data = GetVolumeCommand(volume);
 			Parent.SendData(data);
 		}
 
@@ -74,6 +73,45 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#endregion
 
+		#region Private Methods
+
+		/// <summary>
+		/// Builds a volume command for the given volume level.
+		/// </summary>
+		/// <param name="volume"></param>
+		/// <returns></returns>
+		private DenonSerialData GetVolumeCommand(float volume)
+		{
+			volume = MathUtils.Clamp(volume, VOLUME_MIN, VOLUME_MAX);
+
+			// Volume commands are 2 digits for whole numbers, 3 digits for "half steps" e.g. 45.5 = 455
+			volume = volume * 10;
+			int vol = (int)Math.Round(volume / 5.0) * 5;
+			if (vol % 10 == 0)
+				vol /= 10;
+
+			return DenonSerialData.Command(MASTER_VOLUME_SET, vol);
+		}
+
+		/// <summary>
+		/// Gets the volume from the given response string.
+		/// </summary>
+		/// <param name="data"></param>
+		/// <returns></returns>
+		private float GetVolumeFromResponse(string data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+
+			float value = float.Parse(data);
+			if (value > VOLUME_MAX)
+				value /= 10.0f;
+
+			return value;
+		}
+
+		#endregion
+
 		#region Parent Callbacks
 
 		private void Subscribe(DenonAvrDevice parent)
@@ -90,16 +128,21 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		private void ParentOnOnDataReceived(DenonAvrDevice device, DenonSerialData response)
 		{
-			switch (response.GetCommand())
+			string data = response.GetCommand();
+
+			switch (data)
 			{
 				case MUTE_ON:
 					IsMuted = true;
-					break;
+					return;
 
 				case MUTE_OFF:
 					IsMuted = false;
-					break;
+					return;
 			}
+
+			if (data == MASTER_VOLUME)
+				RawVolume = GetVolumeFromResponse(response.GetValue());
 		}
 
 		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
