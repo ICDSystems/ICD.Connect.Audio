@@ -5,6 +5,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Timers;
+using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
@@ -90,9 +91,10 @@ namespace ICD.Connect.Audio.Denon
 			m_ConnectionTimer = new SafeTimer(ConnectionTimerCallback, 0, CONNECTION_CHECK_MILLISECONDS);
 
 			m_SerialQueue = new SerialQueue();
-			m_SerialQueue.SetBuffer(new DelimiterSerialBuffer('\r'));
+			m_SerialQueue.SetBuffer(new DelimiterSerialBuffer(DenonSerialData.DELIMITER));
 
 			Subscribe(m_SerialQueue);
+			Controls.Add(new DenonAvrPowerControl(this));
 		}
 
 		#region Methods
@@ -202,7 +204,19 @@ namespace ICD.Connect.Audio.Denon
 		/// Sends the data to the device.
 		/// </summary>
 		/// <param name="data"></param>
-		internal void SendData(string data)
+		internal void SendData(DenonSerialData data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+
+			SendData(data.Serialize());
+		}
+
+		/// <summary>
+		/// Sends the data to the device.
+		/// </summary>
+		/// <param name="data"></param>
+		private void SendData(string data)
 		{
 			if (!IsConnected)
 			{
@@ -367,7 +381,7 @@ namespace ICD.Connect.Audio.Denon
 		/// <param name="eventArgs"></param>
 		private void QueueOnSerialResponse(object sender, SerialResponseEventArgs eventArgs)
 		{
-			IcdConsole.PrintLine(eventArgs.Data.ToString());
+			IcdConsole.PrintLine(eventArgs.Response);
 		}
 
 		/// <summary>
