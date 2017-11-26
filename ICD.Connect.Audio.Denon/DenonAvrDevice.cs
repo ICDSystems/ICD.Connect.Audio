@@ -97,7 +97,8 @@ namespace ICD.Connect.Audio.Denon
 
 			Subscribe(m_SerialBuffer);
 
-			Controls.Add(new DenonAvrPowerControl(this));
+			Controls.Add(new DenonAvrPowerControl(this, 1));
+			Controls.Add(new DenonAvrVolumeControl(this, 2));
 		}
 
 		#region Methods

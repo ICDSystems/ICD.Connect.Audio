@@ -36,6 +36,18 @@ namespace ICD.Connect.Audio.Denon
 		}
 
 		/// <summary>
+		/// Creates a serial data instance for the given command.
+		/// </summary>
+		/// <param name="command"></param>
+		/// <param name="parameter"></param>
+		/// <returns></returns>
+		public static DenonSerialData Command(string command, object parameter)
+		{
+			command = string.Format(command, parameter);
+			return Command(command);
+		}
+
+		/// <summary>
 		/// Creates a serial data instance for the given command request.
 		/// </summary>
 		/// <param name="command"></param>

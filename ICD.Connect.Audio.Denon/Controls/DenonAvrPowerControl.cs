@@ -13,8 +13,9 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// Constructor.
 		/// </summary>
 		/// <param name="parent"></param>
-		public DenonAvrPowerControl(DenonAvrDevice parent)
-			: base(parent, 1)
+		/// <param name="id"></param>
+		public DenonAvrPowerControl(DenonAvrDevice parent, int id)
+			: base(parent, id)
 		{
 			Subscribe(parent);
 		}
