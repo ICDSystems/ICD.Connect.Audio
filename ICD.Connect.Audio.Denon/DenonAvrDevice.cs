@@ -160,8 +160,9 @@ namespace ICD.Connect.Audio.Denon
 			if (port == m_Port)
 				return;
 
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
+			IComPort comPort = port as IComPort;
+			if (comPort != null)
+				ConfigureComPort(comPort);
 
 			if (m_Port != null)
 				Disconnect();
