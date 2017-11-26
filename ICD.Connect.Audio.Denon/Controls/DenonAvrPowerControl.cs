@@ -1,4 +1,5 @@
-﻿using ICD.Connect.Devices.Controls;
+﻿using ICD.Common.Utils.EventArguments;
+using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Denon.Controls
 {
@@ -15,7 +16,17 @@ namespace ICD.Connect.Audio.Denon.Controls
 		public DenonAvrPowerControl(DenonAvrDevice parent)
 			: base(parent, 1)
 		{
+			Subscribe(parent);
 		}
+
+		protected override void DisposeFinal(bool disposing)
+		{
+			base.DisposeFinal(disposing);
+
+			Unsubscribe(Parent);
+		}
+
+		#region Methods
 
 		public override void PowerOn()
 		{
@@ -28,5 +39,46 @@ namespace ICD.Connect.Audio.Denon.Controls
 			DenonSerialData data = DenonSerialData.Command(POWER_OFF);
 			Parent.SendData(data);
 		}
+
+		#endregion
+
+		#region Parent Callbacks
+
+		private void Subscribe(DenonAvrDevice parent)
+		{
+			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
+			parent.OnDataReceived += ParentOnOnDataReceived;
+		}
+
+		private void Unsubscribe(DenonAvrDevice parent)
+		{
+			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
+			parent.OnDataReceived -= ParentOnOnDataReceived;
+		}
+
+		private void ParentOnOnDataReceived(DenonAvrDevice device, DenonSerialData response)
+		{
+			switch (response.GetCommand())
+			{
+				case POWER_ON:
+					IsPowered = true;
+					break;
+
+				case POWER_OFF:
+					IsPowered = false;
+					break;
+			}
+		}
+
+		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
+		{
+			if (!args.Data)
+				return;
+
+			DenonSerialData data = DenonSerialData.Request(POWER);
+			Parent.SendData(data);
+		}
+
+		#endregion
 	}
 }

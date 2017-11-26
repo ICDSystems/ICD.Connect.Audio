@@ -1,25 +1,23 @@
 ﻿using System;
 using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
-using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
-using ICD.Connect.Protocol.Data;
-using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
-using ICD.Connect.Protocol.SerialQueues;
 using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Denon
 {
 	public sealed class DenonAvrDevice : AbstractDevice<DenonAvrDeviceSettings>
 	{
+		public delegate void ResponseCallback(DenonAvrDevice device, DenonSerialData response);
+
 		// How often to check the connection and reconnect if necessary.
 		private const long CONNECTION_CHECK_MILLISECONDS = 30 * 1000;
 
@@ -33,10 +31,15 @@ namespace ICD.Connect.Audio.Denon
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
 
+		/// <summary>
+		/// Raised when a response is received from the device.
+		/// </summary>
+		public event ResponseCallback OnDataReceived; 
+
 		private readonly SafeTimer m_ConnectionTimer;
 
 		private ISerialPort m_Port;
-		private readonly SerialQueue m_SerialQueue;
+		private readonly ISerialBuffer m_SerialBuffer;
 
 		private bool m_IsConnected;
 		private bool m_Initialized;
@@ -90,10 +93,10 @@ namespace ICD.Connect.Audio.Denon
 		{
 			m_ConnectionTimer = new SafeTimer(ConnectionTimerCallback, 0, CONNECTION_CHECK_MILLISECONDS);
 
-			m_SerialQueue = new SerialQueue();
-			m_SerialQueue.SetBuffer(new DelimiterSerialBuffer(DenonSerialData.DELIMITER));
+			m_SerialBuffer = new DelimiterSerialBuffer(DenonSerialData.DELIMITER);
 
-			Subscribe(m_SerialQueue);
+			Subscribe(m_SerialBuffer);
+
 			Controls.Add(new DenonAvrPowerControl(this));
 		}
 
@@ -111,7 +114,7 @@ namespace ICD.Connect.Audio.Denon
 
 			base.DisposeFinal(disposing);
 
-			Unsubscribe(m_SerialQueue);
+			Unsubscribe(m_SerialBuffer);
 			Unsubscribe(m_Port);
 		}
 
@@ -169,8 +172,8 @@ namespace ICD.Connect.Audio.Denon
 
 			Unsubscribe(m_Port);
 
+			m_SerialBuffer.Clear();
 			m_Port = port;
-			m_SerialQueue.SetPort(m_Port);
 
 			Subscribe(m_Port);
 
@@ -210,15 +213,6 @@ namespace ICD.Connect.Audio.Denon
 			if (data == null)
 				throw new ArgumentNullException("data");
 
-			SendData(data.Serialize());
-		}
-
-		/// <summary>
-		/// Sends the data to the device.
-		/// </summary>
-		/// <param name="data"></param>
-		private void SendData(string data)
-		{
 			if (!IsConnected)
 			{
 				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
@@ -231,8 +225,7 @@ namespace ICD.Connect.Audio.Denon
 				return;
 			}
 
-			ISerialData serial = new SerialData(data);
-			m_SerialQueue.Enqueue(serial, (a, b) => a.Serialize() == b.Serialize());
+			m_Port.Send(data.Serialize());
 		}
 
 		/// <summary>
@@ -302,6 +295,7 @@ namespace ICD.Connect.Audio.Denon
 			if (port == null)
 				return;
 
+			port.OnSerialDataReceived += PortOnOnSerialDataReceived;
 			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 		}
@@ -315,6 +309,7 @@ namespace ICD.Connect.Audio.Denon
 			if (port == null)
 				return;
 
+			port.OnSerialDataReceived -= PortOnOnSerialDataReceived;
 			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
 			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
 		}
@@ -332,7 +327,7 @@ namespace ICD.Connect.Audio.Denon
 				Initialize();
 			else
 			{
-				m_SerialQueue.Clear();
+				m_SerialBuffer.Clear();
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
@@ -351,48 +346,43 @@ namespace ICD.Connect.Audio.Denon
 			UpdateCachedOnlineStatus();
 		}
 
+		private void PortOnOnSerialDataReceived(object sender, StringEventArgs args)
+		{
+			m_SerialBuffer.Enqueue(args.Data);
+		}
+
 		#endregion
 
-		#region Serial Queue Callbacks
+		#region Serial Buffer Callbacks
 
 		/// <summary>
-		/// Subscribes to the queue events.
+		/// Subscribes to the buffer events.
 		/// </summary>
-		/// <param name="queue"></param>
-		private void Subscribe(SerialQueue queue)
+		/// <param name="buffer"></param>
+		private void Subscribe(ISerialBuffer buffer)
 		{
-			queue.OnSerialResponse += QueueOnSerialResponse;
-			queue.OnTimeout += QueueOnTimeout;
+			buffer.OnCompletedSerial += BufferOnOnCompletedSerial;
 		}
 
 		/// <summary>
-		/// Unsubscribes from the queue events.
+		/// Unsubscribes from the buffer events.
 		/// </summary>
-		/// <param name="queue"></param>
-		private void Unsubscribe(SerialQueue queue)
+		/// <param name="buffer"></param>
+		private void Unsubscribe(ISerialBuffer buffer)
 		{
-			queue.OnSerialResponse -= QueueOnSerialResponse;
-			queue.OnTimeout += QueueOnTimeout;
+			buffer.OnCompletedSerial -= BufferOnOnCompletedSerial;
 		}
 
 		/// <summary>
 		/// Called when we receive a response from the device.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="eventArgs"></param>
-		private void QueueOnSerialResponse(object sender, SerialResponseEventArgs eventArgs)
-		{
-			IcdConsole.PrintLine(eventArgs.Response);
-		}
-
-		/// <summary>
-		/// Called when a command sent to the device did not receive a response soon enough.
-		/// </summary>
-		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void QueueOnTimeout(object sender, SerialDataEventArgs args)
+		private void BufferOnOnCompletedSerial(object sender, StringEventArgs args)
 		{
-			Log(eSeverity.Error, "Timeout - {0}", args.Data.Serialize());
+			ResponseCallback handler = OnDataReceived;
+			if (handler != null)
+				handler(this, new DenonSerialData(args.Data));
 		}
 
 		#endregion
