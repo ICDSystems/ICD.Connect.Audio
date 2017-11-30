@@ -579,9 +579,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			yield return new GenericConsoleCommand<float>("SetMaxSourceLevel", "SetMaxSourceLevel <LEVEL>", f => SetMaxSourceLevel(f));
 			yield return new GenericConsoleCommand<float>("SetMinSourceLevel", "SetMinSourceLevel <LEVEL>", f => SetMinSourceLevel(f));
 
-			yield return new GenericConsoleCommand<bool>("InputMute", "InputMute <TRUE/FALSE>", f => SetInputMute(f));
-			yield return new GenericConsoleCommand<bool>("OuputMute", "OutputMute <TRUE/FALSE>", f => SetOutputMute(f));
-			yield return new GenericConsoleCommand<bool>("SourceMute", "SourceMute <TRUE/FALSE>", f => SetSourceMute(f));
+			yield return new GenericConsoleCommand<bool>("SetInputMute", "SetInputMute <TRUE/FALSE>", f => SetInputMute(f));
+			yield return new GenericConsoleCommand<bool>("SetOuputMute", "SetOutputMute <TRUE/FALSE>", f => SetOutputMute(f));
+			yield return new GenericConsoleCommand<bool>("SetSourceMute", "SetSourceMute <TRUE/FALSE>", f => SetSourceMute(f));
 		}
 
 		/// <summary>
