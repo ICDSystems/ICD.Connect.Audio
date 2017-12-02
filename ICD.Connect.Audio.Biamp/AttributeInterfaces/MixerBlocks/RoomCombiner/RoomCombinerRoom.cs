@@ -26,6 +26,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		private const string INPUT_MUTE_ATTRIBUTE = "muteIn";
 		private const string OUTPUT_MUTE_ATTRIBUTE = "muteOut";
 		private const string SOURCE_MUTE_ATTRIBUTE = "muteSource";
+		private const string ROOM_LABEL_ATTRIBUTE = "roomLabel";
 		private const string SOURCE_SELECTION_ATTRIBUTE = "sourceSelection";
 
 		[PublicAPI]
@@ -68,6 +69,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		public event EventHandler<BoolEventArgs> OnSourceMuteChanged;
 
 		[PublicAPI]
+		public event EventHandler<StringEventArgs> OnRoomLabelChanged; 
+
+		[PublicAPI]
 		public event EventHandler<IntEventArgs> OnSourceSelectionChanged;
 
 		#region Properties
@@ -85,6 +89,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		private bool m_InputMute;
 		private bool m_OutputMute;
 		private bool m_SourceMute;
+		private string m_RoomLabel;
 		private int m_SourceSelection;
 
 		[PublicAPI]
@@ -271,6 +276,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		}
 
 		[PublicAPI]
+		public string RoomLabel
+		{
+			get { return m_RoomLabel; }
+			private set
+			{
+				if (m_RoomLabel == value)
+					return;
+				m_RoomLabel = value;
+				Log(eSeverity.Informational, "Room Label set to {0}", m_RoomLabel);
+				OnRoomLabelChanged.Raise(this, new StringEventArgs(m_RoomLabel));
+			}
+		}
+
+		[PublicAPI]
 		public int SourceSelection
 		{
 			get { return m_SourceSelection; }
@@ -331,6 +350,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Get, INPUT_MUTE_ATTRIBUTE, null, Index);
 			RequestAttribute(OutputMuteFeedback, AttributeCode.eCommand.Get, OUTPUT_MUTE_ATTRIBUTE, null, Index);
 			RequestAttribute(SourceMuteFeedback, AttributeCode.eCommand.Get, SOURCE_MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(RoomLabelFeedback, AttributeCode.eCommand.Get, ROOM_LABEL_ATTRIBUTE, null, Index);
 			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Get, SOURCE_SELECTION_ATTRIBUTE, null, Index);
 
 			// Subscribe
@@ -433,6 +453,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			RequestAttribute(SourceMuteFeedback, AttributeCode.eCommand.Set, SOURCE_MUTE_ATTRIBUTE, new Value(value), Index);
 		}
 
+
+		[PublicAPI]
+		public void SetRoomLabel(string roomLabel)
+		{
+			RequestAttribute(RoomLabelFeedback, AttributeCode.eCommand.Set, ROOM_LABEL_ATTRIBUTE, new Value(roomLabel), Index);
+		}
+
 		[PublicAPI]
 		public void SetSourceSelection(int id)
 		{
@@ -522,6 +549,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			SourceMute = innerValue.BoolValue;
 		}
 
+		private void RoomLabelFeedback(BiampTesiraDevice sender, ControlValue value)
+		{
+			Value innerValue = value.GetValue<Value>("value");
+			RoomLabel = innerValue.StringValue;
+		}
+
 		private void SourceSelectionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			Value innerValue = value.GetValue<Value>("value");
@@ -553,6 +586,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			addRow("Input Mute", InputMute);
 			addRow("Output Mute", OutputMute);
 			addRow("Source Mute", SourceMute);
+			addRow("Room Label", RoomLabel);
 			addRow("Source Selection", SourceSelection);
 		}
 
@@ -579,9 +613,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			yield return new GenericConsoleCommand<float>("SetMaxSourceLevel", "SetMaxSourceLevel <LEVEL>", f => SetMaxSourceLevel(f));
 			yield return new GenericConsoleCommand<float>("SetMinSourceLevel", "SetMinSourceLevel <LEVEL>", f => SetMinSourceLevel(f));
 
-			yield return new GenericConsoleCommand<bool>("InputMute", "InputMute <TRUE/FALSE>", f => SetInputMute(f));
-			yield return new GenericConsoleCommand<bool>("OuputMute", "OutputMute <TRUE/FALSE>", f => SetOutputMute(f));
-			yield return new GenericConsoleCommand<bool>("SourceMute", "SourceMute <TRUE/FALSE>", f => SetSourceMute(f));
+			yield return new GenericConsoleCommand<bool>("SetInputMute", "SetInputMute <TRUE/FALSE>", f => SetInputMute(f));
+			yield return new GenericConsoleCommand<bool>("SetOuputMute", "SetOutputMute <TRUE/FALSE>", f => SetOutputMute(f));
+			yield return new GenericConsoleCommand<bool>("SetSourceMute", "SetSourceMute <TRUE/FALSE>", f => SetSourceMute(f));
+
+			yield return new GenericConsoleCommand<string>("SetRoomLabel", "SetRoomLabel <LABEL>", f => SetRoomLabel(f));
 		}
 
 		/// <summary>

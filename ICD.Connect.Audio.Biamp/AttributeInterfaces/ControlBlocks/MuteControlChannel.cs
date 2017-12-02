@@ -201,7 +201,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 
 		void IStateAttributeInterface.SetState(bool state)
 		{
-			Mute = state;
+			SetMute(state);
 		}
 
 		#endregion
