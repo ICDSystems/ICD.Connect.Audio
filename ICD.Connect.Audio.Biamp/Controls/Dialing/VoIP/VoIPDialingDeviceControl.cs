@@ -21,6 +21,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		private readonly Dictionary<int, ThinConferenceSource> m_AppearanceSources;
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
+		private string m_LastDialedNumber;
 
 		/// <summary>
 		/// Constructor.
@@ -91,6 +92,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					return;
 				}
 
+				m_LastDialedNumber = number;
 				callAppearance.Dial(number);
 			}
 			finally
@@ -133,9 +135,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = VoIpCallStateToDirection(callAppearance.State);
 			if (direction == eConferenceSourceDirection.Incoming)
+			{
+				m_LastDialedNumber = null;
 				source.Direction = eConferenceSourceDirection.Incoming;
+			}
 			else if (source.Direction != eConferenceSourceDirection.Incoming)
+			{
+				if (string.IsNullOrEmpty(source.Number) &&
+				    string.IsNullOrEmpty(source.Name) &&
+				    !string.IsNullOrEmpty(m_LastDialedNumber))
+				{
+					source.Number = m_LastDialedNumber;
+					source.Name = m_LastDialedNumber;
+				}
+
 				source.Direction = eConferenceSourceDirection.Outgoing;
+			}
 
 			// Don't update the answer state if we can't determine the current answer state
 			eConferenceSourceAnswerState answerState = VoIpCallStateToAnswerState(callAppearance.State);

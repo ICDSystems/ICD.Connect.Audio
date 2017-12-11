@@ -30,6 +30,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private ThinConferenceSource m_ActiveSource;
 		private readonly SafeCriticalSection m_ActiveSourceSection;
+		private string m_LastDialedNumber;
 
 		#region Properties
 
@@ -105,6 +106,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="number"></param>
 		public override void Dial(string number)
 		{
+			m_LastDialedNumber = number;
 			m_TiControl.Dial(number);
 		}
 
@@ -173,9 +175,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
 			if (direction == eConferenceSourceDirection.Incoming)
+			{
+				m_LastDialedNumber = null;
 				source.Direction = eConferenceSourceDirection.Incoming;
+			}
 			else if (source.Direction != eConferenceSourceDirection.Incoming)
+			{
+				if (string.IsNullOrEmpty(source.Number) &&
+					string.IsNullOrEmpty(source.Name) &&
+					!string.IsNullOrEmpty(m_LastDialedNumber))
+				{
+					source.Number = m_LastDialedNumber;
+					source.Name = m_LastDialedNumber;
+				}
+
 				source.Direction = eConferenceSourceDirection.Outgoing;
+			}
 
 			// Don't update the answer state if we can't determine the current answer state
 			eConferenceSourceAnswerState answerState = TiControlStateToAnswerState(m_TiControl.State);
