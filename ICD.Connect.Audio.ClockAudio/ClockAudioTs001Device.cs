@@ -199,6 +199,8 @@ namespace ICD.Connect.Audio.ClockAudio
 			finally
 			{
 				m_PortsSection.Leave();
+
+				UpdateCachedOnlineStatus();
 			}
 		}
 
@@ -244,8 +246,8 @@ namespace ICD.Connect.Audio.ClockAudio
 
 			try
 			{
-				// Returns false if there are no ports, or any of the available ports are offline.
-				return !m_Ports.Any(port => port != null && !port.IsOnline) && m_Ports.Any(p => p != null);
+				// Returns true if there is at least one port and all available ports are online.
+				return m_Ports.Where(p => p != null).AnyAndAll(p => p.IsOnline);
 			}
 			finally
 			{
