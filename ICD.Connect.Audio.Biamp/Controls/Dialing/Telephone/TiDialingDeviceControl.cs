@@ -189,6 +189,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				{
 					source.Number = m_LastDialedNumber;
 					source.Name = m_LastDialedNumber;
+					m_LastDialedNumber = null;
 				}
 
 				source.Direction = eConferenceSourceDirection.Outgoing;

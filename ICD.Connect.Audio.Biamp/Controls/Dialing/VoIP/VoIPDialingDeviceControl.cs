@@ -147,6 +147,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				{
 					source.Number = m_LastDialedNumber;
 					source.Name = m_LastDialedNumber;
+					m_LastDialedNumber = null;
 				}
 
 				source.Direction = eConferenceSourceDirection.Outgoing;
