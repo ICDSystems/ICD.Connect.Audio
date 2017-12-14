@@ -437,7 +437,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <returns></returns>
 		private string AddLogPrefix(string log)
 		{
-			return string.Format("{0} - {1}", GetType().Name, log);
+			return string.Format("{0} - {1}", this, log);
 		}
 
 		/// <summary>
