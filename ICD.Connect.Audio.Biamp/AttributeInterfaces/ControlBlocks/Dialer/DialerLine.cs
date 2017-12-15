@@ -131,16 +131,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 			DisposeCallAppearances();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Unsubscribe, AUTO_ANSWER_ATTRIBUTE, null, Index);
-            RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-            RequestAttribute(LineLabelFeedback, AttributeCode.eCommand.Unsubscribe, LINE_LABEL_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -154,11 +144,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks.Dialer
 			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Get, AUTO_ANSWER_ATTRIBUTE, null, Index);
 			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Get, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
 			RequestAttribute(LineLabelFeedback, AttributeCode.eCommand.Get, LINE_LABEL_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Subscribe, AUTO_ANSWER_ATTRIBUTE, null, Index);
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Subscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-			RequestAttribute(LineLabelFeedback, AttributeCode.eCommand.Subscribe, LINE_LABEL_ATTRIBUTE, null, Index);
+			RequestAttribute(AutoAnswerFeedback, command, AUTO_ANSWER_ATTRIBUTE, null, Index);
+			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
+			RequestAttribute(LineLabelFeedback, command, LINE_LABEL_ATTRIBUTE, null, Index);		
 		}
 
 		[PublicAPI]

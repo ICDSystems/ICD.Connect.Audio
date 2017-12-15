@@ -16,5 +16,10 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// <param name="indices"></param>
 		/// <returns></returns>
 		IAttributeInterface GetAttributeInterface(eChannelType channelType, params int[] indices);
+
+		/// <summary>
+		/// Subscribe to feedback from the system.
+		/// </summary>
+		void Subscribe();
 	}
 }

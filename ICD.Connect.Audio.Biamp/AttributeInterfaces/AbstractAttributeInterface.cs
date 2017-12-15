@@ -103,11 +103,37 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// </summary>
 		public virtual void Initialize()
 		{
+			Subscribe();
 		}
 
-	    public virtual void Deinitialize()
+		public void Deinitialize()
 	    {
+			Unsubscribe();
 	    }
+
+		/// <summary>
+		/// Subscribe to feedback from the system.
+		/// </summary>
+		public void Subscribe()
+		{
+			Subscribe(AttributeCode.eCommand.Subscribe);
+		}
+
+		/// <summary>
+		/// Unsubscribe from feedback from the system.
+		/// </summary>
+		public void Unsubscribe()
+		{
+			Subscribe(AttributeCode.eCommand.Unsubscribe);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected virtual void Subscribe(AttributeCode.eCommand command)
+		{
+		}
 
 		/// <summary>
 		/// Builds an attribute code and sends it to the device.

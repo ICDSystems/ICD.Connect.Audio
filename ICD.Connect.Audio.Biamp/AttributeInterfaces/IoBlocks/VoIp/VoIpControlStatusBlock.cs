@@ -76,28 +76,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Get, NAT_INFO_ATTRIBUTE, null);
 			RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Get, NETWORK_INFO_ATTRIBUTE, null);
 			RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Get, PROTOCOL_INFO_ATTRIBUTE, null);
-
-			// Subscribe
-			RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Subscribe, CALL_STATE_ATTRIBUTE, null);
-			//RequestAttribute(StatisticsFeedback, AttributeCode.eCommand.Subscribe, STATISTICS_ATTRIBUTE, null);
-			RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Subscribe, NAT_INFO_ATTRIBUTE, null);
-			RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Subscribe, NETWORK_INFO_ATTRIBUTE, null);
-			RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Subscribe, PROTOCOL_INFO_ATTRIBUTE, null);
 		}
 
-	    public override void Deinitialize()
-	    {
-	        base.Deinitialize();
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
-            // Unsubscribe
-            RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Unsubscribe, CALL_STATE_ATTRIBUTE, null);
-            //RequestAttribute(StatisticsFeedback, AttributeCode.eCommand.Unsubscribe, STATISTICS_ATTRIBUTE, null);
-            RequestAttribute(NatInfoFeedback, AttributeCode.eCommand.Unsubscribe, NAT_INFO_ATTRIBUTE, null);
-            RequestAttribute(NetworkInfoFeedback, AttributeCode.eCommand.Unsubscribe, NETWORK_INFO_ATTRIBUTE, null);
-            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Unsubscribe, PROTOCOL_INFO_ATTRIBUTE, null);
-	    }
+			// Subscribe
+			RequestAttribute(CallStateFeedback, command, CALL_STATE_ATTRIBUTE, null);
+			//RequestAttribute(StatisticsFeedback, command, STATISTICS_ATTRIBUTE, null);
+			RequestAttribute(NatInfoFeedback, command, NAT_INFO_ATTRIBUTE, null);
+			RequestAttribute(NetworkInfoFeedback, command, NETWORK_INFO_ATTRIBUTE, null);
+			RequestAttribute(ProtocolInfoFeedback, command, PROTOCOL_INFO_ATTRIBUTE, null);
+		}
 
-	    [PublicAPI]
+		[PublicAPI]
 		public IEnumerable<VoIpControlStatusLine> GetLines()
 		{
 			return m_LinesSection.Execute(() => m_Lines.OrderValuesByKey().ToArray());

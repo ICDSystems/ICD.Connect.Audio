@@ -299,14 +299,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		#region Methods
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Unsubscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -327,9 +319,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			RequestAttribute(SerialNumberFeedback, AttributeCode.eCommand.Get, SERIAL_NUMBER_ATTRIBUTE, null);
 			RequestAttribute(TelnetDisabledFeedback, AttributeCode.eCommand.Get, TELNET_DISABLED_ATTRIBUTE, null);
 			RequestAttribute(FirmwareVersionFeedback, AttributeCode.eCommand.Get, FIRMWARE_VERSION_ATTRIBUTE, null);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Subscribe, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
+			RequestAttribute(KnownRedundantDeviceStatesFeedback, command, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
 		}
 
 		[PublicAPI]

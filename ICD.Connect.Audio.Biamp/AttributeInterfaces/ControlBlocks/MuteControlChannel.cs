@@ -91,14 +91,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			base.Dispose();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -109,9 +101,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			// Get initial values
 			RequestAttribute(LabelFeedback, AttributeCode.eCommand.Get, LABEL_ATTRIBUTE, null, Index);
 			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Get, MUTE_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Subscribe, MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(MuteFeedback, command, MUTE_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]

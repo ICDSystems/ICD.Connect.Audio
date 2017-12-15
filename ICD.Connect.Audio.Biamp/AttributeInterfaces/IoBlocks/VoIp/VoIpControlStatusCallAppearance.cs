@@ -295,14 +295,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			base.Dispose();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Unsubscribe, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -312,9 +304,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 			// Get initial values
 			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Get, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Subscribe, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
+			RequestAttribute(LineInUseFeedback, command, LINE_IN_USE_ATTRIBUTE, null, Line, Index);
 		}
 
 		internal void ParseCallState(ControlValue callState)

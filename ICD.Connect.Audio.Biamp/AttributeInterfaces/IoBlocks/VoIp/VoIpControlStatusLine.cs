@@ -420,16 +420,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			DisposeCallAppearances();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-            RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null, Index);
-            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Unsubscribe, PROTOCOL_INFO_ATTRIBUTE, null);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -451,12 +441,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(RedialEnabledFeedback, AttributeCode.eCommand.Get, REDIAL_ENABLED_ATTRIBUTE, null, Index);
 			RequestAttribute(RingTypeFeedback, AttributeCode.eCommand.Get, RING_TYPE_ATTRIBUTE, null, Index);
             RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Get, PROTOCOL_INFO_ATTRIBUTE, null);
+		}
 
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Subscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
-            RequestAttribute(ProtocolInfoFeedback, AttributeCode.eCommand.Subscribe, PROTOCOL_INFO_ATTRIBUTE, null);
-			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Subscribe, LINE_READY_ATTRIBUTE, null, Index);
+			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
+			RequestAttribute(ProtocolInfoFeedback, command, PROTOCOL_INFO_ATTRIBUTE, null);
+			RequestAttribute(LineReadyFeedback, command, LINE_READY_ATTRIBUTE, null, Index);
 		}
 
 		/// <summary>

@@ -324,14 +324,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 				Initialize();
 		}
 
-		public override void Deinitialize()
-		{
-			base.Deinitialize();
-
-			// Unsubscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
-		}
-
 		public override void Initialize()
 		{
 			base.Initialize();
@@ -352,9 +344,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			RequestAttribute(SourceMuteFeedback, AttributeCode.eCommand.Get, SOURCE_MUTE_ATTRIBUTE, null, Index);
 			RequestAttribute(RoomLabelFeedback, AttributeCode.eCommand.Get, ROOM_LABEL_ATTRIBUTE, null, Index);
 			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Get, SOURCE_SELECTION_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
+			RequestAttribute(OutputLevelFeedback, command, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]

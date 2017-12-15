@@ -237,18 +237,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			base.Dispose();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
-            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
-            RequestAttribute(CrosspointOnFeedback, AttributeCode.eCommand.Unsubscribe, CROSSPOINT_ON_ATTRIBUTE, null, Index);
-            RequestAttribute(GainReductionFeedback, AttributeCode.eCommand.Unsubscribe, GAIN_REDUCTION_ATTRIBUTE, null, Index);
-            RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Unsubscribe, INPUT_MUTE_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -265,13 +253,22 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			RequestAttribute(GainReductionFeedback, AttributeCode.eCommand.Get, GAIN_REDUCTION_ATTRIBUTE, null, Index);
 			RequestAttribute(InputLabelFeedback, AttributeCode.eCommand.Get, INPUT_LABEL_ATTRIBUTE, null, Index);
 			RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Get, INPUT_MUTE_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Subscribe, LEVEL_ATTRIBUTE, null, Index);
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Subscribe, MUTE_ATTRIBUTE, null, Index);
-			RequestAttribute(CrosspointOnFeedback, AttributeCode.eCommand.Subscribe, CROSSPOINT_ON_ATTRIBUTE, null, Index);
-			RequestAttribute(GainReductionFeedback, AttributeCode.eCommand.Subscribe, GAIN_REDUCTION_ATTRIBUTE, null, Index);
-			RequestAttribute(InputMuteFeedback, AttributeCode.eCommand.Subscribe, INPUT_MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(LevelFeedback, command, LEVEL_ATTRIBUTE, null, Index);
+			RequestAttribute(MuteFeedback, command, MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(CrosspointOnFeedback, command, CROSSPOINT_ON_ATTRIBUTE, null, Index);
+			RequestAttribute(GainReductionFeedback, command, GAIN_REDUCTION_ATTRIBUTE, null, Index);
+			RequestAttribute(InputMuteFeedback, command, INPUT_MUTE_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]

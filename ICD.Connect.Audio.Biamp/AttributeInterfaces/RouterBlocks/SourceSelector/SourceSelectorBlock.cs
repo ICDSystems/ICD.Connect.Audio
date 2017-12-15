@@ -291,15 +291,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			DisposeSources();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-            RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Unsubscribe, SOURCE_SELECTION_ATTRIBUTE, null);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -317,10 +308,20 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.RouterBlocks.SourceSelecto
 			RequestAttribute(OutputMuteFeedback, AttributeCode.eCommand.Get, OUTPUT_MUTE_ATTRIBUTE, null);
 			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Get, SOURCE_SELECTION_ATTRIBUTE, null);
 			RequestAttribute(StereoEnabledFeedback, AttributeCode.eCommand.Get, STEREO_ENABLED_ATTRIBUTE, null);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-			RequestAttribute(SourceSelectionFeedback, AttributeCode.eCommand.Subscribe, SOURCE_SELECTION_ATTRIBUTE, null);
+			RequestAttribute(OutputLevelFeedback, command, OUTPUT_LEVEL_ATTRIBUTE, null);
+			RequestAttribute(SourceSelectionFeedback, command, SOURCE_SELECTION_ATTRIBUTE, null);
+		
 		}
 
 		/// <summary>
