@@ -155,10 +155,10 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_ConnectionTimer.Dispose();
 
-			base.DisposeFinal(disposing);
-
 			Unsubscribe(m_SerialQueue);
 			Unsubscribe(m_Port);
+
+			base.DisposeFinal(disposing);
 
 			m_AttributeInterfaces.Dispose();
 		}
