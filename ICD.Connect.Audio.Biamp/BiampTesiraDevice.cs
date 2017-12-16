@@ -14,6 +14,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Biamp.Controls;
+using ICD.Connect.Audio.Biamp.TesiraTextProtocol;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.Devices;
@@ -32,9 +33,12 @@ namespace ICD.Connect.Audio.Biamp
 		// How often to check the connection and reconnect if necessary.
 		private const long CONNECTION_CHECK_MILLISECONDS = 30 * 1000;
 
+		// How often to re-subscribe to device events
+		private const long SUBSCRIPTION_INTERVAL_MILLISECONDS = 10 * 60 * 1000;
+
 		// Delay after connection before we start initializing
 		// Ensures we catch any login messages
-		private const long INITIALIZATION_DELAY = 3 * 1000;
+		private const long INITIALIZATION_DELAY_MILLISECONDS = 3 * 1000;
 
 		public delegate void SubscriptionCallback(BiampTesiraDevice sender, ControlValue value);
 
@@ -48,10 +52,12 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
 
-		private readonly Dictionary<string, IcdHashSet<SubscriptionCallback>> m_SubscriptionCallbacks;
+		private readonly Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>> m_SubscriptionCallbacks;
 		private readonly SafeCriticalSection m_SubscriptionCallbacksSection;
 
 		private readonly SafeTimer m_ConnectionTimer;
+		private readonly SafeTimer m_SubscriptionTimer;
+		private readonly SafeTimer m_InitializationTimer;
 
 		private ISerialPort m_Port;
 		private readonly BiampTesiraSerialQueue m_SerialQueue;
@@ -60,8 +66,6 @@ namespace ICD.Connect.Audio.Biamp
 		private bool m_Initialized;
 
 		private readonly AttributeInterfaceFactory m_AttributeInterfaces;
-
-		private readonly SafeTimer m_InitializationTimer;
 
 		// Used with settings
 		private string m_Config;
@@ -125,22 +129,21 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
-			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallback>>();
+			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
-			m_ConnectionTimer = new SafeTimer(ConnectionTimerCallback, 0, CONNECTION_CHECK_MILLISECONDS);
+			m_ConnectionTimer = SafeTimer.Stopped(ConnectionTimerCallback);
+			m_SubscriptionTimer = SafeTimer.Stopped(SubscriptionTimerCallback);
+			m_InitializationTimer = SafeTimer.Stopped(Initialize);
 
 			m_SerialQueue = new BiampTesiraSerialQueue
 			{
 				Timeout = 20 * 1000
 			};
 			m_SerialQueue.SetBuffer(new BiampTesiraSerialBuffer());
+			Subscribe(m_SerialQueue);
 
 			m_AttributeInterfaces = new AttributeInterfaceFactory(this);
-
-			m_InitializationTimer = SafeTimer.Stopped(Initialize);
-
-			Subscribe(m_SerialQueue);
 		}
 
 		#region Methods
@@ -179,7 +182,7 @@ namespace ICD.Connect.Audio.Biamp
 			IsConnected = m_Port.IsConnected;
 
 			if (IsConnected)
-				m_InitializationTimer.Reset(INITIALIZATION_DELAY);
+				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 		}
 
 		/// <summary>
@@ -291,23 +294,26 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="indices"></param>
 		public void SubscribeAttribute(SubscriptionCallback callback, string instanceTag, string attribute, int[] indices)
 		{
-			string key = GenerateSubscriptionKey(instanceTag, attribute, indices);
+			string key = SubscriptionCallbackInfo.GenerateSubscriptionKey(instanceTag, attribute, indices);
+			AttributeCode code = AttributeCode.Subscribe(instanceTag, attribute, key, indices);
+			SubscriptionCallbackInfo info = new SubscriptionCallbackInfo(callback, code);
 
 			m_SubscriptionCallbacksSection.Enter();
 
 			try
 			{
-				
 				if (!m_SubscriptionCallbacks.ContainsKey(key))
-					m_SubscriptionCallbacks[key] = new IcdHashSet<SubscriptionCallback>();
-				m_SubscriptionCallbacks[key].Add(callback);
+					m_SubscriptionCallbacks[key] = new IcdHashSet<SubscriptionCallbackInfo>();
+
+				if (!m_SubscriptionCallbacks[key].Any(s => s.Callback == callback &&
+				                                           s.Code.CompareEquality(code)))
+					m_SubscriptionCallbacks[key].Add(info);
 			}
 			finally
 			{
 				m_SubscriptionCallbacksSection.Leave();
 			}
-
-			AttributeCode code = AttributeCode.Subscribe(instanceTag, attribute, key, indices);
+			
 			SendData(callback, code);
 		}
 
@@ -320,7 +326,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="indices"></param>
 		public void UnsubscribeAttribute(SubscriptionCallback callback, string instanceTag, string attribute, int[] indices)
 		{
-			string key = GenerateSubscriptionKey(instanceTag, attribute, indices);
+			string key = SubscriptionCallbackInfo.GenerateSubscriptionKey(instanceTag, attribute, indices);
+			AttributeCode code = AttributeCode.Unsubscribe(instanceTag, attribute, key, indices);
 
 			m_SubscriptionCallbacksSection.Enter();
 
@@ -328,7 +335,13 @@ namespace ICD.Connect.Audio.Biamp
 			{
 				if (m_SubscriptionCallbacks.ContainsKey(key))
 				{
-					m_SubscriptionCallbacks[key].Remove(callback);
+					SubscriptionCallbackInfo remove =
+						m_SubscriptionCallbacks[key].FirstOrDefault(s => s.Callback == callback &&
+						                                                 s.Code.CompareEquality(code));
+
+					if (remove != null)
+						m_SubscriptionCallbacks[key].Remove(remove);
+
 					if (m_SubscriptionCallbacks[key].Count == 0)
 						m_SubscriptionCallbacks.Remove(key);
 				}
@@ -338,25 +351,38 @@ namespace ICD.Connect.Audio.Biamp
 				m_SubscriptionCallbacksSection.Leave();
 			}
 
-			// Don't bother trying to unsubscribe from the device if we aren't connected...
+			// Don't bother trying to unsubscribe from the device if we aren't connected.
 			if (!m_IsConnected)
 				return;
 
-			AttributeCode code = AttributeCode.Unsubscribe(instanceTag, attribute, key, indices);
 			SendData(callback, code);
 		}
 
 		/// <summary>
-		/// Generates a subscription key for the given attribute so we can match system feedback to a callback.
+		/// Called periodically to enforce subscriptions to device events.
 		/// </summary>
-		/// <param name="instanceTag"></param>
-		/// <param name="attribute"></param>
-		/// <param name="indices"></param>
-		/// <returns></returns>
-		public static string GenerateSubscriptionKey(string instanceTag, string attribute, params int[] indices)
+		private void SubscriptionTimerCallback()
 		{
-			string indicesString = string.Join("-", indices.Select(i => i.ToString()).ToArray());
-			return string.Format("{0}-{1}-{2}", instanceTag, attribute, indicesString);
+			SubscriptionCallbackInfo[] subscriptions;
+
+			m_SubscriptionCallbacksSection.Enter();
+
+			try
+			{
+				subscriptions = m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray();
+			}
+			finally
+			{
+				m_SubscriptionCallbacksSection.Leave();
+			}
+
+			foreach (SubscriptionCallbackInfo subscription in subscriptions)
+			{
+				if (!m_IsConnected)
+					return;
+
+				SendData(subscription.Callback, subscription.Code);
+			}
 		}
 
 		#endregion
@@ -489,9 +515,13 @@ namespace ICD.Connect.Audio.Biamp
 			IsConnected = args.Data;
 
 			if (IsConnected)
-				m_InitializationTimer.Reset(INITIALIZATION_DELAY);
+			{
+				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
+			}
 			else
 			{
+				m_SubscriptionTimer.Stop();
 				m_InitializationTimer.Stop();
 				m_SerialQueue.Clear();
 
@@ -594,24 +624,25 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			Response response = Deserialize(eventArgs.Data);
 			string key = response.PublishToken;
-			SubscriptionCallback[] callbacksArray;
+			SubscriptionCallback[] callbacks;
 
 			m_SubscriptionCallbacksSection.Enter();
 
 			try
 			{
-				IcdHashSet<SubscriptionCallback> callbacks;
-				if (!m_SubscriptionCallbacks.TryGetValue(key, out callbacks))
+				IcdHashSet<SubscriptionCallbackInfo> subscriptions;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out subscriptions))
 					return;
 
-				callbacksArray = callbacks.ToArray();
+				callbacks = subscriptions.Select(s => s.Callback)
+				                         .ToArray(subscriptions.Count);
 			}
 			finally
 			{
 				m_SubscriptionCallbacksSection.Leave();
 			}
 
-			foreach (SubscriptionCallback callback in callbacksArray)
+			foreach (SubscriptionCallback callback in callbacks)
 				SafeExecuteCallback(callback, response, eventArgs.Data);
 		}
 

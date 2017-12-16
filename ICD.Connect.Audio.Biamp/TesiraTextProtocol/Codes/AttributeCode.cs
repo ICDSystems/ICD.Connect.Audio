@@ -209,7 +209,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		protected override bool CompareEquality(AttributeCode other)
+		public override bool CompareEquality(AttributeCode other)
 		{
 			if (Command != other.Command)
 				return false;
