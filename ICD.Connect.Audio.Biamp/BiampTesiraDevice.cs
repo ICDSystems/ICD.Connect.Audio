@@ -805,6 +805,7 @@ namespace ICD.Connect.Audio.Biamp
 			yield return new GenericConsoleCommand<string>("LoadControls", "LoadControls <PATH>", p => LoadControls(p));
 			yield return new ConsoleCommand("ReloadControls", "Reloads the controls from the most recent path",
 			                                () => LoadControls(m_Config));
+			yield return new ConsoleCommand("Resubscribe", "Resends subscription commands to the device", () => SubscriptionTimerCallback());
 		}
 
 		/// <summary>
