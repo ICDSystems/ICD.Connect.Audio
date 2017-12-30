@@ -97,6 +97,7 @@ namespace ICD.Connect.Audio.Denon
 
 			Subscribe(m_SerialBuffer);
 
+			Controls.Add(new DenonAvrSwitcherRoutingControl(this, 0));
 			Controls.Add(new DenonAvrPowerControl(this, 1));
 			Controls.Add(new DenonAvrVolumeControl(this, 2));
 		}
@@ -179,7 +180,12 @@ namespace ICD.Connect.Audio.Denon
 			Subscribe(m_Port);
 
 			if (m_Port != null)
+			{
+				m_Port.DebugRx = true;
+				m_Port.DebugTx = true;
+
 				Connect();
+			}
 
 			UpdateCachedOnlineStatus();
 		}
