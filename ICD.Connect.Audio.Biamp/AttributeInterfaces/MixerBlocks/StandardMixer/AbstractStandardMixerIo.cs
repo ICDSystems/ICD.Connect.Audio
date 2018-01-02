@@ -117,7 +117,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 
 				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
-				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_Level));
+				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
 		}
 
