@@ -300,6 +300,27 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		#region Methods
 
 		/// <summary>
+		/// Release resources.
+		/// </summary>
+		public override void Dispose()
+		{
+			OnHostnameChanged = null;
+			OnMdnsEnabledChanged = null;
+			OnSerialNumberChanged = null;
+			OnTelnetDisabledChanged = null;
+			OnVersionChanged = null;
+			OnFaultStatusChanged = null;
+			OnDefaultGatewayChanged = null;
+			OnLinkStatusChanged = null;
+			OnIpAddressChanged = null;
+			OnSubnetMaskChanged = null;
+			OnMacAddressChanged = null;
+			OnRegistrationChanged = null;
+
+			base.Dispose();
+		}
+
+		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
 		public override void Initialize()
