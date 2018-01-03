@@ -637,12 +637,14 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		event EventHandler<FloatEventArgs> IVolumeAttributeInterface.OnLevelChanged
 		{
 			add { OnOutputLevelChanged += value; }
+// ReSharper disable once DelegateSubtraction
 			remove { OnOutputLevelChanged -= value; }
 		}
 
 		event EventHandler<BoolEventArgs> IVolumeAttributeInterface.OnMuteChanged
 		{
 			add { OnOutputMuteChanged += value; }
+// ReSharper disable once DelegateSubtraction
 			remove { OnOutputMuteChanged -= value; }
 		}
 

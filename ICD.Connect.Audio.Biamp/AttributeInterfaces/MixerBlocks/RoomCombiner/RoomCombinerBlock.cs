@@ -35,6 +35,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		private readonly SafeCriticalSection m_WallsSection;
 		private readonly SafeCriticalSection m_RoomsSection;
 		private readonly SafeCriticalSection m_SourcesSection;
+
 		private bool m_LastMicHoldEnabled;
 		private int m_OpenMicLimit;
 		private bool m_OpenMicLimitEnabled;

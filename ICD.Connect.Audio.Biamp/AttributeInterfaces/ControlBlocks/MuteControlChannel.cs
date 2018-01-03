@@ -195,6 +195,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		event EventHandler<BoolEventArgs> IStateAttributeInterface.OnStateChanged
 		{
 			add { OnMuteChanged += value; }
+// ReSharper disable once DelegateSubtraction
 			remove { OnMuteChanged -= value; }
 		}
 
