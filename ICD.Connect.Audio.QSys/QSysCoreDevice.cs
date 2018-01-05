@@ -17,6 +17,8 @@ namespace ICD.Connect.Audio.QSys
 {
 	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>, IConnectable
 	{
+		private const char DELIMITER = '\x00';
+
 		/// <summary>
 		/// Raised when the class initializes.
 		/// </summary>
@@ -92,7 +94,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			Heartbeat = new Heartbeat(this);
 
-			m_SerialBuffer = new JsonSerialBuffer();
+			m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
 			Subscribe(m_SerialBuffer);
 		}
 
@@ -213,6 +215,10 @@ namespace ICD.Connect.Audio.QSys
 				Log(eSeverity.Critical, "Unable to communicate with device");
 				return;
 			}
+
+			// Pad with the delimiter
+			if (!json.EndsWith(DELIMITER))
+				json = json + DELIMITER;
 
 			m_Port.Send(json);
 		}
