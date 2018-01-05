@@ -277,6 +277,7 @@ namespace ICD.Connect.Audio.QSys
 
 			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			port.OnSerialDataReceived += PortOnSerialDataReceived;
 		}
 
 		/// <summary>
@@ -290,6 +291,17 @@ namespace ICD.Connect.Audio.QSys
 
 			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
 			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			port.OnSerialDataReceived -= PortOnSerialDataReceived;
+		}
+
+		/// <summary>
+		/// Called when we receive data from the port.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="stringEventArgs"></param>
+		private void PortOnSerialDataReceived(object sender, StringEventArgs stringEventArgs)
+		{
+			m_SerialBuffer.Enqueue(stringEventArgs.Data);
 		}
 
 		/// <summary>
