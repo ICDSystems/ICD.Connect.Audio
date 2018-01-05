@@ -66,6 +66,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QSysCoreDevice.cs" />
     <Compile Include="QSysCoreDeviceSettings.cs" />
+    <Compile Include="Rpc\AbstractRpc.cs" />
+    <Compile Include="Rpc\StatusGetRpc.cs" />
+    <Compile Include="Rpc\IRpc.cs" />
+    <Compile Include="Rpc\LogonRpc.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>
