@@ -7,11 +7,14 @@ namespace ICD.Connect.Audio.QSys.Rpc
 	{
 		private const string JSONRPC_PROPERTY = "jsonrpc";
 		private const string METHOD_PROPERTY = "method";
+		private const string ID_PROPERTY = "id";
 		private const string PARAMS_PROPERTY = "params";
 
 		private const string JSONRPC_VALUE = "2.0";
 
 		public abstract string Method { get; }
+
+		public int Id { get; set; }
 
 		/// <summary>
 		/// Serialize this instance to a string.
@@ -37,6 +40,13 @@ namespace ICD.Connect.Audio.QSys.Rpc
 				// method
 				writer.WritePropertyName(METHOD_PROPERTY);
 				writer.WriteValue(Method);
+
+				// id
+				if (Id != 0)
+				{
+					writer.WritePropertyName(ID_PROPERTY);
+					writer.WriteValue(Id);
+				}
 
 				// params
 				writer.WritePropertyName(PARAMS_PROPERTY);
