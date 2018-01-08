@@ -22,13 +22,14 @@ using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>
+	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>, IConnectable
 	{
 		// How often to check the connection and reconnect if necessary.
 		private const long CONNECTION_CHECK_MILLISECONDS = 30 * 1000;
@@ -116,6 +117,8 @@ namespace ICD.Connect.Audio.Biamp
 			}
 		}
 
+		public Heartbeat Heartbeat { get; private set; }
+
 		/// <summary>
 		/// Provides features for lazy loading attribute interface blocks and services.
 		/// </summary>
@@ -144,6 +147,7 @@ namespace ICD.Connect.Audio.Biamp
 			Subscribe(m_SerialQueue);
 
 			m_AttributeInterfaces = new AttributeInterfaceFactory(this);
+			Heartbeat = new Heartbeat(this);
 		}
 
 		#region Methods
@@ -160,6 +164,8 @@ namespace ICD.Connect.Audio.Biamp
 
 			Unsubscribe(m_SerialQueue);
 			Unsubscribe(m_Port);
+
+			Heartbeat.Dispose();
 
 			base.DisposeFinal(disposing);
 
@@ -776,6 +782,8 @@ namespace ICD.Connect.Audio.Biamp
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
 				LoadControls(settings.Config);
+
+			Heartbeat.StartMonitoring();
 		}
 
 		#endregion
