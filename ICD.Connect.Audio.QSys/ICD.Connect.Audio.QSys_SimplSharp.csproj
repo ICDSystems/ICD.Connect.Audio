@@ -71,6 +71,7 @@
     <Compile Include="QSysCoreDevice.cs" />
     <Compile Include="QSysCoreDeviceSettings.cs" />
     <Compile Include="Rpc\AbstractRpc.cs" />
+    <Compile Include="Rpc\ComponentGetComponentsRpc.cs" />
     <Compile Include="Rpc\ComponentGetRpc.cs" />
     <Compile Include="Rpc\ComponentSetRpc.cs" />
     <Compile Include="Rpc\ControlGetRpc.cs" />
