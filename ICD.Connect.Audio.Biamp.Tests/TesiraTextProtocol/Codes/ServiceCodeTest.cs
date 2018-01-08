@@ -2,7 +2,7 @@
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using NUnit.Framework;
 
-namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Codes
+namespace ICD.Connect.Audio.Biamp.Tests.TesiraTextProtocol.Codes
 {
 	[TestFixture]
 	public class ServiceCodeTest
