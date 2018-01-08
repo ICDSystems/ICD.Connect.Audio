@@ -1,7 +1,18 @@
-﻿using Newtonsoft.Json;
+﻿using System;
+using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
 {
+	/// <summary>
+	/// {
+	///		"jsonrpc":"2.0",
+	///		"method":"Logon",
+	///		"params":{
+	///			"User":"username",
+	///			"Password":"1234"
+	///		}
+	/// }
+	/// </summary>
 	public sealed class LogonRpc : AbstractRpc
 	{
 		private const string USER_PROPERTY = "User";
@@ -21,6 +32,9 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		/// <param name="writer"></param>
 		protected override void SerializeParams(JsonWriter writer)
 		{
+			if (writer == null)
+				throw new ArgumentNullException("writer");
+
 			writer.WriteStartObject();
 			{
 				// Username

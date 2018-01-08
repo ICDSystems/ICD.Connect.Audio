@@ -5,15 +5,15 @@ namespace ICD.Connect.Audio.QSys.Rpc
 {
 	/// <summary>
 	/// {
-	///		"jsonrpc": "2.0",
-	///		"method": "StatusGet",
-	///		"id": 1234,
-	///		"params": 0
+	///		"jsonrpc":"2.0",
+	///		"method":"NoOp",
+	///		"params":{
+	///		}
 	/// }
 	/// </summary>
-	public sealed class StatusGetRpc : AbstractRpc
+	public sealed class NoOpRpc : AbstractRpc
 	{
-		private const string METHOD_VALUE = "StatusGet";
+		private const string METHOD_VALUE = "NoOp";
 
 		public override string Method { get { return METHOD_VALUE; } }
 
@@ -26,7 +26,8 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteValue(0);
+			writer.WriteStartObject();
+			writer.WriteEndObject();
 		}
 	}
 }

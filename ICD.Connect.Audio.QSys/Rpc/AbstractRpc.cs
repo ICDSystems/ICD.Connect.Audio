@@ -1,4 +1,5 @@
-﻿using ICD.Common.Utils.Json;
+﻿using System;
+using ICD.Common.Utils.Json;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
@@ -31,6 +32,9 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		/// <param name="writer"></param>
 		public void Serialize(JsonWriter writer)
 		{
+			if (writer == null)
+				throw new ArgumentNullException("writer");
+
 			writer.WriteStartObject();
 			{
 				// jsonrpc
@@ -59,10 +63,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		/// Override to add serialize params to JSON.
 		/// </summary>
 		/// <param name="writer"></param>
-		protected virtual void SerializeParams(JsonWriter writer)
-		{
-			writer.WriteStartObject();
-			writer.WriteEndObject();
-		}
+		protected abstract void SerializeParams(JsonWriter writer);
 	}
 }
