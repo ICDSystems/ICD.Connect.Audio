@@ -957,8 +957,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 			string[] cidSplit = cidValue.GetStringValues().ToArray();
 
-			CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
-			CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
+			CallerNumber = cidSplit.Length >= 2 ? cidSplit[1] : null;
+			CallerName = cidSplit.Length >= 3 ? cidSplit[2] : null;
 		}
 
 		private void DialingFeedback(BiampTesiraDevice sender, ControlValue value)
