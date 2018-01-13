@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Crestron.SimplSharp.Net;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
@@ -326,18 +327,29 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			Value promptValue = callState.GetValue<Value>("prompt");
 			Prompt = promptValue.GetObjectValue(s_PromptSerials);
 
-			Value cidValue = callState.GetValue<Value>("cid");
-			string[] cidSplit = cidValue.GetStringValues().ToArray();
 
-			// First portion is datetime
-			if (cidSplit.Length > 1)
+			// If call state is idle, then clear caller ID info.  Otherwise try to parse it.
+			if (State == eVoIpCallState.Idle)
 			{
-				// Clear the name here, in case there is no name on the CID
-				CallerNumber = cidSplit[1].Trim('\\');
 				CallerName = null;
+				CallerNumber = null;
 			}
-			if (cidSplit.Length > 2)
-				CallerName = cidSplit[2].Trim('\\');
+			else
+			{
+
+				Value cidValue = callState.GetValue<Value>("cid");
+				string[] cidSplit = cidValue.GetStringValues().ToArray();
+
+				// First portion is datetime
+				if (cidSplit.Length > 1)
+				{
+					// Clear the name here, in case there is no name on the CID
+					CallerNumber = cidSplit[1].Trim('\\');
+					CallerName = null;
+				}
+				if (cidSplit.Length > 2)
+					CallerName = cidSplit[2].Trim('\\');
+			}
 
 		}
 
@@ -370,6 +382,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public void Dial(string number)
 		{
+			CallerNumber = number;
+			CallerName = null;
 			RequestService(DIAL_SERVICE, new Value(number), Line, Index);
 		}
 
