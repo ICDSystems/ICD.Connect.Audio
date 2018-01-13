@@ -392,11 +392,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnHoldCallback += HoldCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.OnAnswerCallback -= AnswerCallback;
+			source.OnHoldCallback -= HoldCallback;
+			source.OnResumeCallback -= ResumeCallback;
+			source.OnHangupCallback -= HangupCallback;
+			source.OnSendDtmfCallback -= SendDtmfCallback;
 		}
 
 		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
