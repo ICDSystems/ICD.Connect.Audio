@@ -339,14 +339,17 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 				Value cidValue = callState.GetValue<Value>("cid");
 				string[] cidSplit = cidValue.GetStringValues().ToArray();
-
 				// First portion is datetime
-				if (cidSplit.Length > 1)
+				
+				// If length is greater than 0, CID info was parsed, so clear current info (sometimes no info is received)
+				if (cidSplit.Length > 0)
 				{
-					// Clear the name here, in case there is no name on the CID
-					CallerNumber = cidSplit[1].Trim('\\');
+					CallerNumber = null;
 					CallerName = null;
 				}
+				// Set Name and Number Independently - sometimes name is not received
+				if (cidSplit.Length > 1)
+					CallerNumber = cidSplit[1].Trim('\\');
 				if (cidSplit.Length > 2)
 					CallerName = cidSplit[2].Trim('\\');
 			}
