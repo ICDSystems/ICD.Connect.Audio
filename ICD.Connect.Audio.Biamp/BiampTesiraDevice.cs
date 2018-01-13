@@ -522,7 +522,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (IsConnected)
 			{
-				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS, SUBSCRIPTION_INTERVAL_MILLISECONDS);
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 			else
@@ -570,8 +570,8 @@ namespace ICD.Connect.Audio.Biamp
 		private void Unsubscribe(BiampTesiraSerialQueue queue)
 		{
 			queue.OnSerialResponse -= QueueOnSerialResponse;
-			queue.OnSubscriptionFeedback += QueueOnSubscriptionFeedback;
-			queue.OnTimeout += QueueOnTimeout;
+			queue.OnSubscriptionFeedback -= QueueOnSubscriptionFeedback;
+			queue.OnTimeout -= QueueOnTimeout;
 		}
 
 		/// <summary>
