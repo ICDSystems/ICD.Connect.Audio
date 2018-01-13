@@ -959,7 +959,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 			// First portion is datetime
 			if (cidSplit.Length > 1)
+			{
+				// Clear the name here, in case there is no name on the CID
 				CallerNumber = cidSplit[1].Trim('\\');
+				CallerName = null;
+			}
 			if (cidSplit.Length > 2)
 				CallerName = cidSplit[2].Trim('\\');
 		}
