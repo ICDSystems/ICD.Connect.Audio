@@ -953,19 +953,32 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			Value stateValue = callState.GetValue<Value>("state");
 			State = stateValue.GetObjectValue(s_CallStateSerials);
 
-			Value cidValue = callState.GetValue<Value>("cid");
 
-			string[] cidSplit = cidValue.GetStringValues().ToArray();
-
-			// First portion is datetime
-			if (cidSplit.Length > 1)
+			// If call state is idle, then clear caller ID info.  Otherwise try to parse it.
+			if (State == eTiCallState.Idle)
 			{
-				// Clear the name here, in case there is no name on the CID
-				CallerNumber = cidSplit[1].Trim('\\');
 				CallerName = null;
+				CallerNumber = null;
 			}
-			if (cidSplit.Length > 2)
-				CallerName = cidSplit[2].Trim('\\');
+			else
+			{
+
+				Value cidValue = callState.GetValue<Value>("cid");
+				string[] cidSplit = cidValue.GetStringValues().ToArray();
+				// First portion is datetime
+
+				// If length is greater than 0, CID info was parsed, so clear current info (sometimes no info is received)
+				if (cidSplit.Length > 0)
+				{
+					CallerNumber = null;
+					CallerName = null;
+				}
+				// Set Name and Number Independently - sometimes name is not received
+				if (cidSplit.Length > 1)
+					CallerNumber = cidSplit[1].Trim('\\');
+				if (cidSplit.Length > 2)
+					CallerName = cidSplit[2].Trim('\\');
+			}
 		}
 
 		private void DialingFeedback(BiampTesiraDevice sender, ControlValue value)
