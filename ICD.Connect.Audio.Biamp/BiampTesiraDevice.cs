@@ -56,7 +56,6 @@ namespace ICD.Connect.Audio.Biamp
 		private readonly Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>> m_SubscriptionCallbacks;
 		private readonly SafeCriticalSection m_SubscriptionCallbacksSection;
 
-		private readonly SafeTimer m_ConnectionTimer;
 		private readonly SafeTimer m_SubscriptionTimer;
 		private readonly SafeTimer m_InitializationTimer;
 
@@ -135,7 +134,6 @@ namespace ICD.Connect.Audio.Biamp
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
-			m_ConnectionTimer = SafeTimer.Stopped(ConnectionTimerCallback);
 			m_SubscriptionTimer = SafeTimer.Stopped(SubscriptionTimerCallback);
 			m_InitializationTimer = SafeTimer.Stopped(Initialize);
 
@@ -159,8 +157,6 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			OnInitializedChanged = null;
 			OnConnectedStateChanged = null;
-
-			m_ConnectionTimer.Dispose();
 
 			Unsubscribe(m_SerialQueue);
 			Unsubscribe(m_Port);
@@ -533,8 +529,6 @@ namespace ICD.Connect.Audio.Biamp
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
-
-				m_ConnectionTimer.Reset(CONNECTION_CHECK_MILLISECONDS, CONNECTION_CHECK_MILLISECONDS);
 			}
 		}
 
