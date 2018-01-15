@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
