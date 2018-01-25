@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
@@ -392,11 +392,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnHoldCallback += HoldCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.OnAnswerCallback -= AnswerCallback;
+			source.OnHoldCallback -= HoldCallback;
+			source.OnResumeCallback -= ResumeCallback;
+			source.OnHangupCallback -= HangupCallback;
+			source.OnSendDtmfCallback -= SendDtmfCallback;
 		}
 
 		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)

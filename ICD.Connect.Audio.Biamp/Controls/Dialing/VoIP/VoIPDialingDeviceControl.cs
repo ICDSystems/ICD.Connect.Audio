@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.ConferenceSources;
@@ -494,6 +494,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		{
 			appearance.OnCallStateChanged += AppearanceOnCallStateChanged;
 			appearance.OnCallerNumberChanged += AppearanceOnCallerNumberChanged;
+			appearance.OnCallerNameChanged += AppearanceOnCallerNameChanged;
 		}
 
 		/// <summary>
@@ -504,9 +505,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		{
 			appearance.OnCallStateChanged -= AppearanceOnCallStateChanged;
 			appearance.OnCallerNumberChanged -= AppearanceOnCallerNumberChanged;
+			appearance.OnCallerNameChanged -= AppearanceOnCallerNameChanged;
 		}
 
+		
+
 		private void AppearanceOnCallerNumberChanged(object sender, StringEventArgs args)
+		{
+			VoIpControlStatusCallAppearance callAppearance = sender as VoIpControlStatusCallAppearance;
+			if (callAppearance == null)
+				return;
+
+			ThinConferenceSource source = GetSource(callAppearance.Index);
+			UpdateSource(source, callAppearance);
+		}
+
+		private void AppearanceOnCallerNameChanged(object sender, StringEventArgs args)
 		{
 			VoIpControlStatusCallAppearance callAppearance = sender as VoIpControlStatusCallAppearance;
 			if (callAppearance == null)

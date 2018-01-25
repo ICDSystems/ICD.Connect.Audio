@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
@@ -56,7 +56,6 @@ namespace ICD.Connect.Audio.Biamp
 		private readonly Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>> m_SubscriptionCallbacks;
 		private readonly SafeCriticalSection m_SubscriptionCallbacksSection;
 
-		private readonly SafeTimer m_ConnectionTimer;
 		private readonly SafeTimer m_SubscriptionTimer;
 		private readonly SafeTimer m_InitializationTimer;
 
@@ -135,7 +134,6 @@ namespace ICD.Connect.Audio.Biamp
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
-			m_ConnectionTimer = SafeTimer.Stopped(ConnectionTimerCallback);
 			m_SubscriptionTimer = SafeTimer.Stopped(SubscriptionTimerCallback);
 			m_InitializationTimer = SafeTimer.Stopped(Initialize);
 
@@ -159,8 +157,6 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			OnInitializedChanged = null;
 			OnConnectedStateChanged = null;
-
-			m_ConnectionTimer.Dispose();
 
 			Unsubscribe(m_SerialQueue);
 			Unsubscribe(m_Port);
@@ -522,7 +518,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (IsConnected)
 			{
-				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS, SUBSCRIPTION_INTERVAL_MILLISECONDS);
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 			else
@@ -533,8 +529,6 @@ namespace ICD.Connect.Audio.Biamp
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
-
-				m_ConnectionTimer.Reset(CONNECTION_CHECK_MILLISECONDS, CONNECTION_CHECK_MILLISECONDS);
 			}
 		}
 
@@ -570,8 +564,8 @@ namespace ICD.Connect.Audio.Biamp
 		private void Unsubscribe(BiampTesiraSerialQueue queue)
 		{
 			queue.OnSerialResponse -= QueueOnSerialResponse;
-			queue.OnSubscriptionFeedback += QueueOnSubscriptionFeedback;
-			queue.OnTimeout += QueueOnTimeout;
+			queue.OnSubscriptionFeedback -= QueueOnSubscriptionFeedback;
+			queue.OnTimeout -= QueueOnTimeout;
 		}
 
 		/// <summary>

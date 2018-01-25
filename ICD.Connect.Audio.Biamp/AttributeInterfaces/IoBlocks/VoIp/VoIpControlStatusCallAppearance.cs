@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -326,12 +326,33 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			Value promptValue = callState.GetValue<Value>("prompt");
 			Prompt = promptValue.GetObjectValue(s_PromptSerials);
 
-			Value cidValue = callState.GetValue<Value>("cid");
-			string[] cidSplit = cidValue.GetStringValues().ToArray();
 
-			// First portion is datetime
-			CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
-			CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
+			// If call state is idle, then clear caller ID info.  Otherwise try to parse it.
+			if (State == eVoIpCallState.Idle)
+			{
+				CallerName = null;
+				CallerNumber = null;
+			}
+			else
+			{
+
+				Value cidValue = callState.GetValue<Value>("cid");
+				string[] cidSplit = cidValue.GetStringValues().ToArray();
+				// First portion is datetime
+				
+				// If length is greater than 0, CID info was parsed, so clear current info (sometimes no info is received)
+				if (cidSplit.Length > 0)
+				{
+					CallerNumber = null;
+					CallerName = null;
+				}
+				// Set Name and Number Independently - sometimes name is not received
+				if (cidSplit.Length > 1)
+					CallerNumber = cidSplit[1].Trim('\\');
+				if (cidSplit.Length > 2)
+					CallerName = cidSplit[2].Trim('\\');
+			}
+
 		}
 
 		#region Services
@@ -363,6 +384,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public void Dial(string number)
 		{
+			CallerNumber = number;
+			CallerName = null;
 			RequestService(DIAL_SERVICE, new Value(number), Line, Index);
 		}
 

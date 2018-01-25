@@ -1,4 +1,4 @@
-﻿using ICD.Common.Services.Logging;
+﻿using ICD.Common.Utils.Services.Logging;
 
 namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 {
