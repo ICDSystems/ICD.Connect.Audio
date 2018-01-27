@@ -30,7 +30,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		    Id = QSysCoreDevice.RPCID_NAMED_CONTROL;
 		}
 
-	    public ControlGetRpc(AbstractNamedControl control)
+	    public ControlGetRpc(INamedControl control)
 	    {
 	        m_Controls = new List<string> {control.ControlName};
 	        Id = QSysCoreDevice.RPCID_NAMED_CONTROL;

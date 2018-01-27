@@ -57,7 +57,7 @@ namespace ICD.Connect.Audio.QSys
 		private ISerialPort m_Port;
 	    private readonly SafeTimer m_OnlineNoOpTimer;
 
-	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
+	    private Dictionary<string, INamedControl> m_NamedControls;
 	    private SafeCriticalSection m_NamedControlsCriticalSection;
 
         private readonly ISerialBuffer m_SerialBuffer;
@@ -128,7 +128,7 @@ namespace ICD.Connect.Audio.QSys
             Heartbeat.StartMonitoring();
 
             m_NamedControlsCriticalSection = new SafeCriticalSection();
-            m_NamedControls = new Dictionary<string, AbstractNamedControl>();
+            m_NamedControls = new Dictionary<string, INamedControl>();
 		}
 
 	    #region Methods
@@ -241,7 +241,7 @@ namespace ICD.Connect.Audio.QSys
 	        }
 	    }
 
-	    public void AddNamedControl(AbstractNamedControl namedControl)
+	    public void AddNamedControl(INamedControl namedControl)
 	    {
 	        m_NamedControlsCriticalSection.Enter();
 
@@ -482,7 +482,7 @@ namespace ICD.Connect.Audio.QSys
 	    {
 	        string nameToken = (string)result.SelectToken("Name");
 
-	        AbstractNamedControl control;
+	        INamedControl control;
 
             m_NamedControlsCriticalSection.Enter();
 
@@ -500,7 +500,7 @@ namespace ICD.Connect.Audio.QSys
 	        float valueValue = (float)result.SelectToken("Value");
             float valuePostion = (float)result.SelectToken("Position");
 
-            control.SetFeedback(valueString, valueValue, valuePostion);
+	        control.SetFeedback(valueString, valueValue, valuePostion);
 
 	    }
 

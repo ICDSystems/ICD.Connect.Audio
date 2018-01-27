@@ -5,7 +5,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
     /// <summary>
     /// Represents a NamedControl
     /// </summary>
-    public abstract class AbstractNamedControl : AbstractCoreControl
+    public abstract class AbstractNamedControl : AbstractCoreControl, INamedControl
     {
 
         /// <summary>
@@ -60,7 +60,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
         /// <param name="valueString">String value of the control</param>
         /// <param name="valueValue">Raw value of the control</param>
         /// <param name="valuePosition">Position value of the control</param>
-        internal void SetFeedback(string valueString, float valueValue, float valuePosition)
+        public void SetFeedback(string valueString, float valueValue, float valuePosition)
         {
             ValueString = valueString;
             ValueValue = valueValue;
