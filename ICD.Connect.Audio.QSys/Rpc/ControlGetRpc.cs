@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
@@ -26,7 +27,14 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		public ControlGetRpc()
 		{
 			m_Controls = new List<string>();
+		    Id = QSysCoreDevice.RPCID_NAMED_CONTROL;
 		}
+
+	    public ControlGetRpc(AbstractNamedControl control)
+	    {
+	        m_Controls = new List<string> {control.ControlName};
+	        Id = QSysCoreDevice.RPCID_NAMED_CONTROL;
+        }
 
 		/// <summary>
 		/// Adds the control to the query.

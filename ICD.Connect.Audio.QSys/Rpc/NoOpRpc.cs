@@ -29,5 +29,10 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			writer.WriteStartObject();
 			writer.WriteEndObject();
 		}
+
+	    public NoOpRpc()
+	    {
+	        Id = QSysCoreDevice.RPCID_NO_OP;
+	    }
 	}
 }

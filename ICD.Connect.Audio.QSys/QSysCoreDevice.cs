@@ -1,10 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Properties;
+using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Json;
 using ICD.Common.Utils.Services.Logging;
+using ICD.Common.Utils.Timers;
+using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
+using ICD.Connect.Audio.QSys.NamedControls;
+using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
@@ -12,12 +19,28 @@ using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings.Core;
+using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys
 {
 	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>, IConnectable
 	{
 		private const char DELIMITER = '\x00';
+
+        /// <summary>
+        /// KeepAlive Interval is how often the NoOp RPC is sent
+        /// NoOp is sent to perform no operation, but to just keep the socket alive
+        /// 29 Seconds makes sure at least 2 are sent in the 60 second window
+        /// </summary>
+	    private const long KEEPALIVE_INTERVAL = 29 * 1000;
+
+
+        // RPCID's are used to seperate responses from the QSys based on the command sent
+	    internal const string RPCID_NO_OP = "NoOp";
+	    internal const string RPCID_GET_STATUS = "Status";
+	    internal const string RPCID_NAMED_CONTROL = "NamedControl";
+	    internal const string RPCID_NAMED_COMPONENT = "NamedComponent";
+	    internal const string RPCID_CHANGEGROUP_RESPONSE = "ChangeGroupResponse";
 
 		/// <summary>
 		/// Raised when the class initializes.
@@ -32,8 +55,12 @@ namespace ICD.Connect.Audio.QSys
 		private bool m_Initialized;
 		private bool m_IsConnected;
 		private ISerialPort m_Port;
+	    private readonly SafeTimer m_OnlineNoOpTimer;
 
-		private readonly ISerialBuffer m_SerialBuffer;
+	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
+	    private SafeCriticalSection m_NamedControlsCriticalSection;
+
+        private readonly ISerialBuffer m_SerialBuffer;
 
 		#region Properties
 
@@ -52,7 +79,7 @@ namespace ICD.Connect.Audio.QSys
 		public string Password { get; set; }
 
 		/// <summary>
-		/// Returns true when the codec is connected.
+		/// Returns true when the core is connected.
 		/// </summary>
 		public bool IsConnected
 		{
@@ -93,12 +120,18 @@ namespace ICD.Connect.Audio.QSys
 		public QSysCoreDevice()
 		{
 			Heartbeat = new Heartbeat(this);
+		    m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
-			m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
+            m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
 			Subscribe(m_SerialBuffer);
+
+            Heartbeat.StartMonitoring();
+
+            m_NamedControlsCriticalSection = new SafeCriticalSection();
+            m_NamedControls = new Dictionary<string, AbstractNamedControl>();
 		}
 
-		#region Methods
+	    #region Methods
 
 		/// <summary>
 		/// Release resources.
@@ -194,15 +227,44 @@ namespace ICD.Connect.Audio.QSys
 								false);
 		}
 
-		#endregion
+	    protected override void UpdateCachedOnlineStatus()
+	    {
+	        base.UpdateCachedOnlineStatus();
 
-		#region Internal Methods
 
-		/// <summary>
-		/// Sends the data to the device and calls the callback asynchronously with the response.
-		/// </summary>
-		/// <param name="json"></param>
-		internal void SendData(string json)
+	        if (m_OnlineNoOpTimer != null)
+	        {
+	            if (IsOnline)
+	                m_OnlineNoOpTimer.Reset(KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+	            else
+	                m_OnlineNoOpTimer.Stop();
+	        }
+	    }
+
+	    public void AddNamedControl(AbstractNamedControl namedControl)
+	    {
+	        m_NamedControlsCriticalSection.Enter();
+
+	        try
+	        {
+	            m_NamedControls.Add(namedControl.ControlName, namedControl);
+	        }
+	        finally
+	        {
+	            m_NamedControlsCriticalSection.Leave();
+	        }
+	    }
+
+
+        #endregion
+
+        #region Internal Methods
+
+        /// <summary>
+        /// Sends the data to the device and calls the callback asynchronously with the response.
+        /// </summary>
+        /// <param name="json"></param>
+        internal void SendData(string json)
 		{
 			if (!IsConnected)
 			{
@@ -268,15 +330,26 @@ namespace ICD.Connect.Audio.QSys
 			return string.Format("{0} - {1}", this, log);
 		}
 
-		#endregion
+        /// <summary>
+        /// Sends a no-op RPC command to keep the connection alive
+        /// </summary>
+	    private void SendNoOpKeepalive()
+        {
+            if (!IsConnected)
+                return;
 
-		#region Port Callbacks
+            SendData(new NoOpRpc().Serialize());
+        }
 
-		/// <summary>
-		/// Subscribes to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
+        #endregion
+
+        #region Port Callbacks
+
+        /// <summary>
+        /// Subscribes to the port events.
+        /// </summary>
+        /// <param name="port"></param>
+        private void Subscribe(ISerialPort port)
 		{
 			if (port == null)
 				return;
@@ -370,9 +443,68 @@ namespace ICD.Connect.Audio.QSys
 		private void BufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
 			JsonUtils.Print(stringEventArgs.Data);
+
+		    JObject json = JObject.Parse(stringEventArgs.Data);
+
+            string responseId = (string)json.SelectToken("id");
+
+		    switch (responseId)
+		    {
+                case (RPCID_NO_OP):
+                    return;
+                case (RPCID_NAMED_CONTROL):
+                    ParseNamedControls(json);
+                    break;
+
+		    }
 		}
 
-		#endregion
+        /// <summary>
+        /// Parses one or more Named Controls, and sets the values on the controls
+        /// </summary>
+        /// <param name="json"></param>
+	    private void ParseNamedControls(JObject json)
+	    {
+	        JToken results = json.SelectToken("result");
+	        if (!results.HasValues)
+	            return;
+	        foreach (JToken result in results)
+	        {
+	            ParseNamedControl(result);
+	        }
+	    }
+
+        /// <summary>
+        /// Parses a single named control, and sets the values on the control
+        /// </summary>
+        /// <param name="result"></param>
+	    private void ParseNamedControl(JToken result)
+	    {
+	        string nameToken = (string)result.SelectToken("Name");
+
+	        AbstractNamedControl control;
+
+            m_NamedControlsCriticalSection.Enter();
+
+	        try
+	        {
+	            if (!m_NamedControls.TryGetValue(nameToken, out control))
+	                return;
+	        }
+	        finally
+	        {
+	            m_NamedControlsCriticalSection.Leave();
+	        }
+
+            string valueString = (string)result.SelectToken("String");
+	        float valueValue = (float)result.SelectToken("Value");
+            float valuePostion = (float)result.SelectToken("Position");
+
+            control.SetFeedback(valueString, valueValue, valuePostion);
+
+	    }
+
+	    #endregion
 
 		#region Settings
 
@@ -441,6 +573,32 @@ namespace ICD.Connect.Audio.QSys
 			addRow("Initialized", Initialized);
 		}
 
-		#endregion
-	}
+	    /// <summary>
+	    /// Gets the child console commands.
+	    /// </summary>
+	    /// <returns></returns>
+	    public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+	    {
+	        foreach (IConsoleCommand command in GetBaseConsoleCommands())
+	            yield return command;
+
+	        yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
+	        yield return new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc().Serialize()));
+	        yield return new GenericConsoleCommand<string, string, string>("SetComponent", "SetComponent <Component Name> <Control Name> <Control Value>", (p1,p2,p3) => SendData(new ComponentSetRpc(p1, p2, p3).Serialize()));
+	        yield return new GenericConsoleCommand<string>("AddNamedControl", "AddNamedControl <Control Name>", p => AddNamedControl(new NamedControl(this, p)));
+            yield return new GenericConsoleCommand<string>("AddBooleanNamedControl", "AddBooleanNamedControl <Control Name>", p => AddNamedControl(new BooleanNamedControl(this, p)));
+
+        }
+
+        /// <summary>
+        /// Workaround for "unverifiable code" warning.
+        /// </summary>
+        /// <returns></returns>
+        private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+	    {
+	        return base.GetConsoleCommands();
+	    }
+
+        #endregion
+    }
 }

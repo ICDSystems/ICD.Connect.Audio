@@ -15,7 +15,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public abstract string Method { get; }
 
-		public int Id { get; set; }
+		public string Id { get; set; }
 
 		/// <summary>
 		/// Serialize this instance to a string.
@@ -46,7 +46,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 				writer.WriteValue(Method);
 
 				// id
-				if (Id != 0)
+				if (!String.IsNullOrEmpty(Id))
 				{
 					writer.WritePropertyName(ID_PROPERTY);
 					writer.WriteValue(Id);

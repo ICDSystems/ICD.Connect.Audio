@@ -6,6 +6,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 	{
 		string Method { get; }
 
-		int Id { get; set; }
+		string Id { get; set; }
 	}
 }

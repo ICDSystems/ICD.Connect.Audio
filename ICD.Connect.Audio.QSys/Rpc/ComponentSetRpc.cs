@@ -42,6 +42,12 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			m_ControlValues = new List<ControlValueInfo>();
 		}
 
+	    public ComponentSetRpc(string componentName, string controlName, string controlValue)
+	    {
+	        Name = componentName;
+            m_ControlValues = new List<ControlValueInfo> {new ControlValueInfo(controlName, controlValue)};
+	    }
+
 		public void AddControlValue(string name, object value)
 		{
 			AddControlValue(name, value, null);
