@@ -1,6 +1,4 @@
-﻿using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
-
-namespace ICD.Connect.Audio.QSys.NamedControls
+﻿namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 {
     /// <summary>
     /// A boolean named control, adds ValueBool property and ToggleValue()
@@ -8,9 +6,9 @@ namespace ICD.Connect.Audio.QSys.NamedControls
     sealed class BooleanNamedControl : AbstractNamedControl
     {
 
-        public bool ValueBool { get { return ValueValue != 0; } }
+        public bool ValueBool { get { return ValueRaw != 0; } }
 
-        public BooleanNamedControl(QSysCoreDevice qSysCore, string controlName) : base(qSysCore, controlName)
+        public BooleanNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore, id, name, controlName)
         {
             
         }

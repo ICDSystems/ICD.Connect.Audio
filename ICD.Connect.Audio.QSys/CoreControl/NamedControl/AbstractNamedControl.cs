@@ -1,14 +1,19 @@
-﻿using ICD.Connect.Audio.QSys.Rpc;
+﻿using System;
+using ICD.Common.Utils.Extensions;
+using ICD.Connect.Audio.QSys.Rpc;
 
 namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 {
     /// <summary>
     /// Represents a NamedControl
     /// </summary>
-    public abstract class AbstractNamedControl : AbstractCoreControl, INamedControl
+    public abstract class AbstractNamedControl : AbstractCoreControl
     {
+	    public int Id { get; }
 
-        /// <summary>
+	    public string Name { get; }
+
+	    /// <summary>
         /// Name of the control on the QSys Core
         /// </summary>
         public string ControlName { get; private set; }
@@ -21,7 +26,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
         /// <summary>
         /// Float representation of the control value
         /// </summary>
-        public float ValueValue { get; private set; }
+        public float ValueRaw { get; private set; }
 
         /// <summary>
         /// Position representation of the control value
@@ -30,14 +35,20 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
         /// </summary>
         public float ValuePosition { get; private set; }
 
-        #region methods
+		#region events
 
-        /// <summary>
-        /// Sets the value of the control
-        /// ToString() method is used to send the value
-        /// </summary>
-        /// <param name="value">Value to set the control to</param>
-        public void SetValue(object value)
+	    public event EventHandler<ControlValueUpdateEventArgs> OnValueUpdated;
+
+		#endregion
+
+		#region methods
+
+		/// <summary>
+		/// Sets the value of the control
+		/// ToString() method is used to send the value
+		/// </summary>
+		/// <param name="value">Value to set the control to</param>
+		public void SetValue(object value)
         {
             SendData(new ControlSetRpc(this, value).Serialize());
         }
@@ -58,24 +69,40 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
         /// Called by the Core to update feedback for the control
         /// </summary>
         /// <param name="valueString">String value of the control</param>
-        /// <param name="valueValue">Raw value of the control</param>
+        /// <param name="valueRaw">Raw value of the control</param>
         /// <param name="valuePosition">Position value of the control</param>
-        public void SetFeedback(string valueString, float valueValue, float valuePosition)
+        internal void SetFeedback(string valueString, float valueRaw, float valuePosition)
         {
             ValueString = valueString;
-            ValueValue = valueValue;
+            ValueRaw = valueRaw;
             ValuePosition = valuePosition;
-        }
+
+	        OnValueUpdated.Raise(this, new ControlValueUpdateEventArgs(ControlName, ValueString, ValueRaw, ValuePosition));
+		}
 
         #endregion
 
 
-        protected AbstractNamedControl(QSysCoreDevice qSysCore, string controlName) : base(qSysCore)
+        protected AbstractNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore)
         {
+	        Id = id;
+	        Name = name;
             ControlName = controlName;
             PollValue();
         }
 
+	    protected virtual void Dispose(bool disposing)
+	    {
+		    if (disposing)
+		    {
+			    OnValueUpdated = null;
+		    }
+	    }
 
+	    public void Dispose()
+	    {
+		    Dispose(true);
+		    //GC.SuppressFinalize(this);
+	    }
     }
 }

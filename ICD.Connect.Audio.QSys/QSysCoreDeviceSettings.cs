@@ -15,12 +15,15 @@ namespace ICD.Connect.Audio.QSys
 		private const string PORT_ELEMENT = "Port";
 		private const string USERNAME_ELEMENT = "Username";
 		private const string PASSWORD_ELEMENT = "Password";
+		private const string CONFIG_ELEMENT = "Config";
 
 		private const string DEFAULT_USERNAME = "";
 		private const string DEFAULT_PASSWORD = "";
+		private const string DEFAULT_CONFIG_PATH = "ControlConfig.xml";
 
 		private string m_UserName;
 		private string m_Password;
+		private string m_ConfigPath;
 
 		/// <summary>
 		/// The port id.
@@ -50,6 +53,18 @@ namespace ICD.Connect.Audio.QSys
 			set { m_Password = value; }
 		}
 
+		[PathSettingsProperty("QSys", ".xml")]
+		public string Config
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_ConfigPath))
+					m_ConfigPath = DEFAULT_CONFIG_PATH;
+				return m_ConfigPath;
+			}
+			set { m_ConfigPath = value; }
+		}
+
 		/// <summary>
 		/// Gets the originator factory name.
 		/// </summary>
@@ -71,6 +86,7 @@ namespace ICD.Connect.Audio.QSys
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
 			writer.WriteElementString(USERNAME_ELEMENT, Username);
 			writer.WriteElementString(PASSWORD_ELEMENT, Password);
+			writer.WriteElementString(CONFIG_ELEMENT, Config);
 		}
 
 		/// <summary>
@@ -84,6 +100,7 @@ namespace ICD.Connect.Audio.QSys
 			int? port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
 			string username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
 			string password = XmlUtils.TryReadChildElementContentAsString(xml, PASSWORD_ELEMENT);
+			string config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 
 			QSysCoreDeviceSettings output = new QSysCoreDeviceSettings
 			{

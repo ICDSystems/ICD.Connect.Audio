@@ -1,6 +1,5 @@
 ﻿using System;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
-using ICD.Connect.Audio.QSys.NamedControls;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
@@ -56,7 +55,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 	        
 	    }
 
-	    public ControlSetRpc(INamedControl control, object value)
+	    public ControlSetRpc(AbstractNamedControl control, object value)
 	    {
 	        Control = control.ControlName;
 	        Value = value;

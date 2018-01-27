@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Text;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.IO;
 using ICD.Common.Utils.Json;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
+using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.CoreControl;
+using ICD.Connect.Audio.QSys.CoreControl.NamedComponent;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
-using ICD.Connect.Audio.QSys.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Extensions;
@@ -57,12 +61,23 @@ namespace ICD.Connect.Audio.QSys
 		private ISerialPort m_Port;
 	    private readonly SafeTimer m_OnlineNoOpTimer;
 
-	    private Dictionary<string, INamedControl> m_NamedControls;
+		/// <summary>
+		/// Named Controls
+		/// </summary>
+	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
 	    private SafeCriticalSection m_NamedControlsCriticalSection;
+
+		private Dictionary<string, INamedComponent> m_NamedComponents;
+		private SafeCriticalSection m_NamedComponentsCriticalSection;
 
         private readonly ISerialBuffer m_SerialBuffer;
 
-		#region Properties
+        /// <summary>
+        /// Configuration Path for reload
+        /// </summary>
+		private string m_ConfigPath;
+
+	    #region Properties
 
 		public Heartbeat Heartbeat { get; private set; }
 
@@ -125,10 +140,11 @@ namespace ICD.Connect.Audio.QSys
             m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
 			Subscribe(m_SerialBuffer);
 
-            Heartbeat.StartMonitoring();
-
             m_NamedControlsCriticalSection = new SafeCriticalSection();
-            m_NamedControls = new Dictionary<string, INamedControl>();
+            m_NamedControls = new Dictionary<string, AbstractNamedControl>();
+
+			m_NamedComponentsCriticalSection = new SafeCriticalSection();
+			m_NamedComponents = new Dictionary<string, INamedComponent>();
 		}
 
 	    #region Methods
@@ -241,7 +257,7 @@ namespace ICD.Connect.Audio.QSys
 	        }
 	    }
 
-	    public void AddNamedControl(INamedControl namedControl)
+	    public void AddNamedControl(AbstractNamedControl namedControl)
 	    {
 	        m_NamedControlsCriticalSection.Enter();
 
@@ -255,8 +271,42 @@ namespace ICD.Connect.Audio.QSys
 	        }
 	    }
 
+		public void AddNamedComponent(INamedComponent namedComponent)
+		{
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				m_NamedComponents.Add(namedComponent.ComponentName, namedComponent);
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+		}
 
-        #endregion
+		public void LoadControls(string path)
+		{
+			m_ConfigPath = path;
+
+			string fullPath = PathUtils.GetDefaultConfigPath("QSys", path);
+
+			try
+			{
+				string xml = IcdFile.ReadToEnd(fullPath, Encoding.UTF8);
+				ParseXml(xml);
+			}
+			catch (Exception e)
+			{
+				Logger.AddEntry(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+			}
+		}
+
+		public void ReloadControls()
+		{
+			LoadControls(m_ConfigPath);
+		}
+
+		#endregion
 
         #region Internal Methods
 
@@ -341,7 +391,55 @@ namespace ICD.Connect.Audio.QSys
             SendData(new NoOpRpc().Serialize());
         }
 
-        #endregion
+		private void ParseXml(string xml)
+		{
+			DisposeControls();
+
+			//Parse Named Controls
+			string namedControlsXml;
+			if (XmlUtils.TryGetChildElementAsString(xml, "NamedControls", out namedControlsXml))
+				foreach (AbstractNamedControl control in CoreControlsXmlUtils.GetNamedControlsFromXml(namedControlsXml, this))
+					AddNamedControl(control);
+
+			//Parse Named Components
+			string namedComponentsXml;
+			if (XmlUtils.TryGetChildElementAsString(xml, "NamedComponents", out namedComponentsXml))
+				foreach (INamedComponent component in CoreControlsXmlUtils.GetNamedComponentsFromXml(namedComponentsXml, this))
+					AddNamedComponent(component);
+
+		}
+
+		private void DisposeControls()
+		{
+			// Clear Named Controls
+			m_NamedControlsCriticalSection.Enter();
+			try
+			{
+				foreach (KeyValuePair<string, AbstractNamedControl> kvp in m_NamedControls)
+					kvp.Value.Dispose();
+				m_NamedControls = new Dictionary<string, AbstractNamedControl>();
+			}
+			finally
+			{
+				m_NamedControlsCriticalSection.Leave();
+			}
+
+
+			// Clear Named Components
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				foreach (KeyValuePair<string, INamedComponent> kvp in m_NamedComponents)
+					kvp.Value.Dispose();
+				m_NamedComponents = new Dictionary<string, INamedComponent>();
+			}
+			finally
+			{
+				m_NamedControlsCriticalSection.Leave();
+			}
+		}
+
+		#endregion
 
         #region Port Callbacks
 
@@ -482,7 +580,7 @@ namespace ICD.Connect.Audio.QSys
 	    {
 	        string nameToken = (string)result.SelectToken("Name");
 
-	        INamedControl control;
+	        AbstractNamedControl control;
 
             m_NamedControlsCriticalSection.Enter();
 
@@ -517,6 +615,7 @@ namespace ICD.Connect.Audio.QSys
 
 			Username = null;
 			Password = null;
+			m_ConfigPath = null;
 			SetPort(null);
 		}
 
@@ -530,6 +629,7 @@ namespace ICD.Connect.Audio.QSys
 
 			settings.Username = Username;
 			settings.Password = Password;
+			settings.Config = m_ConfigPath;
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
 		}
 
@@ -544,6 +644,7 @@ namespace ICD.Connect.Audio.QSys
 
 			Username = settings.Username;
 			Password = settings.Password;
+			m_ConfigPath = settings.Config;
 
 			ISerialPort port = null;
 
@@ -555,6 +656,10 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			SetPort(port);
+
+			// Load the config
+			if (!string.IsNullOrEmpty(settings.Config))
+				LoadControls(settings.Config);
 		}
 
 		#endregion
@@ -585,8 +690,6 @@ namespace ICD.Connect.Audio.QSys
 	        yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
 	        yield return new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc().Serialize()));
 	        yield return new GenericConsoleCommand<string, string, string>("SetComponent", "SetComponent <Component Name> <Control Name> <Control Value>", (p1,p2,p3) => SendData(new ComponentSetRpc(p1, p2, p3).Serialize()));
-	        yield return new GenericConsoleCommand<string>("AddNamedControl", "AddNamedControl <Control Name>", p => AddNamedControl(new NamedControl(this, p)));
-            yield return new GenericConsoleCommand<string>("AddBooleanNamedControl", "AddBooleanNamedControl <Control Name>", p => AddNamedControl(new BooleanNamedControl(this, p)));
 
         }
 
