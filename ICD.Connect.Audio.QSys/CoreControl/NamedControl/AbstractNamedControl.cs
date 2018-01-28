@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.API.Commands;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Rpc;
 
 namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
@@ -7,7 +10,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
     /// <summary>
     /// Represents a NamedControl
     /// </summary>
-    public abstract class AbstractNamedControl : AbstractCoreControl
+    public abstract class AbstractNamedControl : AbstractCoreControl, IConsoleNode
     {
 	    public int Id { get; }
 
@@ -104,5 +107,32 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 		    Dispose(true);
 		    //GC.SuppressFinalize(this);
 	    }
-    }
+
+		#region Console
+
+		public string ConsoleName { get { return Name; } }
+	    public string ConsoleHelp { get { return String.Format("NamedControl: {0}" ,ControlName); } }
+
+		public IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+	    {
+		    yield break;
+	    }
+
+	    public virtual void BuildConsoleStatus(AddStatusRowDelegate addRow)
+	    {
+		    addRow("Id", Id);
+		    addRow("Name", Name);
+		    addRow("Control Name", ControlName);
+		    addRow("Value Stirng", ValueString);
+		    addRow("Value Raw", ValueRaw);
+		    addRow("Value Position", ValuePosition);
+	    }
+
+	    public virtual IEnumerable<IConsoleCommand> GetConsoleCommands()
+	    {
+		    yield return new ConsoleCommand("Poll", "Pull The Current Value", () => PollValue());
+			yield return new GenericConsoleCommand<string>("SetValue", "SetValue <Value>", p => SetValue(p));
+	    }
+		#endregion
+	}
 }

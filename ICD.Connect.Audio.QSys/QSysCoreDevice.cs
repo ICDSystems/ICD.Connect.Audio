@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
@@ -65,7 +66,8 @@ namespace ICD.Connect.Audio.QSys
 		/// Named Controls
 		/// </summary>
 	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
-	    private SafeCriticalSection m_NamedControlsCriticalSection;
+		private Dictionary<int, AbstractNamedControl> m_NamedControlsById;
+	    private readonly SafeCriticalSection m_NamedControlsCriticalSection;
 
 		private Dictionary<string, INamedComponent> m_NamedComponents;
 		private SafeCriticalSection m_NamedComponentsCriticalSection;
@@ -142,6 +144,7 @@ namespace ICD.Connect.Audio.QSys
 
             m_NamedControlsCriticalSection = new SafeCriticalSection();
             m_NamedControls = new Dictionary<string, AbstractNamedControl>();
+			m_NamedControlsById = new Dictionary<int, AbstractNamedControl>();
 
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
@@ -264,6 +267,7 @@ namespace ICD.Connect.Audio.QSys
 	        try
 	        {
 	            m_NamedControls.Add(namedControl.ControlName, namedControl);
+		        m_NamedControlsById.Add(namedControl.Id, namedControl);
 	        }
 	        finally
 	        {
@@ -304,6 +308,23 @@ namespace ICD.Connect.Audio.QSys
 		public void ReloadControls()
 		{
 			LoadControls(m_ConfigPath);
+		}
+
+		public IEnumerable<AbstractNamedControl> GetNamedControls()
+		{
+			List<AbstractNamedControl> controls;
+
+			m_NamedControlsCriticalSection.Enter();
+			try
+			{
+				controls = m_NamedControls.Values.ToList();
+			}
+			finally
+			{
+				m_NamedControlsCriticalSection.Leave();
+			}
+
+			return controls;
 		}
 
 		#endregion
@@ -418,6 +439,7 @@ namespace ICD.Connect.Audio.QSys
 				foreach (KeyValuePair<string, AbstractNamedControl> kvp in m_NamedControls)
 					kvp.Value.Dispose();
 				m_NamedControls = new Dictionary<string, AbstractNamedControl>();
+				m_NamedControlsById = new Dictionary<int, AbstractNamedControl>();
 			}
 			finally
 			{
@@ -540,7 +562,7 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="stringEventArgs"></param>
 		private void BufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
-			JsonUtils.Print(stringEventArgs.Data);
+			//JsonUtils.Print(stringEventArgs.Data);
 
 		    JObject json = JObject.Parse(stringEventArgs.Data);
 
@@ -702,6 +724,19 @@ namespace ICD.Connect.Audio.QSys
 	        return base.GetConsoleCommands();
 	    }
 
-        #endregion
+		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+		{
+			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+				yield return node;
+
+			yield return ConsoleNodeGroup.KeyNodeMap("NamedControls", GetNamedControls(), c => (uint)c.Id);
+		}
+
+		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+		{
+			return base.GetConsoleNodes();
+		}
+
+		#endregion
     }
 }
