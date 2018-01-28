@@ -21,19 +21,19 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
+		public override string Id { get { return QSysCoreDevice.RPCID_NAMED_CONTROL; } }
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		public ControlGetRpc()
 		{
 			m_Controls = new List<string>();
-		    Id = QSysCoreDevice.RPCID_NAMED_CONTROL;
 		}
 
 	    public ControlGetRpc(AbstractNamedControl control)
 	    {
 	        m_Controls = new List<string> {control.ControlName};
-	        Id = QSysCoreDevice.RPCID_NAMED_CONTROL;
         }
 
 		/// <summary>

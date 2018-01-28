@@ -17,21 +17,23 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
             
         }
 
-		/// <summary>
-		/// Sets the value from a bool
-		/// Changes to 0/1 since QSys doesn't accept "True" or "False"
-		/// </summary>
-		/// <param name="value"></param>
-        public void SetValue(bool value) => base.SetValue(value ? 1 : 0);
+	    /// <summary>
+	    /// Sets the value from a bool
+	    /// </summary>
+	    /// <param name="value"></param>
+	    public void SetValue(bool value)
+	    {
+		    base.SetValue(value);
+	    }
 
-        public bool ToggleValue()
+	    public bool ToggleValue()
         {
             bool setValue = !ValueBool;
             SetValue(setValue);
             return setValue;
         }
 
-		#region Consoled
+		#region Console
 
 		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
 	    {

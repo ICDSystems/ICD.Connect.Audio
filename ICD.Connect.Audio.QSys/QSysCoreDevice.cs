@@ -14,6 +14,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.CoreControl;
+using ICD.Connect.Audio.QSys.CoreControl.ChangeGroup;
 using ICD.Connect.Audio.QSys.CoreControl.NamedComponent;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using ICD.Connect.Audio.QSys.Rpc;
@@ -63,6 +64,13 @@ namespace ICD.Connect.Audio.QSys
 	    private readonly SafeTimer m_OnlineNoOpTimer;
 
 		/// <summary>
+		/// Change Groups
+		/// </summary>
+		private Dictionary<string, ChangeGroup> m_ChangeGroups;
+		private Dictionary<int, ChangeGroup> m_ChangeGroupsById;
+		private readonly SafeCriticalSection m_ChangeGroupsCriticalSection;
+
+		/// <summary>
 		/// Named Controls
 		/// </summary>
 	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
@@ -108,6 +116,13 @@ namespace ICD.Connect.Audio.QSys
 
 				m_IsConnected = value;
 
+				//todo: clean this up
+
+				if (m_IsConnected)
+				{
+					m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
+				}
+
 				OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_IsConnected));
 			}
 		}
@@ -141,6 +156,10 @@ namespace ICD.Connect.Audio.QSys
 
             m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
 			Subscribe(m_SerialBuffer);
+
+			m_ChangeGroupsCriticalSection = new SafeCriticalSection();
+			m_ChangeGroups = new Dictionary<string, ChangeGroup>();
+			m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
 
             m_NamedControlsCriticalSection = new SafeCriticalSection();
             m_NamedControls = new Dictionary<string, AbstractNamedControl>();
@@ -260,7 +279,68 @@ namespace ICD.Connect.Audio.QSys
 	        }
 	    }
 
-	    public void AddNamedControl(AbstractNamedControl namedControl)
+		public void AddNamedControlToChangeGroupById(int changeGroupId, AbstractNamedControl control)
+		{
+			ChangeGroup changeGroup = GetChangeGroupById(changeGroupId);
+
+			// todo: log or exception here
+			if (changeGroup == null)
+				return;
+
+			changeGroup.AddNamedControl(control);
+		}
+
+		public void AddChangeGroup(ChangeGroup changeGroup)
+		{
+			m_ChangeGroupsCriticalSection.Enter();
+			try
+			{
+				m_ChangeGroups.Add(changeGroup.ChangeGroupId, changeGroup);
+				m_ChangeGroupsById.Add(changeGroup.Id, changeGroup);
+			}
+			finally
+			{
+				m_ChangeGroupsCriticalSection.Leave();
+			}
+		}
+
+		public ChangeGroup GetChangeGroupById(int id)
+		{
+			ChangeGroup changeGroup;
+
+			m_ChangeGroupsCriticalSection.Enter();
+			try
+			{
+				if (!m_ChangeGroupsById.TryGetValue(id, out changeGroup))
+					return null;
+			}
+			finally
+			{
+				m_ChangeGroupsCriticalSection.Leave();
+			}
+
+			return changeGroup;
+		}
+
+		public ChangeGroup GetChangeGroup(string changeGroupId)
+		{
+			ChangeGroup changeGroup;
+
+			m_ChangeGroupsCriticalSection.Enter();
+			try
+			{
+				if (!m_ChangeGroups.TryGetValue(changeGroupId, out changeGroup))
+					return null;
+			}
+			finally
+			{
+				m_ChangeGroupsCriticalSection.Leave();
+			}
+
+			return changeGroup;
+		}
+
+		public void AddNamedControl(AbstractNamedControl namedControl)
 	    {
 	        m_NamedControlsCriticalSection.Enter();
 
@@ -337,6 +417,8 @@ namespace ICD.Connect.Audio.QSys
         /// <param name="json"></param>
         internal void SendData(string json)
 		{
+			//JsonUtils.Print(json);
+
 			if (!IsConnected)
 			{
 				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
@@ -416,6 +498,14 @@ namespace ICD.Connect.Audio.QSys
 		{
 			DisposeControls();
 
+			//Parse Change Groups
+			string changeGroupXml;
+			if (XmlUtils.TryGetChildElementAsString(xml, "ChangeGroups", out changeGroupXml))
+			{
+				foreach (ChangeGroup changeGroup in CoreControlsXmlUtils.GetChangeGroupsFromXml(changeGroupXml, this))
+					AddChangeGroup(changeGroup);
+			}
+
 			//Parse Named Controls
 			string namedControlsXml;
 			if (XmlUtils.TryGetChildElementAsString(xml, "NamedControls", out namedControlsXml))
@@ -432,6 +522,23 @@ namespace ICD.Connect.Audio.QSys
 
 		private void DisposeControls()
 		{
+			// Clear Change Groups
+			m_ChangeGroupsCriticalSection.Enter();
+			try
+			{
+				foreach (KeyValuePair<string, ChangeGroup> kvp in m_ChangeGroups)
+				{
+					kvp.Value.DestroyChangeGroup();
+					kvp.Value.Dispose();
+				}
+				m_ChangeGroups = new Dictionary<string, ChangeGroup>();
+				m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
+			}
+			finally
+			{
+				m_ChangeGroupsCriticalSection.Leave();
+			}
+
 			// Clear Named Controls
 			m_NamedControlsCriticalSection.Enter();
 			try
@@ -566,20 +673,58 @@ namespace ICD.Connect.Audio.QSys
 
 		    JObject json = JObject.Parse(stringEventArgs.Data);
 
+			string responseMethod = (string)json.SelectToken("method");
+
+			if (!String.IsNullOrEmpty(responseMethod) && responseMethod.ToLower() == "changegroup.poll")
+			{
+				ParseChangeGroupResponse(json);
+				return;
+			}
+
             string responseId = (string)json.SelectToken("id");
 
-		    switch (responseId)
-		    {
-                case (RPCID_NO_OP):
-                    return;
-                case (RPCID_NAMED_CONTROL):
-                    ParseNamedControls(json);
-                    break;
-
-		    }
+			if (!String.IsNullOrEmpty(responseId))
+			{
+				switch (responseId)
+				{
+					case (RPCID_NO_OP):
+						return;
+					case (RPCID_NAMED_CONTROL):
+						ParseNamedControls(json);
+						break;
+				}
+			}
 		}
 
-        /// <summary>
+		private void ParseChangeGroupResponse(JObject json)
+		{
+			JToken responseParams = json.SelectToken("params");
+			if (!responseParams.HasValues)
+				return;
+
+			JToken changes = responseParams.SelectToken("Changes");
+			if (!changes.HasValues)
+				return;
+
+			foreach (JToken change in changes)
+			{
+				JToken component = change.SelectToken("Component");
+				if (component != null && component.HasValues)
+					ParseNamedComponent(change);
+				else
+				{
+					ParseNamedControl(change);
+				}
+			}
+
+		}
+
+		private void ParseNamedComponent(JToken json)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
         /// Parses one or more Named Controls, and sets the values on the controls
         /// </summary>
         /// <param name="json"></param>
@@ -711,7 +856,8 @@ namespace ICD.Connect.Audio.QSys
 
 	        yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
 	        yield return new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc().Serialize()));
-	        yield return new GenericConsoleCommand<string, string, string>("SetComponent", "SetComponent <Component Name> <Control Name> <Control Value>", (p1,p2,p3) => SendData(new ComponentSetRpc(p1, p2, p3).Serialize()));
+			yield return new ConsoleCommand("ReloadControls", "Reload controls from previous file" ,() => ReloadControls());
+			yield return new GenericConsoleCommand<string>("LoadControls", "Load Controls from Specified File", p => LoadControls(p));
 
         }
 

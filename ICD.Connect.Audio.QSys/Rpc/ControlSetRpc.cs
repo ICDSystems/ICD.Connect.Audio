@@ -44,8 +44,12 @@ namespace ICD.Connect.Audio.QSys.Rpc
 				writer.WriteValue(Control);
 
 				// Control value
+				// Write booleans as 1/0, since QSys doesn't support "True"
 				writer.WritePropertyName(VALUE_PROPERTY);
-				writer.WriteValue(Value.ToString());
+				if (Value is bool b)
+					writer.WriteValue(b ? 1 : 0);
+				else
+					writer.WriteValue(Value.ToString());
 			}
 			writer.WriteEndObject();
 		}

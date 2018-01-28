@@ -15,7 +15,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public abstract string Method { get; }
 
-		public string Id { get; set; }
+		public virtual string Id { get; set; }
 
 		/// <summary>
 		/// Serialize this instance to a string.

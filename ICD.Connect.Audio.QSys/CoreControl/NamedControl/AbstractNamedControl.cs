@@ -91,7 +91,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 	        Id = id;
 	        Name = name;
             ControlName = controlName;
-            PollValue();
+            //PollValue();
         }
 
 	    protected virtual void Dispose(bool disposing)
