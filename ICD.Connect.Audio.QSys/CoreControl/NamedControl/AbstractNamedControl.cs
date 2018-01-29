@@ -46,20 +46,35 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 
 		#region methods
 
-		/// <summary>
+	    public void TriggerControl()
+	    {
+		    SetPosition((float)1);
+	    }
+
+	    /// <summary>
 		/// Sets the value of the control
 		/// ToString() method is used to send the value
 		/// </summary>
 		/// <param name="value">Value to set the control to</param>
 		public void SetValue(object value)
         {
-            SendData(new ControlSetRpc(this, value).Serialize());
+            SendData(new ControlSetValueRpc(this, value).Serialize());
         }
 
-        /// <summary>
-        /// Polls the value of the control from the QSys Core
-        /// </summary>
-        public void PollValue()
+	    public void SetPosition(float position)
+	    {
+			SendData(new ControlSetPositionRpc(this, position).Serialize());
+		}
+
+	    public void SetPosition(string position)
+	    {
+		    SendData(new ControlSetPositionRpc(this, float.Parse(position)).Serialize());
+	    }
+
+		/// <summary>
+		/// Polls the value of the control from the QSys Core
+		/// </summary>
+		public void PollValue()
         {
             SendData(new ControlGetRpc(this).Serialize());
         }
@@ -131,8 +146,11 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 	    public virtual IEnumerable<IConsoleCommand> GetConsoleCommands()
 	    {
 		    yield return new ConsoleCommand("Poll", "Pull The Current Value", () => PollValue());
+		    yield return new ConsoleCommand("Trigger", "Triggers the control", () => TriggerControl());
+			yield return new GenericConsoleCommand<string>("SetPosition", "SetPosition <Position>" ,p => SetPosition(p));
 			yield return new GenericConsoleCommand<string>("SetValue", "SetValue <Value>", p => SetValue(p));
 	    }
-		#endregion
+
+	    #endregion
 	}
 }

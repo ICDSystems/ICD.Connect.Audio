@@ -15,18 +15,17 @@ namespace ICD.Connect.Audio.QSys.Rpc
 	///		}
 	/// }
 	/// </summary>
-	public sealed class ControlSetRpc : AbstractRpc
+	public abstract class AbstractControlSetRpc : AbstractRpc
 	{
 		private const string NAME_PROPERTY = "Name";
-		private const string VALUE_PROPERTY = "Value";
 
 		private const string METHOD_VALUE = "Control.Set";
 
 		public override string Method { get { return METHOD_VALUE; } }
 
-		public string Control { get; set; }
+		public override string Id { get { return QSysCoreDevice.RPCID_NAMED_CONTROL_SET; } }
 
-		public object Value { get; set; }
+		public string Control { get; set; }
 
 		/// <summary>
 		/// Override to add serialize params to JSON.
@@ -37,27 +36,15 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			{
-				// Control name
-				writer.WritePropertyName(NAME_PROPERTY);
-				writer.WriteValue(Control);
+			// Control name
+			writer.WritePropertyName(NAME_PROPERTY);
+			writer.WriteValue(Control);
 
-				// Control value
-				// Write booleans as 1/0, since QSys doesn't support "True"
-				writer.WritePropertyName(VALUE_PROPERTY);
-				if (Value is bool b)
-					writer.WriteValue(b ? 1 : 0);
-				else
-					writer.WriteValue(Value.ToString());
-			}
-			writer.WriteEndObject();
 		}
 
-	    public ControlSetRpc(AbstractNamedControl control, object value)
+		protected AbstractControlSetRpc(AbstractNamedControl control)
 	    {
 	        Control = control.ControlName;
-	        Value = value;
 	    }
 	}
 }

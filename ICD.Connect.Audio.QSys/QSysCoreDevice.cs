@@ -44,7 +44,8 @@ namespace ICD.Connect.Audio.QSys
         // RPCID's are used to seperate responses from the QSys based on the command sent
 	    internal const string RPCID_NO_OP = "NoOp";
 	    internal const string RPCID_GET_STATUS = "Status";
-	    internal const string RPCID_NAMED_CONTROL = "NamedControl";
+	    internal const string RPCID_NAMED_CONTROL_GET = "NamedControlGet";
+		internal const string RPCID_NAMED_CONTROL_SET = "NamedControlSet";
 	    internal const string RPCID_NAMED_COMPONENT = "NamedComponent";
 	    internal const string RPCID_CHANGEGROUP_RESPONSE = "ChangeGroupResponse";
 
@@ -689,11 +690,22 @@ namespace ICD.Connect.Audio.QSys
 				{
 					case (RPCID_NO_OP):
 						return;
-					case (RPCID_NAMED_CONTROL):
-						ParseNamedControls(json);
+					case (RPCID_NAMED_CONTROL_GET):
+						ParseNamedControlGetResponse(json);
+						return;
+					case (RPCID_NAMED_CONTROL_SET):
+						ParseNamedControlSetResponse(json);
 						break;
+
 				}
 			}
+		}
+
+		private void ParseNamedControlSetResponse(JObject json)
+		{
+			JToken result = json.SelectToken("result");
+			if (result != null && result.HasValues)
+				ParseNamedControl(result);
 		}
 
 		private void ParseChangeGroupResponse(JObject json)
@@ -728,7 +740,7 @@ namespace ICD.Connect.Audio.QSys
         /// Parses one or more Named Controls, and sets the values on the controls
         /// </summary>
         /// <param name="json"></param>
-	    private void ParseNamedControls(JObject json)
+	    private void ParseNamedControlGetResponse(JObject json)
 	    {
 	        JToken results = json.SelectToken("result");
 	        if (!results.HasValues)
@@ -746,6 +758,9 @@ namespace ICD.Connect.Audio.QSys
 	    private void ParseNamedControl(JToken result)
 	    {
 	        string nameToken = (string)result.SelectToken("Name");
+
+		    if (String.IsNullOrEmpty(nameToken))
+			    return;
 
 	        AbstractNamedControl control;
 
