@@ -54,11 +54,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			writer.WriteEndObject();
 		}
 
-	    public ControlSetRpc()
-	    {
-	        
-	    }
-
 	    public ControlSetRpc(AbstractNamedControl control, object value)
 	    {
 	        Control = control.ControlName;
