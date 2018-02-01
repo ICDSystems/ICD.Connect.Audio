@@ -26,7 +26,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#region Events
 
-		public override event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 	    public event EventHandler<BoolEventArgs> OnMuteStateChanged;
 
 		#endregion
@@ -89,7 +88,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
 	    {
-		    OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(args.ValueRaw, args.ValuePosition, args.ValueString));
+		    VolumeFeedback(args.ValueRaw, args.ValuePosition, args.ValueString);
 	    }
 
 	    private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)

@@ -42,8 +42,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
 
-		public override event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
-
 		#endregion
 
 		/// <summary>
@@ -136,7 +134,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		private void VolumeInterfaceOnLevelChanged(object sender, FloatEventArgs args)
 		{
-			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(args.Data, this.ConvertRawToPosition(args.Data), args.Data.ToString("n2")));
+			VolumeFeedback(args.Data);
 		}
 
 		#endregion
