@@ -68,22 +68,18 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			{
-				// Name
-				writer.WritePropertyName(NAME_PROPERTY);
-				writer.WriteValue(Name);
+			// Name
+			writer.WritePropertyName(NAME_PROPERTY);
+			writer.WriteValue(Name);
 
-				// Controls
-				writer.WritePropertyName(CONTROLS_PROPERTY);
-				writer.WriteStartArray();
-				{
-					foreach (ControlValueInfo info in m_ControlValues)
-						info.Serialize(writer);
-				}
-				writer.WriteEndArray();
+			// Controls
+			writer.WritePropertyName(CONTROLS_PROPERTY);
+			writer.WriteStartArray();
+			{
+				foreach (ControlValueInfo info in m_ControlValues)
+					info.Serialize(writer);
 			}
-			writer.WriteEndObject();
+			writer.WriteEndArray();
 		}
 
 		private struct ControlValueInfo

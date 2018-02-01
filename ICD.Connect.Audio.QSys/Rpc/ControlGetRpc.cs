@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using Newtonsoft.Json;
 
@@ -21,7 +22,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
-		public override string Id { get { return QSysCoreDevice.RPCID_NAMED_CONTROL_GET; } }
+		public override string Id { get { return RpcUtils.RPCID_NAMED_CONTROL_GET; } }
 
 		/// <summary>
 		/// Constructor.
@@ -31,10 +32,15 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			m_Controls = new List<string>();
 		}
 
-	    public ControlGetRpc(AbstractNamedControl control)
+	    public ControlGetRpc(INamedControl control)
 	    {
 	        m_Controls = new List<string> {control.ControlName};
         }
+
+		public ControlGetRpc(IEnumerable<INamedControl> controls)
+		{
+			m_Controls = controls.Select(c => c.ControlName).ToList();
+		}
 
 		/// <summary>
 		/// Adds the control to the query.
@@ -43,6 +49,11 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		public void AddControl(string control)
 		{
 			m_Controls.Add(control);
+		}
+
+		public void AddControl(INamedControl control)
+		{
+			m_Controls.Add(control.ControlName);
 		}
 
 		/// <summary>
@@ -54,10 +65,19 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
+			foreach (string control in m_Controls)
+				writer.WriteValue(control);
+
+		}
+
+		protected override void WriteParamsContainer(JsonWriter writer)
+		{
+			if (writer == null)
+				throw new ArgumentNullException("writer");
+
 			writer.WriteStartArray();
 			{
-				foreach (string control in m_Controls)
-					writer.WriteValue(control);
+				SerializeParams(writer);
 			}
 			writer.WriteEndArray();
 		}

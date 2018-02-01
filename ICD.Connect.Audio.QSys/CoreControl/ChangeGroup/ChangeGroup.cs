@@ -8,24 +8,18 @@ using ICD.Connect.Audio.QSys.Rpc;
 
 namespace ICD.Connect.Audio.QSys.CoreControl.ChangeGroup
 {
-    public class ChangeGroup : AbstractCoreControl
+    public sealed class ChangeGroup : AbstractCoreControl
     {
 
 	    private readonly SafeCriticalSection m_NamedControlCriticalSection;
 	    private readonly List<AbstractNamedControl> m_NamedControls;
 
-		public int Id { get; private set; }
-
-		public string Name { get; private set; }
-
 		public string ChangeGroupId { get; private set; }
 
 		public float? PollInterval { get; private set; }
 
-	    public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId) : base(qSysCore)
+	    public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId) : base(qSysCore, name, id)
 	    {
-			Id = id;
-		    Name = name;
 		    ChangeGroupId = changeGroupId;
 		    PollInterval = null;
 
@@ -33,10 +27,8 @@ namespace ICD.Connect.Audio.QSys.CoreControl.ChangeGroup
 			m_NamedControlCriticalSection = new SafeCriticalSection();
 	    }
 
-		public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId, float? pollInterval) : base(qSysCore)
+		public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId, float? pollInterval) : base(qSysCore, name, id)
 	    {
-		    Id = id;
-		    Name = name;
 		    ChangeGroupId = changeGroupId;
 		    PollInterval = pollInterval;
 
@@ -68,18 +60,19 @@ namespace ICD.Connect.Audio.QSys.CoreControl.ChangeGroup
 	    {
 		    bool firstItem = false;
 		    m_NamedControlCriticalSection.Enter();
+		    IEnumerable<AbstractNamedControl> abstractNamedControls = controls as IList<AbstractNamedControl> ?? controls.ToList();
 		    try
 		    {
 			    if (m_NamedControls.Count == 0)
 				    firstItem = true;
-			    m_NamedControls.AddRange(controls);
+			    m_NamedControls.AddRange(abstractNamedControls);
 		    }
 		    finally
 		    {
 			    m_NamedControlCriticalSection.Leave();
 		    }
 
-		    SendData(new ChangeGroupAddControlRpc(this, controls).Serialize());
+		    SendData(new ChangeGroupAddControlRpc(this, abstractNamedControls).Serialize());
 		    if (firstItem)
 			    SetAutoPoll();
 
@@ -117,6 +110,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.ChangeGroup
 	    {
 		    SendData(new ChangeGroupAddControlRpc(this, GetControls()).Serialize());
 			SendData(new ChangeGroupAutoPollRpc(this).Serialize());
+			SendData(new ChangeGroupPollRpc(this).Serialize());
 	    }
 
 	    public void DestroyChangeGroup()

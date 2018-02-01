@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Rpc;
+using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 {
     /// <summary>
     /// Represents a NamedControl
     /// </summary>
-    public abstract class AbstractNamedControl : AbstractCoreControl, IConsoleNode
-    {
-	    public int Id { get; }
-
-	    public string Name { get; }
-
+    public abstract class AbstractNamedControl : AbstractCoreControl, INamedControl
+	{
 	    /// <summary>
         /// Name of the control on the QSys Core
         /// </summary>
@@ -66,12 +64,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 			SendData(new ControlSetPositionRpc(this, position).Serialize());
 		}
 
-	    public void SetPosition(string position)
-	    {
-		    SendData(new ControlSetPositionRpc(this, float.Parse(position)).Serialize());
-	    }
-
-		/// <summary>
+	    /// <summary>
 		/// Polls the value of the control from the QSys Core
 		/// </summary>
 		public void PollValue()
@@ -79,17 +72,29 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
             SendData(new ControlGetRpc(this).Serialize());
         }
 
-        #endregion
+	    public void ParseFeedback(JToken feedback)
+	    {
+		    if (feedback == null)
+			    throw new ArgumentNullException("feedback");
 
-        #region internal methods
+		    string valueString = (string)feedback.SelectToken("String");
+		    float valueValue = (float)feedback.SelectToken("Value");
+		    float valuePostion = (float)feedback.SelectToken("Position");
 
-        /// <summary>
-        /// Called by the Core to update feedback for the control
-        /// </summary>
-        /// <param name="valueString">String value of the control</param>
-        /// <param name="valueRaw">Raw value of the control</param>
-        /// <param name="valuePosition">Position value of the control</param>
-        internal void SetFeedback(string valueString, float valueRaw, float valuePosition)
+		    SetFeedback(valueString, valueValue, valuePostion);
+		}
+
+		#endregion
+
+		#region internal methods
+
+		/// <summary>
+		/// Called by the Core to update feedback for the control
+		/// </summary>
+		/// <param name="valueString">String value of the control</param>
+		/// <param name="valueRaw">Raw value of the control</param>
+		/// <param name="valuePosition">Position value of the control</param>
+		internal void SetFeedback(string valueString, float valueRaw, float valuePosition)
         {
             ValueString = valueString;
             ValueRaw = valueRaw;
@@ -101,54 +106,44 @@ namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
         #endregion
 
 
-        protected AbstractNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore)
+        protected AbstractNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore, name, id)
         {
-	        Id = id;
-	        Name = name;
             ControlName = controlName;
             //PollValue();
         }
 
-	    protected virtual void Dispose(bool disposing)
+	    protected override void DisposeFinal(bool disposing)
 	    {
-		    if (disposing)
-		    {
-			    OnValueUpdated = null;
-		    }
+		    OnValueUpdated = null;
+		    base.DisposeFinal(disposing);
 	    }
 
-	    public void Dispose()
+	    #region Console
+
+	    public override string ConsoleHelp { get { return String.Format("NamedControl: {0}" ,ControlName); } }
+
+	    public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
 	    {
-		    Dispose(true);
-		    //GC.SuppressFinalize(this);
-	    }
-
-		#region Console
-
-		public string ConsoleName { get { return Name; } }
-	    public string ConsoleHelp { get { return String.Format("NamedControl: {0}" ,ControlName); } }
-
-		public IEnumerable<IConsoleNodeBase> GetConsoleNodes()
-	    {
-		    yield break;
-	    }
-
-	    public virtual void BuildConsoleStatus(AddStatusRowDelegate addRow)
-	    {
-		    addRow("Id", Id);
-		    addRow("Name", Name);
+			base.BuildConsoleStatus(addRow);
 		    addRow("Control Name", ControlName);
 		    addRow("Value Stirng", ValueString);
 		    addRow("Value Raw", ValueRaw);
 		    addRow("Value Position", ValuePosition);
 	    }
 
-	    public virtual IEnumerable<IConsoleCommand> GetConsoleCommands()
+	    public override IEnumerable<IConsoleCommand> GetConsoleCommands()
 	    {
+		    foreach (IConsoleCommand command in GetBaseConsoleCommands())
+			    yield return command;
 		    yield return new ConsoleCommand("Poll", "Pull The Current Value", () => PollValue());
 		    yield return new ConsoleCommand("Trigger", "Triggers the control", () => TriggerControl());
-			yield return new GenericConsoleCommand<string>("SetPosition", "SetPosition <Position>" ,p => SetPosition(p));
+			yield return new GenericConsoleCommand<string>("SetPosition", "SetPosition <Position>" ,p => SetPosition(float.Parse(p)));
 			yield return new GenericConsoleCommand<string>("SetValue", "SetValue <Value>", p => SetValue(p));
+	    }
+
+	    private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+	    {
+		    return base.GetConsoleCommands();
 	    }
 
 	    #endregion

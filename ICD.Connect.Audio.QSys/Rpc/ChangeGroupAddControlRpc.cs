@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
 {
-    class ChangeGroupAddControlRpc : AbstractRpc
+	public sealed class ChangeGroupAddControlRpc : AbstractRpc
     {
 	    
 	    private const string CHANGE_GROUP_ID_PROPERTY = "Id";
@@ -38,29 +38,25 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 	    public override string Method { get { return METHOD_VALUE; } }
 
-		protected override void SerializeParams(JsonWriter writer)
+	    protected override void SerializeParams(JsonWriter writer)
 	    {
-			if (writer == null)
+		    if (writer == null)
 			    throw new ArgumentNullException("writer");
 
-		    writer.WriteStartObject();
-		    {
-			    // Name
-			    writer.WritePropertyName(CHANGE_GROUP_ID_PROPERTY);
-			    writer.WriteValue(ChangeGroupId);
+		    // Name
+		    writer.WritePropertyName(CHANGE_GROUP_ID_PROPERTY);
+		    writer.WriteValue(ChangeGroupId);
 
-			    // Controls
-				writer.WritePropertyName(CONTROLS_PROPERTY);
-			    writer.WriteStartArray();
+		    // Controls
+		    writer.WritePropertyName(CONTROLS_PROPERTY);
+		    writer.WriteStartArray();
+		    {
+			    foreach (string control in m_Controls)
 			    {
-				    foreach (string control in m_Controls)
-				    {
-					    writer.WriteValue(control);
-				    }
+				    writer.WriteValue(control);
 			    }
-			    writer.WriteEndArray();
 		    }
-		    writer.WriteEndObject();
-		}
+		    writer.WriteEndArray();
+	    }
     }
 }

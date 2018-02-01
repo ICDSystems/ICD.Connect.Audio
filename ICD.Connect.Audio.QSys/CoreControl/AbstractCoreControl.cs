@@ -1,36 +1,33 @@
 ﻿using System;
+using System.Collections.Generic;
+using ICD.Connect.API.Commands;
+using ICD.Connect.API.Nodes;
+using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.CoreControl
 {
     /// <summary>
     /// Represents a control on the QSys Core, either a NamedControl or a NamedComponent
     /// </summary>
-    public abstract class AbstractCoreControl : IDisposable
+    public abstract class AbstractCoreControl : AbstractDeviceControl<QSysCoreDevice>
     {
 
-        private readonly QSysCoreDevice m_Core;
+	    private readonly string m_Name;
 
-        protected void SendData(string data)
-        {
-            m_Core.SendData(data);
-        }
-
-        protected AbstractCoreControl(QSysCoreDevice qSysCore)
-        {
-            m_Core = qSysCore;
-        }
-
-	    protected virtual void Dispose(bool disposing)
+	    public override string Name
 	    {
-		    if (disposing)
-		    {
-		    }
+		    get { return m_Name; }
 	    }
 
-	    public void Dispose()
-	    {
-		    Dispose(true);
-		    //GC.SuppressFinalize(this);
-	    }
+	    protected void SendData(string data)
+        {
+			Parent.SendData(data);
+        }
+
+        protected AbstractCoreControl(QSysCoreDevice qSysCore, string name, int id): base(qSysCore, id)
+        {
+			m_Name = name;
+        }
     }
 }

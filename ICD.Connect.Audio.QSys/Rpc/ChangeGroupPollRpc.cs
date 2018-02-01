@@ -8,19 +8,19 @@ using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
 {
-	public sealed class ChangeGroupDestroyRpc : AbstractRpc
+	public sealed class ChangeGroupPollRpc : AbstractRpc
     {
 		private const string CHANGE_GROUP_ID_PROPERTY = "Id";
 
-		private const string METHOD_VALUE = "ChangeGroup.Destroy";
+		private const string METHOD_VALUE = "ChangeGroup.Poll";
 
 		private string ChangeGroupId { get; set; }
 
-		public ChangeGroupDestroyRpc()
+		public ChangeGroupPollRpc()
 		{
 		}
 
-		public ChangeGroupDestroyRpc(ChangeGroup changeGroup)
+		public ChangeGroupPollRpc(ChangeGroup changeGroup)
 		{
 			ChangeGroupId = changeGroup.ChangeGroupId;
 		}
@@ -35,7 +35,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		    // Name
 		    writer.WritePropertyName(CHANGE_GROUP_ID_PROPERTY);
 		    writer.WriteValue(ChangeGroupId);
-
 	    }
     }
 }

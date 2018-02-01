@@ -40,15 +40,6 @@ namespace ICD.Connect.Audio.QSys
         /// </summary>
 	    private const long KEEPALIVE_INTERVAL = 29 * 1000;
 
-
-        // RPCID's are used to seperate responses from the QSys based on the command sent
-	    internal const string RPCID_NO_OP = "NoOp";
-	    internal const string RPCID_GET_STATUS = "Status";
-	    internal const string RPCID_NAMED_CONTROL_GET = "NamedControlGet";
-		internal const string RPCID_NAMED_CONTROL_SET = "NamedControlSet";
-	    internal const string RPCID_NAMED_COMPONENT = "NamedComponent";
-	    internal const string RPCID_CHANGEGROUP_RESPONSE = "ChangeGroupResponse";
-
 		/// <summary>
 		/// Raised when the class initializes.
 		/// </summary>
@@ -74,12 +65,12 @@ namespace ICD.Connect.Audio.QSys
 		/// <summary>
 		/// Named Controls
 		/// </summary>
-	    private Dictionary<string, AbstractNamedControl> m_NamedControls;
-		private Dictionary<int, AbstractNamedControl> m_NamedControlsById;
+	    private Dictionary<string, INamedControl> m_NamedControls;
+		private Dictionary<int, INamedControl> m_NamedControlsById;
 	    private readonly SafeCriticalSection m_NamedControlsCriticalSection;
 
 		private Dictionary<string, INamedComponent> m_NamedComponents;
-		private SafeCriticalSection m_NamedComponentsCriticalSection;
+		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
 
         private readonly ISerialBuffer m_SerialBuffer;
 
@@ -163,8 +154,8 @@ namespace ICD.Connect.Audio.QSys
 			m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
 
             m_NamedControlsCriticalSection = new SafeCriticalSection();
-            m_NamedControls = new Dictionary<string, AbstractNamedControl>();
-			m_NamedControlsById = new Dictionary<int, AbstractNamedControl>();
+            m_NamedControls = new Dictionary<string, INamedControl>();
+			m_NamedControlsById = new Dictionary<int, INamedControl>();
 
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
@@ -391,9 +382,9 @@ namespace ICD.Connect.Audio.QSys
 			LoadControls(m_ConfigPath);
 		}
 
-		public IEnumerable<AbstractNamedControl> GetNamedControls()
+		public IEnumerable<INamedControl> GetNamedControls()
 		{
-			List<AbstractNamedControl> controls;
+			List<INamedControl> controls;
 
 			m_NamedControlsCriticalSection.Enter();
 			try
@@ -544,10 +535,10 @@ namespace ICD.Connect.Audio.QSys
 			m_NamedControlsCriticalSection.Enter();
 			try
 			{
-				foreach (KeyValuePair<string, AbstractNamedControl> kvp in m_NamedControls)
+				foreach (KeyValuePair<string, INamedControl> kvp in m_NamedControls)
 					kvp.Value.Dispose();
-				m_NamedControls = new Dictionary<string, AbstractNamedControl>();
-				m_NamedControlsById = new Dictionary<int, AbstractNamedControl>();
+				m_NamedControls = new Dictionary<string, INamedControl>();
+				m_NamedControlsById = new Dictionary<int, INamedControl>();
 			}
 			finally
 			{
@@ -676,7 +667,8 @@ namespace ICD.Connect.Audio.QSys
 
 			string responseMethod = (string)json.SelectToken("method");
 
-			if (!String.IsNullOrEmpty(responseMethod) && responseMethod.ToLower() == "changegroup.poll")
+			if (!string.IsNullOrEmpty(responseMethod) &&
+			    string.Equals(responseMethod.ToLower(), "ChangeGroup.Poll", StringComparison.OrdinalIgnoreCase))
 			{
 				ParseChangeGroupResponse(json);
 				return;
@@ -688,12 +680,12 @@ namespace ICD.Connect.Audio.QSys
 			{
 				switch (responseId)
 				{
-					case (RPCID_NO_OP):
+					case (RpcUtils.RPCID_NO_OP):
 						return;
-					case (RPCID_NAMED_CONTROL_GET):
+					case (RpcUtils.RPCID_NAMED_CONTROL_GET):
 						ParseNamedControlGetResponse(json);
 						return;
-					case (RPCID_NAMED_CONTROL_SET):
+					case (RpcUtils.RPCID_NAMED_CONTROL_SET):
 						ParseNamedControlSetResponse(json);
 						break;
 
@@ -701,14 +693,14 @@ namespace ICD.Connect.Audio.QSys
 			}
 		}
 
-		private void ParseNamedControlSetResponse(JObject json)
+		private void ParseNamedControlSetResponse(JToken json)
 		{
 			JToken result = json.SelectToken("result");
 			if (result != null && result.HasValues)
 				ParseNamedControl(result);
 		}
 
-		private void ParseChangeGroupResponse(JObject json)
+		private void ParseChangeGroupResponse(JToken json)
 		{
 			JToken responseParams = json.SelectToken("params");
 			if (!responseParams.HasValues)
@@ -759,10 +751,10 @@ namespace ICD.Connect.Audio.QSys
 	    {
 	        string nameToken = (string)result.SelectToken("Name");
 
-		    if (String.IsNullOrEmpty(nameToken))
+		    if (string.IsNullOrEmpty(nameToken))
 			    return;
 
-	        AbstractNamedControl control;
+	        INamedControl control;
 
             m_NamedControlsCriticalSection.Enter();
 
@@ -776,12 +768,7 @@ namespace ICD.Connect.Audio.QSys
 	            m_NamedControlsCriticalSection.Leave();
 	        }
 
-            string valueString = (string)result.SelectToken("String");
-	        float valueValue = (float)result.SelectToken("Value");
-            float valuePostion = (float)result.SelectToken("Position");
-
-	        control.SetFeedback(valueString, valueValue, valuePostion);
-
+			control.ParseFeedback(result);
 	    }
 
 	    #endregion

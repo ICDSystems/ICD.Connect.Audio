@@ -23,7 +23,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
-		public override string Id { get { return QSysCoreDevice.RPCID_NAMED_CONTROL_SET; } }
+		public override string Id { get { return RpcUtils.RPCID_NAMED_CONTROL_SET; } }
 
 		public string Control { get; set; }
 
@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		}
 
-		protected AbstractControlSetRpc(AbstractNamedControl control)
+		protected AbstractControlSetRpc(INamedControl control)
 	    {
 	        Control = control.ControlName;
 	    }

@@ -1,75 +1,108 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using ICD.Common.Utils.EventArguments;
-using ICD.Connect.API.Commands;
-using ICD.Connect.API.Nodes;
-using ICD.Connect.Devices;
+using ICD.Common.Utils.Extensions;
+using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.Controls
 {
-    class NamedControlsVolumeDevice : IVolumeDeviceControl
+    public sealed class NamedControlsVolumeDevice : AbstractVolumeLevelDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl
     {
-	    public IDeviceBase Parent { get; }
-	    public int Id { get; }
-	    public string Name { get; }
-	    public DeviceControlInfo DeviceControlInfo { get; }
-	    public event EventHandler<FloatEventArgs> OnRawVolumeChanged;
+	    private readonly string m_Name;
+		
+		private readonly NamedControl m_VolumeControl;
+
+		private readonly BooleanNamedControl m_MuteControl;
+
+		#region Properties
+
+	    public override string Name { get { return m_Name; }  }
+	    public override float VolumeRaw { get { return m_VolumeControl.ValueRaw; } }
+	    public override float VolumePosition { get { return m_VolumeControl.ValuePosition; } }
+	    public override string VolumeString { get { return m_VolumeControl.ValueString; } }
+	    public bool VolumeIsMuted { get { return m_MuteControl.ValueBool; } }
+
+	    #endregion
+
+		#region Events
+
+		public override event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 	    public event EventHandler<BoolEventArgs> OnMuteStateChanged;
-	    public float RawVolume { get; }
-	    public float RawVolumeMin { get; }
-	    public float RawVolumeMax { get; }
-	    public float? RawVolumeSafetyMin { get; set; }
-	    public float? RawVolumeSafetyMax { get; set; }
-	    public float? RawVolumeDefault { get; set; }
-	    public bool IsMuted { get; }
-	    public void SetRawVolume(float volume)
-	    {
-		    throw new NotImplementedException();
+
+		#endregion
+
+		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, NamedControl volumeControl, BooleanNamedControl muteControl) : base(qSysCore, id)
+		{
+			m_Name = name;
+		    m_VolumeControl = volumeControl;
+		    m_MuteControl = muteControl;
+			Subscribe();
 	    }
 
-	    public void SetMute(bool mute)
+	    #region Methods
+
+	    public override void SetVolumeRaw(float volume)
 	    {
-		    throw new NotImplementedException();
+		    m_VolumeControl.SetValue(volume);
 	    }
 
-	    public void RawVolumeIncrement()
+	    public override void SetVolumePosition(float position)
 	    {
-		    throw new NotImplementedException();
+		    m_VolumeControl.SetPosition(position);
 	    }
 
-	    public void RawVolumeDecrement()
+	    public override void VolumeLevelIncrement(float incrementValue)
 	    {
-		    throw new NotImplementedException();
+		    m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
 	    }
 
-	    #region Console
-
-	    public string ConsoleName { get; }
-	    public string ConsoleHelp { get; }
-	    public IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+	    public override void VolumeLevelDecrement(float decrementValue)
 	    {
-		    throw new NotImplementedException();
+		    m_VolumeControl.SetValue(string.Format("-={0}", decrementValue));
 	    }
 
-	    public void BuildConsoleStatus(AddStatusRowDelegate addRow)
+	    public void VolumeMuteToggle()
 	    {
-		    throw new NotImplementedException();
+		    SetVolumeMute(!VolumeIsMuted);
 	    }
 
-	    public IEnumerable<IConsoleCommand> GetConsoleCommands()
+	    public void SetVolumeMute(bool mute)
 	    {
-		    throw new NotImplementedException();
+		    m_MuteControl.SetValue(mute);
 	    }
 
 	    #endregion
 
-	    public void Dispose()
+		#region Private Methods
+
+	    private void Subscribe()
 	    {
-		    throw new NotImplementedException();
+		    m_VolumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
+			m_MuteControl.OnValueUpdated += MuteControlOnValueUpdated;
 	    }
 
-	    public bool IsDisposed { get; }
-    }
+	    private void Unsubscribe()
+	    {
+		    m_VolumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
+		    m_MuteControl.OnValueUpdated -= MuteControlOnValueUpdated;
+	    }
+
+	    private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+	    {
+		    OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(args.ValueRaw, args.ValuePosition, args.ValueString));
+	    }
+
+	    private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+	    {
+		    OnMuteStateChanged.Raise(this, new BoolEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
+	    }
+
+	    protected override void DisposeFinal(bool disposing)
+	    {
+			Unsubscribe();
+		    base.DisposeFinal(disposing);
+	    }
+
+		#endregion
+	}
 }

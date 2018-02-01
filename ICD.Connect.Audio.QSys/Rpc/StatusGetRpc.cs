@@ -17,6 +17,8 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
+		public override string Id { get { return RpcUtils.RPCID_STATUS_GET; } }
+
 		/// <summary>
 		/// Override to add serialize params to JSON.
 		/// </summary>
@@ -27,6 +29,14 @@ namespace ICD.Connect.Audio.QSys.Rpc
 				throw new ArgumentNullException("writer");
 
 			writer.WriteValue(0);
+		}
+
+		protected override void WriteParamsContainer(JsonWriter writer)
+		{
+			if (writer == null)
+				throw new ArgumentNullException("writer");
+
+			SerializeParams(writer);
 		}
 	}
 }

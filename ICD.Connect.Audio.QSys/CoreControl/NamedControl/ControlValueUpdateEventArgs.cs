@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 {
-    public class ControlValueUpdateEventArgs : EventArgs
+    public sealed class ControlValueUpdateEventArgs : EventArgs
     {
 		public string ControlName { get; private set; }
 

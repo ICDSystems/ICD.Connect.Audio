@@ -41,6 +41,10 @@ namespace ICD.Connect.Audio.Biamp
 		// Ensures we catch any login messages
 		private const long INITIALIZATION_DELAY_MILLISECONDS = 3 * 1000;
 
+		internal const float TESIRA_LEVEL_MINIMUM = -100f;
+
+		internal const float TESIRA_LEVEL_MAXIMUM = 20f;
+
 		public delegate void SubscriptionCallback(BiampTesiraDevice sender, ControlValue value);
 
 		/// <summary>

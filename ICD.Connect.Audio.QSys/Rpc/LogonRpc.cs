@@ -35,17 +35,13 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			{
-				// Username
-				writer.WritePropertyName(USER_PROPERTY);
-				writer.WriteValue(Username);
+			// Username
+			writer.WritePropertyName(USER_PROPERTY);
+			writer.WriteValue(Username);
 
-				// Password
-				writer.WritePropertyName(PASSWORD_PROPERTY);
-				writer.WriteValue(Password);
-			}
-			writer.WriteEndObject();
+			// Password
+			writer.WritePropertyName(PASSWORD_PROPERTY);
+			writer.WriteValue(Password);
 		}
 	}
 }

@@ -12,7 +12,7 @@ using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.CoreControl
 {
-    class CoreControlsXmlUtils
+    internal static class CoreControlsXmlUtils
     {
 	    private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 

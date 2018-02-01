@@ -30,18 +30,14 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			{
-				base.SerializeParams(writer);
+			base.SerializeParams(writer);
 
-				// Control position
-				writer.WritePropertyName(POSITION_PROPERTY);
-				writer.WriteValue(Position);
-			}
-			writer.WriteEndObject();
+			// Control position
+			writer.WritePropertyName(POSITION_PROPERTY);
+			writer.WriteValue(Position);
 		}
 
-	    public ControlSetPositionRpc(AbstractNamedControl control, float position) : base(control)
+		public ControlSetPositionRpc(INamedControl control, float position) : base(control)
 	    {
 		    Position = position;
 	    }

@@ -54,7 +54,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 				// params
 				writer.WritePropertyName(PARAMS_PROPERTY);
-				SerializeParams(writer);
+				WriteParamsContainer(writer);
 			}
 			writer.WriteEndObject();
 		}
@@ -64,5 +64,21 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		/// </summary>
 		/// <param name="writer"></param>
 		protected abstract void SerializeParams(JsonWriter writer);
+
+		/// <summary>
+		/// Override to write the object/array for the params
+		/// </summary>
+		/// <param name="writer"></param>
+		protected virtual void WriteParamsContainer(JsonWriter writer)
+		{
+			if (writer == null)
+				throw new ArgumentNullException("writer");
+
+			writer.WriteStartObject();
+			{
+				SerializeParams(writer);
+			}
+			writer.WriteEndObject();
+		}
 	}
 }

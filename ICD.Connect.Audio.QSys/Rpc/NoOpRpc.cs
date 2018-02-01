@@ -11,11 +11,13 @@ namespace ICD.Connect.Audio.QSys.Rpc
 	///		}
 	/// }
 	/// </summary>
-	public sealed class NoOpRpc : AbstractRpc
+	internal sealed class NoOpRpc : AbstractRpc
 	{
 		private const string METHOD_VALUE = "NoOp";
 
 		public override string Method { get { return METHOD_VALUE; } }
+
+		public override string Id { get { return RpcUtils.RPCID_NO_OP; } }
 
 		/// <summary>
 		/// Override to add serialize params to JSON.
@@ -26,13 +28,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			writer.WriteEndObject();
 		}
-
-	    public NoOpRpc()
-	    {
-	        Id = QSysCoreDevice.RPCID_NO_OP;
-	    }
 	}
 }

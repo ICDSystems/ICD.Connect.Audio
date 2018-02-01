@@ -66,17 +66,34 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
+    <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
+    <Compile Include="CoreControl\AbstractCoreControl.cs" />
+    <Compile Include="CoreControl\ChangeGroup\ChangeGroup.cs" />
+    <Compile Include="CoreControl\CoreControlsXMLUtils.cs" />
+    <Compile Include="CoreControl\NamedComponent\INamedComponent.cs" />
+    <Compile Include="CoreControl\NamedControl\AbstractNamedControl.cs" />
+    <Compile Include="CoreControl\NamedControl\BooleanNamedControl.cs" />
+    <Compile Include="CoreControl\NamedControl\ControlValueUpdateEventArgs.cs" />
+    <Compile Include="CoreControl\NamedControl\INamedControl.cs" />
+    <Compile Include="CoreControl\NamedControl\NamedControl.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QSysCoreDevice.cs" />
     <Compile Include="QSysCoreDeviceSettings.cs" />
+    <Compile Include="Rpc\AbstractControlSetRpc.cs" />
     <Compile Include="Rpc\AbstractRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupAddControlRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupAutoPollRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupDestroyRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupPollRpc.cs" />
     <Compile Include="Rpc\ComponentGetComponentsRpc.cs" />
     <Compile Include="Rpc\ComponentGetRpc.cs" />
     <Compile Include="Rpc\ComponentSetRpc.cs" />
     <Compile Include="Rpc\ControlGetRpc.cs" />
-    <Compile Include="Rpc\ControlSetRpc.cs" />
+    <Compile Include="Rpc\ControlSetPositionRpc.cs" />
+    <Compile Include="Rpc\ControlSetValueRpc.cs" />
     <Compile Include="Rpc\NoOpRpc.cs" />
+    <Compile Include="Rpc\RpcUtils.cs" />
     <Compile Include="Rpc\StatusGetRpc.cs" />
     <Compile Include="Rpc\IRpc.cs" />
     <Compile Include="Rpc\LogonRpc.cs" />

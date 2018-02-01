@@ -30,22 +30,19 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			{
-				base.SerializeParams(writer);
+			base.SerializeParams(writer);
 
-				// Control value
-				// Write booleans as 1/0, since QSys doesn't support "True"
-				writer.WritePropertyName(VALUE_PROPERTY);
-				if (Value is bool b)
-					writer.WriteValue(b ? 1 : 0);
-				else
-					writer.WriteValue(Value);
-			}
-			writer.WriteEndObject();
+			// Control value
+			// Write booleans as 1/0, since QSys doesn't support "True"
+			writer.WritePropertyName(VALUE_PROPERTY);
+			bool? valueBool = Value as bool?;
+			if (valueBool != null)
+				writer.WriteValue((bool)valueBool ? 1 : 0);
+			else
+				writer.WriteValue(Value);
 		}
 
-	    public ControlSetValueRpc(AbstractNamedControl control, object value) : base(control)
+		public ControlSetValueRpc(INamedControl control, object value) : base(control)
 	    {
 	        Value = value;
 	    }

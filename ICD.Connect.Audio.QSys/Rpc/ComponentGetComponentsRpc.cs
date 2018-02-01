@@ -26,8 +26,6 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			if (writer == null)
 				throw new ArgumentNullException("writer");
 
-			writer.WriteStartObject();
-			writer.WriteEndObject();
 		}
 	}
 }
