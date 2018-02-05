@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using ICD.Connect.Devices.Controls;
 
@@ -10,7 +12,7 @@ namespace ICD.Connect.Audio.QSys.Controls
     {
 	    private readonly string m_Name;
 		
-		private readonly NamedControl m_VolumeControl;
+		private readonly INamedControl m_VolumeControl;
 
 		private readonly BooleanNamedControl m_MuteControl;
 
@@ -30,7 +32,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#endregion
 
-		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, NamedControl volumeControl, BooleanNamedControl muteControl) : base(qSysCore, id)
+		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl) : base(qSysCore, id)
 		{
 			m_Name = name;
 		    m_VolumeControl = volumeControl;
@@ -103,5 +105,23 @@ namespace ICD.Connect.Audio.QSys.Controls
 	    }
 
 		#endregion
+
+		#region Console
+
+	    public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+	    {
+		    foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+			    yield return node;
+
+		    yield return m_VolumeControl;
+		    yield return m_MuteControl;
+	    }
+
+	    private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+	    {
+		    return base.GetConsoleNodes();
+	    }
+
+	    #endregion
 	}
 }

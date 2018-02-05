@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
+using ICD.Connect.Audio.QSys.Controls;
 using ICD.Connect.Audio.QSys.CoreControl.NamedComponent;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using ICD.Connect.Devices.Controls;
@@ -90,5 +92,62 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 
 		    return changeGroups;
 	    }
+
+	    public static IEnumerable<IDeviceControl> GetKrangControlsFromXml([NotNull] string xml, [NotNull] QSysCoreDevice qSysCore)
+	    {
+		    if (xml == null)
+			    throw new ArgumentNullException("xml");
+		    if (qSysCore == null)
+			    throw new ArgumentNullException("qSysControl");
+
+			List<IDeviceControl> controls = new List<IDeviceControl>();
+		    foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
+		    {
+			    int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
+				string name = XmlUtils.GetAttributeAsString(controlElement, "name");
+			    string controlType = XmlUtils.GetAttributeAsString(controlElement, "type");
+				
+				// This is a quick method to get controls working for ConnectPro
+				// todo: replace with proper reflection and device instantiation from XML
+			    switch (controlType)
+			    {
+				    case ("NamedControlsVolumeDevice"):
+				    {
+					    controls.Add(GetNamedControlsVolumeDeviceFromXml(qSysCore, id, name, controlElement));
+						break;
+				    }
+				    default:
+				    {
+					    qSysCore.Log(eSeverity.Error, "Failed to load control. No Control Matching type \"{0}\"", controlType);
+					    continue;
+				    }
+			    }
+				
+		    }
+		    return controls;
+	    }
+
+		/// <summary>
+		/// todo: better error handling
+		/// </summary>
+		/// <param name="qSysCore"></param>
+		/// <param name="id"></param>
+		/// <param name="name"></param>
+		/// <param name="xml"></param>
+		/// <returns></returns>
+	    private static IDeviceControl GetNamedControlsVolumeDeviceFromXml(QSysCoreDevice qSysCore, int id, string name, string xml)
+	    {
+		    int volumeId = XmlUtils.ReadChildElementContentAsInt(xml, "VolumeControlId");
+		    int muteId = XmlUtils.ReadChildElementContentAsInt(xml, "MuteControlId");
+
+		    INamedControl volumeControl = qSysCore.GetNamedControlById(volumeId);
+			if (volumeControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Volume Control {0}", volumeId));
+		    BooleanNamedControl muteControl = qSysCore.GetNamedControlById(muteId) as BooleanNamedControl;
+		    if (muteControl == null)
+			    throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteId));
+
+			return new NamedControlsVolumeDevice(qSysCore, name, id, volumeControl, muteControl);
+		}
     }
 }

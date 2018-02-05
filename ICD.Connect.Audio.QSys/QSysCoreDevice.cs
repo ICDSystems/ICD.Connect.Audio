@@ -19,6 +19,7 @@ using ICD.Connect.Audio.QSys.CoreControl.NamedComponent;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
@@ -399,6 +400,14 @@ namespace ICD.Connect.Audio.QSys
 			return controls;
 		}
 
+		public INamedControl GetNamedControlById(int id)
+		{
+			INamedControl control = null;
+			m_NamedControlsCriticalSection.Execute(() => m_NamedControlsById.TryGetValue(id, out control));
+			return control;
+
+		}
+
 		#endregion
 
         #region Internal Methods
@@ -510,6 +519,16 @@ namespace ICD.Connect.Audio.QSys
 				foreach (INamedComponent component in CoreControlsXmlUtils.GetNamedComponentsFromXml(namedComponentsXml, this))
 					AddNamedComponent(component);
 
+			string krangControlsXml;
+			if (XmlUtils.TryGetChildElementAsString(xml, "KrangControls", out krangControlsXml))
+				foreach (IDeviceControl control in CoreControlsXmlUtils.GetKrangControlsFromXml(krangControlsXml, this))
+					AddKrangControl(control);
+
+		}
+
+		private void AddKrangControl(IDeviceControl control)
+		{
+			Controls.Add(control);
 		}
 
 		private void DisposeControls()
@@ -558,6 +577,9 @@ namespace ICD.Connect.Audio.QSys
 			{
 				m_NamedControlsCriticalSection.Leave();
 			}
+
+			// Clear Controls Collection
+			Controls.Clear();
 		}
 
 		#endregion
