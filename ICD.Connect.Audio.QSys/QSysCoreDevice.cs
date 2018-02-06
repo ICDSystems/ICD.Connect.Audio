@@ -575,7 +575,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			finally
 			{
-				m_NamedControlsCriticalSection.Leave();
+				m_NamedComponentsCriticalSection.Leave();
 			}
 
 			// Clear Controls Collection
