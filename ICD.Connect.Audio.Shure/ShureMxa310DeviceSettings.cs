@@ -27,7 +27,7 @@ namespace ICD.Connect.Audio.Shure
 		public static ShureMxa310DeviceSettings FromXml(string xml)
 		{
 			ShureMxa310DeviceSettings output = new ShureMxa310DeviceSettings();
-			ParseXml(output, xml);
+			output.ParseXml(xml);
 			return output;
 		}
 	}
