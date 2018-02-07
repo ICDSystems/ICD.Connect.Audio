@@ -93,7 +93,7 @@ namespace ICD.Connect.Audio.Biamp
 				Config = config
 			};
 
-			ParseXml(output, xml);
+			output.ParseXml(xml);
 			return output;
 		}
 	}

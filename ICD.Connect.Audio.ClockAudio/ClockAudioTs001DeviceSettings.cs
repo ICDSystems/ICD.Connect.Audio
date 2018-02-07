@@ -70,7 +70,7 @@ namespace ICD.Connect.Audio.ClockAudio
 				VoltageInputPort = XmlUtils.TryReadChildElementContentAsInt(xml, VOLTAGE_INPUT_PORT_ELEMENT)
 			};
 
-			ParseXml(output, xml);
+			output.ParseXml(xml);
 			return output;
 		}
 	}
