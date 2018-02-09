@@ -1,5 +1,4 @@
 ﻿using System;
-using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports.DigitalInput;
@@ -9,6 +8,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.ClockAudio
 {
+	[KrangSettings(FACTORY_NAME)]
 	public sealed class ClockAudioTs001DeviceSettings : AbstractDeviceSettings
 	{
 		private const string FACTORY_NAME = "ClockAudioTs001";
@@ -55,23 +55,17 @@ namespace ICD.Connect.Audio.ClockAudio
 		}
 
 		/// <summary>
-		/// Loads the settings from XML.
+		/// Updates the settings from xml.
 		/// </summary>
 		/// <param name="xml"></param>
-		/// <returns></returns>
-		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
-		public static ClockAudioTs001DeviceSettings FromXml(string xml)
+		public override void ParseXml(string xml)
 		{
-			ClockAudioTs001DeviceSettings output = new ClockAudioTs001DeviceSettings
-			{
-				ButtonInputPort = XmlUtils.TryReadChildElementContentAsInt(xml, BUTTON_INPUT_PORT_ELEMENT),
-				RedLedOutputPort = XmlUtils.TryReadChildElementContentAsInt(xml, RED_LED_OUTPUT_PORT_ELEMENT),
-				GreenLedOutputPort = XmlUtils.TryReadChildElementContentAsInt(xml, GREEN_LED_OUTPUT_PORT_ELEMENT),
-				VoltageInputPort = XmlUtils.TryReadChildElementContentAsInt(xml, VOLTAGE_INPUT_PORT_ELEMENT)
-			};
+			base.ParseXml(xml);
 
-			output.ParseXml(xml);
-			return output;
+			ButtonInputPort = XmlUtils.TryReadChildElementContentAsInt(xml, BUTTON_INPUT_PORT_ELEMENT);
+			RedLedOutputPort = XmlUtils.TryReadChildElementContentAsInt(xml, RED_LED_OUTPUT_PORT_ELEMENT);
+			GreenLedOutputPort = XmlUtils.TryReadChildElementContentAsInt(xml, GREEN_LED_OUTPUT_PORT_ELEMENT);
+			VoltageInputPort = XmlUtils.TryReadChildElementContentAsInt(xml, VOLTAGE_INPUT_PORT_ELEMENT);
 		}
 	}
 }
