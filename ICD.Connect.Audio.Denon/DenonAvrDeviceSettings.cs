@@ -1,5 +1,4 @@
 ﻿using System;
-using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
@@ -8,6 +7,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Denon
 {
+	[KrangSettings(FACTORY_NAME)]
 	public sealed class DenonAvrDeviceSettings : AbstractDeviceSettings
 	{
 		private const string FACTORY_NAME = "DenonAvr";
@@ -41,23 +41,11 @@ namespace ICD.Connect.Audio.Denon
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
 		}
 
-		/// <summary>
-		/// Loads the settings from XML.
-		/// </summary>
-		/// <param name="xml"></param>
-		/// <returns></returns>
-		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
-		public static DenonAvrDeviceSettings FromXml(string xml)
+		public override void ParseXml(string xml)
 		{
-			int? port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
+			base.ParseXml(xml);
 
-			DenonAvrDeviceSettings output = new DenonAvrDeviceSettings
-			{
-				Port = port
-			};
-
-			ParseXml(output, xml);
-			return output;
+			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
 		}
 	}
 }
