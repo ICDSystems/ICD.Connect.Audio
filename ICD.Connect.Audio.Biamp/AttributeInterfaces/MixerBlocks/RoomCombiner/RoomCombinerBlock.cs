@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.Controls;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
@@ -35,6 +35,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		private readonly SafeCriticalSection m_WallsSection;
 		private readonly SafeCriticalSection m_RoomsSection;
 		private readonly SafeCriticalSection m_SourcesSection;
+
 		private bool m_LastMicHoldEnabled;
 		private int m_OpenMicLimit;
 		private bool m_OpenMicLimitEnabled;

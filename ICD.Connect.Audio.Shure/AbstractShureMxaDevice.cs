@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Extensions;
@@ -66,6 +66,15 @@ namespace ICD.Connect.Audio.Shure
 		{
 			SetLedMuteColor(color);
 			SetLedUnmuteColor(color);
+		}
+
+		/// <summary>
+		/// Enables/disables LED flashing.
+		/// </summary>
+		/// <param name="on"></param>
+		public void SetLedFlash(bool on)
+		{
+			Send(string.Format("< SET FLASH {0} >", on ? "ON" : "OFF"));
 		}
 
 		/// <summary>
@@ -193,6 +202,7 @@ namespace ICD.Connect.Audio.Shure
 			yield return new GenericConsoleCommand<eLedColor>("SetLedColor", "SetLedColor " + colorEnumString, e => SetLedColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedMuteColor", "SetLedMuteColor " + colorEnumString, e => SetLedMuteColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedUnmuteColor", "SetLedUnmuteColor " + colorEnumString, e => SetLedUnmuteColor(e));
+			yield return new GenericConsoleCommand<bool>("SetLedFlash", "SetLedFlash <true/false>", o => SetLedFlash(o));
 		}
 
 		/// <summary>

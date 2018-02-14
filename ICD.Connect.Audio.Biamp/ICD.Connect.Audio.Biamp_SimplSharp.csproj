@@ -212,6 +212,7 @@
     <Compile Include="TesiraTextProtocol\Parsing\Value.cs" />
     <Compile Include="TesiraTextProtocol\Parsing\Response.cs" />
     <Compile Include="TesiraTextProtocol\Codes\ServiceCode.cs" />
+    <Compile Include="TesiraTextProtocol\SubscriptionCallbackInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>

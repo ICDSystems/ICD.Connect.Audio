@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -213,14 +213,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(PeakOccurringFeedback, AttributeCode.eCommand.Unsubscribe, PEAK_OCCURRING_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -235,9 +227,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Get, MUTE_ATTRIBUTE, null, Index);
 			RequestAttribute(PeakOccurringFeedback, AttributeCode.eCommand.Get, PEAK_OCCURRING_ATTRIBUTE, null, Index);
 			RequestAttribute(PhantomPowerOnFeedback, AttributeCode.eCommand.Get, PHANTOM_POWER_ON_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(PeakOccurringFeedback, AttributeCode.eCommand.Subscribe, PEAK_OCCURRING_ATTRIBUTE, null, Index);
+			RequestAttribute(PeakOccurringFeedback, command, PEAK_OCCURRING_ATTRIBUTE, null, Index);
 		}
 
 		/// <summary>

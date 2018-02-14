@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -703,23 +703,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			OnCallStateChanged = null;
 
 			base.Dispose();
-
-			// Unsubscribe
-			RequestAttribute(BusyToneDetectedFeedback, AttributeCode.eCommand.Unsubscribe, BUSY_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Unsubscribe, CALL_STATE_ATTRIBUTE, null);
-			RequestAttribute(DialingFeedback, AttributeCode.eCommand.Unsubscribe, DIALING_ATTRIBUTE, null);
-			RequestAttribute(DialToneDetectedFeedback, AttributeCode.eCommand.Unsubscribe, DIAL_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(LineFaultConditionFeedback, AttributeCode.eCommand.Unsubscribe, LINE_FAULT_CONDITION_ATTRIBUTE, null);
-			RequestAttribute(HookStateFeedback, AttributeCode.eCommand.Unsubscribe, HOOK_STATE_ATTRIBUTE, null);
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Unsubscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null);
-			RequestAttribute(LineFaultFeedback, AttributeCode.eCommand.Unsubscribe, LINE_FAULT_ATTRIBUTE, null);
-			RequestAttribute(LineIntrusionFeedback, AttributeCode.eCommand.Unsubscribe, LINE_INTRUSION_ATTRIBUTE, null);
-			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Unsubscribe, LINE_IN_USE_ATTRIBUTE, null);
-			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Unsubscribe, LINE_READY_ATTRIBUTE, null);
-			RequestAttribute(LineVoltageFeedback, AttributeCode.eCommand.Unsubscribe, LINE_VOLTAGE_ATTRIBUTE, null);
-			RequestAttribute(LoopCurrentFeedback, AttributeCode.eCommand.Unsubscribe, LOOP_CURRENT_ATTRIBUTE, null);
-			RequestAttribute(RingBackToneDetectedFeedback, AttributeCode.eCommand.Unsubscribe, RING_BACK_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(RingingFeedback, AttributeCode.eCommand.Unsubscribe, RINGING_ATTRIBUTE, null);
 		}
 
 		/// <summary>
@@ -753,23 +736,32 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			RequestAttribute(RingingFeedback, AttributeCode.eCommand.Get, RINGING_ATTRIBUTE, null);
 			RequestAttribute(UseRedialFeedback, AttributeCode.eCommand.Get, USE_REDIAL_ATTRIBUTE, null);
 			RequestAttribute(WaitForDialToneFeedback, AttributeCode.eCommand.Get, WAIT_FOR_DIAL_TONE_ATTRIBUTE, null);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(BusyToneDetectedFeedback, AttributeCode.eCommand.Subscribe, BUSY_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(CallStateFeedback, AttributeCode.eCommand.Subscribe, CALL_STATE_ATTRIBUTE, null);
-			RequestAttribute(DialingFeedback, AttributeCode.eCommand.Subscribe, DIALING_ATTRIBUTE, null);
-			RequestAttribute(DialToneDetectedFeedback, AttributeCode.eCommand.Subscribe, DIAL_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(LineFaultConditionFeedback, AttributeCode.eCommand.Subscribe, LINE_FAULT_CONDITION_ATTRIBUTE, null);
-			RequestAttribute(HookStateFeedback, AttributeCode.eCommand.Subscribe, HOOK_STATE_ATTRIBUTE, null);
-			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Subscribe, LAST_NUMBER_DIALED_ATTRIBUTE, null);
-			RequestAttribute(LineFaultFeedback, AttributeCode.eCommand.Subscribe, LINE_FAULT_ATTRIBUTE, null);
-			RequestAttribute(LineIntrusionFeedback, AttributeCode.eCommand.Subscribe, LINE_INTRUSION_ATTRIBUTE, null);
-			RequestAttribute(LineInUseFeedback, AttributeCode.eCommand.Subscribe, LINE_IN_USE_ATTRIBUTE, null);
-			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Subscribe, LINE_READY_ATTRIBUTE, null);
-			RequestAttribute(LineVoltageFeedback, AttributeCode.eCommand.Subscribe, LINE_VOLTAGE_ATTRIBUTE, null);
-			RequestAttribute(LoopCurrentFeedback, AttributeCode.eCommand.Subscribe, LOOP_CURRENT_ATTRIBUTE, null);
-			RequestAttribute(RingBackToneDetectedFeedback, AttributeCode.eCommand.Subscribe, RING_BACK_TONE_DETECTED_ATTRIBUTE, null);
-			RequestAttribute(RingingFeedback, AttributeCode.eCommand.Subscribe, RINGING_ATTRIBUTE, null);
+			RequestAttribute(BusyToneDetectedFeedback, command, BUSY_TONE_DETECTED_ATTRIBUTE, null);
+			RequestAttribute(CallStateFeedback, command, CALL_STATE_ATTRIBUTE, null);
+			RequestAttribute(DialingFeedback, command, DIALING_ATTRIBUTE, null);
+			RequestAttribute(DialToneDetectedFeedback, command, DIAL_TONE_DETECTED_ATTRIBUTE, null);
+			RequestAttribute(LineFaultConditionFeedback, command, LINE_FAULT_CONDITION_ATTRIBUTE, null);
+			RequestAttribute(HookStateFeedback, command, HOOK_STATE_ATTRIBUTE, null);
+			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null);
+			RequestAttribute(LineFaultFeedback, command, LINE_FAULT_ATTRIBUTE, null);
+			RequestAttribute(LineIntrusionFeedback, command, LINE_INTRUSION_ATTRIBUTE, null);
+			RequestAttribute(LineInUseFeedback, command, LINE_IN_USE_ATTRIBUTE, null);
+			RequestAttribute(LineReadyFeedback, command, LINE_READY_ATTRIBUTE, null);
+			RequestAttribute(LineVoltageFeedback, command, LINE_VOLTAGE_ATTRIBUTE, null);
+			RequestAttribute(LoopCurrentFeedback, command, LOOP_CURRENT_ATTRIBUTE, null);
+			RequestAttribute(RingBackToneDetectedFeedback, command, RING_BACK_TONE_DETECTED_ATTRIBUTE, null);
+			RequestAttribute(RingingFeedback, command, RINGING_ATTRIBUTE, null);
 		}
 
 		#endregion
@@ -961,12 +953,32 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 			Value stateValue = callState.GetValue<Value>("state");
 			State = stateValue.GetObjectValue(s_CallStateSerials);
 
-			Value cidValue = callState.GetValue<Value>("cid");
 
-			string[] cidSplit = cidValue.GetStringValues().ToArray();
+			// If call state is idle, then clear caller ID info.  Otherwise try to parse it.
+			if (State == eTiCallState.Idle)
+			{
+				CallerName = null;
+				CallerNumber = null;
+			}
+			else
+			{
 
-			CallerNumber = cidSplit.Length > 2 ? cidSplit[1] : null;
-			CallerName = cidSplit.Length > 3 ? cidSplit[2] : null;
+				Value cidValue = callState.GetValue<Value>("cid");
+				string[] cidSplit = cidValue.GetStringValues().ToArray();
+				// First portion is datetime
+
+				// If length is greater than 0, CID info was parsed, so clear current info (sometimes no info is received)
+				if (cidSplit.Length > 0)
+				{
+					CallerNumber = null;
+					CallerName = null;
+				}
+				// Set Name and Number Independently - sometimes name is not received
+				if (cidSplit.Length > 1)
+					CallerNumber = cidSplit[1].Trim('\\');
+				if (cidSplit.Length > 2)
+					CallerName = cidSplit[2].Trim('\\');
+			}
 		}
 
 		private void DialingFeedback(BiampTesiraDevice sender, ControlValue value)

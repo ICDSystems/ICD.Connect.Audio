@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ICD.Common.Properties;
+using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
@@ -17,7 +18,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		public string InstanceTag { get { return m_InstanceTag; } }
 
 		[NotNull]
-		public object[] Indices { get { return m_Indices.ToArray(); } }
+		public object[] Indices { get { return m_Indices.ToArray(m_Indices.Length); } }
 
 		[CanBeNull]
 		public IValue Value { get { return m_Value; } }
@@ -65,7 +66,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		protected virtual bool CompareEquality(T other)
+		public virtual bool CompareEquality(T other)
 		{
 			if (InstanceTag != other.InstanceTag)
 				return false;

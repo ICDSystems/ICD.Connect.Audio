@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Controls;
@@ -249,16 +249,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			DisposeInputs();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-
-            // Unsubscribe
-            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, OUTPUT_MUTE_ATTRIBUTE, null);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -275,10 +265,19 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.GainSharingAut
 			RequestAttribute(OutputMinLevelFeedback, AttributeCode.eCommand.Get, OUTPUT_MIN_LEVEL_ATTRIBUTE, null);
 			RequestAttribute(OutputMaxLevelFeedback, AttributeCode.eCommand.Get, OUTPUT_MAX_LEVEL_ATTRIBUTE, null);
 			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Get, OUTPUT_MUTE_ATTRIBUTE, null);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_LEVEL_ATTRIBUTE, null);
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Subscribe, OUTPUT_MUTE_ATTRIBUTE, null);
+			RequestAttribute(LevelFeedback, command, OUTPUT_LEVEL_ATTRIBUTE, null);
+			RequestAttribute(MuteFeedback, command, OUTPUT_MUTE_ATTRIBUTE, null);
 		}
 
 		/// <summary>

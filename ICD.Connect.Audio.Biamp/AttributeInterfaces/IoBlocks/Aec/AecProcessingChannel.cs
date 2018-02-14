@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -583,15 +583,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			base.Dispose();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(LevelFeedback, AttributeCode.eCommand.Unsubscribe, LEVEL_ATTRIBUTE, null, Index);
-            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -620,10 +611,19 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 			RequestAttribute(PreEmphasisSlopeFeedback, AttributeCode.eCommand.Get, PRE_EMPHASIS_SLOPE_ATTRIBUTE, null, Index);
 			RequestAttribute(SpeechModeFeedback, AttributeCode.eCommand.Get, SPEECH_MODE_ATTRIBUTE, null, Index);
 			RequestAttribute(TargetLevelFeedback, AttributeCode.eCommand.Get, TARGET_LEVEL_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Subscribe, LEVEL_ATTRIBUTE, null, Index);
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Subscribe, MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(LevelFeedback, command, LEVEL_ATTRIBUTE, null, Index);
+			RequestAttribute(MuteFeedback, command, MUTE_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]

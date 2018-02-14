@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,7 +32,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 					return m_Values[index];
 
 				string message = string.Format("{0} has no item at index {1}", GetType().Name, index);
-				throw new KeyNotFoundException(message);
+				throw new IndexOutOfRangeException(message);
 			}
 		}
 

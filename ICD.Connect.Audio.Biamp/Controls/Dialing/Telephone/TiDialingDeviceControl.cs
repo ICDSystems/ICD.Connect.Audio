@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
@@ -30,6 +30,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private ThinConferenceSource m_ActiveSource;
 		private readonly SafeCriticalSection m_ActiveSourceSection;
+		private string m_LastDialedNumber;
 
 		#region Properties
 
@@ -46,6 +47,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 					return;
 
 				m_Hold = value;
+
+				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
@@ -105,6 +108,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="number"></param>
 		public override void Dial(string number)
 		{
+			m_LastDialedNumber = number;
 			m_TiControl.Dial(number);
 		}
 
@@ -173,9 +177,23 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
 			if (direction == eConferenceSourceDirection.Incoming)
+			{
+				m_LastDialedNumber = null;
 				source.Direction = eConferenceSourceDirection.Incoming;
+			}
 			else if (source.Direction != eConferenceSourceDirection.Incoming)
+			{
+				if (string.IsNullOrEmpty(source.Number) &&
+					string.IsNullOrEmpty(source.Name) &&
+					!string.IsNullOrEmpty(m_LastDialedNumber))
+				{
+					source.Number = m_LastDialedNumber;
+					source.Name = m_LastDialedNumber;
+					m_LastDialedNumber = null;
+				}
+
 				source.Direction = eConferenceSourceDirection.Outgoing;
+			}
 
 			// Don't update the answer state if we can't determine the current answer state
 			eConferenceSourceAnswerState answerState = TiControlStateToAnswerState(m_TiControl.State);
@@ -374,11 +392,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnHoldCallback += HoldCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.OnAnswerCallback -= AnswerCallback;
+			source.OnHoldCallback -= HoldCallback;
+			source.OnResumeCallback -= ResumeCallback;
+			source.OnHangupCallback -= HangupCallback;
+			source.OnSendDtmfCallback -= SendDtmfCallback;
 		}
 
 		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)

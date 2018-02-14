@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -117,7 +117,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 
 				Log(eSeverity.Informational, "Level set to {0}", m_Level);
 
-				OnMinLevelChanged.Raise(this, new FloatEventArgs(m_Level));
+				OnLevelChanged.Raise(this, new FloatEventArgs(m_Level));
 			}
 		}
 

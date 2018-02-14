@@ -93,7 +93,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// </summary>
 		/// <param name="other"></param>
 		/// <returns></returns>
-		protected override bool CompareEquality(ServiceCode other)
+		public override bool CompareEquality(ServiceCode other)
 		{
 			return Service == other.Service && base.CompareEquality(other);
 		}

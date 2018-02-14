@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
-using ICD.Common.Services.Logging;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
@@ -91,14 +91,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			base.Dispose();
 		}
 
-        public override void Deinitialize()
-        {
-            base.Deinitialize();
-
-            // Unsubscribe
-            RequestAttribute(MuteFeedback, AttributeCode.eCommand.Unsubscribe, MUTE_ATTRIBUTE, null, Index);
-        }
-
 		/// <summary>
 		/// Override to request initial values from the device, and subscribe for feedback.
 		/// </summary>
@@ -109,9 +101,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 			// Get initial values
 			RequestAttribute(LabelFeedback, AttributeCode.eCommand.Get, LABEL_ATTRIBUTE, null, Index);
 			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Get, MUTE_ATTRIBUTE, null, Index);
+		}
+
+		/// <summary>
+		/// Subscribe/unsubscribe to the system using the given command type.
+		/// </summary>
+		/// <param name="command"></param>
+		protected override void Subscribe(AttributeCode.eCommand command)
+		{
+			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(MuteFeedback, AttributeCode.eCommand.Subscribe, MUTE_ATTRIBUTE, null, Index);
+			RequestAttribute(MuteFeedback, command, MUTE_ATTRIBUTE, null, Index);
 		}
 
 		[PublicAPI]
@@ -194,6 +195,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.ControlBlocks
 		event EventHandler<BoolEventArgs> IStateAttributeInterface.OnStateChanged
 		{
 			add { OnMuteChanged += value; }
+// ReSharper disable once DelegateSubtraction
 			remove { OnMuteChanged -= value; }
 		}
 
