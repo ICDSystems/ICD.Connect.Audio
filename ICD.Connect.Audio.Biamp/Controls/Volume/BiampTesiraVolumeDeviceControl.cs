@@ -1,13 +1,15 @@
-﻿using ICD.Common.Utils.EventArguments;
+﻿using System;
+using ICD.Common.Utils.EventArguments;
+using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {
-	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl
+	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeRawLevelDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl, IVolumeMuteFeedbackDeviceControl
 	{
-		private readonly IVolumeAttributeInterface m_VolumeInterface;
 		private readonly string m_Name;
+		private readonly IVolumeAttributeInterface m_VolumeInterface;
 
 		#region Properties
 
@@ -16,20 +18,29 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override string Name { get { return m_Name; } }
 
+		protected override float VolumeRawMinAbsolute { get { return BiampTesiraDevice.TESIRA_LEVEL_MINIMUM; } }
+
+		protected override float VolumeRawMaxAbsolute {  get { return BiampTesiraDevice.TESIRA_LEVEL_MAXIMUM; } }
+
 		/// <summary>
 		/// The min volume.
 		/// </summary>
-		public override float RawVolumeMin { get { return m_VolumeInterface.MinLevel; } }
+		public override float? VolumeRawMin { get { return m_VolumeInterface.MinLevel; } }
 
 		/// <summary>
 		/// The max volume.
 		/// </summary>
-		public override float RawVolumeMax { get { return m_VolumeInterface.MaxLevel; } }
-		
-		/// <summary>
-		/// The volume the control is set to when the device comes online.
-		/// </summary>
-		public override float? RawVolumeDefault { get; set; }
+		public override float? VolumeRawMax { get { return m_VolumeInterface.MaxLevel; } }
+
+		public override float VolumeRaw { get { return m_VolumeInterface.Level; } }
+
+		public bool VolumeIsMuted {  get { return m_VolumeInterface.Mute; } }
+
+		#endregion
+
+		#region Events
+
+		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
 
 		#endregion
 
@@ -65,7 +76,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
-		public override void SetRawVolume(float volume)
+		public override void SetVolumeRaw(float volume)
 		{
 			m_VolumeInterface.SetLevel(volume);
 		}
@@ -74,15 +85,20 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// Sets the mute state.
 		/// </summary>
 		/// <param name="mute"></param>
-		public override void SetMute(bool mute)
+		public void SetVolumeMute(bool mute)
 		{
 			m_VolumeInterface.SetMute(mute);
+		}
+
+		public void VolumeMuteToggle()
+		{
+			SetVolumeMute(!VolumeIsMuted);
 		}
 
 		/// <summary>
 		/// Increments the raw volume once.
 		/// </summary>
-		public override void RawVolumeIncrement()
+		public override void VolumeLevelIncrement()
 		{
 			m_VolumeInterface.IncrementLevel();
 		}
@@ -90,7 +106,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// <summary>
 		/// Decrements the raw volume once.
 		/// </summary>
-		public override void RawVolumeDecrement()
+		public override void VolumeLevelDecrement()
 		{
 			m_VolumeInterface.DecrementLevel();
 		}
@@ -113,12 +129,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		private void VolumeInterfaceOnMuteChanged(object sender, BoolEventArgs args)
 		{
-			IsMuted = args.Data;
+			OnMuteStateChanged.Raise(this, args);
 		}
 
 		private void VolumeInterfaceOnLevelChanged(object sender, FloatEventArgs args)
 		{
-			RawVolume = args.Data;
+			VolumeFeedback(args.Data);
 		}
 
 		#endregion
