@@ -1,5 +1,4 @@
 using System;
-using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
@@ -8,6 +7,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.QSys
 {
+	[KrangSettings(FACTORY_NAME)]
 	public sealed class QSysCoreDeviceSettings : AbstractDeviceSettings
 	{
 		private const string FACTORY_NAME = "QSysCore";
@@ -90,27 +90,17 @@ namespace ICD.Connect.Audio.QSys
 		}
 
 		/// <summary>
-		/// Loads the settings from XML.
+		/// Updates the settings from xml.
 		/// </summary>
 		/// <param name="xml"></param>
-		/// <returns></returns>
-		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
-		public static QSysCoreDeviceSettings FromXml(string xml)
+		public override void ParseXml(string xml)
 		{
-			int? port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
-			string username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
-			string password = XmlUtils.TryReadChildElementContentAsString(xml, PASSWORD_ELEMENT);
-			string config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
+			base.ParseXml(xml);
 
-			QSysCoreDeviceSettings output = new QSysCoreDeviceSettings
-			{
-				Port = port,
-				Username = username,
-				Password = password
-			};
-
-			ParseXml(output, xml);
-			return output;
+			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
+			Username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
+			Password = XmlUtils.TryReadChildElementContentAsString(xml, PASSWORD_ELEMENT);
+			Config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 		}
 	}
 }
