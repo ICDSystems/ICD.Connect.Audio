@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;

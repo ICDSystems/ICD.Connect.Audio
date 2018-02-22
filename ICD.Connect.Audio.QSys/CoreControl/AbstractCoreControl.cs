@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ICD.Connect.API.Commands;
-using ICD.Connect.API.Nodes;
-using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
+﻿using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.CoreControl
 {

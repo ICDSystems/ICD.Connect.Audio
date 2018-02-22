@@ -1,5 +1,4 @@
 ﻿using System;
-using ICD.Common.Properties;
 using ICD.Connect.Devices.Controls;
 using Newtonsoft.Json.Linq;
 
