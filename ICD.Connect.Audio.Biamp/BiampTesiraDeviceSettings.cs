@@ -1,5 +1,4 @@
 ﻿using System;
-using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
@@ -8,6 +7,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Biamp
 {
+	[KrangSettings(FACTORY_NAME)]
 	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings
 	{
 		private const string FACTORY_NAME = "BiampTesira";
@@ -75,26 +75,20 @@ namespace ICD.Connect.Audio.Biamp
 		}
 
 		/// <summary>
-		/// Loads the settings from XML.
+		/// Updates the settings from xml.
 		/// </summary>
 		/// <param name="xml"></param>
-		/// <returns></returns>
-		[PublicAPI, XmlFactoryMethod(FACTORY_NAME)]
-		public static BiampTesiraDeviceSettings FromXml(string xml)
+		public override void ParseXml(string xml)
 		{
+			base.ParseXml(xml);
+
 			int? port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
 			string username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
 			string config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 
-			BiampTesiraDeviceSettings output = new BiampTesiraDeviceSettings
-			{
-				Port = port,
-				Username = username,
-				Config = config
-			};
-
-			ParseXml(output, xml);
-			return output;
+			Port = port;
+			Username = username;
+			Config = config;
 		}
 	}
 }
