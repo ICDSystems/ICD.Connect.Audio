@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using ICD.Connect.Audio.QSys.CoreControl.ChangeGroup;
 using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
 using Newtonsoft.Json;

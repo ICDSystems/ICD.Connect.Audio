@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+﻿namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
 {
     /// <summary>
     /// Represents a generic named control

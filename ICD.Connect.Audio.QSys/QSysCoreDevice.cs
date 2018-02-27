@@ -7,7 +7,6 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
-using ICD.Common.Utils.Json;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Common.Utils.Xml;
@@ -575,7 +574,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			finally
 			{
-				m_NamedControlsCriticalSection.Leave();
+				m_NamedComponentsCriticalSection.Leave();
 			}
 
 			// Clear Controls Collection

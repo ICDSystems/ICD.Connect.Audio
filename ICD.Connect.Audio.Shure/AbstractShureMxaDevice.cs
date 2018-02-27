@@ -69,6 +69,15 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Enables/disables LED flashing.
+		/// </summary>
+		/// <param name="on"></param>
+		public void SetLedFlash(bool on)
+		{
+			Send(string.Format("< SET FLASH {0} >", on ? "ON" : "OFF"));
+		}
+
+		/// <summary>
 		/// Gets the current online status of the device.
 		/// </summary>
 		/// <returns></returns>
@@ -193,6 +202,7 @@ namespace ICD.Connect.Audio.Shure
 			yield return new GenericConsoleCommand<eLedColor>("SetLedColor", "SetLedColor " + colorEnumString, e => SetLedColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedMuteColor", "SetLedMuteColor " + colorEnumString, e => SetLedMuteColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedUnmuteColor", "SetLedUnmuteColor " + colorEnumString, e => SetLedUnmuteColor(e));
+			yield return new GenericConsoleCommand<bool>("SetLedFlash", "SetLedFlash <true/false>", o => SetLedFlash(o));
 		}
 
 		/// <summary>
