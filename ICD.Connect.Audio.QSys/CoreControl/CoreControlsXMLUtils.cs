@@ -139,6 +139,9 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 	    {
 		    int volumeId = XmlUtils.ReadChildElementContentAsInt(xml, "VolumeControlId");
 		    int muteId = XmlUtils.ReadChildElementContentAsInt(xml, "MuteControlId");
+			float? incrementValue = XmlUtils.TryReadChildElementContentAsFloat(xml, "IncrementValue");
+			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
+			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
 		    INamedControl volumeControl = qSysCore.GetNamedControlById(volumeId);
 			if (volumeControl == null)
@@ -147,7 +150,16 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 		    if (muteControl == null)
 			    throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteId));
 
-			return new NamedControlsVolumeDevice(qSysCore, name, id, volumeControl, muteControl);
-		}
+			NamedControlsVolumeDevice device = new NamedControlsVolumeDevice(qSysCore, name, id, volumeControl, muteControl);
+
+			if (incrementValue != null)
+				device.IncrementValue = (float)incrementValue;
+			if (repeatBeforeTime != null)
+				device.RepeatBeforeTime = (int)repeatBeforeTime;
+			if (repeatBetweenTime != null)
+				device.RepeatBetweenTime = (int)repeatBetweenTime;
+
+			return device;
+	    }
     }
 }
