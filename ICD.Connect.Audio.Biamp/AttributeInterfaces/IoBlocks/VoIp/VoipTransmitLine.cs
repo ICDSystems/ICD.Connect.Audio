@@ -158,13 +158,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public void IncrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, null, Index);
+			IncrementLevel(DEFAULT_INCREMENT_VALUE);
 		}
 
 		[PublicAPI]
 		public void DecrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, null, Index);
+			DecrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void IncrementLevel(float incrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, new Value(incrementValue), Index);
+		}
+
+		[PublicAPI]
+		public void DecrementLevel(float decrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, new Value(decrementValue), Index);
 		}
 
 		[PublicAPI]

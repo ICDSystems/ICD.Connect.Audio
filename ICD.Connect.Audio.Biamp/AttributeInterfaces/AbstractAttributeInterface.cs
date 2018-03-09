@@ -19,6 +19,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		private readonly string m_InstanceTag;
 		private readonly BiampTesiraDevice m_Device;
 
+		protected const float DEFAULT_INCREMENT_VALUE = 1;
+
 		#region Properties
 
 		/// <summary>
@@ -160,11 +162,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 					m_Device.SendData(callback, code);
 					break;
 				case AttributeCode.eCommand.Increment:
-					code = AttributeCode.Increment(m_InstanceTag, attribute, indices);
+					code = AttributeCode.Increment(m_InstanceTag, attribute, value, indices);
 					m_Device.SendData(callback, code);
 					break;
 				case AttributeCode.eCommand.Decrement:
-					code = AttributeCode.Decrement(m_InstanceTag, attribute, indices);
+					code = AttributeCode.Decrement(m_InstanceTag, attribute, value, indices);
 					m_Device.SendData(callback, code);
 					break;
 				case AttributeCode.eCommand.Toggle:

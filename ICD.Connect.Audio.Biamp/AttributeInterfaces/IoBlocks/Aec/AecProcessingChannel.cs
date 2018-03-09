@@ -738,13 +738,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.Aec
 		[PublicAPI]
 		public void IncrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, null, Index);
+			IncrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void IncrementLevel(float incrementLevel)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, new Value(incrementLevel), Index);
 		}
 
 		[PublicAPI]
 		public void DecrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, null, Index);
+			DecrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void DecrementLevel(float decrementLevel)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, new Value(decrementLevel), Index);
 		}
 
 		[PublicAPI]

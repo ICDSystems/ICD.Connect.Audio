@@ -393,13 +393,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		[PublicAPI]
 		public void IncrementOutputLevel()
 		{
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Increment, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
+			IncrementOutputLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void IncrementOutputLevel(float incrementValue)
+		{
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Increment, OUTPUT_LEVEL_ATTRIBUTE, new Value(incrementValue), Index);
 		}
 
 		[PublicAPI]
 		public void DecrementOutputLevel()
 		{
-			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Decrement, OUTPUT_LEVEL_ATTRIBUTE, null, Index);
+			DecrementOutputLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void DecrementOutputLevel(float decrementValue)
+		{
+			RequestAttribute(OutputLevelFeedback, AttributeCode.eCommand.Decrement, OUTPUT_LEVEL_ATTRIBUTE, new Value(decrementValue), Index);
 		}
 
 		[PublicAPI]
@@ -669,6 +681,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		void IVolumeAttributeInterface.DecrementLevel()
 		{
 			DecrementOutputLevel();
+		}
+
+		public void IncrementLevel(float incrementValue)
+		{
+			IncrementOutputLevel(incrementValue);
+		}
+
+		public void DecrementLevel(float decrementValue)
+		{
+			DecrementOutputLevel(decrementValue);
 		}
 
 		void IVolumeAttributeInterface.SetMute(bool mute)
