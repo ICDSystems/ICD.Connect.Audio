@@ -289,22 +289,28 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks
 			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Set, LEVEL_ATTRIBUTE, new Value(level), Index);
 		}
 
-		/// <summary>
-		/// Increments the level in 6dB increments to 66dB.
-		/// </summary>
 		[PublicAPI]
 		public void IncrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, null, Index);
+			IncrementLevel(DEFAULT_INCREMENT_VALUE);
 		}
 
-		/// <summary>
-		/// Decrements the level in 6dB increments to 6dB.
-		/// </summary>
+		[PublicAPI]
+		public void IncrementLevel(float incrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LEVEL_ATTRIBUTE, new Value(incrementValue), Index);
+		}
+
 		[PublicAPI]
 		public void DecrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, null, Index);
+			DecrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void DecrementLevel(float decrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LEVEL_ATTRIBUTE, new Value(decrementValue), Index);
 		}
 
 		[PublicAPI]

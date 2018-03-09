@@ -231,13 +231,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.StandardMixer
 		[PublicAPI]
 		public void IncrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LevelAttribute, null, Index);
+			IncrementLevel(DEFAULT_INCREMENT_VALUE);
 		}
 
 		[PublicAPI]
 		public void DecrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LevelAttribute, null, Index);
+			DecrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void IncrementLevel(float incrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, LevelAttribute, new Value(incrementValue), Index);
+		}
+
+		[PublicAPI]
+		public void DecrementLevel(float decrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, LevelAttribute, new Value(decrementValue), Index);
 		}
 
 		[PublicAPI]

@@ -94,11 +94,12 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// </summary>
 		/// <param name="instanceTag"></param>
 		/// <param name="attribute"></param>
+		/// <param name="value"></param>
 		/// <param name="indices"></param>
 		/// <returns></returns>
-		public static AttributeCode Increment(string instanceTag, string attribute, params int[] indices)
+		public static AttributeCode Increment(string instanceTag, string attribute, IValue value, params int[] indices)
 		{
-			return new AttributeCode(instanceTag, eCommand.Increment, attribute, null, indices.Cast<object>().ToArray());
+			return new AttributeCode(instanceTag, eCommand.Increment, attribute, value, indices.Cast<object>().ToArray());
 		}
 
 		/// <summary>
@@ -106,11 +107,12 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// </summary>
 		/// <param name="instanceTag"></param>
 		/// <param name="attribute"></param>
+		/// <param name="value"></param>
 		/// <param name="indices"></param>
 		/// <returns></returns>
-		public static AttributeCode Decrement(string instanceTag, string attribute, params int[] indices)
+		public static AttributeCode Decrement(string instanceTag, string attribute, IValue value, params int[] indices)
 		{
-			return new AttributeCode(instanceTag, eCommand.Decrement, attribute, null, indices.Cast<object>().ToArray());
+			return new AttributeCode(instanceTag, eCommand.Decrement, attribute, value, indices.Cast<object>().ToArray());
 		}
 
 		/// <summary>
