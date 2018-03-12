@@ -67,15 +67,15 @@
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
-    <Compile Include="CoreControl\AbstractCoreControl.cs" />
-    <Compile Include="CoreControl\ChangeGroup\ChangeGroup.cs" />
-    <Compile Include="CoreControl\CoreControlsXMLUtils.cs" />
-    <Compile Include="CoreControl\NamedComponent\INamedComponent.cs" />
-    <Compile Include="CoreControl\NamedControl\AbstractNamedControl.cs" />
-    <Compile Include="CoreControl\NamedControl\BooleanNamedControl.cs" />
-    <Compile Include="CoreControl\NamedControl\ControlValueUpdateEventArgs.cs" />
-    <Compile Include="CoreControl\NamedControl\INamedControl.cs" />
-    <Compile Include="CoreControl\NamedControl\NamedControl.cs" />
+    <Compile Include="CoreControls\AbstractCoreControl.cs" />
+    <Compile Include="CoreControls\ChangeGroups\ChangeGroup.cs" />
+    <Compile Include="CoreControls\CoreControlsXMLUtils.cs" />
+    <Compile Include="CoreControls\NamedComponents\INamedComponent.cs" />
+    <Compile Include="CoreControls\NamedControls\AbstractNamedControl.cs" />
+    <Compile Include="CoreControls\NamedControls\BooleanNamedControl.cs" />
+    <Compile Include="CoreControls\NamedControls\ControlValueUpdateEventArgs.cs" />
+    <Compile Include="CoreControls\NamedControls\INamedControl.cs" />
+    <Compile Include="CoreControls\NamedControls\NamedControl.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QSysCoreDevice.cs" />
