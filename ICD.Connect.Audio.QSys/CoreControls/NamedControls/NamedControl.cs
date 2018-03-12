@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+﻿namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
     /// <summary>
     /// Represents a generic named control

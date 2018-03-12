@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils;
-using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
+using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.ChangeGroup
+namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 {
     public sealed class ChangeGroup : AbstractCoreControl
     {

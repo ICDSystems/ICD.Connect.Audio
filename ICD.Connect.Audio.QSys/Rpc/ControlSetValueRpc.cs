@@ -1,5 +1,5 @@
 ﻿using System;
-using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
+using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc

@@ -2,7 +2,7 @@
 using ICD.Connect.Devices.Controls;
 using Newtonsoft.Json.Linq;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
 	public interface INamedControl : IDeviceControl
 	{

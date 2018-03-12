@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Connect.Audio.QSys.CoreControl.ChangeGroup;
-using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
+using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
+using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc

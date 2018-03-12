@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
     /// <summary>
     /// A boolean named control, adds ValueBool property and ToggleValue()

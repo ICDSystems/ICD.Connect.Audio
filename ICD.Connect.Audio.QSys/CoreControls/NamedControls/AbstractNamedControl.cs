@@ -6,7 +6,7 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Rpc;
 using Newtonsoft.Json.Linq;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
     /// <summary>
     /// Represents a NamedControl

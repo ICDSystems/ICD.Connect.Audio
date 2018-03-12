@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedComponent
+namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 {
     public interface INamedComponent : IDisposable
     {

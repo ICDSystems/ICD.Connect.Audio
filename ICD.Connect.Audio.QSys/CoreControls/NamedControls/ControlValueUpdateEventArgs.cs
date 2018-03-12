@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ICD.Connect.Audio.QSys.CoreControl.NamedControl
+namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
     public sealed class ControlValueUpdateEventArgs : EventArgs
     {

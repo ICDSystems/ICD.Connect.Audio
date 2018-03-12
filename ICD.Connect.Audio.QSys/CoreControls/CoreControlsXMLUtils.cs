@@ -5,11 +5,12 @@ using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Controls;
-using ICD.Connect.Audio.QSys.CoreControl.NamedComponent;
-using ICD.Connect.Audio.QSys.CoreControl.NamedControl;
+using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
+using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
+using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Devices.Controls;
 
-namespace ICD.Connect.Audio.QSys.CoreControl
+namespace ICD.Connect.Audio.QSys.CoreControls
 {
     internal static class CoreControlsXmlUtils
     {
@@ -42,10 +43,10 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 			    switch (controlType.ToLower())
 			    {
 					case "namedcontrol":
-						control = new NamedControl.NamedControl(qSysCore, id, name, controlName);
+						control = new NamedControl(qSysCore, id, name, controlName);
 						break;
 					case "booleannamedcontrol":
-						control = new NamedControl.BooleanNamedControl(qSysCore, id, name, controlName);
+						control = new BooleanNamedControl(qSysCore, id, name, controlName);
 						break;
 					default:
 						Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", controlType);
@@ -65,13 +66,13 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 		    throw new NotImplementedException();
 	    }
 
-	    public static IEnumerable<ChangeGroup.ChangeGroup> GetChangeGroupsFromXml(string xml, QSysCoreDevice qSysCore)
+	    public static IEnumerable<ChangeGroup> GetChangeGroupsFromXml(string xml, QSysCoreDevice qSysCore)
 	    {
 			if (qSysCore == null)
 			    throw new ArgumentNullException("qSysCore");
 
 		    // First build a map of id to control elements
-		    List<ChangeGroup.ChangeGroup> changeGroups = new List<ChangeGroup.ChangeGroup>();
+		    List<ChangeGroup> changeGroups = new List<ChangeGroup>();
 		    foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
 		    {
 			    int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
@@ -84,7 +85,7 @@ namespace ICD.Connect.Audio.QSys.CoreControl
 			    }
 				catch (FormatException e)
 				{ }
-				changeGroups.Add(new ChangeGroup.ChangeGroup(qSysCore, id, name, changeGroupId, pollInterval));
+				changeGroups.Add(new ChangeGroup(qSysCore, id, name, changeGroupId, pollInterval));
 		    }
 
 		    return changeGroups;

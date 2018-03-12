@@ -1,6 +1,6 @@
 ﻿using ICD.Connect.Devices.Controls;
 
-namespace ICD.Connect.Audio.QSys.CoreControl
+namespace ICD.Connect.Audio.QSys.CoreControls
 {
     /// <summary>
     /// Represents a control on the QSys Core, either a NamedControl or a NamedComponent
