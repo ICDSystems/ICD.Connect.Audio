@@ -1,8 +1,7 @@
 ﻿namespace ICD.Connect.Audio.QSys.Rpc
 {
-    public class RpcUtils
+    public static class RpcUtils
     {
-
 	    // RPCID's are used to seperate responses from the QSys based on the command sent
 	    internal const string RPCID_NO_OP = "NoOp";
 	    internal const string RPCID_STATUS_GET = "Status";

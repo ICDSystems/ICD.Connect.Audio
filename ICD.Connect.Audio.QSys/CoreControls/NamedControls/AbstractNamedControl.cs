@@ -45,7 +45,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 
 	    public void TriggerControl()
 	    {
-		    SetPosition((float)1);
+		    SetPosition(1);
 	    }
 
 	    /// <summary>
