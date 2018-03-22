@@ -271,7 +271,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Logger.AddEntry(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Logger.AddEntry(eSeverity.Error, "{0} Failed to load integration config {1} - {2}", this, fullPath, e.Message);
 			}
 		}
 
