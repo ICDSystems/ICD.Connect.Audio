@@ -230,8 +230,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			Subscribe(m_Port);
 
-			if (m_Port != null)
-				Connect();
+			Heartbeat.StartMonitoring();
 
 			UpdateCachedOnlineStatus();
 		}
@@ -766,6 +765,10 @@ namespace ICD.Connect.Audio.Biamp
 
 			Username = settings.Username;
 
+			// Load the config
+			if (!string.IsNullOrEmpty(settings.Config))
+				LoadControls(settings.Config);
+
 			ISerialPort port = null;
 
 			if (settings.Port != null)
@@ -776,12 +779,6 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			SetPort(port);
-
-			// Load the config
-			if (!string.IsNullOrEmpty(settings.Config))
-				LoadControls(settings.Config);
-
-			Heartbeat.StartMonitoring();
 		}
 
 		#endregion
