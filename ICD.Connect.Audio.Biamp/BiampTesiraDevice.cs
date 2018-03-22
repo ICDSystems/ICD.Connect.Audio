@@ -230,7 +230,8 @@ namespace ICD.Connect.Audio.Biamp
 
 			Subscribe(m_Port);
 
-			Heartbeat.StartMonitoring();
+			if (m_Port != null)
+				Heartbeat.StartMonitoring();
 
 			UpdateCachedOnlineStatus();
 		}
