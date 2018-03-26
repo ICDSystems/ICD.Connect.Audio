@@ -1,9 +1,9 @@
-﻿using NUnit.Framework;
+﻿using ICD.Common.Properties;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
-using ICD.Common.Properties;
+using NUnit.Framework;
 
-namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Codes
+namespace ICD.Connect.Audio.Biamp.Tests.TesiraTextProtocol.Codes
 {
 	[TestFixture, UsedImplicitly]
 	public sealed class AttributeCodeTest
