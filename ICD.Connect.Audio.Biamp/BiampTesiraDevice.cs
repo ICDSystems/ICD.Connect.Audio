@@ -19,6 +19,7 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
@@ -540,8 +541,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// Called when the port online status changes.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="boolEventArgs"></param>
-		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs boolEventArgs)
+		/// <param name="args"></param>
+		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
