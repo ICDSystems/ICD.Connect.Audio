@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using ICD.Common.Properties;
+using ICD.Common.Utils;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
@@ -9,121 +12,77 @@ using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Devices.Controls;
+using BindingFlags = System.Reflection.BindingFlags;
 
 namespace ICD.Connect.Audio.QSys.CoreControls
 {
-    internal static class CoreControlsXmlUtils
-    {
-	    private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
+	internal static class CoreControlsXmlUtils
+	{
+		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 
-		public static IEnumerable<AbstractNamedControl> GetNamedControlsFromXml(string xml, QSysCoreDevice qSysCore)
-	    {
+		private static NamedControl GetNamedControlFromXml(QSysCoreDevice qSysCore, int id, string name,
+		                                                   string xml)
+		{
 			if (qSysCore == null)
-			    throw new ArgumentNullException("qSysCore");
+				throw new ArgumentNullException("qSysCore");
 
-		    // First build a map of id to control elements
-		    List<AbstractNamedControl> controls = new List<AbstractNamedControl>();
-		    foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
-		    {
-			    int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
-			    string name = XmlUtils.GetAttributeAsString(controlElement, "name");
-			    string controlName = XmlUtils.GetAttributeAsString(controlElement, "controlName");
-			    string controlType = XmlUtils.GetAttributeAsString(controlElement, "controlType");
-			    int? changeGroup = null;
-			    try
-			    {
-				    changeGroup = XmlUtils.GetAttributeAsInt(controlElement, "changeGroup");
-			    }
-			    catch(FormatException e)
-			    {
-			    }
+			string controlName = XmlUtils.GetAttributeAsString(xml, "controlName");
+			int? changeGroup = null;
+			try
+			{
+				changeGroup = XmlUtils.GetAttributeAsInt(xml, "changeGroup");
+			}
+			catch (FormatException e)
+			{
+			}
 
-			    AbstractNamedControl control = null;
+			NamedControl control = new NamedControl(qSysCore, id, name, controlName);
+			if (changeGroup != null)
+				qSysCore.AddNamedControlToChangeGroupById((int)changeGroup, control);
 
-			    switch (controlType.ToLower())
-			    {
-					case "namedcontrol":
-						control = new NamedControl(qSysCore, id, name, controlName);
-						break;
-					case "booleannamedcontrol":
-						control = new BooleanNamedControl(qSysCore, id, name, controlName);
-						break;
-					default:
-						Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", controlType);
-						continue;
-						break;
-				}
-			    if (changeGroup != null)
-				    qSysCore.AddNamedControlToChangeGroupById((int)changeGroup, control);
-			    controls.Add(control);
-		    }
+			return control;
+		}
 
-		    return controls;
-	    }
-
-	    public static IEnumerable<INamedComponent> GetNamedComponentsFromXml(string namedComponentsXml, QSysCoreDevice qSysCoreDevice)
-	    {
-		    throw new NotImplementedException();
-	    }
-
-	    public static IEnumerable<ChangeGroup> GetChangeGroupsFromXml(string xml, QSysCoreDevice qSysCore)
-	    {
+		private static BooleanNamedControl GetBooleanNamedControlFromXml(QSysCoreDevice qSysCore, int id, string name,
+		                                                                 string xml)
+		{
 			if (qSysCore == null)
-			    throw new ArgumentNullException("qSysCore");
+				throw new ArgumentNullException("qSysCore");
 
-		    // First build a map of id to control elements
-		    List<ChangeGroup> changeGroups = new List<ChangeGroup>();
-		    foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
-		    {
-			    int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
-			    string name = XmlUtils.GetAttributeAsString(controlElement, "name");
-			    string changeGroupId = XmlUtils.GetAttributeAsString(controlElement, "changeGroupId");
-			    float? pollInterval = null;
-			    try
-			    {
-				    pollInterval = float.Parse(XmlUtils.GetAttributeAsString(controlElement, "pollInterval"));
-			    }
-				catch (FormatException e)
-				{ }
-				changeGroups.Add(new ChangeGroup(qSysCore, id, name, changeGroupId, pollInterval));
-		    }
+			string controlName = XmlUtils.GetAttributeAsString(xml, "controlName");
+			int? changeGroup = null;
+			try
+			{
+				changeGroup = XmlUtils.GetAttributeAsInt(xml, "changeGroup");
+			}
+			catch (FormatException e)
+			{
+			}
 
-		    return changeGroups;
-	    }
+			BooleanNamedControl control = new BooleanNamedControl(qSysCore, id, name, controlName);
+			if (changeGroup != null)
+				qSysCore.AddNamedControlToChangeGroupById((int)changeGroup, control);
 
-	    public static IEnumerable<IDeviceControl> GetKrangControlsFromXml([NotNull] string xml, [NotNull] QSysCoreDevice qSysCore)
-	    {
-		    if (xml == null)
-			    throw new ArgumentNullException("xml");
-		    if (qSysCore == null)
-			    throw new ArgumentNullException("qSysControl");
+			return control;
+		}
 
-			List<IDeviceControl> controls = new List<IDeviceControl>();
-		    foreach (string controlElement in XmlUtils.GetChildElementsAsString(xml))
-		    {
-			    int id = XmlUtils.GetAttributeAsInt(controlElement, "id");
-				string name = XmlUtils.GetAttributeAsString(controlElement, "name");
-			    string controlType = XmlUtils.GetAttributeAsString(controlElement, "type");
-				
-				// This is a quick method to get controls working for ConnectPro
-				// todo: replace with proper reflection and device instantiation from XML
-			    switch (controlType)
-			    {
-				    case ("NamedControlsVolumeDevice"):
-				    {
-					    controls.Add(GetNamedControlsVolumeDeviceFromXml(qSysCore, id, name, controlElement));
-						break;
-				    }
-				    default:
-				    {
-					    qSysCore.Log(eSeverity.Error, "Failed to load control. No Control Matching type \"{0}\"", controlType);
-					    continue;
-				    }
-			    }
-				
-		    }
-		    return controls;
-	    }
+		private static ChangeGroup GetChangeGroupControlFromXml(QSysCoreDevice qSysCore, int id, string name, string xml)
+		{
+			if (qSysCore == null)
+				throw new ArgumentNullException("qSysCore");
+
+			string changeGroupId = XmlUtils.GetAttributeAsString(xml, "changeGroupId");
+			float? pollInterval = null;
+			try
+			{
+				pollInterval = float.Parse(XmlUtils.GetAttributeAsString(xml, "pollInterval"));
+			}
+			catch (FormatException e)
+			{
+			}
+
+			return new ChangeGroup(qSysCore, id, name, changeGroupId, pollInterval);
+		}
 
 		/// <summary>
 		/// todo: better error handling
@@ -133,20 +92,21 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 		/// <param name="name"></param>
 		/// <param name="xml"></param>
 		/// <returns></returns>
-	    private static IDeviceControl GetNamedControlsVolumeDeviceFromXml(QSysCoreDevice qSysCore, int id, string name, string xml)
-	    {
-		    int volumeId = XmlUtils.ReadChildElementContentAsInt(xml, "VolumeControlId");
-		    int muteId = XmlUtils.ReadChildElementContentAsInt(xml, "MuteControlId");
+		private static IDeviceControl GetNamedControlsVolumeDeviceControlFromXml(
+			QSysCoreDevice qSysCore, int id, string name, string xml)
+		{
+			int volumeId = XmlUtils.ReadChildElementContentAsInt(xml, "VolumeControlId");
+			int muteId = XmlUtils.ReadChildElementContentAsInt(xml, "MuteControlId");
 			float? incrementValue = XmlUtils.TryReadChildElementContentAsFloat(xml, "IncrementValue");
 			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
 			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
-		    INamedControl volumeControl = qSysCore.GetNamedControlById(volumeId);
+			INamedControl volumeControl = qSysCore.GetNamedControlById(volumeId);
 			if (volumeControl == null)
 				throw new KeyNotFoundException(String.Format("QSys - No Volume Control {0}", volumeId));
-		    BooleanNamedControl muteControl = qSysCore.GetNamedControlById(muteId) as BooleanNamedControl;
-		    if (muteControl == null)
-			    throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteId));
+			BooleanNamedControl muteControl = qSysCore.GetNamedControlById(muteId) as BooleanNamedControl;
+			if (muteControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteId));
 
 			NamedControlsVolumeDevice device = new NamedControlsVolumeDevice(qSysCore, name, id, volumeControl, muteControl);
 
@@ -158,6 +118,144 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 				device.RepeatBetweenTime = (int)repeatBetweenTime;
 
 			return device;
-	    }
-    }
+		}
+
+		public static IEnumerable<IDeviceControl> GetControlsFromXml(string xml, QSysCoreDevice qSysCore)
+		{
+			if (xml == null)
+				throw new ArgumentNullException("xml");
+			if (qSysCore == null)
+				throw new ArgumentNullException("qSysCore");
+
+			CoreControlsLoadContext loadContext = new CoreControlsLoadContext(qSysCore);
+
+			List<IDeviceControl> controls = new List<IDeviceControl>();
+
+			// Load Id's and Types To continue in proper order
+			foreach (string controlXml in XmlUtils.GetChildElementsAsString(xml))
+			{
+				int id = XmlUtils.GetAttributeAsInt(controlXml, "id");
+
+				string controlTypeString = XmlUtils.GetAttributeAsString(controlXml, "type");
+
+				Type controlType = GetTypeForText(controlTypeString);
+
+				if (controlType != null)
+					loadContext.AddControl(id, controlType, controlXml);
+				else
+					loadContext.QSysCore.Log(eSeverity.Error, "No control type matching type {0} for control id {1}", controlTypeString, id);
+			}
+
+			// Setup Default Change Group
+			int defaultChangeGroup;
+			try
+			{
+				defaultChangeGroup = XmlUtils.GetAttributeAsInt(xml, "DefaultChangeGroup");
+			}
+			catch (IcdXmlException)
+			{
+				defaultChangeGroup = 0;
+			}
+			if (defaultChangeGroup != 0)
+			{
+				if (loadContext.GetTypeForId(defaultChangeGroup) == typeof(ChangeGroup))
+					loadContext.AddDefaultChangeGroup(defaultChangeGroup);
+				else
+					loadContext.QSysCore.Log(eSeverity.Error,
+					                         "Tried to add DefaultChangeGroup {0}, but there is no change group with that ID.",
+					                         defaultChangeGroup);
+			}
+
+			// Is Auto Change Group Disabled?
+			bool autoChangeGroup;
+			try
+			{
+				autoChangeGroup = !XmlUtils.GetAttributeAsBool(xml, "DisableAutoChangeGroup");
+			}
+			catch (IcdXmlException)
+			{
+				autoChangeGroup = true;
+			}
+			// Setup Auto Change Group
+			if (autoChangeGroup)
+			{
+				int autoChangeGroupId = loadContext.GetNextId();
+				loadContext.AddControl(autoChangeGroupId, typeof(ChangeGroup), null);
+				loadContext.AddDefaultChangeGroup(autoChangeGroupId);
+			}
+
+			// Setup Named Controls
+			foreach (KeyValuePair<int, Type> kvp in loadContext.ControlsTypes.Where((p) => typeof(INamedControl).IsAssignableFrom(p.Value)))
+			{
+				INamedControl control;
+				string controlXml = loadContext.GetXmlForId(kvp.Key);
+				
+				if (controlXml != null)
+					control = ReflectionUtils.CreateInstance(kvp.Value, loadContext, controlXml) as INamedControl;
+				else
+					//todo: Create named control from control without XML?
+					control = null;
+
+				if (control == null)
+					continue;
+
+				loadContext.LinkNamedControl(control.ControlName, kvp.Key);
+				controls.Add(control);
+			}
+
+			// Setup Named Components
+			foreach (KeyValuePair<int, Type> kvp in loadContext.ControlsTypes.Where((p) => typeof(INamedComponent).IsAssignableFrom(p.Value)))
+			{
+				INamedComponent component;
+				string componentXml = loadContext.GetXmlForId(kvp.Key);
+
+				if (componentXml != null)
+					component = ReflectionUtils.CreateInstance(kvp.Value, loadContext, componentXml) as INamedComponent;
+				else
+					//todo: Create named control from control without XML?
+					component = null;
+
+				if (component == null)
+					continue;
+
+				loadContext.LinkNamedComponent(component.ComponentName, kvp.Key);
+				controls.Add(component);
+			}
+
+
+			return controls;
+		}
+
+		private static Type GetTypeForText(string typeText)
+		{
+			switch (typeText)
+			{
+				case "NamedControlsVolumeDeviceControl":
+				{
+					return typeof(NamedControlsVolumeDevice);
+				}
+				case "ChangeGroup":
+				{
+					return typeof(ChangeGroup);
+				}
+				case "NamedControl":
+				{
+					return typeof(NamedControl);
+				}
+				case "BooleanNamedContol":
+				{
+					return typeof(BooleanNamedControl);
+				}
+				default:
+				{
+					Logger.AddEntry(eSeverity.Error, "QSys Failed to load control. No Control Matching type \"{0}\"", typeText);
+					break;
+				}
+			}
+
+			return null;
+		}
+
+	}
+
 }

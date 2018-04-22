@@ -294,6 +294,8 @@ namespace ICD.Connect.Audio.QSys
 			{
 				m_ChangeGroupsCriticalSection.Leave();
 			}
+			// Add item to Controls collection
+			Controls.Add(changeGroup);
 		}
 
 		public ChangeGroup GetChangeGroupById(int id)
@@ -345,6 +347,8 @@ namespace ICD.Connect.Audio.QSys
 	        {
 	            m_NamedControlsCriticalSection.Leave();
 	        }
+			// Add item to Controls collection
+			Controls.Add(namedControl);
 	    }
 
 		public void AddNamedComponent(INamedComponent namedComponent)
@@ -358,6 +362,8 @@ namespace ICD.Connect.Audio.QSys
 			{
 				m_NamedComponentsCriticalSection.Leave();
 			}
+			// Add item to Controls collection
+			Controls.Add(namedComponent);
 		}
 
 		public void LoadControls(string path)
@@ -498,36 +504,21 @@ namespace ICD.Connect.Audio.QSys
 		{
 			DisposeControls();
 
-			//Parse Change Groups
-			string changeGroupXml;
-			if (XmlUtils.TryGetChildElementAsString(xml, "ChangeGroups", out changeGroupXml))
+			string controlsXml;
+			if (XmlUtils.TryGetChildElementAsString(xml, "QSysControls", out controlsXml))
 			{
-				foreach (ChangeGroup changeGroup in CoreControlsXmlUtils.GetChangeGroupsFromXml(changeGroupXml, this))
-					AddChangeGroup(changeGroup);
+				foreach (IDeviceControl control in CoreControlsXmlUtils.GetControlsFromXml(controlsXml, this))
+				{
+					AddControl(control);
+				}
 			}
-
-			//Parse Named Controls
-			string namedControlsXml;
-			if (XmlUtils.TryGetChildElementAsString(xml, "NamedControls", out namedControlsXml))
-				foreach (AbstractNamedControl control in CoreControlsXmlUtils.GetNamedControlsFromXml(namedControlsXml, this))
-					AddNamedControl(control);
-
-			//Parse Named Components
-			string namedComponentsXml;
-			if (XmlUtils.TryGetChildElementAsString(xml, "NamedComponents", out namedComponentsXml))
-				foreach (INamedComponent component in CoreControlsXmlUtils.GetNamedComponentsFromXml(namedComponentsXml, this))
-					AddNamedComponent(component);
-
-			string krangControlsXml;
-			if (XmlUtils.TryGetChildElementAsString(xml, "KrangControls", out krangControlsXml))
-				foreach (IDeviceControl control in CoreControlsXmlUtils.GetKrangControlsFromXml(krangControlsXml, this))
-					AddKrangControl(control);
-
 		}
 
-		private void AddKrangControl(IDeviceControl control)
+		private void AddControl(IDeviceControl control)
 		{
 			Controls.Add(control);
+			// todo: Add Control to Appropriate Collection
+
 		}
 
 		private void DisposeControls()
@@ -897,8 +888,6 @@ namespace ICD.Connect.Audio.QSys
 		{
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
-
-			yield return ConsoleNodeGroup.KeyNodeMap("NamedControls", GetNamedControls(), c => (uint)c.Id);
 		}
 
 		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
