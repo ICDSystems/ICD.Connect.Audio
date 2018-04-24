@@ -143,10 +143,10 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 		    INamedControl volumeControl = qSysCore.GetNamedControlById(volumeId);
 			if (volumeControl == null)
-				throw new KeyNotFoundException(String.Format("QSys - No Volume Control {0}", volumeId));
+				throw new KeyNotFoundException(string.Format("QSys - No Volume Control {0}", volumeId));
 		    BooleanNamedControl muteControl = qSysCore.GetNamedControlById(muteId) as BooleanNamedControl;
 		    if (muteControl == null)
-			    throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteId));
+			    throw new KeyNotFoundException(string.Format("QSys - No Mute Control {0}", muteId));
 
 			NamedControlsVolumeDevice device = new NamedControlsVolumeDevice(qSysCore, name, id, volumeControl, muteControl);
 

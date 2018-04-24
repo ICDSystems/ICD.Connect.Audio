@@ -698,7 +698,7 @@ namespace ICD.Connect.Audio.QSys
 
             string responseId = (string)json.SelectToken("id");
 
-			if (!String.IsNullOrEmpty(responseId))
+			if (!string.IsNullOrEmpty(responseId))
 			{
 				switch (responseId)
 				{
