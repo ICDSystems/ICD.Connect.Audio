@@ -683,9 +683,18 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="stringEventArgs"></param>
 		private void BufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
-			//JsonUtils.Print(stringEventArgs.Data);
+			JObject json;
 
-		    JObject json = JObject.Parse(stringEventArgs.Data);
+			try
+			{
+				json = JObject.Parse(stringEventArgs.Data);
+			}
+			catch (Exception e)
+			{
+				Logger.AddEntry(eSeverity.Error, "{0} - Failed to parse data - {1}{2}{3}", this, e.GetType().Name,
+				                IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
+				return;
+			}
 
 			string responseMethod = (string)json.SelectToken("method");
 
