@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [3.0.1] - 2018-04-27
+### Changed
+ - Biamp Tesira properly updating caller name/number for POTS
+
 ## [3.0.0] - 2018-04-27
 ### Added
  - Adding 10MB and 100MB enums to Biamp Tesira Link Status
