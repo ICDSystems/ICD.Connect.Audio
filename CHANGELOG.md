@@ -11,4 +11,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
  - Fixing parsing bug when the QSys would send concatenated JSON data.
+ - Removed suffix from assembly names
  
