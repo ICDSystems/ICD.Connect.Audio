@@ -14,14 +14,17 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 {
 	public sealed class DeviceService : AbstractService
 	{
-        public enum eLinkStatus
-        {
-            Link1Gb,
-        }
-
+		public enum eLinkStatus
+		{
+			Link10Mb,
+			Link100Mb,
+			Link1Gb,
+		}
         private static readonly Dictionary<string, eLinkStatus> s_LinkStatus
             = new Dictionary<string, eLinkStatus>(StringComparer.OrdinalIgnoreCase)
 			{
+				{"LINK_10_MB", eLinkStatus.Link10Mb},
+				{"LINK_100_MB", eLinkStatus.Link100Mb},
 				{"LINK_1_GB", eLinkStatus.Link1Gb},
 			};
 
