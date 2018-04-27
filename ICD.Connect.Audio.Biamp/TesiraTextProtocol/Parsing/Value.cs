@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 
@@ -210,7 +209,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <typeparam name="T"></typeparam>
 		/// <param name="objectMap">Maps the TTP string representation to a C# object.</param>
 		/// <returns></returns>
-		[NotNull]
+		[Obsolete("Pass an additional default value")]
 		public T GetObjectValue<T>(IDictionary<string, T> objectMap)
 		{
 			return GetObjectValue(arg =>
@@ -222,6 +221,21 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 				                      }
 				                      return objectMap[m_Value];
 			                      });
+		}
+
+		/// <summary>
+		/// Gets the value as an object.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
+		/// <param name="objectMap">Maps the TTP string representation to a C# object.</param>
+		/// <param name="defaultValue"></param>
+		/// <returns></returns>
+		public T GetObjectValue<T>(IDictionary<string, T> objectMap, T defaultValue)
+		{
+			if (objectMap == null)
+				throw new ArgumentNullException("objectMap");
+
+			return GetObjectValue(arg => objectMap.ContainsKey(m_Value) ? objectMap[m_Value] : defaultValue);
 		}
 
 		/// <summary>
