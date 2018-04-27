@@ -508,8 +508,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			appearance.OnCallerNameChanged -= AppearanceOnCallerNameChanged;
 		}
 
-		
-
 		private void AppearanceOnCallerNumberChanged(object sender, StringEventArgs args)
 		{
 			VoIpControlStatusCallAppearance callAppearance = sender as VoIpControlStatusCallAppearance;
