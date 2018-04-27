@@ -5,6 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Adding 10MB and 100MB enums to Biamp Tesira Link Status
+ - Adding Biamp Tesira method for parsing unknown values to a default C# object
 
 ### Changed
  - Fixing parsing bug when the QSys would send concatenated JSON data.
