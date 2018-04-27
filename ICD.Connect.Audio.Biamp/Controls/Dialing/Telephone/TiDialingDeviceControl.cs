@@ -298,6 +298,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			try
 			{
+				if (m_ActiveSource != null)
+					UpdateSource(m_ActiveSource);
+
 				switch (status)
 				{
 					case eConferenceSourceStatus.Dialing:
@@ -363,6 +366,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				if (m_ActiveSource == null)
 					return;
+
+				UpdateSource(m_ActiveSource);
 
 				Unsubscribe(m_ActiveSource);
 				m_ActiveSource = null;
