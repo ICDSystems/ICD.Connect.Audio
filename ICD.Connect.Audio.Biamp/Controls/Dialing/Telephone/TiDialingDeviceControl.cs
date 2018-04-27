@@ -480,6 +480,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			attributeInterface.OnAutoAnswerChanged += AttributeInterfaceOnAutoAnswerChanged;
 			attributeInterface.OnCallStateChanged += AttributeInterfaceOnCallStateChanged;
+			attributeInterface.OnCallerNameChanged += AttributeInterfaceOnCallerNameChanged;
+			attributeInterface.OnCallerNumberChanged += AttributeInterfaceOnCallerNumberChanged;
 		}
 
 		/// <summary>
@@ -490,6 +492,20 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			attributeInterface.OnAutoAnswerChanged -= AttributeInterfaceOnAutoAnswerChanged;
 			attributeInterface.OnCallStateChanged -= AttributeInterfaceOnCallStateChanged;
+			attributeInterface.OnCallerNameChanged -= AttributeInterfaceOnCallerNameChanged;
+			attributeInterface.OnCallerNumberChanged -= AttributeInterfaceOnCallerNumberChanged;
+		}
+
+		private void AttributeInterfaceOnCallerNumberChanged(object sender, StringEventArgs stringEventArgs)
+		{
+			if (m_ActiveSource != null)
+				UpdateSource(m_ActiveSource);
+		}
+
+		private void AttributeInterfaceOnCallerNameChanged(object sender, StringEventArgs stringEventArgs)
+		{
+			if (m_ActiveSource != null)
+				UpdateSource(m_ActiveSource);
 		}
 
 		private void AttributeInterfaceOnAutoAnswerChanged(object sender, BoolEventArgs args)
