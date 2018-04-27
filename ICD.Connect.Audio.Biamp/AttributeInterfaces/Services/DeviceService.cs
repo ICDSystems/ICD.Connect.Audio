@@ -16,6 +16,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 	{
 		public enum eLinkStatus
 		{
+			Unknown,
 			Link10Mb,
 			Link100Mb,
 			Link1Gb,
@@ -530,7 +531,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 
 		    ControlValue networkInterfaceStatus = networkInterface.GetValue<ControlValue>("networkInterfaceStatus");
 
-            LinkStatus = networkInterfaceStatus.GetValue<Value>("linkStatus").GetObjectValue(s_LinkStatus);
+            LinkStatus = networkInterfaceStatus.GetValue<Value>("linkStatus").GetObjectValue(s_LinkStatus, eLinkStatus.Unknown);
 		    MacAddress = networkInterfaceStatus.GetValue<Value>("macAddress").StringValue;
 		    IpAddress = networkInterfaceStatus.GetValue<Value>("ip").StringValue;
 		    SubnetMask = networkInterfaceStatus.GetValue<Value>("netmask").StringValue;
