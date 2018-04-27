@@ -48,7 +48,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				m_Hold = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", m_Hold);
+				Logger.AddEntry(eSeverity.Informational, "POTS hold state set to {0}", m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
