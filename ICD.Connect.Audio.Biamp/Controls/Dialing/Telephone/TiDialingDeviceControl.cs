@@ -449,7 +449,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private void HangupCallback(object sender, EventArgs eventArgs)
 		{
+			// Ends the active call.
 			m_TiControl.End();
+
+			// Rejects the incoming call.
+			SetHold(true);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
+			SetHold(false);
 		}
 
 		private void ResumeCallback(object sender, EventArgs eventArgs)
