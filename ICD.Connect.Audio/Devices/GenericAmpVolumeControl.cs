@@ -51,7 +51,14 @@ namespace ICD.Connect.Audio.Devices
 				if (value == m_ActiveDevice)
 					return;
 
+				// Mute the old active device
+				SetVolumeMute(true);
+
 				m_ActiveDevice = value;
+
+				// Unmute the next active device
+				// TODO - Track the selected mute state to maintain between switching
+				SetVolumeMute(false);
 
 				OnActiveDeviceChanged.Raise(this, new GenericEventArgs<IDeviceBase>(m_ActiveDevice));
 			} 
