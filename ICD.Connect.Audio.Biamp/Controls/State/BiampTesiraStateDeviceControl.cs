@@ -59,7 +59,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 
 		private void StateChannelOnStateChanged(object sender, BoolEventArgs args)
 		{
-			State = args.Data;
+			State = m_StateAttribute.State;
 		}
 
 		#endregion

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
+using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
@@ -37,18 +37,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <summary>
 		/// Gets the hold state.
 		/// </summary>
-		[PublicAPI]
 		public bool IsOnHold
 		{
 			get { return m_Hold; }
-			protected set
+			private set
 			{
 				if (value == m_Hold)
 					return;
 
 				m_Hold = value;
 
-				Logger.AddEntry(eSeverity.Informational, "POTS hold state set to {0}", m_Hold);
+				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", this, m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
@@ -167,6 +166,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				return;
 
 			eConferenceSourceStatus status = TiControlStateToSourceStatus(m_TiControl.State);
+			if (IsOnline(status) && IsOnHold)
+				status = eConferenceSourceStatus.OnHold;
 
 			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
 							  ? m_TiControl.CallerNumber
@@ -281,6 +282,36 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
+		/// <summary>
+		/// TODO - This belongs in conferencing utils somewhere.
+		/// </summary>
+		/// <param name="status"></param>
+		/// <returns></returns>
+		private static bool IsOnline(eConferenceSourceStatus status)
+		{
+			switch (status)
+			{
+				case eConferenceSourceStatus.Undefined:
+				case eConferenceSourceStatus.Dialing:
+				case eConferenceSourceStatus.Connecting:
+				case eConferenceSourceStatus.Ringing:
+				case eConferenceSourceStatus.Disconnecting:
+				case eConferenceSourceStatus.Disconnected:
+				case eConferenceSourceStatus.Idle:
+					return false;
+
+				case eConferenceSourceStatus.Connected:
+				case eConferenceSourceStatus.OnHold:
+				case eConferenceSourceStatus.EarlyMedia:
+				case eConferenceSourceStatus.Preserved:
+				case eConferenceSourceStatus.RemotePreserved:
+					return true;
+
+				default:
+					throw new ArgumentOutOfRangeException("status");
+			}
+		}
+
 		#endregion
 
 		#region Sources
@@ -346,6 +377,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				// Setup the source properties
 				UpdateSource(m_ActiveSource);
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
@@ -371,6 +405,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				Unsubscribe(m_ActiveSource);
 				m_ActiveSource = null;
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
@@ -412,7 +449,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private void HangupCallback(object sender, EventArgs eventArgs)
 		{
+			// Ends the active call.
 			m_TiControl.End();
+
+			// Rejects the incoming call.
+			SetHold(true);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
+			SetHold(false);
 		}
 
 		private void ResumeCallback(object sender, EventArgs eventArgs)
@@ -465,7 +509,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="args"></param>
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
-			IsOnHold = args.Data;
+			IsOnHold = m_HoldControl.State;
+
+			UpdateSource(m_ActiveSource);
 		}
 
 		#endregion
@@ -532,6 +578,27 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			addRow("IsOnHold", IsOnHold);
 			addRow("Hold Control", m_Hold);
+		}
+
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+
+			yield return new GenericConsoleCommand<bool>("SetHold", "SetHold <true/false>", h => SetHold(h));
+		}
+
+		/// <summary>
+		/// Workaround for unverifiable code warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
 		}
 
 		#endregion
