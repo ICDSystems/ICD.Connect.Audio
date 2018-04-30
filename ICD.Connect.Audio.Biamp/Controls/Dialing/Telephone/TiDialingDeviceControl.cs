@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Properties;
 using ICD.Common.Services.Logging;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -37,11 +36,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <summary>
 		/// Gets the hold state.
 		/// </summary>
-		[PublicAPI]
 		public bool IsOnHold
 		{
 			get { return m_Hold; }
-			protected set
+			private set
 			{
 				if (value == m_Hold)
 					return;
