@@ -463,7 +463,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="args"></param>
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
-			IsOnHold = args.Data;
+			IsOnHold = m_HoldControl.State;
 		}
 
 		#endregion
