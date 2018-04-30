@@ -166,6 +166,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				return;
 
 			eConferenceSourceStatus status = TiControlStateToSourceStatus(m_TiControl.State);
+			if (IsOnHold)
+				status = eConferenceSourceStatus.OnHold;
 
 			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
 							  ? m_TiControl.CallerNumber
@@ -465,6 +467,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
 			IsOnHold = m_HoldControl.State;
+
+			UpdateSource(m_ActiveSource);
 		}
 
 		#endregion
