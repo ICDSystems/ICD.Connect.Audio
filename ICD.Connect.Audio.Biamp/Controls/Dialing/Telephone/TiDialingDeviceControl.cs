@@ -166,7 +166,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				return;
 
 			eConferenceSourceStatus status = TiControlStateToSourceStatus(m_TiControl.State);
-			if (IsOnHold)
+			if (IsOnline(status) && IsOnHold)
 				status = eConferenceSourceStatus.OnHold;
 
 			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
@@ -279,6 +279,36 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				default:
 					throw new ArgumentOutOfRangeException("state");
+			}
+		}
+
+		/// <summary>
+		/// TODO - This belongs in conferencing utils somewhere.
+		/// </summary>
+		/// <param name="status"></param>
+		/// <returns></returns>
+		private static bool IsOnline(eConferenceSourceStatus status)
+		{
+			switch (status)
+			{
+				case eConferenceSourceStatus.Undefined:
+				case eConferenceSourceStatus.Dialing:
+				case eConferenceSourceStatus.Connecting:
+				case eConferenceSourceStatus.Ringing:
+				case eConferenceSourceStatus.Disconnecting:
+				case eConferenceSourceStatus.Disconnected:
+				case eConferenceSourceStatus.Idle:
+					return false;
+
+				case eConferenceSourceStatus.Connected:
+				case eConferenceSourceStatus.OnHold:
+				case eConferenceSourceStatus.EarlyMedia:
+				case eConferenceSourceStatus.Preserved:
+				case eConferenceSourceStatus.RemotePreserved:
+					return true;
+
+				default:
+					throw new ArgumentOutOfRangeException("status");
 			}
 		}
 
