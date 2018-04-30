@@ -48,6 +48,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 
 		private const string REDIAL_SERVICE = "redial";
 		private const string END_SERVICE = "end";
+		private const string FLASH_SERVICE = "flash";
 		private const string DIAL_SERVICE = "dial";
 		private const string DTMF_SERVICE = "dtmf";
 		private const string ANSWER_SERVICE = "answer";
@@ -778,6 +779,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 		public void End()
 		{
 			RequestService(END_SERVICE, null);
+		}
+
+		[PublicAPI]
+		public void Flash()
+		{
+			RequestService(FLASH_SERVICE, null);
 		}
 
 		[PublicAPI]
