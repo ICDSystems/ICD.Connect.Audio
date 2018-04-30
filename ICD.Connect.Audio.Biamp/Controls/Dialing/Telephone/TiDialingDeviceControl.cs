@@ -377,6 +377,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				// Setup the source properties
 				UpdateSource(m_ActiveSource);
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
@@ -402,6 +405,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				Unsubscribe(m_ActiveSource);
 				m_ActiveSource = null;
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
