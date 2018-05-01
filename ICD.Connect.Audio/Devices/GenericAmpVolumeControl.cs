@@ -2,9 +2,17 @@
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Partitioning.VolumePoints;
+using ICD.Connect.Routing;
+using ICD.Connect.Routing.Connections;
+using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
+using ICD.Connect.Routing.Extensions;
+using ICD.Connect.Routing.RoutingGraphs;
+using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Devices
 {
@@ -12,11 +20,6 @@ namespace ICD.Connect.Audio.Devices
 	                                              IVolumeMuteFeedbackDeviceControl
 	{
 		#region Events
-
-		/// <summary>
-		/// Raised when the active controlled audio device changes.
-		/// </summary>
-		public event EventHandler<GenericEventArgs<IDeviceBase>> OnActiveDeviceChanged;
 
 		/// <summary>
 		/// Raised when the raw volume changes.
@@ -31,82 +34,55 @@ namespace ICD.Connect.Audio.Devices
 		#endregion
 
 		private GenericAmpRouteSwitcherControl m_Switcher;
-		private IDeviceBase m_ActiveDevice;
+
+		private int? m_ActiveDeviceId;
+		private int? m_ActiveControlId;
 
 		#region Properties
 
 		/// <summary>
-		/// Gets the device that is currently being controlled for volume.
-		/// </summary>
-		[PublicAPI]
-		[CanBeNull]
-		public IDeviceBase ActiveDevice 
-		{
-			get
-			{
-				return m_ActiveDevice;
-			}
-			set
-			{
-				if (value == m_ActiveDevice)
-					return;
-
-				// Mute the old active device
-				SetVolumeMute(true);
-
-				m_ActiveDevice = value;
-
-				// Unmute the next active device
-				// TODO - Track the selected mute state to maintain between switching
-				SetVolumeMute(false);
-
-				OnActiveDeviceChanged.Raise(this, new GenericEventArgs<IDeviceBase>(m_ActiveDevice));
-			} 
-		}
-
-		/// <summary>
 		/// Gets the current volume, in the parent device's format
 		/// </summary>
-		public float VolumeRaw { get { return ActiveDeviceHelper<IVolumeLevelDeviceControl, float>(c => c.VolumeRaw); } }
+		public float VolumeRaw { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRaw); } }
 
 		/// <summary>
 		/// Gets the current volume positon, 0 - 1
 		/// </summary>
-		public float VolumePosition { get { return ActiveDeviceHelper<IVolumeLevelDeviceControl, float>(c => c.VolumePosition); } }
+		public float VolumePosition { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumePosition); } }
 
 		/// <summary>
 		/// Gets the current volume, in string representation
 		/// </summary>
-		public string VolumeString { get { return ActiveDeviceHelper<IVolumeLevelDeviceControl, string>(c => c.VolumeString); } }
+		public string VolumeString { get { return ActiveControlAction<IVolumeLevelDeviceControl, string>(c => c.VolumeString); } }
 
 		/// <summary>
 		/// Maximum value for the raw volume level
 		/// This could be the maximum permitted by the device/control, or a safety max
 		/// </summary>
-		public float? VolumeRawMax { get { return ActiveDeviceHelper<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMax); } }
+		public float? VolumeRawMax { get { return ActiveControlAction<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMax); } }
 
 		/// <summary>
 		/// Minimum value for the raw volume level
 		/// This could be the minimum permitted by the device/control, or a safety min
 		/// </summary>
-		public float? VolumeRawMin { get { return ActiveDeviceHelper<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMin); } }
+		public float? VolumeRawMin { get { return ActiveControlAction<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMin); } }
 
 		/// <summary>
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeRawMaxRange { get { return ActiveDeviceHelper<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMaxRange); } }
+		public float VolumeRawMaxRange { get { return ActiveControlAction<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMaxRange); } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeRawMinRange { get { return ActiveDeviceHelper<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMinRange); } }
+		public float VolumeRawMinRange { get { return ActiveControlAction<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMinRange); } }
 
 		/// <summary>
 		/// Gets the muted state.
 		/// </summary>
-		public bool VolumeIsMuted { get { return ActiveDeviceHelper<IVolumeMuteFeedbackDeviceControl, bool>(c => c.VolumeIsMuted); } }
+		public bool VolumeIsMuted { get { return ActiveControlAction<IVolumeMuteFeedbackDeviceControl, bool>(c => c.VolumeIsMuted); } }
 
 		#endregion
 
@@ -127,7 +103,6 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
-			OnActiveDeviceChanged = null;
 			OnVolumeChanged = null;
 			OnMuteStateChanged = null;
 
@@ -144,7 +119,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelIncrement()
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement());
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement());
 		}
 
 		/// <summary>
@@ -153,7 +128,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelDecrement()
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.VolumeLevelDecrement());
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelDecrement());
 		}
 
 		/// <summary>
@@ -162,7 +137,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelRampUp()
 		{
-			ActiveDeviceHelper<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampUp());
+			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampUp());
 		}
 
 		/// <summary>
@@ -171,7 +146,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelRampDown()
 		{
-			ActiveDeviceHelper<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampDown());
+			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampDown());
 		}
 
 		/// <summary>
@@ -179,7 +154,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelRampStop()
 		{
-			ActiveDeviceHelper<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampStop());
+			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampStop());
 		}
 
 		/// <summary>
@@ -188,7 +163,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="volume"></param>
 		public void SetVolumeRaw(float volume)
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.SetVolumeRaw(volume));
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumeRaw(volume));
 		}
 
 		/// <summary>
@@ -197,7 +172,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="position"></param>
 		public void SetVolumePosition(float position)
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.SetVolumePosition(position));
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumePosition(position));
 		}
 
 		/// <summary>
@@ -205,7 +180,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelIncrement(float incrementValue)
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(incrementValue));
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(incrementValue));
 		}
 
 		/// <summary>
@@ -213,7 +188,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeLevelDecrement(float decrementValue)
 		{
-			ActiveDeviceHelper<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(decrementValue));
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(decrementValue));
 		}
 
 		/// <summary>
@@ -221,7 +196,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeMuteToggle()
 		{
-			ActiveDeviceHelper<IVolumeMuteBasicDeviceControl>(c => c.VolumeMuteToggle());
+			ActiveControlAction<IVolumeMuteBasicDeviceControl>(c => c.VolumeMuteToggle());
 		}
 
 		/// <summary>
@@ -230,7 +205,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="mute"></param>
 		public void SetVolumeMute(bool mute)
 		{
-			ActiveDeviceHelper<IVolumeMuteDeviceControl>(c => c.SetVolumeMute(mute));
+			ActiveControlAction<IVolumeMuteDeviceControl>(c => c.SetVolumeMute(mute));
 		}
 
 		#endregion
@@ -244,16 +219,13 @@ namespace ICD.Connect.Audio.Devices
 		/// <typeparam name="TControl"></typeparam>
 		/// <param name="callback"></param>
 		/// <returns></returns>
-		private void ActiveDeviceHelper<TControl>(Action<TControl> callback)
+		private void ActiveControlAction<TControl>(Action<TControl> callback)
 			where TControl : IVolumeDeviceControl
 		{
 			if (callback == null)
 				throw new ArgumentNullException("callback");
 
-			if (m_ActiveDevice == null)
-				return;
-
-			TControl control = m_ActiveDevice.Controls.GetControl<TControl>();
+			TControl control = GetActiveControl<TControl>();
 
 // ReSharper disable once CompareNonConstrainedGenericWithNull
 			if (control != null)
@@ -268,15 +240,52 @@ namespace ICD.Connect.Audio.Devices
 		/// <typeparam name="TResult"></typeparam>
 		/// <param name="callback"></param>
 		/// <returns></returns>
-		private TResult ActiveDeviceHelper<TControl, TResult>(Func<TControl, TResult> callback)
+		private TResult ActiveControlAction<TControl, TResult>(Func<TControl, TResult> callback)
 			where TControl : IVolumeDeviceControl
 		{
 			if (callback == null)
 				throw new ArgumentNullException("callback");
 
 			TResult output = default(TResult);
-			ActiveDeviceHelper<TControl>(c => output = callback(c));
+			ActiveControlAction<TControl>(c => output = callback(c));
 			return output;
+		}
+
+		/// <summary>
+		/// Gets the current active volume control of the given type.
+		/// </summary>
+		/// <typeparam name="TControl"></typeparam>
+		/// <returns></returns>
+		[CanBeNull]
+		private TControl GetActiveControl<TControl>()
+			where TControl : IVolumeDeviceControl
+		{
+			if (!m_ActiveDeviceId.HasValue)
+				return default(TControl);
+
+			IDeviceBase device =
+				ServiceProvider.GetService<ICore>()
+				               .Originators
+				               .GetChild<IDeviceBase>(m_ActiveDeviceId.Value);
+
+			int controlId = m_ActiveControlId ?? 0;
+			return device.Controls.GetControl<TControl>(controlId);
+		}
+
+		private void SetActiveControl(int? device, int? control)
+		{
+			if (device == m_ActiveDeviceId && control == m_ActiveControlId)
+				return;
+
+			// Mute the old active device
+			SetVolumeMute(true);
+
+			m_ActiveDeviceId = device;
+			m_ActiveControlId = control;
+
+			// Unmute the next active device
+			// TODO - Track the selected mute state to maintain between switching
+			SetVolumeMute(false);
 		}
 
 		#endregion
@@ -291,7 +300,7 @@ namespace ICD.Connect.Audio.Devices
 		{
 			m_Switcher = parent.Controls.GetControl<GenericAmpRouteSwitcherControl>();
 			if (m_Switcher == null)
-				throw new InvalidOperationException();
+				throw new InvalidOperationException("Could not find switcher control on parent device.");
 
 			m_Switcher.OnActiveInputsChanged += SwitcherOnActiveInputsChanged;
 		}
@@ -302,6 +311,9 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="parent"></param>
 		private void Unsubscribe(GenericAmpDevice parent)
 		{
+			if (m_Switcher == null)
+				return;
+
 			m_Switcher.OnActiveInputsChanged -= SwitcherOnActiveInputsChanged;
 		}
 
@@ -312,16 +324,82 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="eventArgs"></param>
 		private void SwitcherOnActiveInputsChanged(object sender, ActiveInputStateChangeEventArgs eventArgs)
 		{
-			ActiveDevice = FindAudioDevice();
+			int? deviceId;
+			int? controlId;
+
+			GetRoutedDeviceAndControl(out deviceId, out controlId);
+
+			SetActiveControl(deviceId, controlId);
 		}
 
-		/// <summary>
-		/// Walks the routing graph to find the closest active audio device.
-		/// </summary>
-		/// <returns></returns>
-		private IDeviceBase FindAudioDevice()
+		private void GetRoutedDeviceAndControl(out int? device, out int? control)
 		{
-			throw new NotImplementedException();
+			device = null;
+			control = null;
+
+			// This should never be null
+			IRouteInputSelectControl inputSelectControl = Parent.Controls.GetControl<IRouteInputSelectControl>();
+			if (inputSelectControl == null)
+				return;
+
+			// If the active input is null then there is no active volume control
+			int? activeInput = inputSelectControl.ActiveInput;
+			if (!activeInput.HasValue)
+				return;
+			
+			// Is there a volume point associated with this input?
+			IVolumePoint volumePoint = Parent.GetVolumePointForInput(activeInput.Value);
+			if (volumePoint != null)
+			{
+				device = volumePoint.DeviceId;
+				control = volumePoint.ControlId;
+				return;
+			}
+
+			// Walk the routing graph backwards to find the closest routed volume control
+			IVolumeDeviceControl volumeControl = GetRoutedVolumeDeviceControl(inputSelectControl, activeInput.Value);
+			device = volumeControl == null ? (int?)null : volumeControl.Parent.Id;
+			control = volumeControl == null ? (int?)null : volumeControl.Id;
+		}
+
+		[CanBeNull]
+		private IVolumeDeviceControl GetRoutedVolumeDeviceControl(IRouteDestinationControl destination, int input)
+		{
+			if (destination == null)
+				throw new ArgumentNullException("destination");
+
+			IRoutingGraph graph;
+			if (!ServiceProvider.GetService<ICore>().TryGetRoutingGraph(out graph))
+				return null;
+
+			while (true)
+			{
+				// Get the connection for the destination input
+				Connection inputConnection = graph.Connections.GetInputConnection(destination, input);
+				if (inputConnection == null || !inputConnection.ConnectionType.HasFlag(eConnectionType.Audio))
+					return null;
+
+				IRouteSourceControl sourceControl = graph.GetSourceControl(inputConnection);
+				if (sourceControl == null)
+					return null;
+
+				// Find the volume control on the source.
+				IVolumeDeviceControl volumeControl = sourceControl.Parent.Controls.GetControl<IVolumeDeviceControl>();
+				if (volumeControl != null)
+					return volumeControl;
+
+				// Did we reach a dead end?
+				IRouteMidpointControl sourceAsMidpoint = sourceControl as IRouteMidpointControl;
+				if (sourceAsMidpoint == null)
+					return null;
+
+				ConnectorInfo? sourceConnector = sourceAsMidpoint.GetInput(inputConnection.Source.Address, eConnectionType.Audio);
+				if (!sourceConnector.HasValue)
+					return null;
+
+				destination = sourceAsMidpoint;
+				input = sourceConnector.Value.Address;
+			}
 		}
 
 		#endregion
