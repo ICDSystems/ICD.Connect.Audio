@@ -74,6 +74,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		// Used with settings
 		private string m_Config;
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 
 		#region Properties
 
@@ -136,6 +137,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
+			m_LoadedControls = new IcdHashSet<IDeviceControl>();
+
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
@@ -282,10 +285,17 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="xml"></param>
 		private void ParseXml(string xml)
 		{
-			Controls.Clear();
+			// Remove the previously loaded controls
+			foreach (IDeviceControl control in m_LoadedControls)
+				Controls.Remove(control.Id);
+			m_LoadedControls.Clear();
 
+			// Load and add the new controls
 			foreach (IDeviceControl control in ControlsXmlUtils.GetControlsFromXml(xml, m_AttributeInterfaces))
+			{
 				Controls.Add(control);
+				m_LoadedControls.Add(control);
+			}
 		}
 
 		#endregion
