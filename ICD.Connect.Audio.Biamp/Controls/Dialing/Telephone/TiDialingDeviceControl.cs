@@ -22,6 +22,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		public event EventHandler<BoolEventArgs> OnHoldChanged;
 
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
+
 
 		private readonly TiControlStatusBlock m_TiControl;
 		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
@@ -365,6 +367,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 					return;
 
 				Unsubscribe(m_ActiveSource);
+
+				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
+
 				m_ActiveSource = null;
 			}
 			finally
