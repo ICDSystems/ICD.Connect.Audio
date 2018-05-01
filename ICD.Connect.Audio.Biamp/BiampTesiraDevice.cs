@@ -285,10 +285,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="xml"></param>
 		private void ParseXml(string xml)
 		{
-			// Remove the previously loaded controls
-			foreach (IDeviceControl control in m_LoadedControls)
-				Controls.Remove(control.Id);
-			m_LoadedControls.Clear();
+			DisposeLoadedControls();
 
 			// Load and add the new controls
 			foreach (IDeviceControl control in ControlsXmlUtils.GetControlsFromXml(xml, m_AttributeInterfaces))
@@ -471,6 +468,17 @@ namespace ICD.Connect.Audio.Biamp
 		private void Initialize()
 		{
 			Initialized = true;
+		}
+
+		private void DisposeLoadedControls()
+		{
+			// Remove the previously loaded controls
+			foreach (IDeviceControl control in m_LoadedControls)
+			{
+				Controls.Remove(control.Id);
+				control.Dispose();
+			}
+			m_LoadedControls.Clear();
 		}
 
 		/// <summary>
@@ -749,6 +757,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.ClearSettingsFinal();
 
 			m_Config = null;
+			DisposeLoadedControls();
 			Username = null;
 			SetPort(null);
 		}
