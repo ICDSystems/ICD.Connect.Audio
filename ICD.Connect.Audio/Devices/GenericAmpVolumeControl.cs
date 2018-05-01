@@ -312,8 +312,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="eventArgs"></param>
 		private void SwitcherOnActiveInputsChanged(object sender, ActiveInputStateChangeEventArgs eventArgs)
 		{
-			IDeviceBase activeDevice = FindAudioDevice();
-			SetActiveDevice(activeDevice);
+			ActiveDevice = FindAudioDevice();
 		}
 
 		/// <summary>
@@ -323,14 +322,6 @@ namespace ICD.Connect.Audio.Devices
 		private IDeviceBase FindAudioDevice()
 		{
 			throw new NotImplementedException();
-		}
-
-		private void SetActiveDevice(IDeviceBase activeDevice)
-		{
-			if (activeDevice == ActiveDevice)
-				return;
-
-
 		}
 
 		#endregion
