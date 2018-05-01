@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
@@ -83,6 +84,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private string m_ConfigPath;
 
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls; 
+
 		#region Properties
 
 		public Heartbeat Heartbeat { get; private set; }
@@ -147,6 +150,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
+			m_LoadedControls = new IcdHashSet<IDeviceControl>();
+
 			Heartbeat = new Heartbeat(this);
 			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
@@ -531,6 +536,7 @@ namespace ICD.Connect.Audio.QSys
 
 		private void AddKrangControl(IDeviceControl control)
 		{
+			m_LoadedControls.Add(control);
 			Controls.Add(control);
 		}
 
@@ -567,7 +573,6 @@ namespace ICD.Connect.Audio.QSys
 				m_NamedControlsCriticalSection.Leave();
 			}
 
-
 			// Clear Named Components
 			m_NamedComponentsCriticalSection.Enter();
 			try
@@ -582,7 +587,13 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			// Clear Controls Collection
-			Controls.Clear();
+			foreach (IDeviceControl control in m_LoadedControls)
+			{
+				control.Dispose();
+				Controls.Remove(control.Id);
+			}
+
+			m_LoadedControls.Clear();
 		}
 
 		#endregion
