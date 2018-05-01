@@ -16,6 +16,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 	public sealed class VoIpDialingDeviceControl : AbstractBiampTesiraDialingDeviceControl
 	{
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
 
 		private readonly VoIpControlStatusLine m_Line;
 
@@ -51,6 +52,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnSourceAdded = null;
+			OnSourceRemoved = null;
 
 			base.DisposeFinal(disposing);
 
@@ -275,6 +277,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					return;
 
 				Unsubscribe(source);
+
+				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(source));
 
 				m_AppearanceSources.Remove(index);
 			}
