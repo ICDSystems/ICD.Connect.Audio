@@ -152,6 +152,8 @@ namespace ICD.Connect.Audio.QSys
 		{
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
+			Controls.Add(new QSysCoreRoutingControl(this, 0));
+
 			Heartbeat = new Heartbeat(this);
 			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
