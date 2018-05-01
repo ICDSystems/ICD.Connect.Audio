@@ -500,7 +500,7 @@ namespace ICD.Connect.Audio.QSys
 
 		private void ParseXml(string xml)
 		{
-			DisposeControls();
+			DisposeLoadedControls();
 
 			//Parse Change Groups
 			string changeGroupXml;
@@ -534,7 +534,7 @@ namespace ICD.Connect.Audio.QSys
 			Controls.Add(control);
 		}
 
-		private void DisposeControls()
+		private void DisposeLoadedControls()
 		{
 			// Clear Change Groups
 			m_ChangeGroupsCriticalSection.Enter();
@@ -819,6 +819,7 @@ namespace ICD.Connect.Audio.QSys
 			Username = null;
 			Password = null;
 			m_ConfigPath = null;
+			DisposeLoadedControls();
 			SetPort(null);
 		}
 
