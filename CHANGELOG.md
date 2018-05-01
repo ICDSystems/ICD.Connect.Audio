@@ -5,10 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Biamp and QSys DSPs now have route source/destination controls
+
 ### Changed
  - Biamp TI conference sources now reflect correct hold state
  - Biamp TI dialer leaves hold state between calls
  - Biamp TI dialer correctly rejects incoming calls
+ - Biamp and QSys DSPs dispose only dynamically loaded controls on clear.
 
 ## [3.0.1] - 2018-04-27
 ### Changed
