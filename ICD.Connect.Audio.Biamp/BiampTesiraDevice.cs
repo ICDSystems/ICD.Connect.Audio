@@ -139,6 +139,8 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
+			Controls.Add(new BiampTesiraRoutingControl(this, 0));
+
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
