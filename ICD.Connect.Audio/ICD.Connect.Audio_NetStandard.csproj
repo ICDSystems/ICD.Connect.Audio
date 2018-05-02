@@ -3,8 +3,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
-	<RootNamespace>ICD.Connect.Audio.QSys</RootNamespace>
-	<AssemblyName>ICD.Connect.Audio.QSys</AssemblyName>
+	<RootNamespace>ICD.Connect.Audio</RootNamespace>
+	<AssemblyName>ICD.Connect.Audio</AssemblyName>
 	<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
 	<Deterministic>true</Deterministic>
   </PropertyGroup>
@@ -26,15 +26,20 @@
 
   <ItemGroup>
     <Compile Remove="ObfuscationSettings.cs" />
+    
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove=".gitignore" />
     <None Remove="ICD.Connect.Audio.projectinfo" />
+    <None Remove="ICD.Connect.projectinfo" />
+    <None Remove="ICD.SimplSharp.projectinfo" />
+    <None Remove="Properties\ControlSystem.cfg" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_NetStandard.csproj" />
-    <ProjectReference Include="..\..\ICD.Connect.Protocol\ICD.Connect.Protocol\ICD.Connect.Protocol_NetStandard.csproj" />
+    <ProjectReference Include="..\..\ICD.Connect.Partitioning\ICD.Connect.Partitioning\ICD.Connect.Partitioning_NetStandard.csproj" />
     <ProjectReference Include="..\..\ICD.Connect.Routing\ICD.Connect.Routing\ICD.Connect.Routing_NetStandard.csproj" />
   </ItemGroup>
 

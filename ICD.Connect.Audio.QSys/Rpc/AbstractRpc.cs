@@ -46,7 +46,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 				writer.WriteValue(Method);
 
 				// id
-				if (!String.IsNullOrEmpty(Id))
+				if (!string.IsNullOrEmpty(Id))
 				{
 					writer.WritePropertyName(ID_PROPERTY);
 					writer.WriteValue(Id);

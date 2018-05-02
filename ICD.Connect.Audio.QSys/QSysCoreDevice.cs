@@ -4,9 +4,11 @@ using System.Linq;
 using System.Text;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
+using ICD.Common.Utils.Json;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Common.Utils.Xml;
@@ -19,6 +21,7 @@ using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
@@ -33,12 +36,12 @@ namespace ICD.Connect.Audio.QSys
 	{
 		private const char DELIMITER = '\x00';
 
-        /// <summary>
-        /// KeepAlive Interval is how often the NoOp RPC is sent
-        /// NoOp is sent to perform no operation, but to just keep the socket alive
-        /// 29 Seconds makes sure at least 2 are sent in the 60 second window
-        /// </summary>
-	    private const long KEEPALIVE_INTERVAL = 29 * 1000;
+		/// <summary>
+		/// KeepAlive Interval is how often the NoOp RPC is sent
+		/// NoOp is sent to perform no operation, but to just keep the socket alive
+		/// 29 Seconds makes sure at least 2 are sent in the 60 second window
+		/// </summary>
+		private const long KEEPALIVE_INTERVAL = 29 * 1000;
 
 		/// <summary>
 		/// Raised when the class initializes.
@@ -53,33 +56,37 @@ namespace ICD.Connect.Audio.QSys
 		private bool m_Initialized;
 		private bool m_IsConnected;
 		private ISerialPort m_Port;
-	    private readonly SafeTimer m_OnlineNoOpTimer;
+		private readonly SafeTimer m_OnlineNoOpTimer;
 
 		/// <summary>
 		/// Change Groups
 		/// </summary>
 		private Dictionary<string, ChangeGroup> m_ChangeGroups;
+
 		private Dictionary<int, ChangeGroup> m_ChangeGroupsById;
 		private readonly SafeCriticalSection m_ChangeGroupsCriticalSection;
 
 		/// <summary>
 		/// Named Controls
 		/// </summary>
-	    private Dictionary<string, INamedControl> m_NamedControls;
+		private Dictionary<string, INamedControl> m_NamedControls;
+
 		private Dictionary<int, INamedControl> m_NamedControlsById;
-	    private readonly SafeCriticalSection m_NamedControlsCriticalSection;
+		private readonly SafeCriticalSection m_NamedControlsCriticalSection;
 
 		private Dictionary<string, INamedComponent> m_NamedComponents;
 		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
 
-        private readonly ISerialBuffer m_SerialBuffer;
+		private readonly ISerialBuffer m_SerialBuffer;
 
-        /// <summary>
-        /// Configuration Path for reload
-        /// </summary>
+		/// <summary>
+		/// Configuration Path for reload
+		/// </summary>
 		private string m_ConfigPath;
 
-	    #region Properties
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls; 
+
+		#region Properties
 
 		public Heartbeat Heartbeat { get; private set; }
 
@@ -143,25 +150,29 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
-			Heartbeat = new Heartbeat(this);
-		    m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
+			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
-            m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
+			Controls.Add(new QSysCoreRoutingControl(this, 0));
+
+			Heartbeat = new Heartbeat(this);
+			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
+
+			m_SerialBuffer = new JsonSerialBuffer();
 			Subscribe(m_SerialBuffer);
 
 			m_ChangeGroupsCriticalSection = new SafeCriticalSection();
 			m_ChangeGroups = new Dictionary<string, ChangeGroup>();
 			m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
 
-            m_NamedControlsCriticalSection = new SafeCriticalSection();
-            m_NamedControls = new Dictionary<string, INamedControl>();
+			m_NamedControlsCriticalSection = new SafeCriticalSection();
+			m_NamedControls = new Dictionary<string, INamedControl>();
 			m_NamedControlsById = new Dictionary<int, INamedControl>();
 
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
 		}
 
-	    #region Methods
+		#region Methods
 
 		/// <summary>
 		/// Release resources.
@@ -248,28 +259,28 @@ namespace ICD.Connect.Audio.QSys
 		public static void ConfigureComPort(IComPort port)
 		{
 			port.SetComPortSpec(eComBaudRates.ComspecBaudRate115200,
-								eComDataBits.ComspecDataBits8,
-								eComParityType.ComspecParityNone,
-								eComStopBits.ComspecStopBits1,
-								eComProtocolType.ComspecProtocolRS232,
-								eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-								eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-								false);
+			                    eComDataBits.ComspecDataBits8,
+			                    eComParityType.ComspecParityNone,
+			                    eComStopBits.ComspecStopBits1,
+			                    eComProtocolType.ComspecProtocolRS232,
+			                    eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
+			                    eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
+			                    false);
 		}
 
-	    protected override void UpdateCachedOnlineStatus()
-	    {
-	        base.UpdateCachedOnlineStatus();
+		protected override void UpdateCachedOnlineStatus()
+		{
+			base.UpdateCachedOnlineStatus();
 
 
-	        if (m_OnlineNoOpTimer != null)
-	        {
-	            if (IsOnline)
-	                m_OnlineNoOpTimer.Reset(KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
-	            else
-	                m_OnlineNoOpTimer.Stop();
-	        }
-	    }
+			if (m_OnlineNoOpTimer != null)
+			{
+				if (IsOnline)
+					m_OnlineNoOpTimer.Reset(KEEPALIVE_INTERVAL, KEEPALIVE_INTERVAL);
+				else
+					m_OnlineNoOpTimer.Stop();
+			}
+		}
 
 		public void AddNamedControlToChangeGroupById(int changeGroupId, AbstractNamedControl control)
 		{
@@ -333,19 +344,19 @@ namespace ICD.Connect.Audio.QSys
 		}
 
 		public void AddNamedControl(AbstractNamedControl namedControl)
-	    {
-	        m_NamedControlsCriticalSection.Enter();
+		{
+			m_NamedControlsCriticalSection.Enter();
 
-	        try
-	        {
-	            m_NamedControls.Add(namedControl.ControlName, namedControl);
-		        m_NamedControlsById.Add(namedControl.Id, namedControl);
-	        }
-	        finally
-	        {
-	            m_NamedControlsCriticalSection.Leave();
-	        }
-	    }
+			try
+			{
+				m_NamedControls.Add(namedControl.ControlName, namedControl);
+				m_NamedControlsById.Add(namedControl.Id, namedControl);
+			}
+			finally
+			{
+				m_NamedControlsCriticalSection.Leave();
+			}
+		}
 
 		public void AddNamedComponent(INamedComponent namedComponent)
 		{
@@ -409,13 +420,13 @@ namespace ICD.Connect.Audio.QSys
 
 		#endregion
 
-        #region Internal Methods
+		#region Internal Methods
 
-        /// <summary>
-        /// Sends the data to the device and calls the callback asynchronously with the response.
-        /// </summary>
-        /// <param name="json"></param>
-        internal void SendData(string json)
+		/// <summary>
+		/// Sends the data to the device and calls the callback asynchronously with the response.
+		/// </summary>
+		/// <param name="json"></param>
+		internal void SendData(string json)
 		{
 			//JsonUtils.Print(json);
 
@@ -483,20 +494,20 @@ namespace ICD.Connect.Audio.QSys
 			return string.Format("{0} - {1}", this, log);
 		}
 
-        /// <summary>
-        /// Sends a no-op RPC command to keep the connection alive
-        /// </summary>
-	    private void SendNoOpKeepalive()
-        {
-            if (!IsConnected)
-                return;
+		/// <summary>
+		/// Sends a no-op RPC command to keep the connection alive
+		/// </summary>
+		private void SendNoOpKeepalive()
+		{
+			if (!IsConnected)
+				return;
 
-            SendData(new NoOpRpc().Serialize());
-        }
+			SendData(new NoOpRpc().Serialize());
+		}
 
 		private void ParseXml(string xml)
 		{
-			DisposeControls();
+			DisposeLoadedControls();
 
 			//Parse Change Groups
 			string changeGroupXml;
@@ -527,10 +538,11 @@ namespace ICD.Connect.Audio.QSys
 
 		private void AddKrangControl(IDeviceControl control)
 		{
+			m_LoadedControls.Add(control);
 			Controls.Add(control);
 		}
 
-		private void DisposeControls()
+		private void DisposeLoadedControls()
 		{
 			// Clear Change Groups
 			m_ChangeGroupsCriticalSection.Enter();
@@ -563,7 +575,6 @@ namespace ICD.Connect.Audio.QSys
 				m_NamedControlsCriticalSection.Leave();
 			}
 
-
 			// Clear Named Components
 			m_NamedComponentsCriticalSection.Enter();
 			try
@@ -578,18 +589,24 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			// Clear Controls Collection
-			Controls.Clear();
+			foreach (IDeviceControl control in m_LoadedControls)
+			{
+				control.Dispose();
+				Controls.Remove(control.Id);
+			}
+
+			m_LoadedControls.Clear();
 		}
 
 		#endregion
 
-        #region Port Callbacks
+		#region Port Callbacks
 
-        /// <summary>
-        /// Subscribes to the port events.
-        /// </summary>
-        /// <param name="port"></param>
-        private void Subscribe(ISerialPort port)
+		/// <summary>
+		/// Subscribes to the port events.
+		/// </summary>
+		/// <param name="port"></param>
+		private void Subscribe(ISerialPort port)
 		{
 			if (port == null)
 				return;
@@ -647,8 +664,8 @@ namespace ICD.Connect.Audio.QSys
 		/// Called when the port online status changes.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="boolEventArgs"></param>
-		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs boolEventArgs)
+		/// <param name="args"></param>
+		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
@@ -682,9 +699,18 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="stringEventArgs"></param>
 		private void BufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
-			//JsonUtils.Print(stringEventArgs.Data);
+			JObject json;
 
-		    JObject json = JObject.Parse(stringEventArgs.Data);
+			try
+			{
+				json = JObject.Parse(stringEventArgs.Data);
+			}
+			catch (Exception e)
+			{
+				Logger.AddEntry(eSeverity.Error, "{0} - Failed to parse data - {1}{2}{3}", this, e.GetType().Name,
+				                IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
+				return;
+			}
 
 			string responseMethod = (string)json.SelectToken("method");
 
@@ -695,9 +721,9 @@ namespace ICD.Connect.Audio.QSys
 				return;
 			}
 
-            string responseId = (string)json.SelectToken("id");
+			string responseId = (string)json.SelectToken("id");
 
-			if (!String.IsNullOrEmpty(responseId))
+			if (!string.IsNullOrEmpty(responseId))
 			{
 				switch (responseId)
 				{
@@ -750,49 +776,49 @@ namespace ICD.Connect.Audio.QSys
 		}
 
 		/// <summary>
-        /// Parses one or more Named Controls, and sets the values on the controls
-        /// </summary>
-        /// <param name="json"></param>
-	    private void ParseNamedControlGetResponse(JObject json)
-	    {
-	        JToken results = json.SelectToken("result");
-	        if (!results.HasValues)
-	            return;
-	        foreach (JToken result in results)
-	        {
-	            ParseNamedControl(result);
-	        }
-	    }
+		/// Parses one or more Named Controls, and sets the values on the controls
+		/// </summary>
+		/// <param name="json"></param>
+		private void ParseNamedControlGetResponse(JObject json)
+		{
+			JToken results = json.SelectToken("result");
+			if (!results.HasValues)
+				return;
+			foreach (JToken result in results)
+			{
+				ParseNamedControl(result);
+			}
+		}
 
-        /// <summary>
-        /// Parses a single named control, and sets the values on the control
-        /// </summary>
-        /// <param name="result"></param>
-	    private void ParseNamedControl(JToken result)
-	    {
-	        string nameToken = (string)result.SelectToken("Name");
+		/// <summary>
+		/// Parses a single named control, and sets the values on the control
+		/// </summary>
+		/// <param name="result"></param>
+		private void ParseNamedControl(JToken result)
+		{
+			string nameToken = (string)result.SelectToken("Name");
 
-		    if (string.IsNullOrEmpty(nameToken))
-			    return;
+			if (string.IsNullOrEmpty(nameToken))
+				return;
 
-	        INamedControl control;
+			INamedControl control;
 
-            m_NamedControlsCriticalSection.Enter();
+			m_NamedControlsCriticalSection.Enter();
 
-	        try
-	        {
-	            if (!m_NamedControls.TryGetValue(nameToken, out control))
-	                return;
-	        }
-	        finally
-	        {
-	            m_NamedControlsCriticalSection.Leave();
-	        }
+			try
+			{
+				if (!m_NamedControls.TryGetValue(nameToken, out control))
+					return;
+			}
+			finally
+			{
+				m_NamedControlsCriticalSection.Leave();
+			}
 
 			control.ParseFeedback(result);
-	    }
+		}
 
-	    #endregion
+		#endregion
 
 		#region Settings
 
@@ -806,6 +832,7 @@ namespace ICD.Connect.Audio.QSys
 			Username = null;
 			Password = null;
 			m_ConfigPath = null;
+			DisposeLoadedControls();
 			SetPort(null);
 		}
 
@@ -868,30 +895,33 @@ namespace ICD.Connect.Audio.QSys
 			addRow("Initialized", Initialized);
 		}
 
-	    /// <summary>
-	    /// Gets the child console commands.
-	    /// </summary>
-	    /// <returns></returns>
-	    public override IEnumerable<IConsoleCommand> GetConsoleCommands()
-	    {
-	        foreach (IConsoleCommand command in GetBaseConsoleCommands())
-	            yield return command;
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
 
-	        yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
-	        yield return new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc().Serialize()));
-			yield return new ConsoleCommand("ReloadControls", "Reload controls from previous file" ,() => ReloadControls());
-			yield return new GenericConsoleCommand<string>("LoadControls", "Load Controls from Specified File", p => LoadControls(p));
+			yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
+			yield return
+				new ConsoleCommand("GetComponents", "Gets Components in Design",
+				                   () => SendData(new ComponentGetComponentsRpc().Serialize()));
+			yield return new ConsoleCommand("ReloadControls", "Reload controls from previous file", () => ReloadControls());
+			yield return
+				new GenericConsoleCommand<string>("LoadControls", "Load Controls from Specified File", p => LoadControls(p));
 
-        }
+		}
 
-        /// <summary>
-        /// Workaround for "unverifiable code" warning.
-        /// </summary>
-        /// <returns></returns>
-        private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
-	    {
-	        return base.GetConsoleCommands();
-	    }
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
+		}
 
 		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
 		{
@@ -907,5 +937,5 @@ namespace ICD.Connect.Audio.QSys
 		}
 
 		#endregion
-    }
+	}
 }
