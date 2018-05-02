@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
  - Biamp and QSys DSPs now have route source/destination controls
+ - Added ICD.Connect.Audio project
+ - Added GenericAmpDevice and settings
 
 ### Changed
  - Biamp TI conference sources now reflect correct hold state
