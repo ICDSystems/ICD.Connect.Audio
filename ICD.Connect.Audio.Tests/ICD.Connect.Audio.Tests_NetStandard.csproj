@@ -25,6 +25,7 @@
   </ItemGroup>
   
   <ItemGroup>
+    <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices.Tests\ICD.Connect.Devices.Tests_NetStandard.csproj" />
     <ProjectReference Include="..\ICD.Connect.Audio\ICD.Connect.Audio_NetStandard.csproj" />
   </ItemGroup>
 
