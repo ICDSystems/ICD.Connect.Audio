@@ -7,8 +7,8 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
-using ICD.Connect.Partitioning.VolumePoints;
 using ICD.Connect.Settings;
 using ICD.Connect.Settings.Core;
 

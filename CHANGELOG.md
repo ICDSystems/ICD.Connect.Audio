@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added ICD.Connect.Audio.Mock project
  - Adding MockAudioDevice
+ - Moved volume controls, volume points, volume repeaters and more from other projects
 
 ## [3.1.0] - 2018-05-02
 ### Added
