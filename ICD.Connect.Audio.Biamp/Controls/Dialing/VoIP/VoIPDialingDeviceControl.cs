@@ -255,6 +255,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				m_AppearanceSourcesSection.Leave();
 			}
 
+			SourceSubscribe(source);
 			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(source));
 			return source;
 		}
@@ -275,6 +276,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 				Unsubscribe(source);
 
+				SourceUnsubscribe(source);
 				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(source));
 
 				m_AppearanceSources.Remove(index);
