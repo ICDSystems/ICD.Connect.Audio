@@ -28,4 +28,14 @@
     <Compile Remove="ObfuscationSettings.cs" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Remove="ICD.Connect.Audio.projectinfo" />
+    <None Remove="Properties\ControlSystem.cfg" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_NetStandard.csproj" />
+    <ProjectReference Include="..\..\ICD.Connect.Routing\ICD.Connect.Routing.Mock\ICD.Connect.Routing.Mock_NetStandard.csproj" />
+  </ItemGroup>
+
 </Project>
