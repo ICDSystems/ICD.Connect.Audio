@@ -391,6 +391,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				m_ActiveSourceSection.Leave();
 			}
 
+			SourceSubscribe(m_ActiveSource);
 			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
 		}
 
@@ -410,6 +411,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				Unsubscribe(m_ActiveSource);
 
+				SourceUnsubscribe(m_ActiveSource);
 				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
 
 				m_ActiveSource = null;
