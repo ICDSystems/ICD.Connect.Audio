@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
+using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Partitioning.VolumePoints;
 using ICD.Connect.Settings;
@@ -163,6 +165,46 @@ namespace ICD.Connect.Audio.Devices
 			base.ApplySettingsFinal(settings, factory);
 
 			SetInputVolumePointIds(settings.GetInputVolumePointIds());
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+
+			yield return new ConsoleCommand("PrintVolumePoints", "Prints a table of the configured volume points for each input",
+			                                () => PrintVolumePoints());
+		}
+
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
+		}
+
+		/// <summary>
+		/// Builds a table of the configured volume points for each input.
+		/// </summary>
+		/// <returns></returns>
+		private string PrintVolumePoints()
+		{
+			TableBuilder builder = new TableBuilder("Input", "Volume Point");
+
+			foreach (int input in GetInputVolumePointIds().Select(kvp => kvp.Key))
+				builder.AddRow(input, GetVolumePointForInput(input));
+
+			return builder.ToString();
 		}
 
 		#endregion
