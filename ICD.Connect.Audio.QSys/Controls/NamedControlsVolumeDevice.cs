@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Controls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Devices.Controls;
 
