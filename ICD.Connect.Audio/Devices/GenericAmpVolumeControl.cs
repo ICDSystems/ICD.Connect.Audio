@@ -3,6 +3,7 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Partitioning.VolumePoints;
@@ -338,7 +339,7 @@ namespace ICD.Connect.Audio.Devices
 			control = null;
 
 			// This should never be null
-			IRouteInputSelectControl inputSelectControl = Parent.Controls.GetControl<IRouteInputSelectControl>();
+			GenericAmpRouteSwitcherControl inputSelectControl = Parent.Controls.GetControl<GenericAmpRouteSwitcherControl>();
 			if (inputSelectControl == null)
 				return;
 
@@ -400,6 +401,21 @@ namespace ICD.Connect.Audio.Devices
 				destination = sourceAsMidpoint;
 				input = sourceConnector.Value.Address;
 			}
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Calls the delegate for each console status item.
+		/// </summary>
+		/// <param name="addRow"></param>
+		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+		{
+			base.BuildConsoleStatus(addRow);
+
+			addRow("Active Volume Control", GetActiveControl<IVolumeDeviceControl>());
 		}
 
 		#endregion
