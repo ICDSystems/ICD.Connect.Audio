@@ -5,6 +5,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;

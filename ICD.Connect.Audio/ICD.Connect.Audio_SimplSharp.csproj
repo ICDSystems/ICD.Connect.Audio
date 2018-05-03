@@ -72,7 +72,7 @@
     <Compile Include="Controls\IVolumeMuteDeviceControl.cs" />
     <Compile Include="Controls\IVolumeMuteFeedbackDeviceControl.cs" />
     <Compile Include="Controls\IVolumeRawLevelDeviceControl.cs" />
-    <Compile Include="Controls\VolumeDeviceVolumeChangedEventArgs.cs" />
+    <Compile Include="EventArguments\VolumeDeviceVolumeChangedEventArgs.cs" />
     <Compile Include="Devices\GenericAmpDevice.cs" />
     <Compile Include="Devices\GenericAmpDeviceSettings.cs" />
     <Compile Include="Devices\GenericAmpRouteSwitcherControl.cs" />

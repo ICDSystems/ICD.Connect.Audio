@@ -1,5 +1,7 @@
 ﻿using System;
 using ICD.Common.Utils;
+using ICD.Connect.API.Attributes;
+using ICD.Connect.Audio.Proxies.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
@@ -14,12 +16,16 @@ namespace ICD.Connect.Audio.Controls
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
+		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_RAW_MAX_RANGE,
+			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW_MAX_RANGE)]
 		float VolumeRawMaxRange { get; }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
+		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_RAW_MIN_RANGE,
+			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW_MIN_RANGE)]
 		float VolumeRawMinRange { get; }
 	}
 
