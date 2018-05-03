@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Added ICD.Connect.Audio.Mock project
  - Adding MockAudioDevice
  - Moved volume controls, volume points, volume repeaters and more from other projects
+ - Adding API attributes for volume controls
+ - Adding console features for volume controls
+ - Adding console features to volume control abstractions
 
 ## [3.1.0] - 2018-05-02
 ### Added
