@@ -61,6 +61,17 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Controls\AbstractVolumeLevelBasicDeviceControl.cs" />
+    <Compile Include="Controls\AbstractVolumeLevelDeviceControl.cs" />
+    <Compile Include="Controls\AbstractVolumeRawLevelDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeLevelBasicDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeLevelDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeMuteBasicDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeMuteDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeMuteFeedbackDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeRawLevelDeviceControl.cs" />
+    <Compile Include="Controls\VolumeDeviceVolumeChangedEventArgs.cs" />
     <Compile Include="Devices\GenericAmpDevice.cs" />
     <Compile Include="Devices\GenericAmpDeviceSettings.cs" />
     <Compile Include="Devices\GenericAmpRouteSwitcherControl.cs" />
@@ -68,6 +79,15 @@
     <Compile Include="KrangPlugin.cs" />
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Repeaters\AbstactVolumeRepeater.cs" />
+    <Compile Include="Repeaters\VolumeBasicRepeater.cs" />
+    <Compile Include="Repeaters\VolumeRepeater.cs" />
+    <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
+    <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
+    <Compile Include="VolumePoints\IVolumePoint.cs" />
+    <Compile Include="VolumePoints\IVolumePointSettings.cs" />
+    <Compile Include="VolumePoints\VolumePoint.cs" />
+    <Compile Include="VolumePoints\VolumePointSettings.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>
@@ -82,10 +102,6 @@
     <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_SimplSharp.csproj">
       <Project>{FD46A717-5836-4B73-ADD0-2706639DA8ED}</Project>
       <Name>ICD.Connect.Devices_SimplSharp</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\ICD.Connect.Partitioning\ICD.Connect.Partitioning\ICD.Connect.Partitioning_SimplSharp.csproj">
-      <Project>{42FB8CF0-6AE6-4C70-AFDD-DF95F07E077F}</Project>
-      <Name>ICD.Connect.Partitioning_SimplSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ICD.Connect.Routing\ICD.Connect.Routing\ICD.Connect.Routing_SimplSharp.csproj">
       <Project>{B0C0CA1C-FA55-4BEA-8A8B-EDB2141C523E}</Project>
