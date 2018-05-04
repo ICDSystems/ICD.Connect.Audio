@@ -3,6 +3,7 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls;
 using ICD.Connect.Audio.EventArguments;
@@ -331,6 +332,14 @@ namespace ICD.Connect.Audio.Devices
 			int? controlId;
 
 			GetRoutedDeviceAndControl(out deviceId, out controlId);
+
+			if (deviceId == Parent.Id)
+			{
+				deviceId = null;
+				controlId = null;
+
+				Logger.AddEntry(eSeverity.Warning, "{0} - Attempted to control own volume recursively", this);
+			}
 
 			SetActiveControl(deviceId, controlId);
 		}
