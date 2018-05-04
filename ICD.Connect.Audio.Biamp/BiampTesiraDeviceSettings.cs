@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.Xml;
+﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Attributes;
@@ -7,11 +6,9 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	[KrangSettings(FACTORY_NAME)]
+	[KrangSettings("BiampTesira", typeof(BiampTesiraDeviceSettings))]
 	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "BiampTesira";
-
 		private const string PORT_ELEMENT = "Port";
 		private const string USERNAME_ELEMENT = "Username";
 		private const string CONFIG_ELEMENT = "Config";
@@ -50,16 +47,6 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			set { m_ConfigPath = value; }
 		}
-
-		/// <summary>
-		/// Gets the originator factory name.
-		/// </summary>
-		public override string FactoryName { get { return FACTORY_NAME; } }
-
-		/// <summary>
-		/// Gets the type of the originator for this settings instance.
-		/// </summary>
-		public override Type OriginatorType { get { return typeof(BiampTesiraDevice); } }
 
 		/// <summary>
 		/// Writes property elements to xml.
