@@ -15,12 +15,24 @@ namespace ICD.Connect.Audio.Devices
 	/// <summary>
 	/// Very similar to the mock switcher control. Fakes an audio switch with a single output.
 	/// </summary>
-	public sealed class GenericAmpRouteSwitcherControl : AbstractRouteSwitcherControl<GenericAmpDevice>
+	public sealed class GenericAmpRouteSwitcherControl : AbstractRouteSwitcherControl<GenericAmpDevice>, IRouteInputSelectControl
 	{
 		public override event EventHandler<RouteChangeEventArgs> OnRouteChange;
 		public override event EventHandler<TransmissionStateEventArgs> OnActiveTransmissionStateChanged;
 		public override event EventHandler<SourceDetectionStateChangeEventArgs> OnSourceDetectionStateChange;
 		public override event EventHandler<ActiveInputStateChangeEventArgs> OnActiveInputsChanged;
+
+		/// <summary>
+		/// Gets the current active input.
+		/// </summary>
+		public int? ActiveInput
+		{
+			get
+			{
+				ConnectorInfo? input = GetInput(1, eConnectionType.Audio);
+				return input.HasValue ? input.Value.Address : (int?)null;
+			}
+		}
 
 		private readonly SwitcherCache m_Cache;
 
@@ -66,10 +78,7 @@ namespace ICD.Connect.Audio.Devices
 			if (info.LocalOutput != 1)
 				throw new NotSupportedException(string.Format("Invalid output address {0}", info.LocalOutput));
 
-			if (GetInputs().All(i => i.Address != info.LocalInput))
-				throw new NotSupportedException(string.Format("Invalid input address {0}", info.LocalInput));
-
-			return m_Cache.SetInputForOutput(info.LocalOutput, info.LocalInput, info.ConnectionType);
+			return SetActiveInput(info.LocalInput);
 		}
 
 		/// <summary>
@@ -140,6 +149,27 @@ namespace ICD.Connect.Audio.Devices
 		public override bool GetSignalDetectedState(int input, eConnectionType type)
 		{
 			return m_Cache.GetSourceDetectedState(input, type);
+		}
+
+		/// <summary>
+		/// Sets the current active input.
+		/// </summary>
+		/// <param name="input"></param>
+		public bool SetActiveInput(int? input)
+		{
+			if (input != null && GetInputs().All(i => i.Address != input))
+				throw new NotSupportedException(string.Format("Invalid input address {0}", input));
+
+			return m_Cache.SetInputForOutput(1, input, eConnectionType.Audio);
+		}
+
+		/// <summary>
+		/// Sets the current active input.
+		/// </summary>
+		/// <param name="input"></param>
+		void IRouteInputSelectControl.SetActiveInput(int? input)
+		{
+			SetActiveInput(input);
 		}
 
 		#endregion
