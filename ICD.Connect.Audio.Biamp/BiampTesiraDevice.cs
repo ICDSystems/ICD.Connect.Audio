@@ -816,6 +816,8 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.BuildConsoleStatus(addRow);
 
+			addRow("Loaded Config", m_Config);
+			addRow("Connected", IsConnected);
 			addRow("Initialized", Initialized);
 		}
 

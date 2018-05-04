@@ -891,6 +891,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			base.BuildConsoleStatus(addRow);
 
+			addRow("Loaded Config", m_ConfigPath);
 			addRow("Connected", IsConnected);
 			addRow("Initialized", Initialized);
 		}
