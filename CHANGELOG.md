@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Adding API attributes for volume controls
  - Adding console features for volume controls
  - Adding console features to volume control abstractions
+ - Adding Shure MXA source routing control
 
 ## [3.1.0] - 2018-05-02
 ### Added

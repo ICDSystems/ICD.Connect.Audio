@@ -3,6 +3,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
@@ -14,6 +15,14 @@ namespace ICD.Connect.Audio.Shure
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
 		private ISerialPort m_Port;
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		protected AbstractShureMxaDevice()
+		{
+			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
+		}
 
 		#region Methods
 
