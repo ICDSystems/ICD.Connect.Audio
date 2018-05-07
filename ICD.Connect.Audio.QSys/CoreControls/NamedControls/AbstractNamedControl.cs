@@ -196,7 +196,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 
 	    #region Console
 
-	    public override string ConsoleHelp { get { return String.Format("NamedControl: {0}" ,ControlName); } }
+	    public override string ConsoleHelp { get { return string.Format("NamedControl: {0}" ,ControlName); } }
 
 	    public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
 	    {

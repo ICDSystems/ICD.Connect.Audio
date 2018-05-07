@@ -19,6 +19,7 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
@@ -73,6 +74,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		// Used with settings
 		private string m_Config;
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 
 		#region Properties
 
@@ -135,6 +137,10 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
+			m_LoadedControls = new IcdHashSet<IDeviceControl>();
+
+			Controls.Add(new BiampTesiraRoutingControl(this, 0));
+
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
@@ -281,10 +287,14 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="xml"></param>
 		private void ParseXml(string xml)
 		{
-			Controls.Clear();
+			DisposeLoadedControls();
 
+			// Load and add the new controls
 			foreach (IDeviceControl control in ControlsXmlUtils.GetControlsFromXml(xml, m_AttributeInterfaces))
+			{
 				Controls.Add(control);
+				m_LoadedControls.Add(control);
+			}
 		}
 
 		#endregion
@@ -462,6 +472,17 @@ namespace ICD.Connect.Audio.Biamp
 			Initialized = true;
 		}
 
+		private void DisposeLoadedControls()
+		{
+			// Remove the previously loaded controls
+			foreach (IDeviceControl control in m_LoadedControls)
+			{
+				Controls.Remove(control.Id);
+				control.Dispose();
+			}
+			m_LoadedControls.Clear();
+		}
+
 		/// <summary>
 		/// Returns the log message with a LutronQuantumNwkDevice prefix.
 		/// </summary>
@@ -540,8 +561,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// Called when the port online status changes.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="boolEventArgs"></param>
-		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs boolEventArgs)
+		/// <param name="args"></param>
+		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
@@ -738,6 +759,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.ClearSettingsFinal();
 
 			m_Config = null;
+			DisposeLoadedControls();
 			Username = null;
 			SetPort(null);
 		}
@@ -794,6 +816,8 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.BuildConsoleStatus(addRow);
 
+			addRow("Loaded Config", m_Config);
+			addRow("Connected", IsConnected);
 			addRow("Initialized", Initialized);
 		}
 
