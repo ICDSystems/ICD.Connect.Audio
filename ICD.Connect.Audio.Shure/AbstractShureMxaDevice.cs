@@ -15,6 +15,14 @@ namespace ICD.Connect.Audio.Shure
 	{
 		private ISerialPort m_Port;
 
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		protected AbstractShureMxaDevice()
+		{
+			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
+		}
+
 		#region Methods
 
 		/// <summary>
