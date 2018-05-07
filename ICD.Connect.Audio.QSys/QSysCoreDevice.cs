@@ -295,7 +295,8 @@ namespace ICD.Connect.Audio.QSys
 				m_ChangeGroupsCriticalSection.Leave();
 			}
 			// Add item to Controls collection
-			Controls.Add(changeGroup);
+			// todo: figure out appropriate collection for this
+			//Controls.Add(changeGroup);
 		}
 
 		public ChangeGroup GetChangeGroupById(int id)
@@ -348,7 +349,8 @@ namespace ICD.Connect.Audio.QSys
 	            m_NamedControlsCriticalSection.Leave();
 	        }
 			// Add item to Controls collection
-			Controls.Add(namedControl);
+			// todo: figure out appropriate collection for this
+			//Controls.Add(namedControl);
 	    }
 
 		public void AddNamedComponent(INamedComponent namedComponent)
@@ -363,7 +365,8 @@ namespace ICD.Connect.Audio.QSys
 				m_NamedComponentsCriticalSection.Leave();
 			}
 			// Add item to Controls collection
-			Controls.Add(namedComponent);
+			// todo: figure out appropriate collection for this
+			//Controls.Add(namedComponent);
 		}
 
 		public void LoadControls(string path)
@@ -458,6 +461,21 @@ namespace ICD.Connect.Audio.QSys
 			Logger.AddEntry(severity, message);
 		}
 
+		/// <summary>
+		/// Logs the exception
+		/// </summary>
+		/// <param name="severity"></param>
+		/// <param name="exception"></param>
+		/// <param name="message"></param>
+		/// <param name="args"></param>
+		public void Log(eSeverity severity, Exception exception, string message, params object[] args)
+		{
+			message = string.Format(message, args);
+			message = AddLogPrefix(message);
+
+			Logger.AddEntry(severity, exception, message);
+		}
+
 		#endregion
 
 		#region Private Methods
@@ -507,10 +525,7 @@ namespace ICD.Connect.Audio.QSys
 			string controlsXml;
 			if (XmlUtils.TryGetChildElementAsString(xml, "QSysControls", out controlsXml))
 			{
-				foreach (IDeviceControl control in CoreControlsXmlUtils.GetControlsFromXml(controlsXml, this))
-				{
-					AddControl(control);
-				}
+				CoreElementsLoadContext context = CoreElementsXmlUtils.GetControlsFromXml(controlsXml, this);
 			}
 		}
 

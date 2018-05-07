@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.Controls
 {
-    public sealed class NamedControlsVolumeDevice : AbstractVolumeLevelDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl
+    public sealed class NamedControlsVolumeDevice : AbstractVolumeLevelDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
     {
 	    private readonly string m_Name;
 		
@@ -38,6 +41,47 @@ namespace ICD.Connect.Audio.QSys.Controls
 		    m_VolumeControl = volumeControl;
 		    m_MuteControl = muteControl;
 			Subscribe();
+	    }
+
+		/// <summary>
+		/// Constructor used to load control from xml
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="friendlyName"></param>
+		/// <param name="context"></param>
+		/// <param name="xml"></param>
+		[UsedImplicitly]
+	    public NamedControlsVolumeDevice(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+		    : base(context.QSysCore, id)
+		{
+			m_Name = friendlyName;
+
+			string volumeName = XmlUtils.TryReadChildElementContentAsString(xml, "VolumeControlName");
+			string muteName = XmlUtils.TryReadChildElementContentAsString(xml, "MuteControlId");
+			float? incrementValue = XmlUtils.TryReadChildElementContentAsFloat(xml, "IncrementValue");
+			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
+			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
+
+			// If we don't have a volume or mute control names, bail out
+			if (String.IsNullOrEmpty(volumeName) | String.IsNullOrEmpty(muteName))
+				throw new InvalidOperationException(String.Format("Tried to create NamedControlVolumeDevice {0}:{1} without volume or mute",id, friendlyName));
+
+			// Load volume/mute controls
+			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
+			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
+			
+			if (m_VolumeControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Volume Control {0}", volumeName));
+			if (m_MuteControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteName));
+
+
+			if (incrementValue != null)
+				IncrementValue = (float)incrementValue;
+			if (repeatBeforeTime != null)
+				RepeatBeforeTime = (int)repeatBeforeTime;
+			if (repeatBetweenTime != null)
+				RepeatBetweenTime = (int)repeatBetweenTime;
 	    }
 
 	    #region Methods

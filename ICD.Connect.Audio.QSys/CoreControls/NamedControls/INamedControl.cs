@@ -1,10 +1,12 @@
 ﻿using System;
+using ICD.Common.Utils;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices.Controls;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 {
-	public interface INamedControl : IDeviceControl
+	public interface INamedControl : IQSysCoreControl, IConsoleNode, IStateDisposable
 	{
 		string ControlName { get; }
 		float ValuePosition { get; }
@@ -18,5 +20,10 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 		void SetPosition(float position);
 		void SetValue(object value);
 		void TriggerControl();
+
+		// Also needs to implement constructors like:
+		// INamedControl(int id, string friendlyName, CoreElementsLoadContext context, string xml);
+		// and
+		// INamedControl(int id, CoreElementsLoadContext context, string controlName);
 	}
 }

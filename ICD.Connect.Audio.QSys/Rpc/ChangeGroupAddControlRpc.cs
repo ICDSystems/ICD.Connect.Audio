@@ -23,13 +23,13 @@ namespace ICD.Connect.Audio.QSys.Rpc
 		    m_Controls = new List<string>();
 	    }
 
-	    public ChangeGroupAddControlRpc(ChangeGroup changeGroup, AbstractNamedControl namedControl)
+	    public ChangeGroupAddControlRpc(ChangeGroup changeGroup, INamedControl namedControl)
 	    {
 		    ChangeGroupId = changeGroup.ChangeGroupId;
 		    m_Controls = new List<string> {namedControl.ControlName};
 	    }
 
-	    public ChangeGroupAddControlRpc(ChangeGroup changeGroup, IEnumerable<AbstractNamedControl> namedControls)
+	    public ChangeGroupAddControlRpc(ChangeGroup changeGroup, IEnumerable<INamedControl> namedControls)
 	    {
 		    ChangeGroupId = changeGroup.ChangeGroupId;
 		    m_Controls = new List<string>(namedControls.Select(c => c.ControlName));

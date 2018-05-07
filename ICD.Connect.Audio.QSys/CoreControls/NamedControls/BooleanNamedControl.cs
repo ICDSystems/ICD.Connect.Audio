@@ -13,10 +13,12 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 
         public bool ValueBool { get { return GetValueAsBool(ValueRaw); } }
 
-        public BooleanNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore, id, name, controlName)
-        {
-            
-        }
+        public BooleanNamedControl(int id, CoreElementsLoadContext loadContext, string controlName)
+			: base(id, loadContext, controlName)
+        {}
+
+		public BooleanNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml):base(id,name,loadContext,xml)
+		{}
 
 	    /// <summary>
 	    /// Sets the value from a bool

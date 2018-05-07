@@ -1,8 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using ICD.Common.Properties;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
+using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.Rpc;
 using Newtonsoft.Json.Linq;
 
@@ -102,16 +108,87 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 	        OnValueUpdated.Raise(this, new ControlValueUpdateEventArgs(ControlName, ValueString, ValueRaw, ValuePosition));
 		}
 
-        #endregion
+		/// <summary>
+		/// Subscribes this control to the initial change groups.
+		/// </summary>
+		/// <param name="loadContext">Load context, to lookup change groups and global default change groups</param>
+		/// <param name="controlChangeGroups">Additional change groups needed for this control</param>
+		private void SetupInitialChangeGroups(CoreElementsLoadContext loadContext,
+														IEnumerable<int> controlChangeGroups)
+		{
+			// Get Default Change Groups from Load Context
+			// We want to subscribe to all of them
+			IcdHashSet<int> changeGroups = new IcdHashSet<int>(loadContext.GetDefaultChangeGroups());
 
+			// If this control has a specific change group,
+			// Add it to the hash and subscribe to it
+			changeGroups.AddRange(controlChangeGroups);
 
-        protected AbstractNamedControl(QSysCoreDevice qSysCore, int id, string name, string controlName) : base(qSysCore, name, id)
-        {
-            ControlName = controlName;
-            //PollValue();
-        }
+			// Do some subscribing
+			foreach (int changeGroupId in changeGroups)
+			{
+				IChangeGroup changeGroup = loadContext.TryGetChangeGroup(changeGroupId);
+				if (changeGroup != null)
+					changeGroup.AddNamedControl(this);
+				else
+					QSysCore.Log(eSeverity.Warning, "NamedControl {0} couldn't add to change group id {1} - not found", Id, changeGroupId);
+			}
+		}
 
-	    protected override void DisposeFinal(bool disposing)
+	    #endregion
+
+		/// <summary>
+		/// Constructor for Explicitly Defined Elements
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="name"></param>
+		/// <param name="loadContext"></param>
+		/// <param name="xml"></param>
+		[UsedImplicitly]
+	    public AbstractNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml) : base(loadContext.QSysCore, name, id)
+		{
+			if (loadContext == null)
+				throw new ArgumentNullException("loadContext");
+
+			string controlName = XmlUtils.GetAttributeAsString(xml, "controlName");
+
+			ControlName = controlName;
+
+			int? changeGroupId = null;
+			try
+			{
+				changeGroupId = XmlUtils.GetAttributeAsInt(xml, "changeGroup");
+			}
+			catch (FormatException e)
+			{
+			}
+
+			IEnumerable<int> controlChangeGroups;
+			if (changeGroupId == null)
+				controlChangeGroups = Enumerable.Empty<int>();
+			else
+			{
+				controlChangeGroups = ((int)changeGroupId).Yield();
+			}
+
+			SetupInitialChangeGroups(loadContext, controlChangeGroups);
+		}
+
+		/// <summary>
+		/// Constructor for Implicitly Defined Elements
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="loadContext"></param>
+		/// <param name="controlName"></param>
+		[UsedImplicitly]
+	    public AbstractNamedControl(int id, CoreElementsLoadContext loadContext, string controlName)
+		    : base(loadContext.QSysCore, String.Format("Implicit Control Name: {0}", controlName), id)
+		{
+			ControlName = controlName;
+			SetupInitialChangeGroups(loadContext, Enumerable.Empty<int>());
+		}
+
+	    public override void DisposeFinal(bool disposing)
 	    {
 		    OnValueUpdated = null;
 		    base.DisposeFinal(disposing);
@@ -125,7 +202,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 	    {
 			base.BuildConsoleStatus(addRow);
 		    addRow("Control Name", ControlName);
-		    addRow("Value Stirng", ValueString);
+		    addRow("Value String", ValueString);
 		    addRow("Value Raw", ValueRaw);
 		    addRow("Value Position", ValuePosition);
 	    }
