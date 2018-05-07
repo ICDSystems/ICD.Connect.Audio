@@ -57,7 +57,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			m_Name = friendlyName;
 
 			string volumeName = XmlUtils.TryReadChildElementContentAsString(xml, "VolumeControlName");
-			string muteName = XmlUtils.TryReadChildElementContentAsString(xml, "MuteControlId");
+			string muteName = XmlUtils.TryReadChildElementContentAsString(xml, "MuteControlName");
 			float? incrementValue = XmlUtils.TryReadChildElementContentAsFloat(xml, "IncrementValue");
 			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
 			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");

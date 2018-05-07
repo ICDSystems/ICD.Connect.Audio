@@ -31,6 +31,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 			CoreElementsLoadContext loadContext = new CoreElementsLoadContext(qSysCore);
 
+			// Load attributes into dictionary for easier lookup
+			Dictionary<string, IcdXmlAttribute> attributes = XmlUtils.GetAttributes(xml).ToDictionary(attribute => attribute.Name);
+
 			// Load Id's and Types To continue in proper order
 			foreach (string elementXml in XmlUtils.GetChildElementsAsString(xml))
 			{
@@ -72,19 +75,12 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			}
 
 			// Setup Default Change Group
-			int defaultChangeGroup;
-			try
+			IcdXmlAttribute defaultChangeGroup;
+			if (attributes.TryGetValue("DefaulthangeGroup", out defaultChangeGroup))
 			{
-				defaultChangeGroup = XmlUtils.GetAttributeAsInt(xml, "DefaultChangeGroup");
-			}
-			catch (IcdXmlException)
-			{
-				defaultChangeGroup = 0;
-			}
-			if (defaultChangeGroup != 0)
-			{
-				if (typeof(IChangeGroup).IsAssignableFrom(loadContext.GetTypeForId(defaultChangeGroup)))
-					loadContext.AddDefaultChangeGroup(defaultChangeGroup);
+				int defaultChangeGroupId = int.Parse(defaultChangeGroup.Value);
+				if (typeof(IChangeGroup).IsAssignableFrom(loadContext.GetTypeForId(defaultChangeGroupId)))
+					loadContext.AddDefaultChangeGroup(defaultChangeGroupId);
 				else
 					loadContext.QSysCore.Log(eSeverity.Error,
 					                         "Tried to add DefaultChangeGroup {0}, but there is no change group with that ID.",
@@ -92,15 +88,10 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			}
 
 			// Is Auto Change Group Disabled?
-			bool autoChangeGroupEnabled;
-			try
-			{
-				autoChangeGroupEnabled = !XmlUtils.GetAttributeAsBool(xml, "DisableAutoChangeGroup");
-			}
-			catch (IcdXmlException)
-			{
-				autoChangeGroupEnabled = true;
-			}
+			bool autoChangeGroupEnabled = true;
+			IcdXmlAttribute autoChangeGroupAttribute;
+			if (attributes.TryGetValue("DisableAutoChangeGroup", out autoChangeGroupAttribute))
+				autoChangeGroupEnabled = !(bool.Parse(autoChangeGroupAttribute.Value));
 			// Setup Auto Change Group
 			if (autoChangeGroupEnabled)
 			{
@@ -157,7 +148,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 		{
 			switch (typeText)
 			{
-				case "NamedControlsVolumeDeviceControl":
+				case "NamedControlVolume":
 				{
 					return typeof(NamedControlsVolumeDevice);
 				}

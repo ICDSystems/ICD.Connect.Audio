@@ -426,29 +426,25 @@ namespace ICD.Connect.Audio.QSys
 			LoadControls(m_ConfigPath);
 		}
 
-		public IEnumerable<INamedControl> GetNamedControls()
+		public IEnumerable<IChangeGroup> GetChangeGroups()
 		{
-			List<INamedControl> controls;
-
-			m_NamedControlsCriticalSection.Enter();
-			try
-			{
-				controls = m_NamedControls.Values.ToList();
-			}
-			finally
-			{
-				m_NamedControlsCriticalSection.Leave();
-			}
-
-			return controls;
+			List<IChangeGroup> changeGroups = null;
+			m_ChangeGroupsCriticalSection.Execute(() => changeGroups = m_ChangeGroups.Values.ToList(m_ChangeGroups.Count));
+			return changeGroups;
 		}
 
-		public INamedControl GetNamedControlById(int id)
+		public IEnumerable<INamedControl> GetNamedControls()
 		{
-			INamedControl control = null;
-			m_NamedControlsCriticalSection.Execute(() => m_NamedControlsById.TryGetValue(id, out control));
-			return control;
+			List<INamedControl> namedControls = null;
+			m_NamedControlsCriticalSection.Execute(() => namedControls = m_NamedControls.Values.ToList(m_NamedControls.Count));
+			return namedControls;
+		}
 
+		public IEnumerable<INamedComponent> GetNamedComponents()
+		{
+			List<INamedComponent> namedComponents = null;
+			m_NamedComponentsCriticalSection.Execute(() => namedComponents = m_NamedComponents.Values.ToList(m_NamedComponents.Count));
+			return namedComponents;
 		}
 
 		#endregion
@@ -557,11 +553,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			DisposeLoadedControls();
 
-			string controlsXml;
-			if (!XmlUtils.TryGetChildElementAsString(xml, "QSysControls", out controlsXml))
-				return;
-
-			CoreElementsLoadContext loadContext = CoreElementsXmlUtils.GetControlsFromXml(controlsXml, this);
+			CoreElementsLoadContext loadContext = CoreElementsXmlUtils.GetControlsFromXml(xml, this);
 
 			// Add to correct collections
 			AddChangeGroup(loadContext.GetChangeGroups());
@@ -737,7 +729,7 @@ namespace ICD.Connect.Audio.QSys
 			catch (Exception e)
 			{
 				Logger.AddEntry(eSeverity.Error, "{0} - Failed to parse data - {1}{2}{3}", this, e.GetType().Name,
-				                IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
+				                "\n", JsonUtils.Format(stringEventArgs.Data));
 				return;
 			}
 
@@ -957,6 +949,10 @@ namespace ICD.Connect.Audio.QSys
 		{
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
+			yield return ConsoleNodeGroup.KeyNodeMap("ChangeGroups", GetChangeGroups(), c => (uint)c.Id);
+			yield return ConsoleNodeGroup.KeyNodeMap("NamedControls", GetNamedControls(), c => (uint)c.Id);
+			yield return ConsoleNodeGroup.KeyNodeMap("NamedComponents", GetNamedComponents(), c => (uint)c.Id);
+
 		}
 
 		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
