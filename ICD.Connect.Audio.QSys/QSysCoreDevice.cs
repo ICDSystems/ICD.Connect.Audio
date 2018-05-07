@@ -12,6 +12,7 @@ using ICD.Common.Utils.Timers;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.Controls;
 using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
@@ -58,8 +59,8 @@ namespace ICD.Connect.Audio.QSys
 		/// <summary>
 		/// Change Groups
 		/// </summary>
-		private Dictionary<string, ChangeGroup> m_ChangeGroups;
-		private Dictionary<int, ChangeGroup> m_ChangeGroupsById;
+		private Dictionary<string, IChangeGroup> m_ChangeGroups;
+		private Dictionary<int, IChangeGroup> m_ChangeGroupsById;
 		private readonly SafeCriticalSection m_ChangeGroupsCriticalSection;
 
 		/// <summary>
@@ -69,7 +70,11 @@ namespace ICD.Connect.Audio.QSys
 		private Dictionary<int, INamedControl> m_NamedControlsById;
 	    private readonly SafeCriticalSection m_NamedControlsCriticalSection;
 
+		/// <summary>
+		/// Named Components
+		/// </summary>
 		private Dictionary<string, INamedComponent> m_NamedComponents;
+		private Dictionary<int, INamedComponent> m_NamedComponentsById;
 		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
 
         private readonly ISerialBuffer m_SerialBuffer;
@@ -150,8 +155,8 @@ namespace ICD.Connect.Audio.QSys
 			Subscribe(m_SerialBuffer);
 
 			m_ChangeGroupsCriticalSection = new SafeCriticalSection();
-			m_ChangeGroups = new Dictionary<string, ChangeGroup>();
-			m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
+			m_ChangeGroups = new Dictionary<string, IChangeGroup>();
+			m_ChangeGroupsById = new Dictionary<int, IChangeGroup>();
 
             m_NamedControlsCriticalSection = new SafeCriticalSection();
             m_NamedControls = new Dictionary<string, INamedControl>();
@@ -159,6 +164,7 @@ namespace ICD.Connect.Audio.QSys
 
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
+			m_NamedComponentsById = new Dictionary<int, INamedComponent>();
 		}
 
 	    #region Methods
@@ -271,6 +277,7 @@ namespace ICD.Connect.Audio.QSys
 	        }
 	    }
 
+		/*
 		public void AddNamedControlToChangeGroupById(int changeGroupId, AbstractNamedControl control)
 		{
 			ChangeGroup changeGroup = GetChangeGroupById(changeGroupId);
@@ -281,8 +288,14 @@ namespace ICD.Connect.Audio.QSys
 
 			changeGroup.AddNamedControl(control);
 		}
+		*/
 
-		public void AddChangeGroup(ChangeGroup changeGroup)
+		public void AddChangeGroup(IEnumerable<IChangeGroup> changeGroups)
+		{
+			changeGroups.ForEach(AddChangeGroup);
+		}
+
+		public void AddChangeGroup(IChangeGroup changeGroup)
 		{
 			m_ChangeGroupsCriticalSection.Enter();
 			try
@@ -294,14 +307,11 @@ namespace ICD.Connect.Audio.QSys
 			{
 				m_ChangeGroupsCriticalSection.Leave();
 			}
-			// Add item to Controls collection
-			// todo: figure out appropriate collection for this
-			//Controls.Add(changeGroup);
 		}
 
-		public ChangeGroup GetChangeGroupById(int id)
+		public IChangeGroup GetChangeGroupById(int id)
 		{
-			ChangeGroup changeGroup;
+			IChangeGroup changeGroup;
 
 			m_ChangeGroupsCriticalSection.Enter();
 			try
@@ -317,9 +327,9 @@ namespace ICD.Connect.Audio.QSys
 			return changeGroup;
 		}
 
-		public ChangeGroup GetChangeGroup(string changeGroupId)
+		public IChangeGroup GetChangeGroup(string changeGroupId)
 		{
-			ChangeGroup changeGroup;
+			IChangeGroup changeGroup;
 
 			m_ChangeGroupsCriticalSection.Enter();
 			try
@@ -335,7 +345,12 @@ namespace ICD.Connect.Audio.QSys
 			return changeGroup;
 		}
 
-		public void AddNamedControl(AbstractNamedControl namedControl)
+		public void AddNamedControl(IEnumerable<INamedControl> namedControls)
+		{
+			namedControls.ForEach(AddNamedControl);
+		}
+
+		public void AddNamedControl(INamedControl namedControl)
 	    {
 	        m_NamedControlsCriticalSection.Enter();
 
@@ -348,10 +363,12 @@ namespace ICD.Connect.Audio.QSys
 	        {
 	            m_NamedControlsCriticalSection.Leave();
 	        }
-			// Add item to Controls collection
-			// todo: figure out appropriate collection for this
-			//Controls.Add(namedControl);
 	    }
+
+		public void AddNamedComponent(IEnumerable<INamedComponent> namedComponents)
+		{
+			namedComponents.ForEach(AddNamedComponent);
+		}
 
 		public void AddNamedComponent(INamedComponent namedComponent)
 		{
@@ -359,14 +376,22 @@ namespace ICD.Connect.Audio.QSys
 			try
 			{
 				m_NamedComponents.Add(namedComponent.ComponentName, namedComponent);
+				m_NamedComponentsById.Add(namedComponent.Id, namedComponent);
 			}
 			finally
 			{
 				m_NamedComponentsCriticalSection.Leave();
 			}
-			// Add item to Controls collection
-			// todo: figure out appropriate collection for this
-			//Controls.Add(namedComponent);
+		}
+
+		public void AddKrangControl(IEnumerable<IQSysKrangControl> krangControls)
+		{
+			krangControls.ForEach(AddKrangControl);
+		}
+
+		public void AddKrangControl(IQSysKrangControl krangControl)
+		{
+			Controls.Add(krangControl);
 		}
 
 		public void LoadControls(string path)
@@ -523,16 +548,16 @@ namespace ICD.Connect.Audio.QSys
 			DisposeControls();
 
 			string controlsXml;
-			if (XmlUtils.TryGetChildElementAsString(xml, "QSysControls", out controlsXml))
-			{
-				CoreElementsLoadContext context = CoreElementsXmlUtils.GetControlsFromXml(controlsXml, this);
-			}
-		}
+			if (!XmlUtils.TryGetChildElementAsString(xml, "QSysControls", out controlsXml))
+				return;
 
-		private void AddControl(IDeviceControl control)
-		{
-			Controls.Add(control);
-			// todo: Add Control to Appropriate Collection
+			CoreElementsLoadContext loadContext = CoreElementsXmlUtils.GetControlsFromXml(controlsXml, this);
+
+			// Add to correct collections
+			AddChangeGroup(loadContext.GetChangeGroups());
+			AddNamedControl(loadContext.GetNamedControls());
+			AddNamedComponent(loadContext.GetNamedComponents());
+			AddKrangControl(loadContext.GetKrangControls());
 
 		}
 
@@ -542,13 +567,13 @@ namespace ICD.Connect.Audio.QSys
 			m_ChangeGroupsCriticalSection.Enter();
 			try
 			{
-				foreach (KeyValuePair<string, ChangeGroup> kvp in m_ChangeGroups)
+				foreach (KeyValuePair<string, IChangeGroup> kvp in m_ChangeGroups)
 				{
 					kvp.Value.DestroyChangeGroup();
 					kvp.Value.Dispose();
 				}
-				m_ChangeGroups = new Dictionary<string, ChangeGroup>();
-				m_ChangeGroupsById = new Dictionary<int, ChangeGroup>();
+				m_ChangeGroups = new Dictionary<string, IChangeGroup>();
+				m_ChangeGroupsById = new Dictionary<int, IChangeGroup>();
 			}
 			finally
 			{
@@ -577,6 +602,7 @@ namespace ICD.Connect.Audio.QSys
 				foreach (KeyValuePair<string, INamedComponent> kvp in m_NamedComponents)
 					kvp.Value.Dispose();
 				m_NamedComponents = new Dictionary<string, INamedComponent>();
+				m_NamedComponentsById = new Dictionary<int, INamedComponent>();
 			}
 			finally
 			{
@@ -724,7 +750,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			JToken result = json.SelectToken("result");
 			if (result != null && result.HasValues)
-				ParseNamedControl(result);
+				ParseNamedControlResponse(result);
 		}
 
 		private void ParseChangeGroupResponse(JToken json)
@@ -741,18 +767,18 @@ namespace ICD.Connect.Audio.QSys
 			{
 				JToken component = change.SelectToken("Component");
 				if (component != null && component.HasValues)
-					ParseNamedComponent(change);
+					ParseNamedComponentResponse(change);
 				else
 				{
-					ParseNamedControl(change);
+					ParseNamedControlResponse(change);
 				}
 			}
 
 		}
 
-		private void ParseNamedComponent(JToken json)
+		private void ParseNamedComponentResponse(JToken json)
 		{
-			throw new NotImplementedException();
+			// todo: Parse Responses
 		}
 
 		/// <summary>
@@ -766,7 +792,7 @@ namespace ICD.Connect.Audio.QSys
 	            return;
 	        foreach (JToken result in results)
 	        {
-	            ParseNamedControl(result);
+	            ParseNamedControlResponse(result);
 	        }
 	    }
 
@@ -774,7 +800,7 @@ namespace ICD.Connect.Audio.QSys
         /// Parses a single named control, and sets the values on the control
         /// </summary>
         /// <param name="result"></param>
-	    private void ParseNamedControl(JToken result)
+	    private void ParseNamedControlResponse(JToken result)
 	    {
 	        string nameToken = (string)result.SelectToken("Name");
 
