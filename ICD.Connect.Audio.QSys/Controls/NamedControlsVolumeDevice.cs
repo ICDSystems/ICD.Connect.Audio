@@ -82,6 +82,8 @@ namespace ICD.Connect.Audio.QSys.Controls
 				RepeatBeforeTime = (int)repeatBeforeTime;
 			if (repeatBetweenTime != null)
 				RepeatBetweenTime = (int)repeatBetweenTime;
+
+			Subscribe();
 	    }
 
 	    #region Methods
