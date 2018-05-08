@@ -378,56 +378,64 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		#region Source Callbacks
 
+		/// <summary>
+		/// Subscribe to the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
 		private void Subscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHoldCallback += HoldCallback;
+			source.AnswerCallback += AnswerCallback;
+			source.HoldCallback += HoldCallback;
+			source.ResumeCallback += ResumeCallback;
+			source.SendDtmfCallback += SendDtmfCallback;
+			source.HangupCallback += HangupCallback;
 		}
 
+		/// <summary>
+		/// Unsubscribe from the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback -= AnswerCallback;
-			source.OnSendDtmfCallback -= SendDtmfCallback;
-			source.OnHangupCallback -= HangupCallback;
-			source.OnResumeCallback -= ResumeCallback;
-			source.OnHoldCallback -= HoldCallback;
+			source.AnswerCallback = null;
+			source.HoldCallback = null;
+			source.ResumeCallback = null;
+			source.SendDtmfCallback = null;
+			source.HangupCallback = null;
 		}
 
-		private void AnswerCallback(object sender, EventArgs eventArgs)
+		private void AnswerCallback(ThinConferenceSource sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
 				m_Line.GetCallAppearance(index).Answer();
 		}
 
-		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
-		{
-			foreach (char digit in stringEventArgs.Data)
-				m_Line.Dtmf(digit);
-		}
-
-		private void HangupCallback(object sender, EventArgs eventArgs)
+		private void HoldCallback(ThinConferenceSource sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
-				m_Line.GetCallAppearance(index).End();
+				m_Line.GetCallAppearance(index).Hold();
 		}
 
-		private void ResumeCallback(object sender, EventArgs eventArgs)
+		private void ResumeCallback(ThinConferenceSource sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
-		private void HoldCallback(object sender, EventArgs eventArgs)
+		private void SendDtmfCallback(ThinConferenceSource sender, string data)
+		{
+			foreach (char digit in data)
+				m_Line.Dtmf(digit);
+		}
+
+		private void HangupCallback(ThinConferenceSource sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
-				m_Line.GetCallAppearance(index).Hold();
+				m_Line.GetCallAppearance(index).End();
 		}
 
 		private bool TryGetCallAppearance(ThinConferenceSource source, out int index)
