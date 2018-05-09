@@ -386,7 +386,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			catch (Exception e)
 			{
-				Logger.AddEntry(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Log(eSeverity.Error, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 			}
 		}
 
@@ -451,20 +451,6 @@ namespace ICD.Connect.Audio.QSys
 			m_Port.Send(json);
 		}
 
-		/// <summary>
-		/// Logs the message.
-		/// </summary>
-		/// <param name="severity"></param>
-		/// <param name="message"></param>
-		/// <param name="args"></param>
-		public void Log(eSeverity severity, string message, params object[] args)
-		{
-			message = string.Format(message, args);
-			message = AddLogPrefix(message);
-
-			Logger.AddEntry(severity, message);
-		}
-
 		#endregion
 
 		#region Private Methods
@@ -484,16 +470,6 @@ namespace ICD.Connect.Audio.QSys
 		private void Initialize()
 		{
 			Initialized = true;
-		}
-
-		/// <summary>
-		/// Returns the log message with a LutronQuantumNwkDevice prefix.
-		/// </summary>
-		/// <param name="log"></param>
-		/// <returns></returns>
-		private string AddLogPrefix(string log)
-		{
-			return string.Format("{0} - {1}", this, log);
 		}
 
 		/// <summary>
@@ -706,8 +682,8 @@ namespace ICD.Connect.Audio.QSys
 			}
 			catch (Exception e)
 			{
-				Logger.AddEntry(eSeverity.Error, "{0} - Failed to parse data - {1}{2}{3}", this, e.GetType().Name,
-				                IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
+				Log(eSeverity.Error, "Failed to parse data - {0}{1}{2}", e.GetType().Name,
+				    IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
 				return;
 			}
 
@@ -766,7 +742,6 @@ namespace ICD.Connect.Audio.QSys
 					ParseNamedControl(change);
 				}
 			}
-
 		}
 
 		private void ParseNamedComponent(JToken json)
