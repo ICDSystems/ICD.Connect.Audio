@@ -6,9 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+ - Added ICD.Connect.Audio.Mock project
+ - Adding MockAudioDevice
+ - Adding API attributes for volume controls
+ - Adding console features for volume controls
+ - Adding console features to volume control abstractions
+ - Adding Shure MXA source routing control
  - Moved volume controls, volume points, volume repeaters and more from other projects
+
 ### Changed
- - Updated to Callbacks for thinconferencesource 
+ - Updated to Callbacks for thinconferencesource
 
 ## [3.1.0] - 2018-05-02
 ### Added

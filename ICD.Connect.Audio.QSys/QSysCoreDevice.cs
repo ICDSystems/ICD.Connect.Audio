@@ -512,10 +512,8 @@ namespace ICD.Connect.Audio.QSys
 			//Parse Change Groups
 			string changeGroupXml;
 			if (XmlUtils.TryGetChildElementAsString(xml, "ChangeGroups", out changeGroupXml))
-			{
 				foreach (ChangeGroup changeGroup in CoreControlsXmlUtils.GetChangeGroupsFromXml(changeGroupXml, this))
 					AddChangeGroup(changeGroup);
-			}
 
 			//Parse Named Controls
 			string namedControlsXml;
@@ -533,7 +531,6 @@ namespace ICD.Connect.Audio.QSys
 			if (XmlUtils.TryGetChildElementAsString(xml, "KrangControls", out krangControlsXml))
 				foreach (IDeviceControl control in CoreControlsXmlUtils.GetKrangControlsFromXml(krangControlsXml, this))
 					AddKrangControl(control);
-
 		}
 
 		private void AddKrangControl(IDeviceControl control)
@@ -891,6 +888,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			base.BuildConsoleStatus(addRow);
 
+			addRow("Loaded Config", m_ConfigPath);
 			addRow("Connected", IsConnected);
 			addRow("Initialized", Initialized);
 		}

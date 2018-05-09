@@ -3,7 +3,10 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Common.Utils.Services.Logging;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
@@ -330,6 +333,14 @@ namespace ICD.Connect.Audio.Devices
 
 			GetRoutedDeviceAndControl(out deviceId, out controlId);
 
+			if (deviceId == Parent.Id)
+			{
+				deviceId = null;
+				controlId = null;
+
+				Logger.AddEntry(eSeverity.Warning, "{0} - Attempted to control own volume recursively", this);
+			}
+
 			SetActiveControl(deviceId, controlId);
 		}
 
@@ -339,7 +350,7 @@ namespace ICD.Connect.Audio.Devices
 			control = null;
 
 			// This should never be null
-			IRouteInputSelectControl inputSelectControl = Parent.Controls.GetControl<IRouteInputSelectControl>();
+			GenericAmpRouteSwitcherControl inputSelectControl = Parent.Controls.GetControl<GenericAmpRouteSwitcherControl>();
 			if (inputSelectControl == null)
 				return;
 
@@ -401,6 +412,21 @@ namespace ICD.Connect.Audio.Devices
 				destination = sourceAsMidpoint;
 				input = sourceConnector.Value.Address;
 			}
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Calls the delegate for each console status item.
+		/// </summary>
+		/// <param name="addRow"></param>
+		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+		{
+			base.BuildConsoleStatus(addRow);
+
+			addRow("Active Volume Control", GetActiveControl<IVolumeDeviceControl>());
 		}
 
 		#endregion

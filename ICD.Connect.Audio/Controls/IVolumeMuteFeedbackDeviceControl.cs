@@ -1,6 +1,7 @@
 ﻿using System;
-using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
+using ICD.Connect.API.Attributes;
+using ICD.Connect.Audio.Proxies.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
@@ -12,7 +13,8 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Raised when the mute state changes.
 		/// </summary>
-		[PublicAPI]
+		[ApiEvent(VolumeMuteFeedbackDeviceControlApi.EVENT_MUTE_STATE_CHANGED,
+			VolumeMuteFeedbackDeviceControlApi.HELP_EVENT_MUTE_STATE_CHANGED)]
 		event EventHandler<BoolEventArgs> OnMuteStateChanged;
 
 		#region Properties
@@ -20,7 +22,8 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Gets the muted state.
 		/// </summary>
-		[PublicAPI]
+		[ApiProperty(VolumeMuteFeedbackDeviceControlApi.PROPERTY_VOLUME_IS_MUTED,
+			VolumeMuteFeedbackDeviceControlApi.HELP_PROPERTY_VOLUME_IS_MUTED)]
 		bool VolumeIsMuted { get; }
 
 		#endregion

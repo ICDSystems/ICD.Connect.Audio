@@ -1,4 +1,5 @@
-﻿using ICD.Common.Properties;
+﻿using ICD.Connect.API.Attributes;
+using ICD.Connect.Audio.Proxies.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
@@ -13,7 +14,7 @@ namespace ICD.Connect.Audio.Controls
 		/// Sets the mute state.
 		/// </summary>
 		/// <param name="mute"></param>
-		[PublicAPI]
+		[ApiMethod(VolumeMuteDeviceControlApi.METHOD_SET_VOLUME_MUTE, VolumeMuteDeviceControlApi.HELP_METHOD_SET_VOLUME_MUTE)]
 		void SetVolumeMute(bool mute);
 
 		#endregion
