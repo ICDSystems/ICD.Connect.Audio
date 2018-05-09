@@ -509,6 +509,16 @@ namespace ICD.Connect.Audio.QSys
 			Logger.AddEntry(severity, exception, message);
 		}
 
+		/// <summary>
+		/// Returns the log message with a LutronQuantumNwkDevice prefix.
+		/// </summary>
+		/// <param name="log"></param>
+		/// <returns></returns>
+		private string AddLogPrefix(string log)
+		{
+			return string.Format("{0} - {1}", this, log);
+		}
+
 		#endregion
 
 		#region Private Methods
