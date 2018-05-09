@@ -272,7 +272,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				string xml = IcdFile.ReadToEnd(fullPath, Encoding.UTF8);
+				string xml = IcdFile.ReadToEnd(fullPath, new UTF8Encoding(false));
+				xml = EncodingUtils.StripUtf8Bom(xml);
+
 				ParseXml(xml);
 			}
 			catch (Exception e)
