@@ -26,7 +26,8 @@ using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
-using ICD.Connect.Settings.Core;
+using ICD.Connect.Settings;
+using ICD.Connect.Settings.Cores;
 
 namespace ICD.Connect.Audio.Biamp
 {
