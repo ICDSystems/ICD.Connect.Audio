@@ -7,7 +7,6 @@ using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings;
-using ICD.Connect.Settings.Cores;
 
 namespace ICD.Connect.Audio.Shure
 {
@@ -182,7 +181,7 @@ namespace ICD.Connect.Audio.Shure
 			{
 				port = factory.GetPortById((int)settings.Port) as ISerialPort;
 				if (port == null)
-					Logger.AddEntry(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
 			}
 
 			SetPort(port);
