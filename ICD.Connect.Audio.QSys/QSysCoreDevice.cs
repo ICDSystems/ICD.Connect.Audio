@@ -25,10 +25,8 @@ using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
-using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings;
-using ICD.Connect.Settings.Cores;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys
@@ -234,9 +232,6 @@ namespace ICD.Connect.Audio.QSys
 			if (port == m_Port)
 				return;
 
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-
 			if (m_Port != null)
 				Disconnect();
 
@@ -250,23 +245,6 @@ namespace ICD.Connect.Audio.QSys
 			Heartbeat.StartMonitoring();
 
 			UpdateCachedOnlineStatus();
-		}
-
-		/// <summary>
-		/// Configures a com port for communication with the hardware.
-		/// </summary>
-		/// <param name="port"></param>
-		[PublicAPI]
-		public static void ConfigureComPort(IComPort port)
-		{
-			port.SetComPortSpec(eComBaudRates.ComspecBaudRate115200,
-			                    eComDataBits.ComspecDataBits8,
-			                    eComParityType.ComspecParityNone,
-			                    eComStopBits.ComspecStopBits1,
-			                    eComProtocolType.ComspecProtocolRS232,
-			                    eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-			                    eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-			                    false);
 		}
 
 		protected override void UpdateCachedOnlineStatus()
