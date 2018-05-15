@@ -10,7 +10,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.Biamp
 {
 	[KrangSettings("BiampTesira", typeof(BiampTesiraDeviceSettings))]
-	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings, INetworkProperties, IComSpecProperties
+	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings, INetworkSettings, IComSpecSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 		private const string CONFIG_ELEMENT = "Config";
@@ -45,19 +45,29 @@ namespace ICD.Connect.Audio.Biamp
 			set { m_ConfigPath = value; }
 		}
 
+		/// <summary>
+		/// Gets the configurable network properties.
+		/// </summary>
+		public INetworkProperties NetworkProperties { get { return m_NetworkProperties; } }
+
+		/// <summary>
+		/// Gets the configurable Com Spec properties.
+		/// </summary>
+		public IComSpecProperties ComSpecProperties { get { return m_ComSpecProperties; } }
+
 		#endregion
 
 		#region Network
 
 		/// <summary>
-		/// Gets/sets the configurable username.
+		/// Gets/sets the configurable network username.
 		/// </summary>
-		public string Username { get { return m_NetworkProperties.Username; } set { m_NetworkProperties.Username = value; } }
+		public string NetworkUsername { get { return m_NetworkProperties.NetworkUsername; } set { m_NetworkProperties.NetworkUsername = value; } }
 
 		/// <summary>
-		/// Gets/sets the configurable password.
+		/// Gets/sets the configurable network password.
 		/// </summary>
-		public string Password { get { return m_NetworkProperties.Password; } set { m_NetworkProperties.Password = value; } }
+		public string NetworkPassword { get { return m_NetworkProperties.NetworkPassword; } set { m_NetworkProperties.NetworkPassword = value; } }
 
 		/// <summary>
 		/// Gets/sets the configurable network address.
@@ -163,7 +173,7 @@ namespace ICD.Connect.Audio.Biamp
 			m_NetworkProperties = new NetworkProperties
 			{
 				NetworkPort = DEFAULT_NETWORK_PORT,
-				Username = DEFAULT_USERNAME
+				NetworkUsername = DEFAULT_USERNAME
 			};
 
 			m_ComSpecProperties = new ComSpecProperties

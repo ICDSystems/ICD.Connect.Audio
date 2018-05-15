@@ -24,6 +24,7 @@ using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings;
@@ -83,7 +84,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private string m_ConfigPath;
 
-		private readonly IcdHashSet<IDeviceControl> m_LoadedControls; 
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
+		private readonly NetworkProperties m_NetworkProperties;
 
 		#region Properties
 
@@ -149,6 +151,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
+			m_NetworkProperties = new NetworkProperties();
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
 			Controls.Add(new QSysCoreRoutingControl(this, 0));
@@ -787,6 +790,8 @@ namespace ICD.Connect.Audio.QSys
 			m_ConfigPath = null;
 			DisposeLoadedControls();
 			SetPort(null);
+
+			m_NetworkProperties.Clear();
 		}
 
 		/// <summary>
@@ -801,6 +806,8 @@ namespace ICD.Connect.Audio.QSys
 			settings.Password = Password;
 			settings.Config = m_ConfigPath;
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+
+			settings.NetworkProperties.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -815,6 +822,8 @@ namespace ICD.Connect.Audio.QSys
 			Username = settings.Username;
 			Password = settings.Password;
 			m_ConfigPath = settings.Config;
+
+			m_NetworkProperties.Copy(settings.NetworkProperties);
 
 			ISerialPort port = null;
 

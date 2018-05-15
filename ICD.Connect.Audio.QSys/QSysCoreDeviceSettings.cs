@@ -8,10 +8,12 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.QSys
 {
 	[KrangSettings("QSysCore", typeof(QSysCoreDevice))]
-	public sealed class QSysCoreDeviceSettings : AbstractDeviceSettings, INetworkProperties
+	public sealed class QSysCoreDeviceSettings : AbstractDeviceSettings, INetworkSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 		private const string CONFIG_ELEMENT = "Config";
+		private const string USERNAME_ELEMENT = "Username";
+		private const string PASSWORD_ELEMENT = "Password";
 
 		private const string DEFAULT_USERNAME = "";
 		private const string DEFAULT_PASSWORD = "";
@@ -20,6 +22,8 @@ namespace ICD.Connect.Audio.QSys
 
 		private readonly NetworkProperties m_NetworkProperties;
 
+		private string m_UserName;
+		private string m_Password;
 		private string m_ConfigPath;
 
 		#region Properties
@@ -42,19 +46,46 @@ namespace ICD.Connect.Audio.QSys
 			set { m_ConfigPath = value; }
 		}
 
+		/// <summary>
+		/// Gets the configurable network properties.
+		/// </summary>
+		public INetworkProperties NetworkProperties { get { return m_NetworkProperties; } }
+
+		public string Username
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_UserName))
+					m_UserName = DEFAULT_USERNAME;
+				return m_UserName;
+			}
+			set { m_UserName = value; }
+		}
+
+		public string Password
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_Password))
+					m_Password = DEFAULT_PASSWORD;
+				return m_Password;
+			}
+			set { m_Password = value; }
+		}
+
 		#endregion
 
 		#region Network
 
 		/// <summary>
-		/// Gets/sets the configurable username.
+		/// Gets/sets the configurable network username.
 		/// </summary>
-		public string Username { get { return m_NetworkProperties.Username; } set { m_NetworkProperties.Username = value; } }
+		public string NetworkUsername { get { return m_NetworkProperties.NetworkUsername; } set { m_NetworkProperties.NetworkUsername = value; } }
 
 		/// <summary>
-		/// Gets/sets the configurable password.
+		/// Gets/sets the configurable network password.
 		/// </summary>
-		public string Password { get { return m_NetworkProperties.Password; } set { m_NetworkProperties.Password = value; } }
+		public string NetworkPassword { get { return m_NetworkProperties.NetworkPassword; } set { m_NetworkProperties.NetworkPassword = value; } }
 
 		/// <summary>
 		/// Gets/sets the configurable network address.
@@ -83,8 +114,8 @@ namespace ICD.Connect.Audio.QSys
 		{
 			m_NetworkProperties = new NetworkProperties
 			{
-				Username = DEFAULT_USERNAME,
-				Password = DEFAULT_PASSWORD,
+				NetworkUsername = DEFAULT_USERNAME,
+				NetworkPassword = DEFAULT_PASSWORD,
 				NetworkPort = DEFAULT_NETWORK_PORT
 			};
 		}
@@ -98,6 +129,8 @@ namespace ICD.Connect.Audio.QSys
 			base.WriteElements(writer);
 
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
+			writer.WriteElementString(USERNAME_ELEMENT, Username);
+			writer.WriteElementString(PASSWORD_ELEMENT, Password);
 			writer.WriteElementString(CONFIG_ELEMENT, Config);
 
 			m_NetworkProperties.WriteElements(writer);
@@ -112,9 +145,13 @@ namespace ICD.Connect.Audio.QSys
 			base.ParseXml(xml);
 
 			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
+			Username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
+			Password = XmlUtils.TryReadChildElementContentAsString(xml, PASSWORD_ELEMENT);
 			Config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 
 			m_NetworkProperties.ParseXml(xml);
+
+			NetworkPort = NetworkPort == 0 ? DEFAULT_NETWORK_PORT : NetworkPort;
 		}
 	}
 }

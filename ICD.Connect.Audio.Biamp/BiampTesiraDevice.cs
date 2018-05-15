@@ -24,6 +24,7 @@ using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings;
 
@@ -71,14 +72,9 @@ namespace ICD.Connect.Audio.Biamp
 		// Used with settings
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
+		private readonly NetworkProperties m_NetworkProperties;
 
 		#region Properties
-
-		/// <summary>
-		/// Username for logging in to the device.
-		/// </summary>
-		[PublicAPI]
-		public string Username { get; set; }
 
 		/// <summary>
 		/// Device Initialized Status.
@@ -133,6 +129,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
+			m_NetworkProperties = new NetworkProperties();
+
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
 			Controls.Add(new BiampTesiraRoutingControl(this, 0));
@@ -705,8 +703,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_Config = null;
 			DisposeLoadedControls();
-			Username = null;
 			SetPort(null);
+
+			m_NetworkProperties.Clear();
 		}
 
 		/// <summary>
@@ -718,8 +717,9 @@ namespace ICD.Connect.Audio.Biamp
 			base.CopySettingsFinal(settings);
 
 			settings.Config = m_Config;
-			settings.Username = Username;
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+
+			settings.NetworkProperties.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -731,7 +731,7 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.ApplySettingsFinal(settings, factory);
 
-			Username = settings.Username;
+			m_NetworkProperties.Copy(settings.NetworkProperties);
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
