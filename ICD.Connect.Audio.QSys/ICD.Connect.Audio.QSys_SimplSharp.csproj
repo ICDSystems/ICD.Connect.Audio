@@ -66,11 +66,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
+    <Compile Include="Controls\IQSysKrangControl.cs" />
     <Compile Include="QSysCoreRoutingControl.cs" />
     <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
     <Compile Include="CoreControls\AbstractCoreControl.cs" />
     <Compile Include="CoreControls\ChangeGroups\ChangeGroup.cs" />
-    <Compile Include="CoreControls\CoreControlsXMLUtils.cs" />
+    <Compile Include="CoreControls\ChangeGroups\IChangeGroup.cs" />
+    <Compile Include="CoreControls\CoreElementsLoadContext.cs" />
+    <Compile Include="CoreControls\CoreElementsXmlUtils.cs" />
+    <Compile Include="CoreControls\IQSysCoreControl.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponent.cs" />
     <Compile Include="CoreControls\NamedControls\AbstractNamedControl.cs" />
     <Compile Include="CoreControls\NamedControls\BooleanNamedControl.cs" />

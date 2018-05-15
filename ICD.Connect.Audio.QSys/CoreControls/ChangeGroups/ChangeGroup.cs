@@ -1,40 +1,67 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 {
-    public sealed class ChangeGroup : AbstractCoreControl
-    {
+	public sealed class ChangeGroup : AbstractCoreControl, IChangeGroup
+	{
+
+		private const float DEFAULT_POLL_INTERVAL = (float).2;
 
 	    private readonly SafeCriticalSection m_NamedControlCriticalSection;
-	    private readonly List<AbstractNamedControl> m_NamedControls;
+	    private readonly List<INamedControl> m_NamedControls;
 
 		public string ChangeGroupId { get; private set; }
 
 		public float? PollInterval { get; private set; }
 
-	    public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId) : base(qSysCore, name, id)
-	    {
-		    ChangeGroupId = changeGroupId;
-		    PollInterval = null;
-
-			m_NamedControls = new List<AbstractNamedControl>();
+		/// <summary>
+		/// Constructor for Explicitly Defined Change Groups
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="friendlyName"></param>
+		/// <param name="context"></param>
+		/// <param name="xml"></param>
+		[UsedImplicitly]
+		public ChangeGroup(int id, string friendlyName, CoreElementsLoadContext context, string xml):base(context.QSysCore, friendlyName, id)
+		{
 			m_NamedControlCriticalSection = new SafeCriticalSection();
-	    }
+			m_NamedControls = new List<INamedControl>();
 
-		public ChangeGroup(QSysCoreDevice qSysCore, int id, string name, string changeGroupId, float? pollInterval) : base(qSysCore, name, id)
-	    {
-		    ChangeGroupId = changeGroupId;
-		    PollInterval = pollInterval;
-
-		    m_NamedControls = new List<AbstractNamedControl>();
-		    m_NamedControlCriticalSection = new SafeCriticalSection();
+			ChangeGroupId = XmlUtils.GetAttributeAsString(xml, "changeGroupId");
+			try
+			{
+				PollInterval = float.Parse(XmlUtils.GetAttributeAsString(xml, "pollInterval"));
+			}
+			catch (FormatException e)
+			{
+			}
 		}
 
-	    public void AddNamedControl(AbstractNamedControl control)
+		/// <summary>
+		/// Constructor for Implicitly Defined Change Groups
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="context"></param>
+		/// <param name="changeGroupId"></param>
+		[UsedImplicitly]
+		public ChangeGroup(int id, CoreElementsLoadContext context, string changeGroupId)
+			: base(context.QSysCore, String.Format("Implicit Change  Group {0}", changeGroupId), id)
+		{
+			m_NamedControlCriticalSection = new SafeCriticalSection();
+			m_NamedControls = new List<INamedControl>();
+
+			ChangeGroupId = changeGroupId;
+			PollInterval = DEFAULT_POLL_INTERVAL;
+		}
+
+	    public void AddNamedControl(INamedControl control)
 	    {
 			bool firstItem = false;
 		    m_NamedControlCriticalSection.Enter();
@@ -54,31 +81,31 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 				SetAutoPoll();
 	    }
 
-	    public void AddNamedControl(IEnumerable<AbstractNamedControl> controls)
+		public void AddNamedControl(IEnumerable<INamedControl> controls)
 	    {
 		    bool firstItem = false;
 		    m_NamedControlCriticalSection.Enter();
-		    IEnumerable<AbstractNamedControl> abstractNamedControls = controls as IList<AbstractNamedControl> ?? controls.ToList();
+		    IEnumerable<INamedControl> namedControls = controls as IList<INamedControl> ?? controls.ToList();
 		    try
 		    {
 			    if (m_NamedControls.Count == 0)
 				    firstItem = true;
-			    m_NamedControls.AddRange(abstractNamedControls);
+			    m_NamedControls.AddRange(namedControls);
 		    }
 		    finally
 		    {
 			    m_NamedControlCriticalSection.Leave();
 		    }
 
-		    SendData(new ChangeGroupAddControlRpc(this, abstractNamedControls).Serialize());
+		    SendData(new ChangeGroupAddControlRpc(this, namedControls).Serialize());
 		    if (firstItem)
 			    SetAutoPoll();
 
 	    }
 
-		public IEnumerable<AbstractNamedControl> GetControls()
+		public IEnumerable<INamedControl> GetControls()
 	    {
-			List<AbstractNamedControl> controls;
+			List<INamedControl> controls;
 		    m_NamedControlCriticalSection.Enter();
 		    try
 		    {
