@@ -5,7 +5,7 @@ using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
-using ICD.Connect.Protocol.Network.Tcp;
+using ICD.Connect.Protocol.Network.Ports.Tcp;
 using ICD.Connect.Protocol.SerialQueues;
 
 namespace ICD.Connect.Audio.Biamp
