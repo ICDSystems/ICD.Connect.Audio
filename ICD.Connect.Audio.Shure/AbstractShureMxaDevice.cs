@@ -5,6 +5,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings;
 
@@ -13,15 +14,9 @@ namespace ICD.Connect.Audio.Shure
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
-		private ISerialPort m_Port;
+		private readonly SecureNetworkProperties m_NetworkProperties;
 
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		protected AbstractShureMxaDevice()
-		{
-			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
-		}
+		private ISerialPort m_Port;
 
 		#region Methods
 
@@ -97,6 +92,16 @@ namespace ICD.Connect.Audio.Shure
 		#endregion
 
 		/// <summary>
+		/// Constructor.
+		/// </summary>
+		protected AbstractShureMxaDevice()
+		{
+			m_NetworkProperties = new SecureNetworkProperties();
+
+			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
+		}
+
+		/// <summary>
 		/// Sends the message to the device.
 		/// </summary>
 		/// <param name="message"></param>
@@ -154,6 +159,8 @@ namespace ICD.Connect.Audio.Shure
 			base.CopySettingsFinal(settings);
 
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -164,6 +171,8 @@ namespace ICD.Connect.Audio.Shure
 			base.ClearSettingsFinal();
 
 			SetPort(null);
+
+			m_NetworkProperties.Clear();
 		}
 
 		/// <summary>
@@ -174,6 +183,8 @@ namespace ICD.Connect.Audio.Shure
 		protected override void ApplySettingsFinal(TSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
+
+			m_NetworkProperties.Copy(settings);
 
 			ISerialPort port = null;
 
