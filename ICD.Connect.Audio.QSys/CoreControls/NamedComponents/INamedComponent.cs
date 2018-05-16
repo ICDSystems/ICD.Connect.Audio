@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Connect.Devices.Controls;
+﻿using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 {

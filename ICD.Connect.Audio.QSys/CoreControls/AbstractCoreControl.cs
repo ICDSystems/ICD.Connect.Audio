@@ -2,7 +2,6 @@
 using ICD.Common.Utils;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.QSys.CoreControls
 {
