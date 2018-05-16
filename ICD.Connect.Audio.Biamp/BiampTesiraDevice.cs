@@ -719,7 +719,7 @@ namespace ICD.Connect.Audio.Biamp
 			settings.Config = m_Config;
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
 
-			settings.NetworkProperties.Copy(m_NetworkProperties);
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -731,7 +731,7 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.ApplySettingsFinal(settings, factory);
 
-			m_NetworkProperties.Copy(settings.NetworkProperties);
+			m_NetworkProperties.Copy(settings);
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))

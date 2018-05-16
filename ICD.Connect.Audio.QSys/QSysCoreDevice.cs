@@ -855,7 +855,7 @@ namespace ICD.Connect.Audio.QSys
 			settings.Config = m_ConfigPath;
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
 
-			settings.NetworkProperties.Copy(m_NetworkProperties);
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -871,7 +871,7 @@ namespace ICD.Connect.Audio.QSys
 			Password = settings.Password;
 			m_ConfigPath = settings.Config;
 
-			m_NetworkProperties.Copy(settings.NetworkProperties);
+			m_NetworkProperties.Copy(settings);
 
 			ISerialPort port = null;
 

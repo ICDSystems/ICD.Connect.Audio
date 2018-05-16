@@ -8,7 +8,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.QSys
 {
 	[KrangSettings("QSysCore", typeof(QSysCoreDevice))]
-	public sealed class QSysCoreDeviceSettings : AbstractDeviceSettings, INetworkSettings
+	public sealed class QSysCoreDeviceSettings : AbstractDeviceSettings, ISecureNetworkSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 		private const string CONFIG_ELEMENT = "Config";
@@ -20,7 +20,7 @@ namespace ICD.Connect.Audio.QSys
 		private const ushort DEFAULT_NETWORK_PORT = 1710;
 		private const string DEFAULT_CONFIG_PATH = "ControlConfig.xml";
 
-		private readonly NetworkProperties m_NetworkProperties;
+		private readonly SecureNetworkProperties m_NetworkProperties;
 
 		private string m_UserName;
 		private string m_Password;
@@ -45,11 +45,6 @@ namespace ICD.Connect.Audio.QSys
 			}
 			set { m_ConfigPath = value; }
 		}
-
-		/// <summary>
-		/// Gets the configurable network properties.
-		/// </summary>
-		public INetworkProperties NetworkProperties { get { return m_NetworkProperties; } }
 
 		public string Username
 		{
@@ -112,7 +107,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDeviceSettings()
 		{
-			m_NetworkProperties = new NetworkProperties
+			m_NetworkProperties = new SecureNetworkProperties
 			{
 				NetworkUsername = DEFAULT_USERNAME,
 				NetworkPassword = DEFAULT_PASSWORD,

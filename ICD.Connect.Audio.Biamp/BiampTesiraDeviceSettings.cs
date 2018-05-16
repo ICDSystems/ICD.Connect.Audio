@@ -10,7 +10,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.Biamp
 {
 	[KrangSettings("BiampTesira", typeof(BiampTesiraDeviceSettings))]
-	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings, INetworkSettings, IComSpecSettings
+	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings, ISecureNetworkSettings, IComSpecSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 		private const string CONFIG_ELEMENT = "Config";
@@ -20,7 +20,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		private const string DEFAULT_CONFIG_PATH = "ControlConfig.xml";
 
-		private readonly NetworkProperties m_NetworkProperties;
+		private readonly SecureNetworkProperties m_NetworkProperties;
 		private readonly ComSpecProperties m_ComSpecProperties;
 
 		private string m_ConfigPath;
@@ -44,16 +44,6 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			set { m_ConfigPath = value; }
 		}
-
-		/// <summary>
-		/// Gets the configurable network properties.
-		/// </summary>
-		public INetworkProperties NetworkProperties { get { return m_NetworkProperties; } }
-
-		/// <summary>
-		/// Gets the configurable Com Spec properties.
-		/// </summary>
-		public IComSpecProperties ComSpecProperties { get { return m_ComSpecProperties; } }
 
 		#endregion
 
@@ -170,7 +160,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDeviceSettings()
 		{
-			m_NetworkProperties = new NetworkProperties
+			m_NetworkProperties = new SecureNetworkProperties
 			{
 				NetworkPort = DEFAULT_NETWORK_PORT,
 				NetworkUsername = DEFAULT_USERNAME
