@@ -94,7 +94,7 @@ namespace ICD.Connect.Audio.QSys
 		/// <summary>
 		/// Gets/sets the configurable network port.
 		/// </summary>
-		public ushort NetworkPort
+		public ushort? NetworkPort
 		{
 			get { return m_NetworkProperties.NetworkPort; }
 			set { m_NetworkProperties.NetworkPort = value; }
@@ -146,7 +146,7 @@ namespace ICD.Connect.Audio.QSys
 
 			m_NetworkProperties.ParseXml(xml);
 
-			NetworkPort = NetworkPort == 0 ? DEFAULT_NETWORK_PORT : NetworkPort;
+			NetworkPort = NetworkPort ?? DEFAULT_NETWORK_PORT;
 		}
 	}
 }
