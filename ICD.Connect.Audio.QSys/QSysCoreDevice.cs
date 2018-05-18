@@ -23,6 +23,7 @@ using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
+using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.SerialBuffers;
@@ -87,7 +88,7 @@ namespace ICD.Connect.Audio.QSys
 		private string m_ConfigPath;
 
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
-		private readonly NetworkProperties m_NetworkProperties;
+		private readonly SecureNetworkProperties m_NetworkProperties;
 
 		#region Properties
 
@@ -153,7 +154,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
-			m_NetworkProperties = new NetworkProperties();
+			m_NetworkProperties = new SecureNetworkProperties();
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
 			Controls.Add(new QSysCoreRoutingControl(this, 0));
@@ -238,6 +239,8 @@ namespace ICD.Connect.Audio.QSys
 			if (port == m_Port)
 				return;
 
+			ConfigurePort(port);
+
 			if (m_Port != null)
 				Disconnect();
 
@@ -251,6 +254,19 @@ namespace ICD.Connect.Audio.QSys
 			Heartbeat.StartMonitoring();
 
 			UpdateCachedOnlineStatus();
+		}
+
+		/// <summary>
+		/// Configures the given port for communication with the device.
+		/// </summary>
+		/// <param name="port"></param>
+		private void ConfigurePort(ISerialPort port)
+		{
+			// Network (TCP, UDP, SSH)
+			if (port is ISecureNetworkPort)
+				(port as ISecureNetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+			else if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
 		}
 
 		protected override void UpdateCachedOnlineStatus()
