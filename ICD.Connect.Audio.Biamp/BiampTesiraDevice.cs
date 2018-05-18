@@ -222,6 +222,8 @@ namespace ICD.Connect.Audio.Biamp
 			if (port == m_Port)
 				return;
 
+			ConfigurePort(port);
+
 			if (m_Port != null)
 				Disconnect();
 
@@ -236,6 +238,23 @@ namespace ICD.Connect.Audio.Biamp
 				Heartbeat.StartMonitoring();
 
 			UpdateCachedOnlineStatus();
+		}
+
+		/// <summary>
+		/// Configures the given port for communication with the device.
+		/// </summary>
+		/// <param name="port"></param>
+		private void ConfigurePort(ISerialPort port)
+		{
+			// Com
+			if (port is IComPort)
+				(port as IComPort).ApplyDeviceConfiguration(m_ComSpecProperties);
+
+			// Network (TCP, UDP, SSH)
+			if (port is ISecureNetworkPort)
+				(port as ISecureNetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+			else if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
 		}
 
 		/// <summary>
