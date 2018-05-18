@@ -160,23 +160,11 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDeviceSettings()
 		{
-			m_NetworkProperties = new SecureNetworkProperties
-			{
-				NetworkPort = DEFAULT_NETWORK_PORT,
-				NetworkUsername = DEFAULT_USERNAME
-			};
+			m_NetworkProperties = new SecureNetworkProperties();
+			m_ComSpecProperties = new ComSpecProperties();
 
-			m_ComSpecProperties = new ComSpecProperties
-			{
-				ComSpecBaudRate = eComBaudRates.ComspecBaudRate115200,
-				ComSpecNumberOfDataBits = eComDataBits.ComspecDataBits8,
-				ComSpecParityType = eComParityType.ComspecParityNone,
-				ComSpecNumberOfStopBits = eComStopBits.ComspecStopBits1,
-				ComSpecProtocolType = eComProtocolType.ComspecProtocolRS232,
-				ComSpecHardwareHandShake = eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-				ComSpecSoftwareHandshake = eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-				ComSpecReportCtsChanges = false
-			};
+			UpdateNetworkDefaults();
+			UpdateComSpecDefaults();
 		}
 
 		/// <summary>
@@ -207,6 +195,32 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_NetworkProperties.ParseXml(xml);
 			m_ComSpecProperties.ParseXml(xml);
+
+			UpdateNetworkDefaults();
+			UpdateComSpecDefaults();
+		}
+
+		/// <summary>
+		/// Sets default values for unconfigured network properties.
+		/// </summary>
+		private void UpdateNetworkDefaults()
+		{
+			m_NetworkProperties.ApplyDefaultValues(null, DEFAULT_NETWORK_PORT, DEFAULT_USERNAME, null);
+		}
+
+		/// <summary>
+		/// Sets default values for unconfigured comspec properties.
+		/// </summary>
+		private void UpdateComSpecDefaults()
+		{
+			m_ComSpecProperties.ApplyDefaultValues(eComBaudRates.ComspecBaudRate115200,
+			                                       eComDataBits.ComspecDataBits8,
+			                                       eComParityType.ComspecParityNone,
+			                                       eComStopBits.ComspecStopBits1,
+			                                       eComProtocolType.ComspecProtocolRS232,
+			                                       eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
+			                                       eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
+			                                       false);
 		}
 	}
 }

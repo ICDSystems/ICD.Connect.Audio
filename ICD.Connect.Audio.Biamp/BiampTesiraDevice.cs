@@ -24,8 +24,11 @@ using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Heartbeat;
+using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
+using ICD.Connect.Protocol.Ports.ComPort;
+using ICD.Connect.Protocol.Settings;
 using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Biamp
@@ -72,7 +75,8 @@ namespace ICD.Connect.Audio.Biamp
 		// Used with settings
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
-		private readonly NetworkProperties m_NetworkProperties;
+		private readonly SecureNetworkProperties m_NetworkProperties;
+		private readonly ComSpecProperties m_ComSpecProperties;
 
 		#region Properties
 
@@ -129,7 +133,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
-			m_NetworkProperties = new NetworkProperties();
+			m_NetworkProperties = new SecureNetworkProperties();
+			m_ComSpecProperties = new ComSpecProperties();
 
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
@@ -706,6 +711,7 @@ namespace ICD.Connect.Audio.Biamp
 			SetPort(null);
 
 			m_NetworkProperties.Clear();
+			m_ComSpecProperties.Clear();
 		}
 
 		/// <summary>
@@ -720,6 +726,7 @@ namespace ICD.Connect.Audio.Biamp
 			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
 
 			settings.Copy(m_NetworkProperties);
+			settings.Copy(m_ComSpecProperties);
 		}
 
 		/// <summary>
@@ -732,6 +739,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.ApplySettingsFinal(settings, factory);
 
 			m_NetworkProperties.Copy(settings);
+			m_ComSpecProperties.Copy(settings);
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
