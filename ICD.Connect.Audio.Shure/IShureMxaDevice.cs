@@ -1,8 +1,9 @@
 ﻿using ICD.Connect.Devices;
+using ICD.Connect.Protocol.Heartbeat;
 
 namespace ICD.Connect.Audio.Shure
 {
-	public interface IShureMxaDevice : IDevice
+	public interface IShureMxaDevice : IConnectable, IDevice
 	{
 		/// <summary>
 		/// Sets the brightness of the hardware LED.
