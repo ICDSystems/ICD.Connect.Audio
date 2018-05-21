@@ -9,11 +9,8 @@ namespace ICD.Connect.Audio.VolumePoints
 	[PublicAPI]
 	public abstract class AbstractVolumePointSettings : AbstractSettings, IVolumePointSettings
 	{
-		private const string VOLUME_POINT_ELEMENT = "VolumePoint";
 		private const string DEVICE_ELEMENT = "Device";
 		private const string CONTROL_ELEMENT = "Control";
-
-		protected override string Element { get { return VOLUME_POINT_ELEMENT; } }
 
 		#region Properties
 

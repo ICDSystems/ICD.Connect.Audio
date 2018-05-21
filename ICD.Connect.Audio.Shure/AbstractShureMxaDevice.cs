@@ -1,10 +1,14 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Utils;
+using ICD.Common.Utils.EventArguments;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Core;
 
@@ -13,14 +17,32 @@ namespace ICD.Connect.Audio.Shure
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
+		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
+
 		private ISerialPort m_Port;
+
+		public Heartbeat Heartbeat { get; private set; }
+		
+		public bool IsConnected{get { return m_Port.IsConnected; }}
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		protected AbstractShureMxaDevice()
 		{
+			Heartbeat = new Heartbeat(this);
+
 			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
+		}
+
+		/// <summary>
+		/// Release resources.
+		/// </summary>
+		protected override void DisposeFinal(bool disposing)
+		{
+			base.DisposeFinal(disposing);
+
+			Heartbeat.Dispose();
 		}
 
 		#region Methods
@@ -102,7 +124,42 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="message"></param>
 		private void Send(string message)
 		{
+
+			if (m_Port == null)
+			{
+				Log(eSeverity.Error, "Unable to communicate with ShureMxa - port is null");
+				return;
+			}
+
+			if (!IsConnected)
+			{
+				Log(eSeverity.Warning, "ShureMxa is disconnected, attempting reconnect");
+				Connect();
+			}
+
+			if (!IsConnected)
+			{
+				Log(eSeverity.Critical, "Unable to communicate with ShureMxa");
+				return;
+			}
+
 			m_Port.Send(message + "\r\n");
+		}
+
+		public void Connect()
+		{
+			if (m_Port == null || m_Port.IsConnected)
+				return;
+
+			m_Port.Connect();
+		}
+
+		public void Disconnect()
+		{
+			if (m_Port == null || !m_Port.IsConnected)
+				return;
+
+			m_Port.Disconnect();
 		}
 
 		#region Port Callbacks
@@ -139,6 +196,8 @@ namespace ICD.Connect.Audio.Shure
 		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
+
+			OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_Port.IsConnected));
 		}
 
 		#endregion
@@ -163,6 +222,8 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.ClearSettingsFinal();
 
+			Heartbeat.StopMonitoring();
+
 			SetPort(null);
 		}
 
@@ -181,10 +242,12 @@ namespace ICD.Connect.Audio.Shure
 			{
 				port = factory.GetPortById((int)settings.Port) as ISerialPort;
 				if (port == null)
-					Logger.AddEntry(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
 			}
 
 			SetPort(port);
+
+			Heartbeat.StartMonitoring();
 		}
 
 		#endregion
