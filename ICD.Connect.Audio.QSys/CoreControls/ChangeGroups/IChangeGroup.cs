@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
@@ -9,6 +10,8 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 		string ChangeGroupId { get; }
 		void AddNamedControl(INamedControl control);
 		void AddNamedControl(IEnumerable<INamedControl> controls);
+		void AddNamedComponent(INamedComponent component);
+		void AddNamedComponent(INamedComponent component, IEnumerable<INamedComponentControl> controls);
 		void Initialize();
 		void DestroyChangeGroup();
 

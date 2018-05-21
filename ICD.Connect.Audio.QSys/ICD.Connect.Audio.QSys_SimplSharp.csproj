@@ -67,6 +67,10 @@
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
+    <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\VoipNamedComponent.cs" />
     <Compile Include="QSysCoreRoutingControl.cs" />
     <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
     <Compile Include="CoreControls\AbstractCoreControl.cs" />
@@ -97,6 +101,7 @@
     <Compile Include="Rpc\ControlGetRpc.cs" />
     <Compile Include="Rpc\ControlSetPositionRpc.cs" />
     <Compile Include="Rpc\ControlSetValueRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupAddComponentControlRpc.cs" />
     <Compile Include="Rpc\NoOpRpc.cs" />
     <Compile Include="Rpc\RpcUtils.cs" />
     <Compile Include="Rpc\StatusGetRpc.cs" />

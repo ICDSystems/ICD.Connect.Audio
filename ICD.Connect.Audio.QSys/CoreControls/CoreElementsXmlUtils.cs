@@ -14,6 +14,14 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 {
 	internal static class CoreElementsXmlUtils
 	{
+		private delegate object ImplicitControlFactory(int id, CoreElementsLoadContext context, string componentName);
+
+		private delegate object ExplicitControlFactory(int id, string friendlyName, CoreElementsLoadContext context, string xml);
+
+		private static Dictionary<Type, ImplicitControlFactory> m_ImpicitControlFactories;
+
+		private static Dictionary<Type, ExplicitControlFactory> m_ExplicitControlFactories;
+
 		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 
 		/// <summary>
@@ -163,6 +171,14 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 				case "BooleanNamedContol":
 				{
 					return typeof(BooleanNamedControl);
+				}
+				case "VoIPComponent":
+				{
+					return typeof(VoipNamedComponent);
+				}
+				case "VoIPComponentControl":
+				{
+					return typeof(VoipComponentDialingDevice);
 				}
 				default:
 				{

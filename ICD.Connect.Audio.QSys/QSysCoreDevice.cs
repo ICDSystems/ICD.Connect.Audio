@@ -287,19 +287,6 @@ namespace ICD.Connect.Audio.QSys
 			}
 		}
 
-		/*
-		public void AddNamedControlToChangeGroupById(int changeGroupId, AbstractNamedControl control)
-		{
-			ChangeGroup changeGroup = GetChangeGroupById(changeGroupId);
-
-			// todo: log or exception here
-			if (changeGroup == null)
-				return;
-
-			changeGroup.AddNamedControl(control);
-		}
-		*/
-
 		public void AddChangeGroup(IEnumerable<IChangeGroup> changeGroups)
 		{
 			changeGroups.ForEach(AddChangeGroup);
@@ -756,6 +743,9 @@ namespace ICD.Connect.Audio.QSys
 					case (RpcUtils.RPCID_NAMED_CONTROL_SET):
 						ParseNamedControlSetResponse(json);
 						break;
+					case (RpcUtils.RPCID_NAMED_COMPONENT_GET):
+						ParseNamedComponentGetResponse(json);
+						break;
 
 				}
 			}
@@ -781,8 +771,8 @@ namespace ICD.Connect.Audio.QSys
 			foreach (JToken change in changes)
 			{
 				JToken component = change.SelectToken("Component");
-				if (component != null && component.HasValues)
-					ParseNamedComponentResponse(change);
+				if (component != null)
+					ParseNamedComponentChangeGroupResponse(change);
 				else
 				{
 					ParseNamedControlResponse(change);
@@ -791,9 +781,58 @@ namespace ICD.Connect.Audio.QSys
 
 		}
 
-		private void ParseNamedComponentResponse(JToken json)
+		private void ParseNamedComponentChangeGroupResponse(JToken result)
 		{
-			// todo: Parse Responses
+			string nameToken = (string)result.SelectToken("Component");
+
+			if (string.IsNullOrEmpty(nameToken))
+				return;
+
+			INamedComponent component;
+
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				if (!m_NamedComponents.TryGetValue(nameToken, out component))
+					return;
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+
+			component.ParseFeedback(result);
+		}
+
+		private void ParseNamedComponentGetResponse(JToken response)
+		{
+			JToken result = response.SelectToken("result");
+			if (result == null || !result.HasValues)
+				return;
+
+			string nameToken = (string)result.SelectToken("Name");
+
+			if (string.IsNullOrEmpty(nameToken))
+				return;
+
+			INamedComponent component;
+
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				if (!m_NamedComponents.TryGetValue(nameToken, out component))
+					return;
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+
+			JToken controls = result.SelectToken("Controls");
+			if (!controls.HasValues)
+				return;
+			foreach (JToken control in controls)
+				component.ParseFeedback(control);
 		}
 
 		/// <summary>
