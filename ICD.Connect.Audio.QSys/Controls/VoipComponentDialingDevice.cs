@@ -28,13 +28,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private ThinConferenceSource m_ConferenceSource;
 
-		private readonly SafeCriticalSection m_ConfereceSourceCriticalSection;
+		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
 		#endregion
 
 
 		public VoipComponentDialingDevice(int id, string friendlyName, CoreElementsLoadContext context, string xml) : base(context.QSysCore, id)
 		{
-			m_ConfereceSourceCriticalSection = new SafeCriticalSection();
+			m_ConferenceSourceCriticalSection = new SafeCriticalSection();
 
 
 		    string voipName = XmlUtils.TryReadChildElementContentAsString(xml, "ControlName");
@@ -74,6 +74,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		#region Events
 
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
 
 		#endregion
 
@@ -84,15 +85,33 @@ namespace ICD.Connect.Audio.QSys.Controls
 			get
 			{
 				ThinConferenceSource returnSource = null;
-				m_ConfereceSourceCriticalSection.Execute(() => returnSource = m_ConferenceSource);
+				m_ConferenceSourceCriticalSection.Execute(() => returnSource = m_ConferenceSource);
 				return returnSource;
 			}
 			set
 			{
-				Unsubscribe(m_ConferenceSource);
-				m_ConfereceSourceCriticalSection.Execute(() => m_ConferenceSource = value);
-				Subscribe(m_ConferenceSource);
-				
+				m_ConferenceSourceCriticalSection.Enter();
+				try
+				{
+					if (m_ConferenceSource != null)
+					{
+						OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ConferenceSource));
+						Unsubscribe(m_ConferenceSource);
+					}
+
+					m_ConferenceSource = value;
+
+					if (m_ConferenceSource != null)
+					{
+						Subscribe(m_ConferenceSource);
+						OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ConferenceSource));
+					}
+				}
+				finally
+				{
+					m_ConferenceSourceCriticalSection.Leave();
+				}
+
 			}
 		}
 
@@ -146,46 +165,48 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void Subscribe()
 		{
-			m_VoipComponent.OnControlValueUpdated += VoipComponentOnControlValueUpdated;
+			m_VoipComponent.OnControlValueUpdated += VoipComponentControlValueUpdated;
 			m_PrivacyMuteControl.OnValueUpdated += PrivacyMuteControlOnValueUpdated;
 			m_HoldControl.OnValueUpdated += HoldControlOnValueUpdated;
 		}
 
 		private void Unsubscribe()
 		{
-			m_VoipComponent.OnControlValueUpdated -= VoipComponentOnControlValueUpdated;
+			m_VoipComponent.OnControlValueUpdated -= VoipComponentControlValueUpdated;
 			m_PrivacyMuteControl.OnValueUpdated -= PrivacyMuteControlOnValueUpdated;
 			m_HoldControl.OnValueUpdated -= HoldControlOnValueUpdated;
 		}
 
 		private void Subscribe(ThinConferenceSource conferenceSource)
 		{
-			conferenceSource.OnAnswerCallback += ConferenceSourceOnAnswerCallback;
-			conferenceSource.OnHangupCallback += ConferenceSourceOnHangupCallback;
-			conferenceSource.OnHoldCallback += ConferenceSourceOnHoldCallback;
-			conferenceSource.OnResumeCallback += ConferenceSourceOnResumeCallback;
-			conferenceSource.OnSendDtmfCallback += ConferenceSourceOnSendDtmfCallback;
+			if (m_ConferenceSource == null)
+				return;
 
-			if (m_ConferenceSource != null)
-				OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(conferenceSource));
+			conferenceSource.AnswerCallback += ConferenceSourceAnswerCallback;
+			conferenceSource.HangupCallback += ConferenceSourceHangupCallback;
+			conferenceSource.HoldCallback += ConferenceSourceHoldCallback;
+			conferenceSource.ResumeCallback += ConferenceSourceResumeCallback;
+			conferenceSource.SendDtmfCallback += ConferenceSourceSendDtmfCallback;
 		}
 
 		private void Unsubscribe(ThinConferenceSource conferenceSource)
 		{
 			if (conferenceSource == null)
 				return;
-			conferenceSource.OnAnswerCallback -= ConferenceSourceOnAnswerCallback;
-			conferenceSource.OnHangupCallback -= ConferenceSourceOnHangupCallback;
-			conferenceSource.OnHoldCallback -= ConferenceSourceOnHoldCallback;
-			conferenceSource.OnResumeCallback -= ConferenceSourceOnResumeCallback;
-			conferenceSource.OnSendDtmfCallback -= ConferenceSourceOnSendDtmfCallback;
+			conferenceSource.AnswerCallback = null;
+			conferenceSource.HangupCallback = null;
+			conferenceSource.HoldCallback = null;
+			conferenceSource.ResumeCallback = null;
+			conferenceSource.SendDtmfCallback = null;
+
+			
 		}
 
-		private void ConferenceSourceOnSendDtmfCallback(object sender, StringEventArgs e)
+		private void ConferenceSourceSendDtmfCallback(ThinConferenceSource sender, string dtmf)
 		{
 			// todo: bail if not off hook?
 			string controlName;
-			switch (e.Data)
+			switch (dtmf)
 			{
 				case "0":
 					controlName = VoipNamedComponent.CONTROL_CALL_PAD_0;
@@ -224,33 +245,33 @@ namespace ICD.Connect.Audio.QSys.Controls
 					controlName = VoipNamedComponent.CONTROL_CALL_PAD_POUND;
 					break;
 				default:
-					throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, e.Data));
+					throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, dtmf));
 			}
 			m_VoipComponent.GetControl(controlName).TriggerControl();
 		}
 
-		private void ConferenceSourceOnResumeCallback(object sender, EventArgs e)
+		private void ConferenceSourceResumeCallback(ThinConferenceSource sender)
 		{
 			m_HoldControl.SetValue(false);
 		}
 
-		private void ConferenceSourceOnHoldCallback(object sender, EventArgs e)
+		private void ConferenceSourceHoldCallback(ThinConferenceSource sender)
 		{
 			//todo: Verify call is in a state to hold?
 			m_HoldControl.SetValue(true);
 		}
 
-		private void ConferenceSourceOnHangupCallback(object sender, EventArgs e)
+		private void ConferenceSourceHangupCallback(ThinConferenceSource sender)
 		{
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DISCONNECT).TriggerControl();
 		}
 
-		private void ConferenceSourceOnAnswerCallback(object sender, EventArgs e)
+		private void ConferenceSourceAnswerCallback(ThinConferenceSource sender)
 		{
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
 		}
 
-		private void VoipComponentOnControlValueUpdated(object sender, ControlValueUpdateEventArgs e)
+		private void VoipComponentControlValueUpdated(object sender, ControlValueUpdateEventArgs e)
 		{
 			INamedComponentControl control = sender as INamedComponentControl;
 			if (control == null)
@@ -348,7 +369,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		private ThinConferenceSource GetOrCreateConferenceSource()
 		{
 			ThinConferenceSource source;
-			m_ConfereceSourceCriticalSection.Enter();
+			m_ConferenceSourceCriticalSection.Enter();
 			try
 			{
 				source = ConferenceSource;
@@ -362,7 +383,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			}
 			finally
 			{
-				m_ConfereceSourceCriticalSection.Leave();
+				m_ConferenceSourceCriticalSection.Leave();
 			}
 		}
 
