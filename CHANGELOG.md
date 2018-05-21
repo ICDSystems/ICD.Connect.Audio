@@ -5,14 +5,19 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [4.0.0] - 2018-05-09
 ### Added
  - Added ICD.Connect.Audio.Mock project
  - Adding MockAudioDevice
- - Moved volume controls, volume points, volume repeaters and more from other projects
  - Adding API attributes for volume controls
  - Adding console features for volume controls
  - Adding console features to volume control abstractions
  - Adding Shure MXA source routing control
+ - Moved volume controls, volume points, volume repeaters and more from other projects
+
+### Changed
+ - Updated to Callbacks for thinconferencesource
 
 ## [3.1.0] - 2018-05-02
 ### Added

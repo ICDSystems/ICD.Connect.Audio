@@ -22,6 +22,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		public event EventHandler<BoolEventArgs> OnHoldChanged;
 
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
+
 
 		private readonly TiControlStatusBlock m_TiControl;
 		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
@@ -386,6 +388,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				m_ActiveSourceSection.Leave();
 			}
 
+			SourceSubscribe(m_ActiveSource);
 			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
 		}
 
@@ -404,6 +407,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				UpdateSource(m_ActiveSource);
 
 				Unsubscribe(m_ActiveSource);
+
+				SourceUnsubscribe(m_ActiveSource);
+				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
+
 				m_ActiveSource = null;
 
 				// Clear the hold state between calls
@@ -416,38 +423,53 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		}
 
 		/// <summary>
-		/// Setup the source callbacks.
+		/// Subscribe to the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
 		private void Subscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnHoldCallback += HoldCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.AnswerCallback += AnswerCallback;
+			source.HoldCallback += HoldCallback;
+			source.ResumeCallback += ResumeCallback;
+			source.SendDtmfCallback += SendDtmfCallback;
+			source.HangupCallback += HangupCallback;
 		}
 
 		/// <summary>
-		/// Remove the source callbacks.
+		/// Unsubscribe from the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback -= AnswerCallback;
-			source.OnHoldCallback -= HoldCallback;
-			source.OnResumeCallback -= ResumeCallback;
-			source.OnHangupCallback -= HangupCallback;
-			source.OnSendDtmfCallback -= SendDtmfCallback;
+			source.AnswerCallback = null;
+			source.HoldCallback = null;
+			source.ResumeCallback = null;
+			source.SendDtmfCallback = null;
+			source.HangupCallback = null;
 		}
 
-		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
+		private void AnswerCallback(ThinConferenceSource sender)
 		{
-			foreach (char digit in stringEventArgs.Data)
+			m_TiControl.Answer();
+		}
+
+		private void HoldCallback(ThinConferenceSource sender)
+		{
+			SetHold(true);
+		}
+
+		private void ResumeCallback(ThinConferenceSource sender)
+		{
+			SetHold(false);
+		}
+
+		private void SendDtmfCallback(ThinConferenceSource sender, string data)
+		{
+			foreach (char digit in data)
 				m_TiControl.Dtmf(digit);
 		}
 
-		private void HangupCallback(object sender, EventArgs eventArgs)
+		private void HangupCallback(ThinConferenceSource sender)
 		{
 			// Ends the active call.
 			m_TiControl.End();
@@ -457,21 +479,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
 			SetHold(false);
-		}
-
-		private void ResumeCallback(object sender, EventArgs eventArgs)
-		{
-			SetHold(false);
-		}
-
-		private void HoldCallback(object sender, EventArgs eventArgs)
-		{
-			SetHold(true);
-		}
-
-		private void AnswerCallback(object sender, EventArgs eventArgs)
-		{
-			m_TiControl.Answer();
 		}
 
 		#endregion

@@ -32,9 +32,6 @@ namespace ICD.Connect.Audio.Biamp
 {
 	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>, IConnectable
 	{
-		// How often to check the connection and reconnect if necessary.
-		private const long CONNECTION_CHECK_MILLISECONDS = 30 * 1000;
-
 		// How often to re-subscribe to device events
 		private const long SUBSCRIPTION_INTERVAL_MILLISECONDS = 10 * 60 * 1000;
 
@@ -272,12 +269,14 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				string xml = IcdFile.ReadToEnd(fullPath, Encoding.UTF8);
+				string xml = IcdFile.ReadToEnd(fullPath, new UTF8Encoding(false));
+				xml = EncodingUtils.StripUtf8Bom(xml);
+
 				ParseXml(xml);
 			}
 			catch (Exception e)
 			{
-				Logger.AddEntry(eSeverity.Error, "{0} Failed to load integration config {1} - {2}", this, fullPath, e.Message);
+				Log(eSeverity.Error, "{0} Failed to load integration config {1} - {2}", this, fullPath, e.Message);
 			}
 		}
 
@@ -437,20 +436,6 @@ namespace ICD.Connect.Audio.Biamp
 			m_SerialQueue.Enqueue(pair, (a, b) => a.Code.CompareEquality(b.Code));
 		}
 
-		/// <summary>
-		/// Logs the message.
-		/// </summary>
-		/// <param name="severity"></param>
-		/// <param name="message"></param>
-		/// <param name="args"></param>
-		public void Log(eSeverity severity, string message, params object[] args)
-		{
-			message = string.Format(message, args);
-			message = AddLogPrefix(message);
-
-			Logger.AddEntry(severity, message);
-		}
-
 		#endregion
 
 		#region Private Methods
@@ -481,25 +466,6 @@ namespace ICD.Connect.Audio.Biamp
 				control.Dispose();
 			}
 			m_LoadedControls.Clear();
-		}
-
-		/// <summary>
-		/// Returns the log message with a LutronQuantumNwkDevice prefix.
-		/// </summary>
-		/// <param name="log"></param>
-		/// <returns></returns>
-		private string AddLogPrefix(string log)
-		{
-			return string.Format("{0} - {1}", this, log);
-		}
-
-		/// <summary>
-		/// Called periodically to maintain connection to the device.
-		/// </summary>
-		private void ConnectionTimerCallback()
-		{
-			if (m_Port != null && !m_Port.IsConnected)
-				Connect();
 		}
 
 		#endregion
