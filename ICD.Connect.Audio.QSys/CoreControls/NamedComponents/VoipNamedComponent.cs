@@ -91,6 +91,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_NUMBER));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_STATUS));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_AUTOANSWER));
+			AddControl(new NamedComponentControl(this, CONTROL_CALL_DND));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NAME));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NUMBER));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_DETAILS));
