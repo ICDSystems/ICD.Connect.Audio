@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils;
-using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
@@ -17,60 +16,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 {
 	public sealed class VoipComponentDialingDevice : AbstractDialingDeviceControl<QSysCoreDevice>, IQSysKrangControl
 	{
-
 		private const float TOLERANCE = (float)(0.0001);
-
-		#region Fields
-		private BooleanNamedControl m_HoldControl;
-
-		private BooleanNamedControl m_PrivacyMuteControl;
-
-		private VoipNamedComponent m_VoipComponent;
-
-		private ThinConferenceSource m_ConferenceSource;
-
-		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
-		#endregion
-
-
-		public VoipComponentDialingDevice(int id, string friendlyName, CoreElementsLoadContext context, string xml) : base(context.QSysCore, id)
-		{
-			m_ConferenceSourceCriticalSection = new SafeCriticalSection();
-
-
-		    string voipName = XmlUtils.TryReadChildElementContentAsString(xml, "ControlName");
-		    string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMuteControl");
-		    string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
-
-			//If we don't have names defined for the controls, bail out
-		    if (String.IsNullOrEmpty(voipName))
-			    throw new
-				    InvalidOperationException(String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without VoIPComponentName",
-				                                            id, friendlyName));
-			if (String.IsNullOrEmpty(privacyMuteName))
-				throw new
-					InvalidOperationException(String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without PrivacyMuteControlName",
-					                                        id, friendlyName));
-
-		    if (String.IsNullOrEmpty(holdName))
-			    throw new
-				    InvalidOperationException(String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without HoldControlName",
-				                                            id, friendlyName));
-
-			// Load volume/mute controls
-		    m_VoipComponent = context.LazyLoadNamedComponent(voipName, typeof(VoipNamedComponent)) as VoipNamedComponent;
-		    m_PrivacyMuteControl = context.LazyLoadNamedControl(privacyMuteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
-			m_HoldControl = context.LazyLoadNamedControl(holdName, typeof(BooleanNamedControl)) as BooleanNamedControl;
-
-		    if (m_VoipComponent == null)
-			    throw new KeyNotFoundException(String.Format("QSys - No VoIP Component {0}", voipName));
-		    if (m_PrivacyMuteControl == null)
-			    throw new KeyNotFoundException(String.Format("QSys - No Privacy Mute Control {0}", privacyMuteName));
-		    if (m_HoldControl == null)
-			    throw new KeyNotFoundException(String.Format("QSys - No Hold Control {0}", holdName));
-
-		    Subscribe();
-	    }
 
 		#region Events
 
@@ -79,55 +25,116 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#endregion
 
+		#region Fields
+
+		private readonly BooleanNamedControl m_HoldControl;
+		private readonly BooleanNamedControl m_PrivacyMuteControl;
+		private readonly VoipNamedComponent m_VoipComponent;
+
+		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
+
+		private ThinConferenceSource m_ConferenceSource;
+
+		#endregion
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="id"></param>
+		/// <param name="friendlyName"></param>
+		/// <param name="context"></param>
+		/// <param name="xml"></param>
+		public VoipComponentDialingDevice(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+			: base(context.QSysCore, id)
+		{
+			m_ConferenceSourceCriticalSection = new SafeCriticalSection();
+
+			string voipName = XmlUtils.TryReadChildElementContentAsString(xml, "ControlName");
+			string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMuteControl");
+			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
+
+			//If we don't have names defined for the controls, bail out
+			if (String.IsNullOrEmpty(voipName))
+				throw new
+					InvalidOperationException(
+					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without VoIPComponentName",
+					              id, friendlyName));
+			if (String.IsNullOrEmpty(privacyMuteName))
+				throw new
+					InvalidOperationException(
+					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without PrivacyMuteControlName",
+					              id, friendlyName));
+
+			if (String.IsNullOrEmpty(holdName))
+				throw new
+					InvalidOperationException(
+					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without HoldControlName",
+					              id, friendlyName));
+
+			// Load volume/mute controls
+			m_VoipComponent = context.LazyLoadNamedComponent(voipName, typeof(VoipNamedComponent)) as VoipNamedComponent;
+			m_PrivacyMuteControl =
+				context.LazyLoadNamedControl(privacyMuteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
+			m_HoldControl = context.LazyLoadNamedControl(holdName, typeof(BooleanNamedControl)) as BooleanNamedControl;
+
+			if (m_VoipComponent == null)
+				throw new KeyNotFoundException(String.Format("QSys - No VoIP Component {0}", voipName));
+			if (m_PrivacyMuteControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Privacy Mute Control {0}", privacyMuteName));
+			if (m_HoldControl == null)
+				throw new KeyNotFoundException(String.Format("QSys - No Hold Control {0}", holdName));
+
+			Subscribe();
+		}
+
 		#region Properties
 
 		private ThinConferenceSource ConferenceSource
 		{
-			get
-			{
-				ThinConferenceSource returnSource = null;
-				m_ConferenceSourceCriticalSection.Execute(() => returnSource = m_ConferenceSource);
-				return returnSource;
-			}
+			get { return m_ConferenceSourceCriticalSection.Execute(() => m_ConferenceSource); }
 			set
 			{
+				IConferenceSource removed;
+
 				m_ConferenceSourceCriticalSection.Enter();
 				try
 				{
-					if (m_ConferenceSource != null)
-					{
-						OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ConferenceSource));
-						Unsubscribe(m_ConferenceSource);
-					}
+					removed = m_ConferenceSource;
 
+					Unsubscribe(m_ConferenceSource);
 					m_ConferenceSource = value;
-
-					if (m_ConferenceSource != null)
-					{
-						Subscribe(m_ConferenceSource);
-						OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ConferenceSource));
-					}
+					Subscribe(m_ConferenceSource);
 				}
 				finally
 				{
 					m_ConferenceSourceCriticalSection.Leave();
 				}
 
+				if (removed != null)
+					OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(removed));
+
+				if (value != null)
+					OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(value));
 			}
 		}
 
+		/// <summary>
+		/// Gets the type of conference this dialer supports.
+		/// </summary>
 		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
 
 		#endregion
 
 		#region Public Methods
 
+		/// <summary>
+		/// Gets the active conference sources.
+		/// </summary>
+		/// <returns></returns>
 		public override IEnumerable<IConferenceSource> GetSources()
 		{
 			if (ConferenceSource != null)
 				yield return ConferenceSource;
-			else
-				yield break;
 		}
 
 		public override void Dial(string number)
@@ -142,7 +149,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_NUMBER).SetValue(number);
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
-
 		}
 
 		public override void SetDoNotDisturb(bool enabled)
@@ -199,8 +205,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 			conferenceSource.HoldCallback = null;
 			conferenceSource.ResumeCallback = null;
 			conferenceSource.SendDtmfCallback = null;
-
-			
 		}
 
 		private void ConferenceSourceSendDtmfCallback(ThinConferenceSource sender, string dtmf)
@@ -289,8 +293,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 			INamedComponentControl control = sender as INamedComponentControl;
 			if (control == null)
 				throw new
-					InvalidOperationException(String.Format("VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
-					                          Id, Name));
+					InvalidOperationException(
+					String.Format(
+					              "VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
+					              Id, Name));
 
 			switch (control.Name)
 			{
@@ -309,10 +315,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 				case VoipNamedComponent.CONTROL_CALL_CID_NUMBER:
 					ParseCidNumber(e);
 					break;
-
 			}
-
-			
 		}
 
 		private void ParseDnd(ControlValueUpdateEventArgs controlValueUpdateEventArgs)
@@ -351,7 +354,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 					return;
 				source.Status = callStatus;
 				source.End = DateTime.Now;
-				DistroyConferenceSource();
+				DestroyConferenceSource();
 				return;
 			}
 
@@ -402,18 +405,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private ThinConferenceSource GetOrCreateConferenceSource()
 		{
-			ThinConferenceSource source;
 			m_ConferenceSourceCriticalSection.Enter();
 			try
 			{
-				source = ConferenceSource;
-				if (source == null)
-				{
-					source = new ThinConferenceSource();
-					ConferenceSource = source;
-				}
-
-				return source;
+				return ConferenceSource = ConferenceSource ?? new ThinConferenceSource();
 			}
 			finally
 			{
@@ -421,7 +416,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			}
 		}
 
-		private void DistroyConferenceSource()
+		private void DestroyConferenceSource()
 		{
 			ConferenceSource = null;
 		}
@@ -447,14 +442,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 				default:
 					return eConferenceSourceStatus.Undefined;
 			}
-
 		}
 
 		private static string GetNumberFromDialingStatus(string qsysStatus)
 		{
 			return qsysStatus.Split('-', 2).ToArray()[1].Trim();
 		}
-
 
 		#endregion
 	}
