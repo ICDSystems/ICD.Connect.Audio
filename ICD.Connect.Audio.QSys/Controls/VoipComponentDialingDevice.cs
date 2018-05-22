@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -427,7 +428,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private static eConferenceSourceStatus QSysStatusToConferenceSourceStatus(string qsysStatus)
 		{
-			string status = qsysStatus.Split(new Char[] {'-'}, 2)[0].Trim();
+			string status = qsysStatus.Split('-', 2).ToArray()[0].Trim();
 
 			switch (status.ToLower())
 			{
@@ -451,7 +452,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private static string GetNumberFromDialingStatus(string qsysStatus)
 		{
-			return qsysStatus.Split(new char[] {'-'}, 2)[1].Trim();
+			return qsysStatus.Split('-', 2).ToArray()[1].Trim();
 		}
 
 
