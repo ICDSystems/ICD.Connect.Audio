@@ -44,6 +44,44 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#endregion
 
+		#region Properties
+
+		private ThinConferenceSource ConferenceSource
+		{
+			get { return m_ConferenceSourceCriticalSection.Execute(() => m_ConferenceSource); }
+			set
+			{
+				IConferenceSource removed;
+
+				m_ConferenceSourceCriticalSection.Enter();
+				try
+				{
+					removed = m_ConferenceSource;
+
+					Unsubscribe(m_ConferenceSource);
+					m_ConferenceSource = value;
+					Subscribe(m_ConferenceSource);
+				}
+				finally
+				{
+					m_ConferenceSourceCriticalSection.Leave();
+				}
+
+				if (removed != null)
+					OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(removed));
+
+				if (value != null)
+					OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(value));
+			}
+		}
+
+		/// <summary>
+		/// Gets the type of conference this dialer supports.
+		/// </summary>
+		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
+
+		#endregion
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -94,43 +132,19 @@ namespace ICD.Connect.Audio.QSys.Controls
 			Subscribe();
 		}
 
-		#region Properties
-
-		private ThinConferenceSource ConferenceSource
-		{
-			get { return m_ConferenceSourceCriticalSection.Execute(() => m_ConferenceSource); }
-			set
-			{
-				IConferenceSource removed;
-
-				m_ConferenceSourceCriticalSection.Enter();
-				try
-				{
-					removed = m_ConferenceSource;
-
-					Unsubscribe(m_ConferenceSource);
-					m_ConferenceSource = value;
-					Subscribe(m_ConferenceSource);
-				}
-				finally
-				{
-					m_ConferenceSourceCriticalSection.Leave();
-				}
-
-				if (removed != null)
-					OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(removed));
-
-				if (value != null)
-					OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(value));
-			}
-		}
-
 		/// <summary>
-		/// Gets the type of conference this dialer supports.
+		/// Override to release resources.
 		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
+		/// <param name="disposing"></param>
+		protected override void DisposeFinal(bool disposing)
+		{
+			OnSourceAdded = null;
+			OnSourceRemoved = null;
 
-		#endregion
+			base.DisposeFinal(disposing);
+
+			ConferenceSource = null;
+		}
 
 		#region Public Methods
 
