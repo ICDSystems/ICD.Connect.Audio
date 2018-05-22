@@ -270,11 +270,17 @@ namespace ICD.Connect.Audio.QSys.Controls
 		private void ConferenceSourceHangupCallback(ThinConferenceSource sender)
 		{
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DISCONNECT).TriggerControl();
+			ThinConferenceSource source = ConferenceSource;
+			if (source != null && source.AnswerState == eConferenceSourceAnswerState.Unanswered)
+				source.AnswerState = eConferenceSourceAnswerState.Ignored;
 		}
 
 		private void ConferenceSourceAnswerCallback(ThinConferenceSource sender)
 		{
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
+			ThinConferenceSource source = ConferenceSource;
+			if (source != null)
+				source.AnswerState = eConferenceSourceAnswerState.Answered;
 		}
 
 		private void VoipComponentControlValueUpdated(object sender, ControlValueUpdateEventArgs e)
@@ -335,9 +341,11 @@ namespace ICD.Connect.Audio.QSys.Controls
 			Parent.Log(eSeverity.Debug, "Call Status: {0}", controlValueUpdateEventArgs.ValueString);
 			eConferenceSourceStatus callStatus = QSysStatusToConferenceSourceStatus(controlValueUpdateEventArgs.ValueString);
 
+			ThinConferenceSource source;
+
 			if (callStatus == eConferenceSourceStatus.Disconnected | callStatus == eConferenceSourceStatus.Idle)
 			{
-				ThinConferenceSource source = ConferenceSource;
+				source = ConferenceSource;
 				if (source == null)
 					return;
 				source.Status = callStatus;
@@ -346,11 +354,30 @@ namespace ICD.Connect.Audio.QSys.Controls
 				return;
 			}
 
-			GetOrCreateConferenceSource().Status = callStatus;
+			source = GetOrCreateConferenceSource();
+
+			source.Status = callStatus;
 			if (callStatus == eConferenceSourceStatus.Ringing)
-				GetOrCreateConferenceSource().Direction = eConferenceSourceDirection.Incoming;
+			{
+				source.Direction = eConferenceSourceDirection.Incoming;
+				source.AnswerState = eConferenceSourceAnswerState.Unanswered;
+			}
+
 			if (callStatus == eConferenceSourceStatus.Dialing)
-				GetOrCreateConferenceSource().Direction = eConferenceSourceDirection.Outgoing;
+			{
+				source.Direction = eConferenceSourceDirection.Outgoing;
+				string number = GetNumberFromDialingStatus(controlValueUpdateEventArgs.ValueString);
+				if (!String.IsNullOrEmpty(number))
+					source.Number = number;
+			}
+
+			if (callStatus == eConferenceSourceStatus.Connected)
+			{
+				if (source.Start == null)
+					source.Start = DateTime.Now;
+				if (source.AnswerState == eConferenceSourceAnswerState.Unanswered)
+					source.AnswerState = eConferenceSourceAnswerState.Autoanswered;
+			}
 		}
 
 		private void PrivacyMuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs e)
@@ -420,6 +447,11 @@ namespace ICD.Connect.Audio.QSys.Controls
 					return eConferenceSourceStatus.Undefined;
 			}
 
+		}
+
+		private static string GetNumberFromDialingStatus(string qsysStatus)
+		{
+			return qsysStatus.Split(new char[] {'-'}, 2)[1].Trim();
 		}
 
 
