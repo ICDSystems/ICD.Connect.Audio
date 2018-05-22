@@ -25,9 +25,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 
 		public void ParseFeedback(JToken feedback)
 		{
-			ValueRaw = float.Parse((string)feedback.SelectToken("Value"));
+			ValueRaw = (float)feedback.SelectToken("Value");
 			ValueString = (string)feedback.SelectToken("String");
-			ValuePosition = float.Parse((string)feedback.SelectToken("Position"));
+			ValuePosition = (float)feedback.SelectToken("Position");
 
 			OnValueUpdated.Raise(this, new ControlValueUpdateEventArgs(Name, ValueString, ValueRaw, ValuePosition));
 		}
