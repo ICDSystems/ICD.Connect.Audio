@@ -189,6 +189,8 @@ namespace ICD.Connect.Audio.QSys.Controls
 			if (m_ConferenceSource == null)
 				return;
 
+			SourceSubscribe(conferenceSource);
+
 			conferenceSource.AnswerCallback += ConferenceSourceAnswerCallback;
 			conferenceSource.HangupCallback += ConferenceSourceHangupCallback;
 			conferenceSource.HoldCallback += ConferenceSourceHoldCallback;
@@ -200,6 +202,9 @@ namespace ICD.Connect.Audio.QSys.Controls
 		{
 			if (conferenceSource == null)
 				return;
+
+			SourceUnsubscribe(conferenceSource);
+
 			conferenceSource.AnswerCallback = null;
 			conferenceSource.HangupCallback = null;
 			conferenceSource.HoldCallback = null;
