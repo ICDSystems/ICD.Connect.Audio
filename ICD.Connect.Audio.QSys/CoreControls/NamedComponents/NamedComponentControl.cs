@@ -11,15 +11,15 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 {
 	public sealed class NamedComponentControl: INamedComponentControl
 	{
-		private INamedComponent m_Component;
+		public event EventHandler<ControlValueUpdateEventArgs> OnValueUpdated;
+
+		private readonly INamedComponent m_Component;
 
 		public string ValueString { get; private set; }
 
 		public float ValueRaw { get; private set; }
 
 		public float ValuePosition { get; private set; }
-
-		public event EventHandler<ControlValueUpdateEventArgs> OnValueUpdated;
 
 		public string Name { get; private set; }
 
@@ -30,7 +30,6 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 			ValuePosition = float.Parse((string)feedback.SelectToken("Position"));
 
 			OnValueUpdated.Raise(this, new ControlValueUpdateEventArgs(Name, ValueString, ValueRaw, ValuePosition));
-
 		}
 
 		public NamedComponentControl(INamedComponent component, string name)
@@ -107,6 +106,5 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 		}
 
 		#endregion
-
 	}
 }
