@@ -20,7 +20,14 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#region Events
 
+		/// <summary>
+		/// Raised when a source is added to the dialing component.
+		/// </summary>
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+
+		/// <summary>
+		/// Raised when a source is removed from the dialing component.
+		/// </summary>
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
 
 		#endregion
