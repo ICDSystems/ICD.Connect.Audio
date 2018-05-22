@@ -246,6 +246,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 					break;
 				default:
 					throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, dtmf));
+						break;
 			}
 			m_VoipComponent.GetControl(controlName).TriggerControl();
 		}
