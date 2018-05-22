@@ -205,50 +205,55 @@ namespace ICD.Connect.Audio.QSys.Controls
 		private void ConferenceSourceSendDtmfCallback(ThinConferenceSource sender, string dtmf)
 		{
 			// todo: bail if not off hook?
-			string controlName;
-			switch (dtmf)
+
+			foreach (char c in dtmf)
 			{
-				case "0":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_0;
-					break;
-				case "1":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_1;
-					break;
-				case "2":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_2;
-					break;
-				case "3":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_3;
-					break;
-				case "4":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_4;
-					break;
-				case "5":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_5;
-					break;
-				case "6":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_6;
-					break;
-				case "7":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_7;
-					break;
-				case "8":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_8;
-					break;
-				case "9":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_9;
-					break;
-				case "*":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_STAR;
-					break;
-				case "#":
-					controlName = VoipNamedComponent.CONTROL_CALL_PAD_POUND;
-					break;
-				default:
-					throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, dtmf));
+
+				string controlName;
+				switch (c)
+				{
+					case '0':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_0;
 						break;
+					case '1':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_1;
+						break;
+					case '2':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_2;
+						break;
+					case '3':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_3;
+						break;
+					case '4':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_4;
+						break;
+					case '5':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_5;
+						break;
+					case '6':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_6;
+						break;
+					case '7':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_7;
+						break;
+					case '8':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_8;
+						break;
+					case '9':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_9;
+						break;
+					case '*':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_STAR;
+						break;
+					case '#':
+						controlName = VoipNamedComponent.CONTROL_CALL_PAD_POUND;
+						break;
+					default:
+						throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, c));
+				}
+
+				m_VoipComponent.GetControl(controlName).TriggerControl();
 			}
-			m_VoipComponent.GetControl(controlName).TriggerControl();
 		}
 
 		private void ConferenceSourceResumeCallback(ThinConferenceSource sender)
