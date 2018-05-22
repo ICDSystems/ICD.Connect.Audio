@@ -95,7 +95,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NAME));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NUMBER));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_DETAILS));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_CONNECT_TIME));
+			//AddControl(new NamedComponentControl(this, CONTROL_CALL_CONNECT_TIME));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_STATE));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_OFFHOOK));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_RING));
@@ -114,8 +114,6 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_POUND));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_CONNECT));
 			AddControl(new NamedComponentControl(this, CONTROL_CALL_DISCONNECT));
-
-
 
 			SubscribeControls();
 		}
