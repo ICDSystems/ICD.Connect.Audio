@@ -54,8 +54,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 				IConferenceSource removed;
 
 				m_ConferenceSourceCriticalSection.Enter();
+
 				try
 				{
+					if (value == m_ConferenceSource)
+						return;
+
 					removed = m_ConferenceSource;
 
 					Unsubscribe(m_ConferenceSource);
@@ -154,8 +158,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// <returns></returns>
 		public override IEnumerable<IConferenceSource> GetSources()
 		{
-			if (ConferenceSource != null)
-				yield return ConferenceSource;
+			IConferenceSource source = ConferenceSource;
+
+			if (source != null)
+				yield return source;
 		}
 
 		public override void Dial(string number)
