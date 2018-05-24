@@ -92,6 +92,7 @@
     <Compile Include="QSysCoreDeviceSettings.cs" />
     <Compile Include="Rpc\AbstractControlSetRpc.cs" />
     <Compile Include="Rpc\AbstractRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupAddComponentControlRpc.cs" />
     <Compile Include="Rpc\ChangeGroupAddControlRpc.cs" />
     <Compile Include="Rpc\ChangeGroupAutoPollRpc.cs" />
     <Compile Include="Rpc\ChangeGroupDestroyRpc.cs" />
@@ -102,7 +103,6 @@
     <Compile Include="Rpc\ControlGetRpc.cs" />
     <Compile Include="Rpc\ControlSetPositionRpc.cs" />
     <Compile Include="Rpc\ControlSetValueRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupAddComponentControlRpc.cs" />
     <Compile Include="Rpc\NoOpRpc.cs" />
     <Compile Include="Rpc\RpcUtils.cs" />
     <Compile Include="Rpc\StatusGetRpc.cs" />
