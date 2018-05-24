@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.0.0] - 2018-05-24
+### Added
+ - QSys Core VoIP dialer implementation
+
 ## [4.0.0] - 2018-05-09
 ### Added
  - Added ICD.Connect.Audio.Mock project
