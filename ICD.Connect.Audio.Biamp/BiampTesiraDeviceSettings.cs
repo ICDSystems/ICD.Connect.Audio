@@ -6,7 +6,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	[KrangSettings("BiampTesira", typeof(BiampTesiraDeviceSettings))]
+	[KrangSettings("BiampTesira", typeof(BiampTesiraDevice))]
 	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings
 	{
 		private const string PORT_ELEMENT = "Port";
