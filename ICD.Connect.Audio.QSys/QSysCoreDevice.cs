@@ -374,6 +374,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private void Initialize()
 		{
+			m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
+
 			Initialized = true;
 		}
 
