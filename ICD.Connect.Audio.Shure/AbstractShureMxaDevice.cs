@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.EventArguments;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
-using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Core;
 
@@ -17,20 +14,15 @@ namespace ICD.Connect.Audio.Shure
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
-		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
-
-		private ISerialPort m_Port;
-
-		public Heartbeat Heartbeat { get; private set; }
-		
-		public bool IsConnected{get { return m_Port.IsConnected; }}
+		private readonly ConnectionStateManager m_ConnectionStateManager;
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		protected AbstractShureMxaDevice()
 		{
-			Heartbeat = new Heartbeat(this);
+			m_ConnectionStateManager = new ConnectionStateManager(this);
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 
 			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
 		}
@@ -42,24 +34,11 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.DisposeFinal(disposing);
 
-			Heartbeat.Dispose();
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.Dispose();
 		}
 
 		#region Methods
-
-		/// <summary>
-		/// Sets the wrapped port for communication with the hardware.
-		/// </summary>
-		/// <param name="port"></param>
-		public void SetPort(ISerialPort port)
-		{
-			if (port == m_Port)
-				return;
-
-			Unsubscribe(m_Port);
-			m_Port = port;
-			Subscribe(m_Port);
-		}
 
 		/// <summary>
 		/// Sets the brightness of the hardware LED.
@@ -113,7 +92,7 @@ namespace ICD.Connect.Audio.Shure
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsOnline;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsConnected;
 		}
 
 		#endregion
@@ -124,80 +103,25 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="message"></param>
 		private void Send(string message)
 		{
-
-			if (m_Port == null)
-			{
-				Log(eSeverity.Error, "Unable to communicate with ShureMxa - port is null");
-				return;
-			}
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Warning, "ShureMxa is disconnected, attempting reconnect");
-				Connect();
-			}
-
-			if (!IsConnected)
+			if (!m_ConnectionStateManager.IsConnected)
 			{
 				Log(eSeverity.Critical, "Unable to communicate with ShureMxa");
 				return;
 			}
 
-			m_Port.Send(message + "\r\n");
-		}
-
-		public void Connect()
-		{
-			if (m_Port == null || m_Port.IsConnected)
-				return;
-
-			m_Port.Connect();
-		}
-
-		public void Disconnect()
-		{
-			if (m_Port == null || !m_Port.IsConnected)
-				return;
-
-			m_Port.Disconnect();
+			m_ConnectionStateManager.Send(message + "\r\n");
 		}
 
 		#region Port Callbacks
-
-		/// <summary>
-		/// Subscribe to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-		}
 
 		/// <summary>
 		/// Called when the port online state changes.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
+		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
-
-			OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_Port.IsConnected));
 		}
 
 		#endregion
@@ -212,7 +136,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.CopySettingsFinal(settings);
 
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 		}
 
 		/// <summary>
@@ -222,9 +146,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.ClearSettingsFinal();
 
-			Heartbeat.StopMonitoring();
-
-			SetPort(null);
+			m_ConnectionStateManager.SetPort(null);
 		}
 
 		/// <summary>
@@ -245,9 +167,7 @@ namespace ICD.Connect.Audio.Shure
 					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
 			}
 
-			SetPort(port);
-
-			Heartbeat.StartMonitoring();
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		#endregion
