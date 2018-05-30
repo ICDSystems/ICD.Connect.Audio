@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - Fixed bug that was preventing Biamp Tesira devices from loading
+ - Serial devices use ConnectionStateManager for maintaining connection to remote endpoints
 
 ## [5.0.0] - 2018-05-24
 ### Added
