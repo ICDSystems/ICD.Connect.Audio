@@ -19,8 +19,8 @@ using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
-using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
@@ -29,7 +29,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys
 {
-	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>, IConnectable
+	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>
 	{
 		private const char DELIMITER = '\x00';
 
@@ -45,14 +45,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnInitializedChanged;
 
-		/// <summary>
-		/// Raised when the codec becomes connected or disconnected.
-		/// </summary>
-		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
-
 		private bool m_Initialized;
-		private bool m_IsConnected;
-		private ISerialPort m_Port;
 	    private readonly SafeTimer m_OnlineNoOpTimer;
 
 		/// <summary>
@@ -73,6 +66,7 @@ namespace ICD.Connect.Audio.QSys
 		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
 
         private readonly ISerialBuffer m_SerialBuffer;
+		private readonly ConnectionStateManager m_ConnectionStateManager;
 
         /// <summary>
         /// Configuration Path for reload
@@ -80,8 +74,6 @@ namespace ICD.Connect.Audio.QSys
 		private string m_ConfigPath;
 
 	    #region Properties
-
-		public Heartbeat Heartbeat { get; private set; }
 
 		/// <summary>
 		/// Username for logging in to the device.
@@ -94,30 +86,6 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		[PublicAPI]
 		public string Password { get; set; }
-
-		/// <summary>
-		/// Returns true when the core is connected.
-		/// </summary>
-		public bool IsConnected
-		{
-			get { return m_IsConnected; }
-			private set
-			{
-				if (value == m_IsConnected)
-					return;
-
-				m_IsConnected = value;
-
-				//todo: clean this up
-
-				if (m_IsConnected)
-				{
-					m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
-				}
-
-				OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_IsConnected));
-			}
-		}
 
 		/// <summary>
 		/// Device Initialized Status.
@@ -143,8 +111,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
-			Heartbeat = new Heartbeat(this);
-		    m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
+			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
             m_SerialBuffer = new DelimiterSerialBuffer(DELIMITER);
 			Subscribe(m_SerialBuffer);
@@ -159,6 +126,11 @@ namespace ICD.Connect.Audio.QSys
 
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
+
+			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
 		}
 
 	    #region Methods
@@ -169,75 +141,15 @@ namespace ICD.Connect.Audio.QSys
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnInitializedChanged = null;
-			OnConnectedStateChanged = null;
-
-			Heartbeat.StopMonitoring();
-			Heartbeat.Dispose();
 
 			Unsubscribe(m_SerialBuffer);
-			Unsubscribe(m_Port);
+
+			m_ConnectionStateManager.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived -= PortOnSerialDataReceived;
+			m_ConnectionStateManager.Dispose();
 
 			base.DisposeFinal(disposing);
-		}
-
-		/// <summary>
-		/// Connect to the device.
-		/// </summary>
-		[PublicAPI]
-		public void Connect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to connect, port is null");
-				return;
-			}
-
-			m_Port.Connect();
-			IsConnected = m_Port.IsConnected;
-		}
-
-		/// <summary>
-		/// Disconnect from the device.
-		/// </summary>
-		[PublicAPI]
-		public void Disconnect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to disconnect, port is null");
-				return;
-			}
-
-			m_Port.Disconnect();
-			IsConnected = m_Port.IsConnected;
-		}
-
-		/// <summary>
-		/// Sets the port for communicating with the device.
-		/// </summary>
-		/// <param name="port"></param>
-		[PublicAPI]
-		public void SetPort(ISerialPort port)
-		{
-			if (port == m_Port)
-				return;
-
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-
-			if (m_Port != null)
-				Disconnect();
-
-			Unsubscribe(m_Port);
-			m_Port = port;
-			Subscribe(m_Port);
-
-			if (m_Port != null)
-				Connect();
-
-			Heartbeat.StartMonitoring();
-
-			UpdateCachedOnlineStatus();
 		}
 
 		/// <summary>
@@ -417,15 +329,7 @@ namespace ICD.Connect.Audio.QSys
         /// <param name="json"></param>
         internal void SendData(string json)
 		{
-			//JsonUtils.Print(json);
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
-				Connect();
-			}
-
-			if (!IsConnected)
+			if (!m_ConnectionStateManager.IsConnected)
 			{
 				Log(eSeverity.Critical, "Unable to communicate with device");
 				return;
@@ -435,7 +339,7 @@ namespace ICD.Connect.Audio.QSys
 			if (!json.EndsWith(DELIMITER))
 				json = json + DELIMITER;
 
-			m_Port.Send(json);
+			m_ConnectionStateManager.Send(json);
 		}
 
 		/// <summary>
@@ -462,7 +366,7 @@ namespace ICD.Connect.Audio.QSys
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsConnected;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsConnected;
 		}
 
 		/// <summary>
@@ -470,6 +374,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private void Initialize()
 		{
+			m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
+
 			Initialized = true;
 		}
 
@@ -488,7 +394,7 @@ namespace ICD.Connect.Audio.QSys
         /// </summary>
 	    private void SendNoOpKeepalive()
         {
-            if (!IsConnected)
+            if (!m_ConnectionStateManager.IsConnected)
                 return;
 
             SendData(new NoOpRpc().Serialize());
@@ -581,37 +487,15 @@ namespace ICD.Connect.Audio.QSys
 			Controls.Clear();
 		}
 
+		private void ConfigurePort(ISerialPort port)
+		{
+			if (port is IComPort)
+				ConfigureComPort(port as IComPort);
+		}
+
 		#endregion
 
         #region Port Callbacks
-
-        /// <summary>
-        /// Subscribes to the port events.
-        /// </summary>
-        /// <param name="port"></param>
-        private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-			port.OnSerialDataReceived += PortOnSerialDataReceived;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-			port.OnSerialDataReceived -= PortOnSerialDataReceived;
-		}
 
 		/// <summary>
 		/// Called when we receive data from the port.
@@ -632,9 +516,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			m_SerialBuffer.Clear();
 
-			IsConnected = args.Data;
-
-			if (IsConnected)
+			if (args.Data)
 				Initialize();
 			else
 			{
@@ -806,7 +688,7 @@ namespace ICD.Connect.Audio.QSys
 			Username = null;
 			Password = null;
 			m_ConfigPath = null;
-			SetPort(null);
+			m_ConnectionStateManager.SetPort(null);
 		}
 
 		/// <summary>
@@ -820,7 +702,7 @@ namespace ICD.Connect.Audio.QSys
 			settings.Username = Username;
 			settings.Password = Password;
 			settings.Config = m_ConfigPath;
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 		}
 
 		/// <summary>
@@ -845,7 +727,7 @@ namespace ICD.Connect.Audio.QSys
 					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
 			}
 
-			SetPort(port);
+			m_ConnectionStateManager.SetPort(port);
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
@@ -864,7 +746,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			base.BuildConsoleStatus(addRow);
 
-			addRow("Connected", IsConnected);
+			addRow("Connected", m_ConnectionStateManager.IsConnected);
 			addRow("Initialized", Initialized);
 		}
 
