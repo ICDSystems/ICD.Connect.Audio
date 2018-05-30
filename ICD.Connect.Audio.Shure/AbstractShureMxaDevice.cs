@@ -4,6 +4,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Core;
@@ -13,23 +14,26 @@ namespace ICD.Connect.Audio.Shure
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
-		private ISerialPort m_Port;
+		private readonly ConnectionStateManager m_ConnectionStateManager;
 
-		#region Methods
+		protected AbstractShureMxaDevice()
+		{
+			m_ConnectionStateManager = new ConnectionStateManager(this);
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+		}
 
 		/// <summary>
-		/// Sets the wrapped port for communication with the hardware.
+		/// Release resources.
 		/// </summary>
-		/// <param name="port"></param>
-		public void SetPort(ISerialPort port)
+		protected override void DisposeFinal(bool disposing)
 		{
-			if (port == m_Port)
-				return;
+			base.DisposeFinal(disposing);
 
-			Unsubscribe(m_Port);
-			m_Port = port;
-			Subscribe(m_Port);
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.Dispose();
 		}
+
+		#region Methods
 
 		/// <summary>
 		/// Sets the brightness of the hardware LED.
@@ -83,7 +87,7 @@ namespace ICD.Connect.Audio.Shure
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsOnline;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsConnected;
 		}
 
 		#endregion
@@ -94,34 +98,10 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="message"></param>
 		private void Send(string message)
 		{
-			m_Port.Send(message + "\r\n");
+			m_ConnectionStateManager.Send(message + "\r\n");
 		}
 
 		#region Port Callbacks
-
-		/// <summary>
-		/// Subscribe to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-		}
 
 		/// <summary>
 		/// Called when the port online state changes.
@@ -145,7 +125,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.CopySettingsFinal(settings);
 
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 		}
 
 		/// <summary>
@@ -155,7 +135,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.ClearSettingsFinal();
 
-			SetPort(null);
+			m_ConnectionStateManager.SetPort(null);
 		}
 
 		/// <summary>
@@ -176,7 +156,7 @@ namespace ICD.Connect.Audio.Shure
 					Logger.AddEntry(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
 			}
 
-			SetPort(port);
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		#endregion
