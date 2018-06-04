@@ -86,6 +86,26 @@ namespace ICD.Connect.Audio.Biamp
 		}
 
 		/// <summary>
+		/// Gets the output at the given address.
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public ConnectorInfo GetOutput(int output)
+		{
+			return GetOutputs().First(c => c.Address == output);
+		}
+
+		/// <summary>
+		/// Returns true if the source contains an output at the given address.
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public bool ContainsOutput(int output)
+		{
+			return GetOutputs().Any(c => c.Address == output);
+		}
+
+		/// <summary>
 		/// Returns the inputs.
 		/// </summary>
 		/// <returns></returns>
