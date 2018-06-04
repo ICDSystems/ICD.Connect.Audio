@@ -417,7 +417,7 @@ namespace ICD.Connect.Audio.QSys
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsConnected;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
 		/// <summary>
