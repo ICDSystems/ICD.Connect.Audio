@@ -10,6 +10,7 @@ using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.QSys.Controls
