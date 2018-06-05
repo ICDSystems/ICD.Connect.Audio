@@ -68,7 +68,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 		/// <summary>
 		/// Parse feedback from QSys
 		/// </summary>
-		/// <param name="result"></param>
+		/// <param name="feedback"></param>
 		public void ParseFeedback(JToken feedback)
 		{
 			string name = (string)feedback.SelectToken("Name");

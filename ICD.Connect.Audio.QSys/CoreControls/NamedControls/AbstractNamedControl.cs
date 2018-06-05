@@ -145,7 +145,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 		/// <param name="loadContext"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-	    public AbstractNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml) : base(loadContext.QSysCore, name, id)
+		protected AbstractNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml) : base(loadContext.QSysCore, name, id)
 		{
 			if (loadContext == null)
 				throw new ArgumentNullException("loadContext");
@@ -181,7 +181,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 		/// <param name="loadContext"></param>
 		/// <param name="controlName"></param>
 		[UsedImplicitly]
-	    public AbstractNamedControl(int id, CoreElementsLoadContext loadContext, string controlName)
+		protected AbstractNamedControl(int id, CoreElementsLoadContext loadContext, string controlName)
 		    : base(loadContext.QSysCore, String.Format("Implicit:{0}", controlName), id)
 		{
 			ControlName = controlName;
