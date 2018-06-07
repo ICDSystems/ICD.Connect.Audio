@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Devices.Controls;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents

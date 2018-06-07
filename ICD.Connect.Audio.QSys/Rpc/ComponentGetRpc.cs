@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.Utils.Extensions;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc

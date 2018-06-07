@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;

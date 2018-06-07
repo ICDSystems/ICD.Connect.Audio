@@ -14,7 +14,7 @@ using ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP;
 using ICD.Connect.Audio.Biamp.Controls.Partitioning;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Audio.Biamp.Controls.Volume;
-using ICD.Connect.Conferencing.Controls;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls
