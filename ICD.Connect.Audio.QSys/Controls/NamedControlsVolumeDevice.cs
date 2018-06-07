@@ -63,18 +63,17 @@ namespace ICD.Connect.Audio.QSys.Controls
 			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
 			// If we don't have a volume or mute control names, bail out
-			if (String.IsNullOrEmpty(volumeName) | String.IsNullOrEmpty(muteName))
-				throw new InvalidOperationException(String.Format("Tried to create NamedControlVolumeDevice {0}:{1} without volume or mute",id, friendlyName));
+			if (string.IsNullOrEmpty(volumeName) || string.IsNullOrEmpty(muteName))
+				throw new InvalidOperationException(string.Format("Tried to create NamedControlVolumeDevice {0}:{1} without volume or mute",id, friendlyName));
 
 			// Load volume/mute controls
 			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
 			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
 			
 			if (m_VolumeControl == null)
-				throw new KeyNotFoundException(String.Format("QSys - No Volume Control {0}", volumeName));
+				throw new KeyNotFoundException(string.Format("QSys - No Volume Control {0}", volumeName));
 			if (m_MuteControl == null)
-				throw new KeyNotFoundException(String.Format("QSys - No Mute Control {0}", muteName));
-
+				throw new KeyNotFoundException(string.Format("QSys - No Mute Control {0}", muteName));
 
 			if (incrementValue != null)
 				IncrementValue = (float)incrementValue;

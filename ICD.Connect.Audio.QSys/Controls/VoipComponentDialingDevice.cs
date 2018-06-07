@@ -103,21 +103,21 @@ namespace ICD.Connect.Audio.QSys.Controls
 			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
 
 			//If we don't have names defined for the controls, bail out
-			if (String.IsNullOrEmpty(voipName))
+			if (string.IsNullOrEmpty(voipName))
 				throw new
 					InvalidOperationException(
-					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without VoIPComponentName",
+					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without VoIPComponentName",
 					              id, friendlyName));
-			if (String.IsNullOrEmpty(privacyMuteName))
+			if (string.IsNullOrEmpty(privacyMuteName))
 				throw new
 					InvalidOperationException(
-					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without PrivacyMuteControlName",
+					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without PrivacyMuteControlName",
 					              id, friendlyName));
 
-			if (String.IsNullOrEmpty(holdName))
+			if (string.IsNullOrEmpty(holdName))
 				throw new
 					InvalidOperationException(
-					String.Format("Tried to create VoipComponentDialingDevice {0}:{1} without HoldControlName",
+					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without HoldControlName",
 					              id, friendlyName));
 
 			// Load volume/mute controls
@@ -127,11 +127,11 @@ namespace ICD.Connect.Audio.QSys.Controls
 			m_HoldControl = context.LazyLoadNamedControl(holdName, typeof(BooleanNamedControl)) as BooleanNamedControl;
 
 			if (m_VoipComponent == null)
-				throw new KeyNotFoundException(String.Format("QSys - No VoIP Component {0}", voipName));
+				throw new KeyNotFoundException(string.Format("QSys - No VoIP Component {0}", voipName));
 			if (m_PrivacyMuteControl == null)
-				throw new KeyNotFoundException(String.Format("QSys - No Privacy Mute Control {0}", privacyMuteName));
+				throw new KeyNotFoundException(string.Format("QSys - No Privacy Mute Control {0}", privacyMuteName));
 			if (m_HoldControl == null)
-				throw new KeyNotFoundException(String.Format("QSys - No Hold Control {0}", holdName));
+				throw new KeyNotFoundException(string.Format("QSys - No Hold Control {0}", holdName));
 
 			Subscribe();
 		}
@@ -172,7 +172,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		public override void Dial(string number, eConferenceSourceType callType)
 		{
 			if (callType == eConferenceSourceType.Video)
-				throw new ArgumentException(String.Format("VoIPDialingDevice {0} does not support dialing video calls", this));
+				throw new ArgumentException(string.Format("VoIPDialingDevice {0} does not support dialing video calls", this));
 
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_NUMBER).SetValue(number);
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
@@ -326,7 +326,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			if (control == null)
 				throw new
 					InvalidOperationException(
-					String.Format(
+					string.Format(
 					              "VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
 					              Id, Name));
 
@@ -357,13 +357,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void ParseCidNumber(ControlValueUpdateEventArgs controlValueUpdateEventArgs)
 		{
-			if (!String.IsNullOrEmpty(controlValueUpdateEventArgs.ValueString))
+			if (!string.IsNullOrEmpty(controlValueUpdateEventArgs.ValueString))
 				GetOrCreateConferenceSource().Number = controlValueUpdateEventArgs.ValueString;
 		}
 
 		private void ParseCidName(ControlValueUpdateEventArgs controlValueUpdateEventArgs)
 		{
-			if (!String.IsNullOrEmpty(controlValueUpdateEventArgs.ValueString))
+			if (!string.IsNullOrEmpty(controlValueUpdateEventArgs.ValueString))
 				GetOrCreateConferenceSource().Name = controlValueUpdateEventArgs.ValueString;
 		}
 
@@ -379,7 +379,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			ThinConferenceSource source;
 
-			if (callStatus == eConferenceSourceStatus.Disconnected | callStatus == eConferenceSourceStatus.Idle)
+			if (callStatus == eConferenceSourceStatus.Disconnected || callStatus == eConferenceSourceStatus.Idle)
 			{
 				source = ConferenceSource;
 				if (source == null)
@@ -403,7 +403,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			{
 				source.Direction = eConferenceSourceDirection.Outgoing;
 				string number = GetNumberFromDialingStatus(controlValueUpdateEventArgs.ValueString);
-				if (!String.IsNullOrEmpty(number))
+				if (!string.IsNullOrEmpty(number))
 					source.Number = number;
 			}
 
