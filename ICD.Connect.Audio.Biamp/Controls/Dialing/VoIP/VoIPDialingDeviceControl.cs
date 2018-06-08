@@ -409,28 +409,28 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void AnswerCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Answer();
 		}
 
 		private void HoldCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Hold();
 		}
 
 		private void RejectCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
 		private void ResumeCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
@@ -443,7 +443,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void HangupCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
