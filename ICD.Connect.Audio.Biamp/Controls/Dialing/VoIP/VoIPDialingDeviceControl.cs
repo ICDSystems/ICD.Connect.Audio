@@ -427,19 +427,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				m_Line.GetCallAppearance(index).End();
 		}
 
-		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
-		{
-			foreach (char digit in stringEventArgs.Data)
-				m_Line.Dtmf(digit);
-		}
-
-		private void HangupCallback(object sender, EventArgs eventArgs)
-		{
-			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
-				m_Line.GetCallAppearance(index).Hold();
-		}
-
 		private void ResumeCallback(ThinConferenceSource sender)
 		{
 			int index;
