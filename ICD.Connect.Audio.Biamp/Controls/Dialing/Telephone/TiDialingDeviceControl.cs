@@ -429,6 +429,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Subscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
 			source.SendDtmfCallback += SendDtmfCallback;
@@ -442,6 +443,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Unsubscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback = null;
+			source.RejectCallback = null;
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
 			source.SendDtmfCallback = null;
@@ -473,7 +475,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			// Ends the active call.
 			m_TiControl.End();
+		}
 
+		private void RejectCallback(ThinConferenceSource sender)
+		{
 			// Rejects the incoming call.
 			SetHold(true);
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);

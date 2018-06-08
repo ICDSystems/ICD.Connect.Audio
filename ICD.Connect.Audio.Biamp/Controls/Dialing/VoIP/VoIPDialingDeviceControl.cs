@@ -385,6 +385,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void Subscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
 			source.SendDtmfCallback += SendDtmfCallback;
@@ -398,6 +399,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void Unsubscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback = null;
+			source.RejectCallback = null;
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
 			source.SendDtmfCallback = null;
@@ -412,6 +414,26 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		}
 
 		private void HoldCallback(ThinConferenceSource sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).Hold();
+		}
+
+		private void RejectCallback(ThinConferenceSource sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+				m_Line.GetCallAppearance(index).End();
+		}
+
+		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
+		{
+			foreach (char digit in stringEventArgs.Data)
+				m_Line.Dtmf(digit);
+		}
+
+		private void HangupCallback(object sender, EventArgs eventArgs)
 		{
 			int index;
 			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
