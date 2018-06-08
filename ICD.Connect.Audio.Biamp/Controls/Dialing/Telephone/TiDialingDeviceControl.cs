@@ -422,6 +422,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Subscribe(ThinConferenceSource source)
 		{
 			source.OnAnswerCallback += AnswerCallback;
+			source.OnRejectCallback += RejectCallback;
 			source.OnHoldCallback += HoldCallback;
 			source.OnResumeCallback += ResumeCallback;
 			source.OnHangupCallback += HangupCallback;
@@ -435,6 +436,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Unsubscribe(ThinConferenceSource source)
 		{
 			source.OnAnswerCallback -= AnswerCallback;
+			source.OnRejectCallback -= RejectCallback;
 			source.OnHoldCallback -= HoldCallback;
 			source.OnResumeCallback -= ResumeCallback;
 			source.OnHangupCallback -= HangupCallback;
@@ -451,12 +453,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			// Ends the active call.
 			m_TiControl.End();
-
-			// Rejects the incoming call.
-			SetHold(true);
-			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
-			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
-			SetHold(false);
 		}
 
 		private void ResumeCallback(object sender, EventArgs eventArgs)
@@ -472,6 +468,15 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void AnswerCallback(object sender, EventArgs eventArgs)
 		{
 			m_TiControl.Answer();
+		}
+
+		private void RejectCallback(object sender, EventArgs eventArgs)
+		{
+			// Rejects the incoming call.
+			SetHold(true);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
+			SetHold(false);
 		}
 
 		#endregion
