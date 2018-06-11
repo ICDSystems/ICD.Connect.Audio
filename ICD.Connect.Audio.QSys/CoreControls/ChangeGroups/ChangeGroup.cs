@@ -170,8 +170,24 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 
 	    public void Initialize()
 	    {
+			// Send Named Controls
 		    SendData(new ChangeGroupAddControlRpc(this, GetControls()).Serialize());
-			SendData(new ChangeGroupAutoPollRpc(this).Serialize());
+
+			// Send Named Components
+			m_NamedComponentsCriticalSection.Enter();
+		    try
+		    {
+			    foreach (KeyValuePair<INamedComponent, List<INamedComponentControl>> kvp in m_NamedComponents)
+					SendData(new ChangeGroupAddComponentControlRpc(this, kvp.Key, kvp.Value).Serialize());
+
+		    }
+		    finally
+		    {
+			    m_NamedComponentsCriticalSection.Leave();
+		    }
+
+			// Setup Auto-Polling
+		    SendData(new ChangeGroupAutoPollRpc(this).Serialize());
 			SendData(new ChangeGroupPollRpc(this).Serialize());
 	    }
 
