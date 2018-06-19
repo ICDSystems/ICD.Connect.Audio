@@ -6,6 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.2.0] - 2018-06-19
+### Added
+ - Added distinct call reject method
+
+### Changed
+ - Using new conferencing interfaces
+ - QSys feedback improvements on reconnect
+
 ## [5.1.0] - 2018-06-04
 ### Changed
  - Fixed bug that was preventing Biamp Tesira devices from loading
