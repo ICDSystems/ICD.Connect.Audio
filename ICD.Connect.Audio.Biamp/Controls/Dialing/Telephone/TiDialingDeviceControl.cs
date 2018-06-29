@@ -171,11 +171,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			if (IsOnline(status) && IsOnHold)
 				status = eConferenceSourceStatus.OnHold;
 
-			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
-							  ? m_TiControl.CallerNumber
-							  : m_TiControl.CallerName;
-			source.Number = m_TiControl.CallerNumber;
+			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
+				source.Name = m_TiControl.CallerName;
+
+			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				source.Number = m_TiControl.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
