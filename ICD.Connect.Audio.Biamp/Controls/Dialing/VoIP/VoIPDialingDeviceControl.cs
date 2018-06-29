@@ -128,11 +128,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(callAppearance.State);
 
-			source.Name = string.IsNullOrEmpty(callAppearance.CallerName)
-				              ? callAppearance.CallerNumber
-				              : callAppearance.CallerName;
-			source.Number = callAppearance.CallerNumber;
+			if (!string.IsNullOrEmpty(callAppearance.CallerName))
+				source.Name = callAppearance.CallerName;
+
+			if (!string.IsNullOrEmpty(callAppearance.CallerNumber))
+				source.Number = callAppearance.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = VoIpCallStateToDirection(callAppearance.State);
