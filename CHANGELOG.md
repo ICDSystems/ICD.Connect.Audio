@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [5.2.1] - 2018-07-02
+### Changed
+ - Potential fix for bug where Biamp calls would lose caller information
+
 ## [5.2.0] - 2018-06-19
 ### Added
  - Added distinct call reject method
