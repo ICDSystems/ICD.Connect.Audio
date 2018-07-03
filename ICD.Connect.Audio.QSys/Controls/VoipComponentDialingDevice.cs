@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
@@ -34,8 +35,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#region Fields
 
+		[CanBeNull]
 		private readonly BooleanNamedControl m_HoldControl;
+
+		[CanBeNull]
 		private readonly BooleanNamedControl m_PrivacyMuteControl;
+
+		[CanBeNull]
 		private readonly VoipNamedComponent m_VoipComponent;
 
 		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
@@ -102,36 +108,11 @@ namespace ICD.Connect.Audio.QSys.Controls
 			string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMuteControl");
 			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
 
-			//If we don't have names defined for the controls, bail out
-			if (string.IsNullOrEmpty(voipName))
-				throw new
-					InvalidOperationException(
-					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without VoIPComponentName",
-					              id, friendlyName));
-			if (string.IsNullOrEmpty(privacyMuteName))
-				throw new
-					InvalidOperationException(
-					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without PrivacyMuteControlName",
-					              id, friendlyName));
-
-			if (string.IsNullOrEmpty(holdName))
-				throw new
-					InvalidOperationException(
-					string.Format("Tried to create VoipComponentDialingDevice {0}:{1} without HoldControlName",
-					              id, friendlyName));
-
 			// Load volume/mute controls
 			m_VoipComponent = context.LazyLoadNamedComponent(voipName, typeof(VoipNamedComponent)) as VoipNamedComponent;
 			m_PrivacyMuteControl =
 				context.LazyLoadNamedControl(privacyMuteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
 			m_HoldControl = context.LazyLoadNamedControl(holdName, typeof(BooleanNamedControl)) as BooleanNamedControl;
-
-			if (m_VoipComponent == null)
-				throw new KeyNotFoundException(string.Format("QSys - No VoIP Component {0}", voipName));
-			if (m_PrivacyMuteControl == null)
-				throw new KeyNotFoundException(string.Format("QSys - No Privacy Mute Control {0}", privacyMuteName));
-			if (m_HoldControl == null)
-				throw new KeyNotFoundException(string.Format("QSys - No Hold Control {0}", holdName));
 
 			Subscribe();
 		}
@@ -174,22 +155,46 @@ namespace ICD.Connect.Audio.QSys.Controls
 			if (callType == eConferenceSourceType.Video)
 				throw new ArgumentException(string.Format("VoIPDialingDevice {0} does not support dialing video calls", this));
 
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to dial - VoIP component is null");
+				return;
+			}
+
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_NUMBER).SetValue(number);
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
 		}
 
 		public override void SetDoNotDisturb(bool enabled)
 		{
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to set DoNotDisturb - VoIP component is null");
+				return;
+			}
+
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DND).SetValue(enabled ? "1" : "0");
 		}
 
 		public override void SetAutoAnswer(bool enabled)
 		{
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to set AutoAnswer - VoIP component is null");
+				return;
+			}
+
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_AUTOANSWER).SetValue(enabled ? "1" : "0");
 		}
 
 		public override void SetPrivacyMute(bool enabled)
 		{
+			if (m_PrivacyMuteControl == null)
+			{
+				Log(eSeverity.Error, "Unable to set Privacymute - PrivacyMute control is null");
+				return;
+			}
+
 			m_PrivacyMuteControl.SetValue(enabled);
 		}
 
@@ -199,16 +204,26 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void Subscribe()
 		{
-			m_VoipComponent.OnControlValueUpdated += VoipComponentControlValueUpdated;
-			m_PrivacyMuteControl.OnValueUpdated += PrivacyMuteControlOnValueUpdated;
-			m_HoldControl.OnValueUpdated += HoldControlOnValueUpdated;
+			if (m_VoipComponent != null)
+				m_VoipComponent.OnControlValueUpdated += VoipComponentControlValueUpdated;
+
+			if (m_PrivacyMuteControl != null)
+				m_PrivacyMuteControl.OnValueUpdated += PrivacyMuteControlOnValueUpdated;
+
+			if (m_HoldControl != null)
+				m_HoldControl.OnValueUpdated += HoldControlOnValueUpdated;
 		}
 
 		private void Unsubscribe()
 		{
-			m_VoipComponent.OnControlValueUpdated -= VoipComponentControlValueUpdated;
-			m_PrivacyMuteControl.OnValueUpdated -= PrivacyMuteControlOnValueUpdated;
-			m_HoldControl.OnValueUpdated -= HoldControlOnValueUpdated;
+			if (m_VoipComponent != null)
+				m_VoipComponent.OnControlValueUpdated -= VoipComponentControlValueUpdated;
+
+			if (m_PrivacyMuteControl != null)
+				m_PrivacyMuteControl.OnValueUpdated -= PrivacyMuteControlOnValueUpdated;
+
+			if (m_HoldControl != null)
+				m_HoldControl.OnValueUpdated -= HoldControlOnValueUpdated;
 		}
 
 		private void Subscribe(ThinConferenceSource conferenceSource)
@@ -241,6 +256,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void ConferenceSourceSendDtmfCallback(ThinConferenceSource sender, string dtmf)
 		{
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to send DTMF - VoIP component is null");
+				return;
+			}
+
 			// todo: bail if not off hook?
 
 			foreach (char c in dtmf)
@@ -295,17 +316,35 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void ConferenceSourceResumeCallback(ThinConferenceSource sender)
 		{
+			if (m_HoldControl == null)
+			{
+				Log(eSeverity.Error, "Unable to resume call - Hold control is null");
+				return;
+			}
+
 			m_HoldControl.SetValue(false);
 		}
 
 		private void ConferenceSourceHoldCallback(ThinConferenceSource sender)
 		{
+			if (m_HoldControl == null)
+			{
+				Log(eSeverity.Error, "Unable to hold call - Hold control is null");
+				return;
+			}
+
 			//todo: Verify call is in a state to hold?
 			m_HoldControl.SetValue(true);
 		}
 
 		private void ConferenceSourceHangupCallback(ThinConferenceSource sender)
 		{
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to handup - VoIP control is null");
+				return;
+			}
+
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DISCONNECT).TriggerControl();
 			ThinConferenceSource source = ConferenceSource;
 			if (source != null && source.AnswerState == eConferenceSourceAnswerState.Unanswered)
@@ -314,6 +353,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private void ConferenceSourceAnswerCallback(ThinConferenceSource sender)
 		{
+			if (m_VoipComponent == null)
+			{
+				Log(eSeverity.Error, "Unable to answer - VoIP control is null");
+				return;
+			}
+
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
 			ThinConferenceSource source = ConferenceSource;
 			if (source != null)
