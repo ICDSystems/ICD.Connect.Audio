@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.CoreControls;
@@ -15,17 +16,23 @@ namespace ICD.Connect.Audio.QSys.Controls
     {
 	    private readonly string m_Name;
 		
+		[CanBeNull]
 		private readonly INamedControl m_VolumeControl;
 
+		[CanBeNull]
 		private readonly BooleanNamedControl m_MuteControl;
 
 		#region Properties
 
 	    public override string Name { get { return m_Name; }  }
-	    public override float VolumeRaw { get { return m_VolumeControl.ValueRaw; } }
-	    public override float VolumePosition { get { return m_VolumeControl.ValuePosition; } }
-	    public override string VolumeString { get { return m_VolumeControl.ValueString; } }
-	    public bool VolumeIsMuted { get { return m_MuteControl.ValueBool; } }
+
+		public override float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
+
+		public override float VolumePosition { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition; } }
+
+		public override string VolumeString { get { return m_VolumeControl == null ? null : m_VolumeControl.ValueString; } }
+
+		public bool VolumeIsMuted { get { return m_MuteControl != null && m_MuteControl.ValueBool; } }
 
 	    #endregion
 
@@ -35,8 +42,15 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#endregion
 
-		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl) : base(qSysCore, id)
+		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl)
+			: base(qSysCore, id)
 		{
+			if (volumeControl == null)
+				throw new ArgumentNullException("volumeControl");
+
+			if (muteControl == null)
+				throw new ArgumentNullException("muteControl");
+
 			m_Name = name;
 		    m_VolumeControl = volumeControl;
 		    m_MuteControl = muteControl;
@@ -62,19 +76,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
 			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
-			// If we don't have a volume or mute control names, bail out
-			if (string.IsNullOrEmpty(volumeName) || string.IsNullOrEmpty(muteName))
-				throw new InvalidOperationException(string.Format("Tried to create NamedControlVolumeDevice {0}:{1} without volume or mute",id, friendlyName));
-
 			// Load volume/mute controls
 			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
 			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
 			
-			if (m_VolumeControl == null)
-				throw new KeyNotFoundException(string.Format("QSys - No Volume Control {0}", volumeName));
-			if (m_MuteControl == null)
-				throw new KeyNotFoundException(string.Format("QSys - No Mute Control {0}", muteName));
-
 			if (incrementValue != null)
 				IncrementValue = (float)incrementValue;
 			if (repeatBeforeTime != null)
@@ -89,21 +94,45 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    public override void SetVolumeRaw(float volume)
 	    {
+		    if (m_VolumeControl == null)
+		    {
+			    Log(eSeverity.Error, "Unable to set raw volume - Volume control is null");
+			    return;
+		    }
+
 		    m_VolumeControl.SetValue(volume);
 	    }
 
 	    public override void SetVolumePosition(float position)
 	    {
+			if (m_VolumeControl == null)
+			{
+				Log(eSeverity.Error, "Unable to set volume position - Volume control is null");
+				return;
+			}
+
 		    m_VolumeControl.SetPosition(position);
 	    }
 
 	    public override void VolumeLevelIncrement(float incrementValue)
 	    {
+			if (m_VolumeControl == null)
+			{
+				Log(eSeverity.Error, "Unable to increment volume - Volume control is null");
+				return;
+			}
+
 		    m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
 	    }
 
 	    public override void VolumeLevelDecrement(float decrementValue)
 	    {
+			if (m_VolumeControl == null)
+			{
+				Log(eSeverity.Error, "Unable to decrement volume - Volume control is null");
+				return;
+			}
+
 		    m_VolumeControl.SetValue(string.Format("-={0}", decrementValue));
 	    }
 
@@ -114,6 +143,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    public void SetVolumeMute(bool mute)
 	    {
+			if (m_MuteControl == null)
+			{
+				Log(eSeverity.Error, "Unable to set mute state - Mute control is null");
+				return;
+			}
+
 		    m_MuteControl.SetValue(mute);
 	    }
 
@@ -123,14 +158,20 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    private void Subscribe()
 	    {
-		    m_VolumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
-			m_MuteControl.OnValueUpdated += MuteControlOnValueUpdated;
+			if (m_VolumeControl != null)
+				m_VolumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
+
+			if (m_MuteControl != null)
+				m_MuteControl.OnValueUpdated += MuteControlOnValueUpdated;
 	    }
 
 	    private void Unsubscribe()
 	    {
-		    m_VolumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
-		    m_MuteControl.OnValueUpdated -= MuteControlOnValueUpdated;
+			if (m_VolumeControl != null)
+				m_VolumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
+
+			if (m_MuteControl != null)
+				m_MuteControl.OnValueUpdated -= MuteControlOnValueUpdated;
 	    }
 
 	    private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
@@ -146,6 +187,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 	    protected override void DisposeFinal(bool disposing)
 	    {
 			Unsubscribe();
+
 		    base.DisposeFinal(disposing);
 	    }
 

@@ -68,14 +68,23 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 					                         id);
 			}
 
-
 			// Setup ChangeGroups
 			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(IChangeGroup).IsAssignableFrom(p.Value)))
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
 
-				IChangeGroup changeGroup = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IChangeGroup;
+				IChangeGroup changeGroup;
 
+				try
+				{
+					changeGroup = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IChangeGroup;
+				}
+				catch (Exception e)
+				{
+					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", kvp.Key, e.Message);
+					continue;
+				}
+				
 				if (changeGroup == null)
 					continue;
 
@@ -100,22 +109,47 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			IcdXmlAttribute autoChangeGroupAttribute;
 			if (attributes.TryGetValue("DisableAutoChangeGroup", out autoChangeGroupAttribute))
 				autoChangeGroupEnabled = !(bool.Parse(autoChangeGroupAttribute.Value));
+
 			// Setup Auto Change Group
 			if (autoChangeGroupEnabled)
 			{
 				int autoChangeGroupId = loadContext.GetNextId();
 				loadContext.AddElement(autoChangeGroupId, typeof(ChangeGroup), "Auto Change Group", null);
-				IChangeGroup autoChangeGroup = ReflectionUtils.CreateInstance(typeof(ChangeGroup), autoChangeGroupId, loadContext, "AutoChangeGroup") as IChangeGroup;
-				loadContext.AddChangeGroup(autoChangeGroup);
-				loadContext.AddDefaultChangeGroup(autoChangeGroupId);
+
+				IChangeGroup autoChangeGroup = null;
+
+				try
+				{
+					autoChangeGroup = ReflectionUtils.CreateInstance(typeof(ChangeGroup), autoChangeGroupId, loadContext, "AutoChangeGroup") as IChangeGroup;
+				}
+				catch (Exception e)
+				{
+					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", autoChangeGroupId, e.Message);
+				}
+
+				if (autoChangeGroup != null)
+				{
+					loadContext.AddChangeGroup(autoChangeGroup);
+					loadContext.AddDefaultChangeGroup(autoChangeGroupId);
+				}
 			}
 
 			// Setup Named Controls
 			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(INamedControl).IsAssignableFrom(p.Value)))
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
-				
-				INamedControl control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key),loadContext, controlXml) as INamedControl;
+
+				INamedControl control;
+
+				try
+				{
+					control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as INamedControl;
+				}
+				catch (Exception e)
+				{
+					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create NamedControl {0} - {1}", kvp.Key, e.Message);
+					continue;
+				}
 
 				if (control == null)
 					continue;
@@ -128,7 +162,17 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			{
 				string componentXml = loadContext.GetXmlForElementId(kvp.Key);
 
-				INamedComponent component = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, componentXml) as INamedComponent;
+				INamedComponent component;
+
+				try
+				{
+					component = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, componentXml) as INamedComponent;
+				}
+				catch (Exception e)
+				{
+					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create NamedComponent {0} - {1}", kvp.Key, e.Message);
+					continue;
+				}
 
 				if (component == null)
 					continue;
@@ -141,7 +185,17 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
 
-				IQSysKrangControl control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IQSysKrangControl;
+				IQSysKrangControl control;
+
+				try
+				{
+					control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IQSysKrangControl;
+				}
+				catch (Exception e)
+				{
+					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create QsysKrangControl {0} - {1}", kvp.Key, e.Message);
+					continue;
+				}
 
 				if (control == null)
 					continue;

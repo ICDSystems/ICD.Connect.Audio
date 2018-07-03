@@ -315,7 +315,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Logger.AddEntry(eSeverity.Error, e, "{0} - Failed to load integration config {1} - {2}", this, fullPath, e.Message);
 			}
 		}
 
