@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
@@ -145,7 +146,8 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 		/// <param name="loadContext"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-		protected AbstractNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml) : base(loadContext.QSysCore, name, id)
+		protected AbstractNamedControl(int id, string name, CoreElementsLoadContext loadContext, string xml)
+			: base(loadContext.QSysCore, name, id)
 		{
 			if (loadContext == null)
 				throw new ArgumentNullException("loadContext");
@@ -167,11 +169,14 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 			if (changeGroupId == null)
 				controlChangeGroups = Enumerable.Empty<int>();
 			else
-			{
 				controlChangeGroups = ((int)changeGroupId).Yield();
-			}
 
 			SetupInitialChangeGroups(loadContext, controlChangeGroups);
+
+			Subscribe(loadContext.QSysCore);
+
+			if (loadContext.QSysCore.Initialized)
+				PollValue();
 		}
 
 		/// <summary>
@@ -186,13 +191,58 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 		{
 			ControlName = controlName;
 			SetupInitialChangeGroups(loadContext, Enumerable.Empty<int>());
+
+			Subscribe(loadContext.QSysCore);
+
+			if (loadContext.QSysCore.Initialized)
+				PollValue();
 		}
 
+	    /// <summary>
+		/// Release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
 	    public override void DisposeFinal(bool disposing)
 	    {
 		    OnValueUpdated = null;
+
 		    base.DisposeFinal(disposing);
+
+		    Unsubscribe(QSysCore);
 	    }
+
+	    #region QSys Core Callbacks
+
+		/// <summary>
+		/// Subscribe to the QSys Core events.
+		/// </summary>
+		/// <param name="qSysCore"></param>
+	    private void Subscribe(QSysCoreDevice qSysCore)
+	    {
+		    qSysCore.OnInitializedChanged += QSysCoreOnInitializedChanged;
+	    }
+
+		/// <summary>
+		/// Unsubscribe from the QSys Core events.
+		/// </summary>
+		/// <param name="qSysCore"></param>
+	    private void Unsubscribe(QSysCoreDevice qSysCore)
+	    {
+		    qSysCore.OnInitializedChanged -= QSysCoreOnInitializedChanged;
+	    }
+
+		/// <summary>
+		/// Called when the QSys Core initialization state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="boolEventArgs"></param>
+	    private void QSysCoreOnInitializedChanged(object sender, BoolEventArgs boolEventArgs)
+	    {
+		    if (QSysCore.Initialized)
+			    PollValue();
+	    }
+
+	    #endregion
 
 	    #region Console
 
