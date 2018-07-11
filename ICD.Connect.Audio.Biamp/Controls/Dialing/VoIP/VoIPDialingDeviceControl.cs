@@ -244,7 +244,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				source = new ThinConferenceSource();
+				source = new ThinConferenceSource {SourceType = eConferenceSourceType.Audio};
 
 				Subscribe(source);
 

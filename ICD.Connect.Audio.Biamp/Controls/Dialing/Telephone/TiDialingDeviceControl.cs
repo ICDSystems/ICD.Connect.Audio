@@ -377,7 +377,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinConferenceSource();
+				m_ActiveSource = new ThinConferenceSource { SourceType = eConferenceSourceType.Audio };
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties

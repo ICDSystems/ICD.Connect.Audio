@@ -485,7 +485,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			m_ConferenceSourceCriticalSection.Enter();
 			try
 			{
-				return ConferenceSource = ConferenceSource ?? new ThinConferenceSource();
+				return ConferenceSource = ConferenceSource ?? new ThinConferenceSource {SourceType = eConferenceSourceType.Audio};
 			}
 			finally
 			{
