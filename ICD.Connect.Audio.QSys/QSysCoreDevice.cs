@@ -715,6 +715,7 @@ namespace ICD.Connect.Audio.QSys
 			JToken controls = result.SelectToken("Controls");
 			if (!controls.HasValues)
 				return;
+
 			foreach (JToken control in controls)
 				component.ParseFeedback(control);
 		}
@@ -726,12 +727,11 @@ namespace ICD.Connect.Audio.QSys
 	    private void ParseNamedControlGetResponse(JObject json)
 	    {
 	        JToken results = json.SelectToken("result");
-	        if (!results.HasValues)
+	        if (results == null || !results.HasValues)
 	            return;
-	        foreach (JToken result in results)
-	        {
-	            ParseNamedControlResponse(result);
-	        }
+
+			foreach (JToken result in results)
+				ParseNamedControlResponse(result);
 	    }
 
         /// <summary>
@@ -809,6 +809,10 @@ namespace ICD.Connect.Audio.QSys
 			Password = settings.Password;
 			m_ConfigPath = settings.Config;
 
+			// Load the config
+			if (!string.IsNullOrEmpty(settings.Config))
+				LoadControls(settings.Config);
+
 			ISerialPort port = null;
 
 			if (settings.Port != null)
@@ -819,10 +823,6 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			m_ConnectionStateManager.SetPort(port);
-
-			// Load the config
-			if (!string.IsNullOrEmpty(settings.Config))
-				LoadControls(settings.Config);
 		}
 
 		#endregion
