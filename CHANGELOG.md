@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - No longer choking completely when a control loads with partially valid data
+ - QSys Core named controls query initial values on initialization
+ - ThinConferenceSource SourceType must now be specified
 
 ## [5.2.1] - 2018-07-02
 ### Changed
