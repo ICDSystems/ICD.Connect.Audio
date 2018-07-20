@@ -103,12 +103,6 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="message"></param>
 		private void Send(string message)
 		{
-			if (!m_ConnectionStateManager.IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with ShureMxa");
-				return;
-			}
-
 			m_ConnectionStateManager.Send(message + "\r\n");
 		}
 

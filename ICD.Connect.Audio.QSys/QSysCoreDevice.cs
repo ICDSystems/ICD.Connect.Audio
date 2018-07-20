@@ -355,12 +355,6 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="json"></param>
 		internal void SendData(string json)
 		{
-			if (!m_ConnectionStateManager.IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with device");
-				return;
-			}
-
 			// Pad with the delimiter
 			if (!json.EndsWith(DELIMITER))
 				json = json + DELIMITER;
