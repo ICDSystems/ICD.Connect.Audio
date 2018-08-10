@@ -600,9 +600,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			string responseMethod = (string)json.SelectToken("method");
-
-			if (!string.IsNullOrEmpty(responseMethod) &&
-			    string.Equals(responseMethod.ToLower(), "ChangeGroup.Poll", StringComparison.OrdinalIgnoreCase))
+			if (string.Equals(responseMethod, "ChangeGroup.Poll", StringComparison.OrdinalIgnoreCase))
 			{
 				ParseChangeGroupResponse(json);
 				return;
@@ -610,23 +608,20 @@ namespace ICD.Connect.Audio.QSys
 
 			string responseId = (string)json.SelectToken("id");
 
-			if (!string.IsNullOrEmpty(responseId))
+			switch (responseId)
 			{
-				switch (responseId)
-				{
-					case (RpcUtils.RPCID_NO_OP):
-						return;
-					case (RpcUtils.RPCID_NAMED_CONTROL_GET):
-						ParseNamedControlGetResponse(json);
-						return;
-					case (RpcUtils.RPCID_NAMED_CONTROL_SET):
-						ParseNamedControlSetResponse(json);
-						break;
-					case (RpcUtils.RPCID_NAMED_COMPONENT_GET):
-						ParseNamedComponentGetResponse(json);
-						break;
+				case (RpcUtils.RPCID_NO_OP):
+					return;
+				case (RpcUtils.RPCID_NAMED_CONTROL_GET):
+					ParseNamedControlGetResponse(json);
+					return;
+				case (RpcUtils.RPCID_NAMED_CONTROL_SET):
+					ParseNamedControlSetResponse(json);
+					break;
+				case (RpcUtils.RPCID_NAMED_COMPONENT_GET):
+					ParseNamedComponentGetResponse(json);
+					break;
 
-				}
 			}
 		}
 
