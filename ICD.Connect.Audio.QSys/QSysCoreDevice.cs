@@ -526,7 +526,14 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="stringEventArgs"></param>
 		private void PortOnSerialDataReceived(object sender, StringEventArgs stringEventArgs)
 		{
-			m_SerialBuffer.Enqueue(stringEventArgs.Data);
+			string data = stringEventArgs.Data;
+
+			// Ignore empty change groups
+			if (data ==
+			    @"{""jsonrpc"":""2.0"",""method"":""ChangeGroup.Poll"",""params"":{""Id"":""AutoChangeGroup"",""Changes"":[]}}")
+				return;
+
+			m_SerialBuffer.Enqueue(data);
 		}
 
 		/// <summary>
