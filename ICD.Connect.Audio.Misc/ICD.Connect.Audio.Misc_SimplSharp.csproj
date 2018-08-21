@@ -63,6 +63,8 @@
   <ItemGroup>
     <Compile Include="GenericMicButtonControllerDevice.cs" />
     <Compile Include="GenericMicButtonControllerDeviceSettings.cs" />
+    <Compile Include="KrangPlugin.cs" />
+    <None Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
