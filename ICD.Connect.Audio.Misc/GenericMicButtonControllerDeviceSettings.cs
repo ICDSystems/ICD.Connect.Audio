@@ -11,7 +11,7 @@ namespace ICD.Connect.Audio.Misc
 	[KrangSettings(FACTORY_NAME)]
 	public sealed class GenericMicButtonControllerDeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "GenericMicController";
+		private const string FACTORY_NAME = "GenericMicButtonController";
 
 		private const string BUTTON_INPUT_PORT_ELEMENT = "ButtonInputPort";
 		private const string POWER_OUTPUT_PORT_ELEMENT = "PowerOutputPort";
