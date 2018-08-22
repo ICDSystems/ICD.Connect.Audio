@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
@@ -12,7 +13,20 @@ namespace ICD.Connect.Audio.Shure
 {
 	public sealed class ShureMxaRouteSourceControl : AbstractRouteSourceControl<IShureMxaDevice>
 	{
+		/// <summary>
+		/// Raised when the device starts/stops actively transmitting on an output.
+		/// </summary>
 		public override event EventHandler<TransmissionStateEventArgs> OnActiveTransmissionStateChanged;
+
+		private IRoutingGraph m_CachedRoutingGraph;
+
+		/// <summary>
+		/// Gets the routing graph.
+		/// </summary>
+		public IRoutingGraph RoutingGraph
+		{
+			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
+		}
 
 		/// <summary>
 		/// Constructor.
@@ -22,6 +36,17 @@ namespace ICD.Connect.Audio.Shure
 		public ShureMxaRouteSourceControl(IShureMxaDevice parent, int id)
 			: base(parent, id)
 		{
+		}
+
+		/// <summary>
+		/// Override to release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected override void DisposeFinal(bool disposing)
+		{
+			OnActiveTransmissionStateChanged = null;
+
+			base.DisposeFinal(disposing);
 		}
 
 		#region Methods
@@ -40,16 +65,39 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Gets the output at the given address.
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public override ConnectorInfo GetOutput(int output)
+		{
+			if (!ContainsOutput(output))
+				throw new ArgumentOutOfRangeException("output");
+
+			return new ConnectorInfo(output, eConnectionType.Audio);
+		}
+
+		/// <summary>
+		/// Returns true if the source contains an output at the given address.
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public override bool ContainsOutput(int output)
+		{
+			Connection connection = RoutingGraph.Connections.GetOutputConnection(this, output);
+			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
+		}
+
+		/// <summary>
 		/// Returns the outputs.
 		/// </summary>
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetOutputs()
 		{
 			return
-				ServiceProvider.GetService<IRoutingGraph>()
-				               .Connections.GetChildren()
-				               .Where(c => c.Source.Device == Parent.Id && c.Source.Control == Id)
-				               .Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio));
+				RoutingGraph.Connections
+							.GetOutputConnections(Parent.Id, Id, eConnectionType.Audio)
+							.Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio));
 		}
 
 		#endregion

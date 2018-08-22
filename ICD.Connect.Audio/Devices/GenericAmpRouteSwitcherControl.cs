@@ -17,10 +17,37 @@ namespace ICD.Connect.Audio.Devices
 	/// </summary>
 	public sealed class GenericAmpRouteSwitcherControl : AbstractRouteSwitcherControl<GenericAmpDevice>, IRouteInputSelectControl
 	{
+		/// <summary>
+		/// Called when a route changes.
+		/// </summary>
 		public override event EventHandler<RouteChangeEventArgs> OnRouteChange;
+
+		/// <summary>
+		/// Raised when the device starts/stops actively transmitting on an output.
+		/// </summary>
 		public override event EventHandler<TransmissionStateEventArgs> OnActiveTransmissionStateChanged;
+
+		/// <summary>
+		/// Raised when an input source status changes.
+		/// </summary>
 		public override event EventHandler<SourceDetectionStateChangeEventArgs> OnSourceDetectionStateChange;
+
+		/// <summary>
+		/// Raised when the device starts/stops actively using an input, e.g. unroutes an input.
+		/// </summary>
 		public override event EventHandler<ActiveInputStateChangeEventArgs> OnActiveInputsChanged;
+
+		private readonly SwitcherCache m_Cache;
+
+		private IRoutingGraph m_CachedRoutingGraph;
+
+		/// <summary>
+		/// Gets the routing graph.
+		/// </summary>
+		public IRoutingGraph RoutingGraph
+		{
+			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
+		}
 
 		/// <summary>
 		/// Gets the current active input.
@@ -34,8 +61,6 @@ namespace ICD.Connect.Audio.Devices
 			}
 		}
 
-		private readonly SwitcherCache m_Cache;
-
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -47,8 +72,6 @@ namespace ICD.Connect.Audio.Devices
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
 		}
-
-		#region Methods
 
 		/// <summary>
 		/// Override to release resources.
@@ -65,6 +88,8 @@ namespace ICD.Connect.Audio.Devices
 
 			Unsubscribe(m_Cache);
 		}
+
+		#region Methods
 
 		/// <summary>
 		/// Routes the input to the given output.
@@ -88,10 +113,33 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="type"></param>
 		public override bool ClearOutput(int output, eConnectionType type)
 		{
-			if (output != 1)
+			if (!ContainsOutput(output))
 				throw new NotSupportedException(string.Format("Invalid output address {0}", output));
 
 			return m_Cache.SetInputForOutput(output, null, type);
+		}
+
+		/// <summary>
+		/// Gets the output at the given address.
+		/// </summary>
+		/// <param name="address"></param>
+		/// <returns></returns>
+		public override ConnectorInfo GetOutput(int address)
+		{
+			if (!ContainsOutput(address))
+				throw new ArgumentOutOfRangeException("address");
+
+			return new ConnectorInfo(address, eConnectionType.Audio);
+		}
+
+		/// <summary>
+		/// Returns true if the source contains an output at the given address.
+		/// </summary>
+		/// <param name="output"></param>
+		/// <returns></returns>
+		public override bool ContainsOutput(int output)
+		{
+			return output == 1;
 		}
 
 		/// <summary>
@@ -127,17 +175,39 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		/// <summary>
+		/// Gets the input at the given address.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public override ConnectorInfo GetInput(int input)
+		{
+			if (!ContainsInput(input))
+				throw new ArgumentOutOfRangeException("input");
+
+			return new ConnectorInfo(input, eConnectionType.Audio);
+		}
+
+		/// <summary>
+		/// Returns true if the destination contains an input at the given address.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public override bool ContainsInput(int input)
+		{
+			Connection connection = RoutingGraph.Connections.GetInputConnection(this, input);
+			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
+		}
+
+		/// <summary>
 		/// Returns the inputs.
 		/// </summary>
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
 			return
-				ServiceProvider.GetService<IRoutingGraph>()
-				               .Connections
-							   .GetChildren()
-				               .Where(c => c.Destination.Device == Parent.Id && c.Destination.Control == Id)
-				               .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio));
+				RoutingGraph.Connections
+							.GetInputConnections(Parent.Id, Id, eConnectionType.Audio)
+							.Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio));
 		}
 
 		/// <summary>
@@ -157,7 +227,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="input"></param>
 		public bool SetActiveInput(int? input)
 		{
-			if (input != null && GetInputs().All(i => i.Address != input))
+			if (input == null || !ContainsInput((int)input))
 				throw new NotSupportedException(string.Format("Invalid input address {0}", input));
 
 			return m_Cache.SetInputForOutput(1, input, eConnectionType.Audio);

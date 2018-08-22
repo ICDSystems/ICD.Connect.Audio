@@ -28,6 +28,16 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public event EventHandler<TransmissionStateEventArgs> OnActiveTransmissionStateChanged;
 
+		private IRoutingGraph m_CachedRoutingGraph;
+
+		/// <summary>
+		/// Gets the routing graph.
+		/// </summary>
+		public IRoutingGraph RoutingGraph
+		{
+			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
+		}
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -73,6 +83,30 @@ namespace ICD.Connect.Audio.Biamp
 		}
 
 		/// <summary>
+		/// Gets the input at the given address.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public override ConnectorInfo GetInput(int input)
+		{
+			if (!ContainsInput(input))
+				throw new ArgumentOutOfRangeException("input");
+
+			return new ConnectorInfo(input, eConnectionType.Audio);
+		}
+
+		/// <summary>
+		/// Returns true if the destination contains an input at the given address.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public override bool ContainsInput(int input)
+		{
+			Connection connection = RoutingGraph.Connections.GetInputConnection(this, input);
+			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
+		}
+
+		/// <summary>
 		/// Returns true if the device is actively transmitting on the given output.
 		/// This is NOT the same as sending video, since some devices may send an
 		/// idle signal by default.
@@ -92,7 +126,10 @@ namespace ICD.Connect.Audio.Biamp
 		/// <returns></returns>
 		public ConnectorInfo GetOutput(int output)
 		{
-			return GetOutputs().First(c => c.Address == output);
+			if (!ContainsOutput(output))
+				throw new ArgumentOutOfRangeException("output");
+
+			return new ConnectorInfo(output, eConnectionType.Audio);
 		}
 
 		/// <summary>
@@ -102,7 +139,8 @@ namespace ICD.Connect.Audio.Biamp
 		/// <returns></returns>
 		public bool ContainsOutput(int output)
 		{
-			return GetOutputs().Any(c => c.Address == output);
+			Connection connection = RoutingGraph.Connections.GetOutputConnection(this, output);
+			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
 		}
 
 		/// <summary>
@@ -112,13 +150,9 @@ namespace ICD.Connect.Audio.Biamp
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
 			return
-				ServiceProvider.GetService<IRoutingGraph>()
-				               .Connections
-				               .GetChildren()
-				               .Where(c => c.Destination.Device == Parent.Id &&
-				                           c.Destination.Control == Id &&
-				                           c.ConnectionType.HasFlag(eConnectionType.Audio))
-				               .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio));
+				RoutingGraph.Connections
+				            .GetInputConnections(Parent.Id, Id, eConnectionType.Audio)
+				            .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio));
 		}
 
 		/// <summary>
@@ -128,13 +162,9 @@ namespace ICD.Connect.Audio.Biamp
 		public IEnumerable<ConnectorInfo> GetOutputs()
 		{
 			return
-				ServiceProvider.GetService<IRoutingGraph>()
-				               .Connections
-				               .GetChildren()
-				               .Where(c => c.Source.Device == Parent.Id &&
-				                           c.Source.Control == Id &&
-				                           c.ConnectionType.HasFlag(eConnectionType.Audio))
-				               .Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio));
+				RoutingGraph.Connections
+				            .GetOutputConnections(Parent.Id, Id, eConnectionType.Audio)
+				            .Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio));
 		}
 	}
 }
