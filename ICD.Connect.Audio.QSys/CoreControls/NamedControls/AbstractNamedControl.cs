@@ -165,11 +165,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 			{
 			}
 
-			IEnumerable<int> controlChangeGroups;
-			if (changeGroupId == null)
-				controlChangeGroups = Enumerable.Empty<int>();
-			else
-				controlChangeGroups = ((int)changeGroupId).Yield();
+			IEnumerable<int> controlChangeGroups = changeGroupId == null ? Enumerable.Empty<int>() : ((int)changeGroupId).Yield();
 
 			SetupInitialChangeGroups(loadContext, controlChangeGroups);
 
