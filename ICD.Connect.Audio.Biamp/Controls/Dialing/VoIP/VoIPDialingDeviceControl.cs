@@ -190,6 +190,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			ThinConferenceSource source = GetSource(index);
 
+			if (source != null)
+			{
+				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+				UpdateSource(source, callAppearance);
+			}
+
 			try
 			{
 				switch (status)
