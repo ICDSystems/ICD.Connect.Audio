@@ -224,14 +224,13 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="callback"></param>
 		/// <returns></returns>
 		private void ActiveControlAction<TControl>(Action<TControl> callback)
-			where TControl : IVolumeDeviceControl
+			where TControl : class, IVolumeDeviceControl
 		{
 			if (callback == null)
 				throw new ArgumentNullException("callback");
 
 			TControl control = GetActiveControl<TControl>();
 
-// ReSharper disable once CompareNonConstrainedGenericWithNull
 			if (control != null)
 				callback(control);
 		}
@@ -245,7 +244,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="callback"></param>
 		/// <returns></returns>
 		private TResult ActiveControlAction<TControl, TResult>(Func<TControl, TResult> callback)
-			where TControl : IVolumeDeviceControl
+			where TControl : class, IVolumeDeviceControl
 		{
 			if (callback == null)
 				throw new ArgumentNullException("callback");
@@ -262,7 +261,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <returns></returns>
 		[CanBeNull]
 		private TControl GetActiveControl<TControl>()
-			where TControl : IVolumeDeviceControl
+			where TControl : class, IVolumeDeviceControl
 		{
 			if (!m_ActiveDeviceId.HasValue)
 				return default(TControl);

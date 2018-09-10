@@ -337,12 +337,6 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="data"></param>
 		internal void SendData(SubscriptionCallback callback, ICode data)
 		{
-			if (!m_ConnectionStateManager.IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with device");
-				return;
-			}
-
 			CodeCallbackPair pair = new CodeCallbackPair(data, callback);
 			m_SerialQueue.Enqueue(pair, (a, b) => a.Code.CompareEquality(b.Code));
 		}

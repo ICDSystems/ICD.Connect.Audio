@@ -133,8 +133,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 
 		public INamedComponentControl GetControl(string controlName)
 		{
-			INamedComponentControl control;
-			control = TryGetControl(controlName);
+			INamedComponentControl control = TryGetControl(controlName);
 			if (control == null)
 				throw new KeyNotFoundException(String.Format("NamedComponent {0} Control name {1} not found", this, controlName));
 			return control;

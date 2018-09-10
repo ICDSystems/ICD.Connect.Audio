@@ -12,8 +12,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 {
 	public sealed class ChangeGroup : AbstractCoreControl, IChangeGroup
 	{
-
-		private const float DEFAULT_POLL_INTERVAL = (float).2;
+		private const float DEFAULT_POLL_INTERVAL = 0.5f;
 
 	    private readonly SafeCriticalSection m_NamedControlCriticalSection;
 	    private readonly List<INamedControl> m_NamedControls;
