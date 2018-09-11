@@ -9,6 +9,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
+using ICD.Connect.Calendaring.Booking;
 using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
@@ -163,6 +164,33 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_NUMBER).SetValue(number);
 			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
+		}
+
+		/// <summary>
+		/// Returns the level of support the dialer has for the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		/// <returns></returns>
+		public override eBookingSupport CanDial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return eBookingSupport.Supported;
+
+			return eBookingSupport.Unsupported;
+		}
+
+		/// <summary>
+		/// Dials the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		public override void Dial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return;
+
+			Dial(potsBooking.PhoneNumber);
 		}
 
 		public override void SetDoNotDisturb(bool enabled)
