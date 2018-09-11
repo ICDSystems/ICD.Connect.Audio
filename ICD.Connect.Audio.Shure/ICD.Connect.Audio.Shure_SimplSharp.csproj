@@ -83,6 +83,8 @@
     <Compile Include="ShureMxa910Device.cs" />
     <Compile Include="ShureMxa910DeviceSettings.cs" />
     <Compile Include="ShureMxaRouteSourceControl.cs" />
+    <Compile Include="ShureMxaSerialBuffer.cs" />
+    <Compile Include="ShureMxaSerialData.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
+using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Shure
@@ -14,15 +17,45 @@ namespace ICD.Connect.Audio.Shure
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
+		/// <summary>
+		/// Raised when the mute button is pressed/released.
+		/// </summary>
+		public event EventHandler<BoolEventArgs> OnMuteButtonStatusChanged; 
+
 		private readonly ConnectionStateManager m_ConnectionStateManager;
+		private readonly ShureMxaSerialBuffer m_SerialBuffer;
+
+		private bool m_MuteButtonStatus;
+
+		/// <summary>
+		/// Gets the mute button state.
+		/// </summary>
+		public bool MuteButtonStatus
+		{
+			get { return m_MuteButtonStatus; }
+			private set
+			{
+				if (value == m_MuteButtonStatus)
+					return;
+
+				m_MuteButtonStatus = value;
+
+				OnMuteButtonStatusChanged.Raise(this, new BoolEventArgs(m_MuteButtonStatus));
+			}
+		}
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		protected AbstractShureMxaDevice()
 		{
+			m_SerialBuffer = new ShureMxaSerialBuffer();
+			Subscribe(m_SerialBuffer);
+
 			m_ConnectionStateManager = new ConnectionStateManager(this);
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
 
 			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
 		}
@@ -32,7 +65,11 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		protected override void DisposeFinal(bool disposing)
 		{
+			OnMuteButtonStatusChanged = null;
+
 			base.DisposeFinal(disposing);
+
+			Unsubscribe(m_SerialBuffer);
 
 			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.Dispose();
@@ -46,7 +83,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="brightness"></param>
 		public void SetLedBrightness(eLedBrightness brightness)
 		{
-			Send(string.Format("< SET LED_BRIGHTNESS {0} >", (int)brightness));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_BRIGHTNESS",
+				Value = ((int)brightness).ToString()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -55,7 +99,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedMuteColor(eLedColor color)
 		{
-			Send(string.Format("< SET LED_COLOR_MUTED {0} >", color.ToString().ToUpper()));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_COLOR_MUTED",
+				Value = color.ToString().ToUpper()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -64,7 +115,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedUnmuteColor(eLedColor color)
 		{
-			Send(string.Format("< SET LED_COLOR_UNMUTED {0} >", color.ToString().ToUpper()));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_COLOR_UNMUTED",
+				Value = color.ToString().ToUpper()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -83,7 +141,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="on"></param>
 		public void SetLedFlash(bool on)
 		{
-			Send(string.Format("< SET FLASH {0} >", on ? "ON" : "OFF"));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "FLASH",
+				Value = on ? "ON" : "OFF"
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -116,6 +181,72 @@ namespace ICD.Connect.Audio.Shure
 		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
+		}
+
+		/// <summary>
+		/// Called when the port connection state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PortOnConnectionStatusChanged(object sender, BoolEventArgs e)
+		{
+			m_SerialBuffer.Clear();
+		}
+
+		/// <summary>
+		/// Called when we receive data from the device.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PortOnSerialDataReceived(object sender, StringEventArgs e)
+		{
+			m_SerialBuffer.Enqueue(e.Data);
+		}
+
+		#endregion
+
+		#region Serial Buffer Callbacks
+
+		/// <summary>
+		/// Subscribe to the serial buffer events.
+		/// </summary>
+		/// <param name="serialBuffer"></param>
+		private void Subscribe(ISerialBuffer serialBuffer)
+		{
+			serialBuffer.OnCompletedSerial += SerialBufferOnCompletedSerial;
+		}
+
+		/// <summary>
+		/// Unsubscribe from the serial buffer events.
+		/// </summary>
+		/// <param name="serialBuffer"></param>
+		private void Unsubscribe(ISerialBuffer serialBuffer)
+		{
+			serialBuffer.OnCompletedSerial -= SerialBufferOnCompletedSerial;
+		}
+
+		/// <summary>
+		/// Called when we receive a complete message from the device.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="stringEventArgs"></param>
+		private void SerialBufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
+		{
+			ShureMxaSerialData response = ShureMxaSerialData.Deserialize(stringEventArgs.Data);
+
+			switch (response.Type)
+			{
+				case ShureMxaSerialData.REP:
+
+					switch (response.Command)
+					{
+						case "MUTE_BUTTON_STATUS":
+							MuteButtonStatus = response.Value == "ON";
+							break;
+					}
+
+					break;
+			}
 		}
 
 		#endregion
