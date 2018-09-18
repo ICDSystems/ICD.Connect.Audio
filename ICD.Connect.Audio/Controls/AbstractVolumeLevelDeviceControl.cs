@@ -17,6 +17,7 @@ namespace ICD.Connect.Audio.Controls
 		where T : IDeviceBase
 	{
 		#region Constants
+
 		/// <summary>
 		/// Default time before repeat for volume ramping operations
 		/// </summary>
@@ -35,10 +36,12 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Tolerance for float comparisons
 		/// </summary>
-		private const float FLOAT_COMPARE_TOLERANCE = 0.00001F;
+		private const float FLOAT_COMPARE_TOLERANCE = 0.00001f;
+
 		#endregion
 
 		#region Fields
+
 		private float? m_IncrementValue;
 
 		/// <summary>
@@ -52,7 +55,6 @@ namespace ICD.Connect.Audio.Controls
 		private readonly SafeCriticalSection m_RepeaterCriticalSection;
 
 		private int? m_RepeatBeforeTime;
-
 		private int? m_RepeatBetweenTime;
 
 		private float? m_VolumeRawMax;
@@ -62,19 +64,32 @@ namespace ICD.Connect.Audio.Controls
 
 		#region Events
 
+		/// <summary>
+		/// Raised when the raw volume changes.
+		/// </summary>
 		public virtual event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 		
 		#endregion
 
 		#region Abstract Properties
 
+		/// <summary>
+		/// Gets the current volume, in the parent device's format
+		/// </summary>
 		public abstract float VolumeRaw { get; }
+
+		/// <summary>
+		/// Gets the current volume positon, 0 - 1
+		/// </summary>
 		public abstract float VolumePosition { get; }
 
 		#endregion
 
 		#region Properties
 
+		/// <summary>
+		/// Gets the current volume, in string representation
+		/// </summary>
 		public virtual string VolumeString
 		{
 			get { return ConvertLevelToString(VolumeRaw); }
@@ -97,6 +112,10 @@ namespace ICD.Connect.Audio.Controls
 			}
 		}
 
+		/// <summary>
+		/// Maximum value for the raw volume level
+		/// This could be the maximum permitted by the device/control, or a safety max
+		/// </summary>
 		public virtual float? VolumeRawMax
 		{
 			get
@@ -112,6 +131,10 @@ namespace ICD.Connect.Audio.Controls
 			}
 		}
 
+		/// <summary>
+		/// Minimum value for the raw volume level
+		/// This could be the minimum permitted by the device/control, or a safety min
+		/// </summary>
 		public virtual float? VolumeRawMin
 		{
 			get
@@ -182,14 +205,29 @@ namespace ICD.Connect.Audio.Controls
 
 		#region Abstract Methods
 
+		/// <summary>
+		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// </summary>
+		/// <param name="volume"></param>
 		public abstract void SetVolumeRaw(float volume);
+
+		/// <summary>
+		/// Sets the volume position, from 0-1
+		/// </summary>
+		/// <param name="position"></param>
 		public abstract void SetVolumePosition(float position);
 
+		/// <summary>
+		/// Increments the volume once.
+		/// </summary>
 		public virtual void VolumeLevelIncrement(float incrementValue)
 		{
 			SetVolumeRaw(this.ClampRawVolume(VolumeRaw + incrementValue));
 		}
 
+		/// <summary>
+		/// Decrements the volume once.
+		/// </summary>
 		public virtual void VolumeLevelDecrement(float decrementValue)
 		{
 			SetVolumeRaw(this.ClampRawVolume(VolumeRaw - decrementValue));
@@ -305,11 +343,6 @@ namespace ICD.Connect.Audio.Controls
 		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition, string volumeString)
 		{
 			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(volumeRaw, volumePosition, volumeString));
-		}
-
-		protected virtual void VolumeFeedback(VolumeDeviceVolumeChangedEventArgs args)
-		{
-			OnVolumeChanged.Raise(this, args);
 		}
 
 		#endregion
