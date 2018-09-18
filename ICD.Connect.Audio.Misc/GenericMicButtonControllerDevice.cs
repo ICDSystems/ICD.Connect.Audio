@@ -171,7 +171,7 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		public GenericMicButtonControllerDevice()
 		{
-			m_Ports = new IIoPort[4];
+			m_Ports = new IIoPort[5];
 			m_PortsSection = new SafeCriticalSection();
 		}
 
