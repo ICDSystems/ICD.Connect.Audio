@@ -2,6 +2,7 @@
 using ICD.Common.Utils;
 using ICD.Connect.API.Attributes;
 using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Utils;
 
 namespace ICD.Connect.Audio.Controls
 {
@@ -46,10 +47,7 @@ namespace ICD.Connect.Audio.Controls
 			if (control == null)
 				throw new ArgumentNullException("control");
 
-			if (control.VolumeRawMinRange.Equals(control.VolumeRawMaxRange))
-				return 0.0f;
-
-			return MathUtils.MapRange(control.VolumeRawMinRange, control.VolumeRawMaxRange, 0.0f, 1.0f, volumeRaw);
+			return VolumeUtils.ConvertRawToPosition(control.VolumeRawMinRange, control.VolumeRawMaxRange, volumeRaw);
 		}
 
 		/// <summary>
@@ -63,7 +61,7 @@ namespace ICD.Connect.Audio.Controls
 			if (control == null)
 				throw new ArgumentNullException("control");
 
-			return MathUtils.MapRange(0.0f, 1.0f, control.VolumeRawMinRange, control.VolumeRawMaxRange, volumePosition);
+			return VolumeUtils.ConvertPositionToRaw(control.VolumeRawMinRange, control.VolumeRawMaxRange, volumePosition);
 		}
 
 		public static float ClampRawVolume(this IVolumeRawLevelDeviceControl control, float level)

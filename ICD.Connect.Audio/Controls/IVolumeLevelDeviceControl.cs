@@ -1,8 +1,8 @@
 ﻿using System;
-using ICD.Common.Utils;
 using ICD.Connect.API.Attributes;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Utils;
 
 namespace ICD.Connect.Audio.Controls
 {
@@ -102,14 +102,10 @@ namespace ICD.Connect.Audio.Controls
 		/// <returns></returns>
 		public static float ClampRawVolume(this IVolumeLevelDeviceControl control, float level)
 		{
-			if (control.VolumeRawMax != null && control.VolumeRawMin != null)
-				return MathUtils.Clamp(level, (float)control.VolumeRawMin, (float)control.VolumeRawMax);
-			if (control.VolumeRawMin != null)
-				return Math.Max(level, (float)control.VolumeRawMin);
-			if (control.VolumeRawMax != null)
-				return Math.Min(level, (float)control.VolumeRawMax);
+			if (control == null)
+				throw new ArgumentNullException("control");
 
-			return level;
+			return VolumeUtils.ClampRawVolume(control.VolumeRawMin, control.VolumeRawMax, level);
 		}
 	}
 }

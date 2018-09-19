@@ -96,6 +96,7 @@
     <Compile Include="Repeaters\IVolumeRepeater.cs" />
     <Compile Include="Repeaters\VolumeBasicRepeater.cs" />
     <Compile Include="Repeaters\VolumeRepeater.cs" />
+    <Compile Include="Utils\VolumeUtils.cs" />
     <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
     <Compile Include="VolumePoints\IVolumePoint.cs" />
