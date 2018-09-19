@@ -20,7 +20,7 @@ using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Devices
 {
-	public sealed class GenericAmpVolumeControl : AbstractDeviceControl<GenericAmpDevice>, IVolumeRawLevelDeviceControl,
+	public sealed class GenericAmpVolumeControl : AbstractDeviceControl<GenericAmpDevice>, IVolumeLevelDeviceControl,
 	                                              IVolumeMuteFeedbackDeviceControl
 	{
 		#region Events
@@ -52,36 +52,24 @@ namespace ICD.Connect.Audio.Devices
 		/// <summary>
 		/// Gets the current volume positon, 0 - 1
 		/// </summary>
-		public float VolumePosition { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumePosition); } }
+		public float VolumePosition { get { return ActiveControlAction<IVolumePositionDeviceControl, float>(c => c.VolumePosition); } }
 
 		/// <summary>
 		/// Gets the current volume, in string representation
 		/// </summary>
-		public string VolumeString { get { return ActiveControlAction<IVolumeLevelDeviceControl, string>(c => c.VolumeString); } }
-
-		/// <summary>
-		/// Maximum value for the raw volume level
-		/// This could be the maximum permitted by the device/control, or a safety max
-		/// </summary>
-		public float? VolumeRawMax { get { return ActiveControlAction<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMax); } }
-
-		/// <summary>
-		/// Minimum value for the raw volume level
-		/// This could be the minimum permitted by the device/control, or a safety min
-		/// </summary>
-		public float? VolumeRawMin { get { return ActiveControlAction<IVolumeLevelDeviceControl, float?>(c => c.VolumeRawMin); } }
+		public string VolumeString { get { return ActiveControlAction<IVolumePositionDeviceControl, string>(c => c.VolumeString); } }
 
 		/// <summary>
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeRawMaxRange { get { return ActiveControlAction<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMaxRange); } }
+		public float VolumeRawMaxRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRawMaxRange); } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeRawMinRange { get { return ActiveControlAction<IVolumeRawLevelDeviceControl, float>(c => c.VolumeRawMinRange); } }
+		public float VolumeRawMinRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRawMinRange); } }
 
 		/// <summary>
 		/// Gets the muted state.
@@ -121,44 +109,44 @@ namespace ICD.Connect.Audio.Devices
 		/// Raises the volume one time
 		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public void VolumeLevelIncrement()
+		public void VolumeIncrement()
 		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement());
+			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumeIncrement());
 		}
 
 		/// <summary>
 		/// Lowers the volume one time
 		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public void VolumeLevelDecrement()
+		public void VolumeDecrement()
 		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelDecrement());
+			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumeDecrement());
 		}
 
 		/// <summary>
 		/// Starts raising the volume, and continues until RampStop is called.
-		/// <see cref="VolumeLevelRampStop"/> must be called after
+		/// <see cref="VolumeRampStop"/> must be called after
 		/// </summary>
-		public void VolumeLevelRampUp()
+		public void VolumeRampUp()
 		{
-			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampUp());
+			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampUp());
 		}
 
 		/// <summary>
 		/// Starts lowering the volume, and continues until RampStop is called.
-		/// <see cref="VolumeLevelRampStop"/> must be called after
+		/// <see cref="VolumeRampStop"/> must be called after
 		/// </summary>
-		public void VolumeLevelRampDown()
+		public void VolumeRampDown()
 		{
-			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampDown());
+			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampDown());
 		}
 
 		/// <summary>
 		/// Stops any current ramp up/down in progress.
 		/// </summary>
-		public void VolumeLevelRampStop()
+		public void VolumeRampStop()
 		{
-			ActiveControlAction<IVolumeLevelBasicDeviceControl>(c => c.VolumeLevelRampStop());
+			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampStop());
 		}
 
 		/// <summary>
@@ -176,7 +164,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="position"></param>
 		public void SetVolumePosition(float position)
 		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumePosition(position));
+			ActiveControlAction<IVolumePositionDeviceControl>(c => c.SetVolumePosition(position));
 		}
 
 		/// <summary>
@@ -193,6 +181,24 @@ namespace ICD.Connect.Audio.Devices
 		public void VolumeLevelDecrement(float decrementValue)
 		{
 			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(decrementValue));
+		}
+
+		/// <summary>
+		/// Starts raising the volume in steps of the given position, and continues until RampStop is called.
+		/// </summary>
+		/// <param name="increment"></param>
+		public void VolumePositionRampUp(float increment)
+		{
+			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumePositionRampUp(increment));
+		}
+
+		/// <summary>
+		/// Starts lowering the volume in steps of the given position, and continues until RampStop is called.
+		/// </summary>
+		/// <param name="decrement"></param>
+		public void VolumePositionRampDown(float decrement)
+		{
+			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumePositionRampDown(decrement));
 		}
 
 		/// <summary>

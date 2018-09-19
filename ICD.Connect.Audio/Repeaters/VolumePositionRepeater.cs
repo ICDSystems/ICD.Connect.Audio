@@ -7,9 +7,9 @@ namespace ICD.Connect.Audio.Repeaters
 	/// VolumeRepeater allows for a virtual "button" to be held, raising a callback for
 	/// every repeat interval.
 	/// </summary>
-	public sealed class VolumeRepeater : AbstactVolumeRepeater
+	public sealed class VolumePositionRepeater : AbstactVolumeRepeater
 	{
-		private IVolumeLevelDeviceControl m_Control;
+		private IVolumePositionDeviceControl m_Control;
 
 		/// <summary>
 		/// Gets/sets the initial raw volume increment amount.
@@ -21,6 +21,9 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		public float RepeatIncrement { get; set; }
 
+		private bool m_LevelHold;
+		private float m_LevelDelta;
+
 		#region Constructor
 
 		/// <summary>
@@ -30,7 +33,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <param name="repeatIncrement">The increment for every subsequent repeat</param>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumeRepeater(float initialIncrement, float repeatIncrement, long beforeRepeat, long betweenRepeat)
+		public VolumePositionRepeater(float initialIncrement, float repeatIncrement, long beforeRepeat, long betweenRepeat)
 			: base(beforeRepeat, betweenRepeat)
 		{
 			InitialIncrement = initialIncrement;
@@ -40,7 +43,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~VolumeRepeater()
+		~VolumePositionRepeater()
 		{
 			Dispose();
 		}
@@ -53,9 +56,20 @@ namespace ICD.Connect.Audio.Repeaters
 		/// Sets the control.
 		/// </summary>
 		/// <param name="control"></param>
-		public void SetControl(IVolumeLevelDeviceControl control)
+		public void SetControl(IVolumePositionDeviceControl control)
 		{
 			m_Control = control;
+		}
+
+		/// <summary>
+		/// Stops the repeat timer.
+		/// </summary>
+		public override void Release()
+		{
+			m_LevelHold = false;
+			m_LevelDelta = 0.0f;
+
+			base.Release();
 		}
 
 		#endregion
@@ -67,7 +81,9 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeInitial()
 		{
-			if (InitialIncrement > 0.0f)
+			if (m_LevelHold)
+				IncrementVolume(m_LevelDelta);
+			else if (InitialIncrement > 0.0f)
 				IncrementVolume(InitialIncrement);
 			else
 				IncrementVolume();
@@ -78,7 +94,9 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeSubsequent()
 		{
-			if (RepeatIncrement > 0.0f)
+			if (m_LevelHold)
+				IncrementVolume(m_LevelDelta);
+			else if (RepeatIncrement > 0.0f)
 				IncrementVolume(RepeatIncrement);
 			else
 				IncrementVolume();
@@ -110,9 +128,9 @@ namespace ICD.Connect.Audio.Repeaters
 				throw new InvalidOperationException("Can't increment volume without control set");
 
 			if (Up)
-				m_Control.VolumeLevelIncrement();
+				m_Control.VolumeIncrement();
 			else
-				m_Control.VolumeLevelDecrement();
+				m_Control.VolumeDecrement();
 		}
 
 		#endregion

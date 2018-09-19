@@ -12,7 +12,7 @@ using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 
 namespace ICD.Connect.Audio.QSys.Controls
 {
-    public sealed class NamedControlsVolumeDevice : AbstractVolumeLevelDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
+    public sealed class NamedControlsVolumeDevice : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
     {
 	    private readonly string m_Name;
 		

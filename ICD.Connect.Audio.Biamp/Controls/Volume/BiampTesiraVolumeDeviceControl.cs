@@ -6,7 +6,7 @@ using ICD.Connect.Audio.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {
-	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeRawLevelDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl, IVolumeMuteFeedbackDeviceControl
+	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeLevelDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl, IVolumeMuteFeedbackDeviceControl
 	{
 		private readonly string m_Name;
 		private readonly IVolumeAttributeInterface m_VolumeInterface;
