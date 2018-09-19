@@ -11,10 +11,11 @@ namespace ICD.Connect.Audio.Repeaters
 	{
 		private readonly SafeTimer m_RepeatTimer;
 
-		private readonly int m_BeforeRepeat;
-		private readonly int m_BetweenRepeat;
-
 		protected bool Up { get; private set; }
+
+		public long BeforeRepeat { get; set; }
+
+		public long BetweenRepeat { get; set; }
 
 		#region Constructor
 
@@ -23,11 +24,12 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		protected AbstactVolumeRepeater(int beforeRepeat, int betweenRepeat)
+		protected AbstactVolumeRepeater(long beforeRepeat, long betweenRepeat)
 		{
 			m_RepeatTimer = SafeTimer.Stopped(RepeatCallback);
-			m_BeforeRepeat = beforeRepeat;
-			m_BetweenRepeat = betweenRepeat;
+
+			BeforeRepeat = beforeRepeat;
+			BetweenRepeat = betweenRepeat;
 		}
 
 		/// <summary>
@@ -49,7 +51,6 @@ namespace ICD.Connect.Audio.Repeaters
 		{
 			m_RepeatTimer.Dispose();
 		}
-
 
 		/// <summary>
 		/// Begin incrementing the volume.
@@ -101,7 +102,7 @@ namespace ICD.Connect.Audio.Repeaters
 
 			IncrementVolumeInitial();
 
-			m_RepeatTimer.Reset(m_BeforeRepeat, m_BetweenRepeat);
+			m_RepeatTimer.Reset(BeforeRepeat, BetweenRepeat);
 		}
 
 		/// <summary>

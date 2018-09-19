@@ -11,8 +11,9 @@ namespace ICD.Connect.Audio.Repeaters
 	{
 		private IVolumeLevelDeviceControl m_Control;
 
-		private readonly float? m_InitialIncrement;
-		private readonly float? m_RepeatIncrement;
+		public float InitialIncrement { get; set; }
+
+		public float RepeatIncrement { get; set; }
 
 		#region Constructor
 
@@ -23,23 +24,11 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <param name="repeatIncrement">The increment for every subsequent repeat</param>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumeRepeater(float? initialIncrement, float? repeatIncrement, int beforeRepeat, int betweenRepeat)
+		public VolumeRepeater(float initialIncrement, float repeatIncrement, long beforeRepeat, long betweenRepeat)
 			: base(beforeRepeat, betweenRepeat)
 		{
-			m_InitialIncrement = initialIncrement;
-			m_RepeatIncrement = repeatIncrement;
-		}
-
-		/// <summary>
-		/// Constructor.  Uses device's Increment methods
-		/// </summary>
-		/// <param name="beforeRepeat">The delay before the second increment</param>
-		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumeRepeater(int beforeRepeat, int betweenRepeat)
-			: base(beforeRepeat, betweenRepeat)
-		{
-			m_InitialIncrement = null;
-			m_RepeatIncrement = null;
+			InitialIncrement = initialIncrement;
+			RepeatIncrement = repeatIncrement;
 		}
 
 		/// <summary>
@@ -72,8 +61,8 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeInitial()
 		{
-			if (m_InitialIncrement != null)
-				IncrementVolume((float)m_InitialIncrement);
+			if (InitialIncrement > 0.0f)
+				IncrementVolume(InitialIncrement);
 			else
 				IncrementVolume();
 		}
@@ -83,8 +72,8 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeSubsequent()
 		{
-			if (m_RepeatIncrement != null)
-				IncrementVolume((float)m_RepeatIncrement);
+			if (RepeatIncrement > 0.0f)
+				IncrementVolume(RepeatIncrement);
 			else
 				IncrementVolume();
 		}

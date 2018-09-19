@@ -33,10 +33,7 @@ namespace ICD.Connect.Audio.Controls
 		/// </summary>
 		public float VolumeRawMinRange
 		{
-			get
-			{
-				return VolumeRawMin == null ? VolumeRawMinAbsolute : Math.Max(VolumeRawMinAbsolute, (float)VolumeRawMin);
-			}
+			get { return VolumeRawMin == null ? VolumeRawMinAbsolute : Math.Max(VolumeRawMinAbsolute, (float)VolumeRawMin); }
 		}
 
 		/// <summary>
@@ -45,19 +42,13 @@ namespace ICD.Connect.Audio.Controls
 		/// </summary>
 		public float VolumeRawMaxRange
 		{
-			get
-			{
-				return VolumeRawMax == null ? VolumeRawMaxAbsolute : Math.Min(VolumeRawMaxAbsolute, (float)VolumeRawMax);
-			}
+			get { return VolumeRawMax == null ? VolumeRawMaxAbsolute : Math.Min(VolumeRawMaxAbsolute, (float)VolumeRawMax); }
 		}
 
 		/// <summary>
 		/// Gets the position of the volume in the specified range
 		/// </summary>
-		public override float VolumePosition
-		{
-			get { return this.ConvertRawToPosition(VolumeRaw); }
-		}
+		public override float VolumePosition { get { return this.ConvertRawToPosition(VolumeRaw); } }
 
 		#endregion
 
