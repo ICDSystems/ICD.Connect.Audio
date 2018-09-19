@@ -11,8 +11,14 @@ namespace ICD.Connect.Audio.Repeaters
 	{
 		private IVolumeLevelDeviceControl m_Control;
 
+		/// <summary>
+		/// Gets/sets the initial raw volume increment amount.
+		/// </summary>
 		public float InitialIncrement { get; set; }
 
+		/// <summary>
+		/// Gets/sets the subsequent raw volume increment amounts.
+		/// </summary>
 		public float RepeatIncrement { get; set; }
 
 		#region Constructor

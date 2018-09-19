@@ -18,7 +18,8 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumeBasicRepeater(int beforeRepeat, int betweenRepeat) : base(beforeRepeat, betweenRepeat)
+		public VolumeBasicRepeater(long beforeRepeat, long betweenRepeat)
+			: base(beforeRepeat, betweenRepeat)
 		{
 		}
 
@@ -47,11 +48,17 @@ namespace ICD.Connect.Audio.Repeaters
 
 		#region Private Methods
 
+		/// <summary>
+		/// Callback for the initial ramp increment.
+		/// </summary>
 		protected override void IncrementVolumeInitial()
 		{
 			IncrementVolume();
 		}
 
+		/// <summary>
+		/// Callback for each subsequent ramp increment.
+		/// </summary>
 		protected override void IncrementVolumeSubsequent()
 		{
 			IncrementVolume();
