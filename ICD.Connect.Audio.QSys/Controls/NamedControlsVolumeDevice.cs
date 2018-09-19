@@ -42,6 +42,14 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#endregion
 
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="qSysCore"></param>
+		/// <param name="name"></param>
+		/// <param name="id"></param>
+		/// <param name="volumeControl"></param>
+		/// <param name="muteControl"></param>
 		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl)
 			: base(qSysCore, id)
 		{
@@ -79,9 +87,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 			// Load volume/mute controls
 			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
 			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
-			
+
 			if (incrementValue != null)
-				IncrementValue = (float)incrementValue;
+			{
+				InitialIncrement = (float)incrementValue;
+				RepeatIncrement = (float)incrementValue;
+			}
+
 			if (repeatBeforeTime != null)
 				RepeatBeforeTime = (int)repeatBeforeTime;
 			if (repeatBetweenTime != null)
