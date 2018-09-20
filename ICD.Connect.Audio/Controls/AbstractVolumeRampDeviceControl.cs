@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ICD.Common.Properties;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console;
@@ -9,7 +8,7 @@ using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
-	public abstract class AbstractVolumeLevelBasicDeviceControl<T> : AbstractDeviceControl<T>, IVolumeLevelBasicDeviceControl
+	public abstract class AbstractVolumeRampDeviceControl<T> : AbstractDeviceControl<T>, IVolumeRampDeviceControl
 		where T : IDeviceBase
 	{
 		#region Constants
@@ -29,7 +28,7 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Repeater for volume ramping operaions
 		/// </summary>
-		private readonly VolumeBasicRepeater m_Repeater;
+		private readonly VolumeRampRepeater m_Repeater;
 
 		#region Properties
 
@@ -41,7 +40,6 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Time from the press to the repeat
 		/// </summary>
-		[PublicAPI]
 		public long RepeatBeforeTime
 		{
 			get { return VolumeRepeater.BeforeRepeat; }
@@ -51,7 +49,6 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Time between repeats
 		/// </summary>
-		[PublicAPI]
 		public long RepeatBetweenTime
 		{
 			get { return VolumeRepeater.BetweenRepeat; }
@@ -65,30 +62,30 @@ namespace ICD.Connect.Audio.Controls
 		/// </summary>
 		/// <param name="parent">Device this control belongs to</param>
 		/// <param name="id">Id of this control in the device</param>
-		protected AbstractVolumeLevelBasicDeviceControl(T parent, int id)
+		protected AbstractVolumeRampDeviceControl(T parent, int id)
 			: base(parent, id)
 		{
-			m_Repeater = new VolumeBasicRepeater(DEFAULT_REPEAT_BEFORE_TIME, DEFAULT_REPEAT_BETWEEN_TIME);
+			m_Repeater = new VolumeRampRepeater(DEFAULT_REPEAT_BEFORE_TIME, DEFAULT_REPEAT_BETWEEN_TIME);
 			m_Repeater.SetControl(this);
 		}
 
 		#region Methods
 
 		/// <summary>
-		/// Volume Level Increment
+		/// Default volume increment.
 		/// </summary>
-		public abstract void VolumeLevelIncrement();
+		public abstract void VolumeIncrement();
 
 		/// <summary>
-		/// Volume Level Decrement
+		/// Default volume increment.
 		/// </summary>
-		public abstract void VolumeLevelDecrement();
+		public abstract void VolumeDecrement();
 
 		/// <summary>
 		/// Starts a volume ramp up operation
 		/// VolumeLevelRampStop() must be called to stop the ramping
 		/// </summary>
-		public void VolumeLevelRampUp()
+		public void VolumeRampUp()
 		{
 			VolumeLevelRamp(true);
 		}
@@ -97,7 +94,7 @@ namespace ICD.Connect.Audio.Controls
 		/// Starts a volume ramp down operation
 		/// VolumeLevelRampStop() must be called to stop the ramping
 		/// </summary>
-		public void VolumeLevelRampDown()
+		public void VolumeRampDown()
 		{
 			VolumeLevelRamp(false);
 		}
@@ -105,9 +102,9 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Stops the volume ramp and disposes of the repeater timer
 		/// </summary>
-		public void VolumeLevelRampStop()
+		public virtual void VolumeRampStop()
 		{
-			VolumeRepeater.Release();
+			m_Repeater.Release();
 		}
 
 		#endregion
@@ -136,7 +133,7 @@ namespace ICD.Connect.Audio.Controls
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
 
-			foreach (IConsoleNodeBase node in VolumeLevelBasicDeviceControlConsole.GetConsoleNodes(this))
+			foreach (IConsoleNodeBase node in VolumeRampDeviceControlConsole.GetConsoleNodes(this))
 				yield return node;
 		}
 
@@ -157,7 +154,7 @@ namespace ICD.Connect.Audio.Controls
 		{
 			base.BuildConsoleStatus(addRow);
 
-			VolumeLevelBasicDeviceControlConsole.BuildConsoleStatus(this, addRow);
+			VolumeRampDeviceControlConsole.BuildConsoleStatus(this, addRow);
 		}
 
 		/// <summary>
@@ -169,7 +166,7 @@ namespace ICD.Connect.Audio.Controls
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
 				yield return command;
 
-			foreach (IConsoleCommand command in VolumeLevelBasicDeviceControlConsole.GetConsoleCommands(this))
+			foreach (IConsoleCommand command in VolumeRampDeviceControlConsole.GetConsoleCommands(this))
 				yield return command;
 		}
 

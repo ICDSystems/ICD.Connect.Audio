@@ -9,10 +9,11 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.Controls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
+using ICD.Connect.Audio.Repeaters;
 
 namespace ICD.Connect.Audio.QSys.Controls
 {
-    public sealed class NamedControlsVolumeDevice : AbstractVolumeLevelDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
+    public sealed class NamedControlsVolumeDevice : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
     {
 	    private readonly string m_Name;
 		
@@ -26,7 +27,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    public override string Name { get { return m_Name; }  }
 
-		public override float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
+		public float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
 
 		public override float VolumePosition { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition; } }
 
@@ -90,8 +91,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			if (incrementValue != null)
 			{
-				InitialIncrement = (float)incrementValue;
-				RepeatIncrement = (float)incrementValue;
+				VolumePositionRepeater positionRepeater = VolumeRepeater as VolumePositionRepeater;
+
+				positionRepeater.InitialIncrement = (float)incrementValue;
+				positionRepeater.RepeatIncrement = (float)incrementValue;
 			}
 
 			if (repeatBeforeTime != null)
@@ -104,7 +107,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 	    #region Methods
 
-	    public override void SetVolumeRaw(float volume)
+	    public void SetVolumeRaw(float volume)
 	    {
 		    if (m_VolumeControl == null)
 		    {
@@ -126,7 +129,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		    m_VolumeControl.SetPosition(position);
 	    }
 
-	    public override void VolumeLevelIncrement(float incrementValue)
+	    public void VolumeLevelIncrement(float incrementValue)
 	    {
 			if (m_VolumeControl == null)
 			{
@@ -137,7 +140,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		    m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
 	    }
 
-	    public override void VolumeLevelDecrement(float decrementValue)
+	    public void VolumeLevelDecrement(float decrementValue)
 	    {
 			if (m_VolumeControl == null)
 			{

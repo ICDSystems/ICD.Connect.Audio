@@ -88,7 +88,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <summary>
 		/// Stops the repeat timer.
 		/// </summary>
-		public void Release()
+		public virtual void Release()
 		{
 			m_RepeatTimer.Stop();
 		}
