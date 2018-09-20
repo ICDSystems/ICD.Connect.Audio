@@ -31,9 +31,9 @@ namespace ICD.Connect.Audio.Console
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			addRow("Volume Raw", instance.VolumeRaw);
-			addRow("Volume Raw Max Range", instance.VolumeRawMaxRange);
-			addRow("Volume Raw Min Range", instance.VolumeRawMinRange);
+			addRow("Volume Raw", instance.VolumeLevel);
+			addRow("Volume Raw Max Range", instance.VolumeLevelMaxRange);
+			addRow("Volume Raw Min Range", instance.VolumeLevelMinRange);
 		}
 
 		/// <summary>
@@ -46,7 +46,7 @@ namespace ICD.Connect.Audio.Console
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			yield return new GenericConsoleCommand<float>("SetVolumeRaw", "SetVolumeRaw <RAW>", r => instance.SetVolumeRaw(r));
+			yield return new GenericConsoleCommand<float>("SetVolumeRaw", "SetVolumeRaw <RAW>", r => instance.SetVolumeLevel(r));
 		}
 	}
 }

@@ -32,7 +32,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override float? VolumeRawMax { get { return m_VolumeInterface.MaxLevel; } }
 
-		public override float VolumeRaw { get { return m_VolumeInterface.Level; } }
+		public override float VolumeLevel { get { return m_VolumeInterface.Level; } }
 
 		public bool VolumeIsMuted {  get { return m_VolumeInterface.Mute; } }
 
@@ -76,7 +76,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
-		public override void SetVolumeRaw(float volume)
+		public override void SetVolumeLevel(float volume)
 		{
 			m_VolumeInterface.SetLevel(volume);
 		}

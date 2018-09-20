@@ -12,7 +12,7 @@ namespace ICD.Connect.Audio.Controls
 	public interface IVolumePositionDeviceControl : IVolumeRampDeviceControl
 	{
 		/// <summary>
-		/// Raised when the raw volume changes.
+		/// Raised when the volume changes.
 		/// </summary>
 		[ApiEvent(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED, VolumeLevelDeviceControlApi.HELP_EVENT_VOLUME_CHANGED)]
 		event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;

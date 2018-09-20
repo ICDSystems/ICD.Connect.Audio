@@ -47,7 +47,7 @@ namespace ICD.Connect.Audio.Devices
 		/// <summary>
 		/// Gets the current volume, in the parent device's format
 		/// </summary>
-		public float VolumeRaw { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRaw); } }
+		public float VolumeLevel { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevel); } }
 
 		/// <summary>
 		/// Gets the current volume positon, 0 - 1
@@ -63,13 +63,13 @@ namespace ICD.Connect.Audio.Devices
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeRawMaxRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRawMaxRange); } }
+		public float VolumeLevelMaxRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMaxRange); } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeRawMinRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeRawMinRange); } }
+		public float VolumeLevelMinRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMinRange); } }
 
 		/// <summary>
 		/// Gets the muted state.
@@ -153,9 +153,9 @@ namespace ICD.Connect.Audio.Devices
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
-		public void SetVolumeRaw(float volume)
+		public void SetVolumeLevel(float volume)
 		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumeRaw(volume));
+			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumeLevel(volume));
 		}
 
 		/// <summary>

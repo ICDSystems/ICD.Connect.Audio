@@ -16,31 +16,31 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Gets the current volume, in the parent device's format
 		/// </summary>
-		[ApiProperty(VolumeLevelDeviceControlApi.PROPERTY_VOLUME_RAW, VolumeLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW)]
-		float VolumeRaw { get; }
+		[ApiProperty(VolumeLevelDeviceControlApi.PROPERTY_VOLUME_LEVEL, VolumeLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW)]
+		float VolumeLevel { get; }
 
 		/// <summary>
-		/// VolumeRawMaxRange is the best max volume we have for the control
+		/// VolumeLevelMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_RAW_MAX_RANGE,
-			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW_MAX_RANGE)]
-		float VolumeRawMaxRange { get; }
+		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_LEVEL_MAX_RANGE,
+			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_LEVEL_MAX_RANGE)]
+		float VolumeLevelMaxRange { get; }
 
 		/// <summary>
-		/// VolumeRawMinRange is the best min volume we have for the control
+		/// VolumeLevelMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_RAW_MIN_RANGE,
-			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_RAW_MIN_RANGE)]
-		float VolumeRawMinRange { get; }
+		[ApiProperty(VolumeRawLevelDeviceControlApi.PROPERTY_VOLUME_LEVEL_MIN_RANGE,
+			VolumeRawLevelDeviceControlApi.HELP_PROPERTY_VOLUME_LEVEL_MIN_RANGE)]
+		float VolumeLevelMinRange { get; }
 
 		/// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
-		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_SET_VOLUME_RAW, VolumeLevelDeviceControlApi.HELP_METHOD_SET_VOLUME_RAW)]
-		void SetVolumeRaw(float volume);
+		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_SET_VOLUME_LEVEL, VolumeLevelDeviceControlApi.HELP_METHOD_SET_VOLUME_LEVEL)]
+		void SetVolumeLevel(float volume);
 
 		/// <summary>
 		/// Increments the volume once.
@@ -69,12 +69,12 @@ namespace ICD.Connect.Audio.Controls
 		/// <param name="control"></param>
 		/// <param name="volumeRaw">Volume Raw Value</param>
 		/// <returns>Volume position, between 0 and 1</returns>
-		public static float ConvertRawToPosition(this IVolumeLevelDeviceControl control, float volumeRaw)
+		public static float ConvertLevelToPosition(this IVolumeLevelDeviceControl control, float volumeRaw)
 		{
 			if (control == null)
 				throw new ArgumentNullException("control");
 
-			return VolumeUtils.ConvertRawToPosition(control.VolumeRawMinRange, control.VolumeRawMaxRange, volumeRaw);
+			return VolumeUtils.ConvertRawToPosition(control.VolumeLevelMinRange, control.VolumeLevelMaxRange, volumeRaw);
 		}
 
 		/// <summary>
@@ -83,20 +83,20 @@ namespace ICD.Connect.Audio.Controls
 		/// <param name="control"></param>
 		/// <param name="volumePosition">Volume Position Value, between 0 and 1</param>
 		/// <returns>Volume Raw Value</returns>
-		public static float ConvertPositionToRaw(this IVolumeLevelDeviceControl control, float volumePosition)
+		public static float ConvertPositionToLevel(this IVolumeLevelDeviceControl control, float volumePosition)
 		{
 			if (control == null)
 				throw new ArgumentNullException("control");
 
-			return VolumeUtils.ConvertPositionToRaw(control.VolumeRawMinRange, control.VolumeRawMaxRange, volumePosition);
+			return VolumeUtils.ConvertPositionToRaw(control.VolumeLevelMinRange, control.VolumeLevelMaxRange, volumePosition);
 		}
 
-		public static float ClampRawVolume(this IVolumeLevelDeviceControl control, float level)
+		public static float ClampToVolumeLevel(this IVolumeLevelDeviceControl control, float level)
 		{
 			if (control == null)
 				throw new ArgumentNullException("control");
 
-			return MathUtils.Clamp(level, control.VolumeRawMinRange, control.VolumeRawMaxRange);
+			return MathUtils.Clamp(level, control.VolumeLevelMinRange, control.VolumeLevelMaxRange);
 		}
 	}
 }

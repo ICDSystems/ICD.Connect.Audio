@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using ICD.Common.Properties;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console;
@@ -41,7 +40,6 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Time from the press to the repeat
 		/// </summary>
-		[PublicAPI]
 		public long RepeatBeforeTime
 		{
 			get { return VolumeRepeater.BeforeRepeat; }
@@ -51,7 +49,6 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Time between repeats
 		/// </summary>
-		[PublicAPI]
 		public long RepeatBetweenTime
 		{
 			get { return VolumeRepeater.BetweenRepeat; }
@@ -75,12 +72,12 @@ namespace ICD.Connect.Audio.Controls
 		#region Methods
 
 		/// <summary>
-		/// Volume Level Increment
+		/// Default volume increment.
 		/// </summary>
 		public abstract void VolumeIncrement();
 
 		/// <summary>
-		/// Volume Level Decrement
+		/// Default volume increment.
 		/// </summary>
 		public abstract void VolumeDecrement();
 
@@ -105,9 +102,9 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Stops the volume ramp and disposes of the repeater timer
 		/// </summary>
-		public void VolumeRampStop()
+		public virtual void VolumeRampStop()
 		{
-			VolumeRepeater.Release();
+			m_Repeater.Release();
 		}
 
 		#endregion
