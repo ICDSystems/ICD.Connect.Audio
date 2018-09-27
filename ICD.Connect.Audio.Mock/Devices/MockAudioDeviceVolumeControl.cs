@@ -4,27 +4,19 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Controls;
-using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Mock.Devices
 {
-	public sealed class MockAudioDeviceVolumeControl : AbstractDeviceControl<IDeviceBase>, IVolumeMuteFeedbackDeviceControl,
-	                                                   IVolumeRawLevelDeviceControl
+	public sealed class MockAudioDeviceVolumeControl : AbstractVolumeLevelDeviceControl<IDeviceBase>, IVolumeMuteFeedbackDeviceControl
 	{
 		private bool m_VolumeIsMuted;
-		private float m_VolumeRaw;
+		private float m_VolumeLevel;
 
 		/// <summary>
 		/// Raised when the mute state changes.
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
-
-		/// <summary>
-		/// Raised when the raw volume changes.
-		/// </summary>
-		public event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 
 		#region Properties
 
@@ -41,7 +33,7 @@ namespace ICD.Connect.Audio.Mock.Devices
 				
 				m_VolumeIsMuted = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - VolumeIsMuted changed to {1}", this, m_VolumeIsMuted);
+				Log(eSeverity.Informational, "VolumeIsMuted changed to {0}", m_VolumeIsMuted);
 
 				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_VolumeIsMuted));
 			}
@@ -50,57 +42,19 @@ namespace ICD.Connect.Audio.Mock.Devices
 		/// <summary>
 		/// Gets the current volume, in the parent device's format
 		/// </summary>
-		public float VolumeRaw
-		{
-			get { return m_VolumeRaw; }
-			set
-			{
-				value = MathUtils.Clamp(value, VolumeRawMinRange, VolumeRawMaxRange);
-
-				if (Math.Abs(value - m_VolumeRaw) < 0.01f)
-					return;
-
-				m_VolumeRaw = value;
-
-				Logger.AddEntry(eSeverity.Informational, "{0} - VolumeRaw changed to {1}", this, m_VolumeRaw);
-
-				OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(m_VolumeRaw, VolumePosition, VolumeString));
-			}
-		}
-
-		/// <summary>
-		/// Gets the current volume positon, 0 - 1
-		/// </summary>
-		public float VolumePosition { get { return MathUtils.MapRange(VolumeRawMinRange, VolumeRawMaxRange, 0, 1, VolumeRaw); } }
-
-		/// <summary>
-		/// Gets the current volume, in string representation
-		/// </summary>
-		public string VolumeString { get { return VolumeRaw.ToString(); } }
-
-		/// <summary>
-		/// Maximum value for the raw volume level
-		/// This could be the maximum permitted by the device/control, or a safety max
-		/// </summary>
-		public float? VolumeRawMax { get { return null; } }
-
-		/// <summary>
-		/// Minimum value for the raw volume level
-		/// This could be the minimum permitted by the device/control, or a safety min
-		/// </summary>
-		public float? VolumeRawMin { get { return null; } }
+		public override float VolumeLevel { get { return m_VolumeLevel; } }
 
 		/// <summary>
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeRawMaxRange { get { return 100; } }
+		protected override float VolumeRawMaxAbsolute { get { return 100; } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeRawMinRange { get { return 0; } }
+		protected override float VolumeRawMinAbsolute { get { return 0; } }
 
 		#endregion
 
@@ -121,7 +75,6 @@ namespace ICD.Connect.Audio.Mock.Devices
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnMuteStateChanged = null;
-			OnVolumeChanged = null;
 
 			base.DisposeFinal(disposing);
 		}
@@ -146,83 +99,21 @@ namespace ICD.Connect.Audio.Mock.Devices
 		}
 
 		/// <summary>
-		/// Raises the volume one time
-		/// Amount of the change varies between implementations - typically "1" raw unit
-		/// </summary>
-		public void VolumeLevelIncrement()
-		{
-			VolumeRaw++;
-		}
-
-		/// <summary>
-		/// Lowers the volume one time
-		/// Amount of the change varies between implementations - typically "1" raw unit
-		/// </summary>
-		public void VolumeLevelDecrement()
-		{
-			VolumeRaw--;
-		}
-
-		/// <summary>
-		/// Starts raising the volume, and continues until RampStop is called.
-		/// <see cref="VolumeLevelRampStop"/> must be called after
-		/// </summary>
-		public void VolumeLevelRampUp()
-		{
-			// TODO
-			VolumeLevelIncrement();
-		}
-
-		/// <summary>
-		/// Starts lowering the volume, and continues until RampStop is called.
-		/// <see cref="VolumeLevelRampStop"/> must be called after
-		/// </summary>
-		public void VolumeLevelRampDown()
-		{
-			// TODO
-			VolumeLevelDecrement();
-		}
-
-		/// <summary>
-		/// Stops any current ramp up/down in progress.
-		/// </summary>
-		public void VolumeLevelRampStop()
-		{
-			// TODO
-		}
-
-		/// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
-		public void SetVolumeRaw(float volume)
+		public override void SetVolumeLevel(float volume)
 		{
-			VolumeRaw = volume;
-		}
+			volume = MathUtils.Clamp(volume, VolumeRawMinAbsolute, VolumeRawMaxAbsolute);
 
-		/// <summary>
-		/// Sets the volume position, from 0-1
-		/// </summary>
-		/// <param name="position"></param>
-		public void SetVolumePosition(float position)
-		{
-			VolumeRaw = MathUtils.MapRange(0, 1, VolumeRawMinRange, VolumeRawMaxRange, position);
-		}
+			if (Math.Abs(volume - m_VolumeLevel) < 0.0001f)
+				return;
 
-		/// <summary>
-		/// Increments the volume once.
-		/// </summary>
-		public void VolumeLevelIncrement(float incrementValue)
-		{
-			VolumeRaw += incrementValue;
-		}
+			m_VolumeLevel = volume;
 
-		/// <summary>
-		/// Decrements the volume once.
-		/// </summary>
-		public void VolumeLevelDecrement(float decrementValue)
-		{
-			VolumeRaw -= decrementValue;
+			Log(eSeverity.Informational, "VolumeRaw changed to {0}", m_VolumeLevel);
+
+			VolumeFeedback(m_VolumeLevel);
 		}
 
 		#endregion
