@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.Xml;
+﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
@@ -8,11 +7,9 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.ClockAudio
 {
-	[KrangSettings(FACTORY_NAME)]
+	[KrangSettings("ClockAudioTs001", typeof(ClockAudioTs001Device))]
 	public sealed class ClockAudioTs001DeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "ClockAudioTs001";
-
 		private const string BUTTON_INPUT_PORT_ELEMENT = "ButtonInputPort";
 		private const string RED_LED_OUTPUT_PORT_ELEMENT = "RedLedOutputPort";
 		private const string GREEN_LED_OUTPUT_PORT_ELEMENT = "GreenLedOutputPort";
@@ -29,16 +26,6 @@ namespace ICD.Connect.Audio.ClockAudio
 
 		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? VoltageInputPort { get; set; }
-
-		/// <summary>
-		/// Gets the originator factory name.
-		/// </summary>
-		public override string FactoryName { get { return FACTORY_NAME; } }
-
-		/// <summary>
-		/// Gets the type of the originator for this settings instance.
-		/// </summary>
-		public override Type OriginatorType { get { return typeof(ClockAudioTs001Device); } }
 
 		/// <summary>
 		/// Writes property elements to xml.

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using NUnit.Framework;
 using ICD.Common.Properties;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
+using NUnit.Framework;
 
-namespace ICD.SimplSharp.BiampTesira.Tests.TesiraTextProtocol.Parsing
+namespace ICD.Connect.Audio.Biamp.Tests.TesiraTextProtocol.Parsing
 {
 	[TestFixture, UsedImplicitly]
 	public sealed class ArrayValueTest

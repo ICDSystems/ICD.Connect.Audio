@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 
@@ -159,6 +158,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		public static Value FromObject<T>(T value, IDictionary<string, T> ttpEnumMap)
 		{
+			if (ttpEnumMap == null)
+				throw new ArgumentNullException("ttpEnumMap");
+
 			return FromObject(value, ttpEnumMap.GetKey);
 		}
 
@@ -171,6 +173,9 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		public static Value FromObject<T>(T value, Func<T, string> serialize)
 		{
+			if (serialize == null)
+				throw new ArgumentNullException("serialize");
+
 			string key = serialize(value);
 			return Deserialize(key);
 		}
@@ -210,9 +215,12 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <typeparam name="T"></typeparam>
 		/// <param name="objectMap">Maps the TTP string representation to a C# object.</param>
 		/// <returns></returns>
-		[NotNull]
+		[Obsolete("Pass an additional default value")]
 		public T GetObjectValue<T>(IDictionary<string, T> objectMap)
 		{
+			if (objectMap == null)
+				throw new ArgumentNullException("objectMap");
+
 			return GetObjectValue(arg =>
 			                      {
 				                      if (!objectMap.ContainsKey(m_Value))
@@ -228,10 +236,28 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Gets the value as an object.
 		/// </summary>
 		/// <typeparam name="T"></typeparam>
+		/// <param name="objectMap">Maps the TTP string representation to a C# object.</param>
+		/// <param name="defaultValue"></param>
+		/// <returns></returns>
+		public T GetObjectValue<T>(IDictionary<string, T> objectMap, T defaultValue)
+		{
+			if (objectMap == null)
+				throw new ArgumentNullException("objectMap");
+
+			return GetObjectValue(arg => objectMap.ContainsKey(m_Value) ? objectMap[m_Value] : defaultValue);
+		}
+
+		/// <summary>
+		/// Gets the value as an object.
+		/// </summary>
+		/// <typeparam name="T"></typeparam>
 		/// <param name="deserialize">Deserializes the TTP object.</param>
 		/// <returns></returns>
 		public T GetObjectValue<T>(Func<string, T> deserialize)
 		{
+			if (deserialize == null)
+				throw new ArgumentNullException("deserialize");
+
 			return deserialize(m_Value);
 		}
 

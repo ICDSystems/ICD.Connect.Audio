@@ -122,7 +122,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// <summary>
 		/// Gets the name of the node.
 		/// </summary>
-		public string ConsoleName { get { return GetType().Name; } }
+		public string ConsoleName { get { return GetType().GetNameWithoutGenericArity(); } }
 
 		/// <summary>
 		/// Gets the help information for the node.
@@ -361,7 +361,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		private AbstractAttributeInterface InstantiateAttributeInterface(string type, string instanceTag)
 		{
 			Type attributeInterfaceType = s_NameToAttributeInterface[type];
-			return ReflectionUtils.Instantiate(attributeInterfaceType, m_Device, instanceTag) as AbstractAttributeInterface;
+			return ReflectionUtils.CreateInstance(attributeInterfaceType, m_Device, instanceTag) as AbstractAttributeInterface;
 		}
 
 		/// <summary>
@@ -372,7 +372,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		private AbstractService InstantiateService(string instanceTag)
 		{
 			Type serviceType = s_ServiceTags[instanceTag];
-			return ReflectionUtils.Instantiate(serviceType, m_Device) as AbstractService;
+			return ReflectionUtils.CreateInstance(serviceType, m_Device) as AbstractService;
 		}
 
 		/// <summary>

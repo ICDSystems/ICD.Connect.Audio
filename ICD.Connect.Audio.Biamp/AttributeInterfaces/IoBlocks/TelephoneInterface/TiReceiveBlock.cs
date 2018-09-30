@@ -221,13 +221,25 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterfac
 		[PublicAPI]
 		public void IncrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, INPUT_LEVEL_ATTRIBUTE, null);
+			IncrementLevel(DEFAULT_INCREMENT_VALUE);
 		}
 
 		[PublicAPI]
 		public void DecrementLevel()
 		{
-			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, INPUT_LEVEL_ATTRIBUTE, null);
+			DecrementLevel(DEFAULT_INCREMENT_VALUE);
+		}
+
+		[PublicAPI]
+		public void IncrementLevel(float incrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Increment, INPUT_LEVEL_ATTRIBUTE, new Value(incrementValue));
+		}
+
+		[PublicAPI]
+		public void DecrementLevel(float decrementValue)
+		{
+			RequestAttribute(LevelFeedback, AttributeCode.eCommand.Decrement, INPUT_LEVEL_ATTRIBUTE, new Value(decrementValue));
 		}
 
 		[PublicAPI]

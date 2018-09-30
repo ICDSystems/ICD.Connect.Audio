@@ -40,6 +40,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		void DecrementLevel();
 
 		[PublicAPI]
+		void IncrementLevel(float incrementValue);
+
+		[PublicAPI]
+		void DecrementLevel(float decrementValue);
+
+		[PublicAPI]
 		void SetMute(bool mute);
 
 		#endregion

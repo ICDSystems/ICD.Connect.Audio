@@ -7,7 +7,9 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
+using ICD.Connect.Calendaring.Booking;
 using ICD.Connect.Conferencing.ConferenceSources;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Common.Properties;
 
@@ -16,6 +18,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 	public sealed class VoIpDialingDeviceControl : AbstractBiampTesiraDialingDeviceControl
 	{
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
 
 		private readonly VoIpControlStatusLine m_Line;
 
@@ -51,6 +54,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnSourceAdded = null;
+			OnSourceRemoved = null;
 
 			base.DisposeFinal(disposing);
 
@@ -102,6 +106,33 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		}
 
 		/// <summary>
+		/// Returns the level of support the dialer has for the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		/// <returns></returns>
+		public override eBookingSupport CanDial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return eBookingSupport.Supported;
+
+			return eBookingSupport.Unsupported;
+		}
+
+		/// <summary>
+		/// Dials the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		public override void Dial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return;
+
+			Dial(potsBooking.PhoneNumber);
+		}
+
+		/// <summary>
 		/// Sets the auto-answer enabled state.
 		/// </summary>
 		/// <param name="enabled"></param>
@@ -126,11 +157,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(callAppearance.State);
 
-			source.Name = string.IsNullOrEmpty(callAppearance.CallerName)
-				              ? callAppearance.CallerNumber
-				              : callAppearance.CallerName;
-			source.Number = callAppearance.CallerNumber;
+			if (!string.IsNullOrEmpty(callAppearance.CallerName))
+				source.Name = callAppearance.CallerName;
+
+			if (!string.IsNullOrEmpty(callAppearance.CallerNumber))
+				source.Number = callAppearance.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = VoIpCallStateToDirection(callAppearance.State);
@@ -184,6 +218,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			m_AppearanceSourcesSection.Enter();
 
 			ThinConferenceSource source = GetSource(index);
+
+			if (source != null)
+			{
+				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+				UpdateSource(source, callAppearance);
+			}
 
 			try
 			{
@@ -239,7 +279,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				source = new ThinConferenceSource();
+				source = new ThinConferenceSource {SourceType = eConferenceSourceType.Audio};
 
 				Subscribe(source);
 
@@ -253,6 +293,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				m_AppearanceSourcesSection.Leave();
 			}
 
+			SourceSubscribe(source);
 			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(source));
 			return source;
 		}
@@ -272,6 +313,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					return;
 
 				Unsubscribe(source);
+
+				SourceUnsubscribe(source);
+				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(source));
 
 				m_AppearanceSources.Remove(index);
 			}
@@ -372,56 +416,73 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		#region Source Callbacks
 
+		/// <summary>
+		/// Subscribe to the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
 		private void Subscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHoldCallback += HoldCallback;
+			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
+			source.HoldCallback += HoldCallback;
+			source.ResumeCallback += ResumeCallback;
+			source.SendDtmfCallback += SendDtmfCallback;
+			source.HangupCallback += HangupCallback;
 		}
 
+		/// <summary>
+		/// Unsubscribe from the source callbacks.
+		/// </summary>
+		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback -= AnswerCallback;
-			source.OnSendDtmfCallback -= SendDtmfCallback;
-			source.OnHangupCallback -= HangupCallback;
-			source.OnResumeCallback -= ResumeCallback;
-			source.OnHoldCallback -= HoldCallback;
+			source.AnswerCallback = null;
+			source.RejectCallback = null;
+			source.HoldCallback = null;
+			source.ResumeCallback = null;
+			source.SendDtmfCallback = null;
+			source.HangupCallback = null;
 		}
 
-		private void AnswerCallback(object sender, EventArgs eventArgs)
+		private void AnswerCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Answer();
 		}
 
-		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
-		{
-			foreach (char digit in stringEventArgs.Data)
-				m_Line.Dtmf(digit);
-		}
-
-		private void HangupCallback(object sender, EventArgs eventArgs)
+		private void HoldCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
+				m_Line.GetCallAppearance(index).Hold();
+		}
+
+		private void RejectCallback(ThinConferenceSource sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
-		private void ResumeCallback(object sender, EventArgs eventArgs)
+		private void ResumeCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
-		private void HoldCallback(object sender, EventArgs eventArgs)
+		private void SendDtmfCallback(ThinConferenceSource sender, string data)
+		{
+			foreach (char digit in data)
+				m_Line.Dtmf(digit);
+		}
+
+		private void HangupCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
-				m_Line.GetCallAppearance(index).Hold();
+			if (TryGetCallAppearance(sender, out index))
+				m_Line.GetCallAppearance(index).End();
 		}
 
 		private bool TryGetCallAppearance(ThinConferenceSource source, out int index)
@@ -507,8 +568,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			appearance.OnCallerNumberChanged -= AppearanceOnCallerNumberChanged;
 			appearance.OnCallerNameChanged -= AppearanceOnCallerNameChanged;
 		}
-
-		
 
 		private void AppearanceOnCallerNumberChanged(object sender, StringEventArgs args)
 		{

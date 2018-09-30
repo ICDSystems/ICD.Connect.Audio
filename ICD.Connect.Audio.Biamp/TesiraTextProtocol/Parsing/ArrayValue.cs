@@ -32,7 +32,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 					return m_Values[index];
 
 				string message = string.Format("{0} has no item at index {1}", GetType().Name, index);
-				throw new IndexOutOfRangeException(message);
+				throw new ArgumentOutOfRangeException("index", message);
 			}
 		}
 

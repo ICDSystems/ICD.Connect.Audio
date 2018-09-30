@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
+using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
+using ICD.Connect.Calendaring.Booking;
 using ICD.Connect.Conferencing.ConferenceSources;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
@@ -22,6 +24,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		public event EventHandler<BoolEventArgs> OnHoldChanged;
 
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
+		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
+
 
 		private readonly TiControlStatusBlock m_TiControl;
 		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
@@ -37,18 +41,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <summary>
 		/// Gets the hold state.
 		/// </summary>
-		[PublicAPI]
 		public bool IsOnHold
 		{
 			get { return m_Hold; }
-			protected set
+			private set
 			{
 				if (value == m_Hold)
 					return;
 
 				m_Hold = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", m_Hold);
+				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", this, m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
@@ -113,6 +116,33 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		}
 
 		/// <summary>
+		/// Returns the level of support the dialer has for the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		/// <returns></returns>
+		public override eBookingSupport CanDial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return eBookingSupport.Supported;
+
+			return eBookingSupport.Unsupported;
+		}
+
+		/// <summary>
+		/// Dials the given booking.
+		/// </summary>
+		/// <param name="booking"></param>
+		public override void Dial(IBooking booking)
+		{
+			var potsBooking = booking as IPstnBooking;
+			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return;
+
+			Dial(potsBooking.PhoneNumber);
+		}
+
+		/// <summary>
 		/// Sets the auto-answer enabled state.
 		/// </summary>
 		/// <param name="enabled"></param>
@@ -167,12 +197,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				return;
 
 			eConferenceSourceStatus status = TiControlStateToSourceStatus(m_TiControl.State);
+			if (IsOnline(status) && IsOnHold)
+				status = eConferenceSourceStatus.OnHold;
 
-			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
-							  ? m_TiControl.CallerNumber
-							  : m_TiControl.CallerName;
-			source.Number = m_TiControl.CallerNumber;
+			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
+				source.Name = m_TiControl.CallerName;
+
+			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				source.Number = m_TiControl.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
@@ -281,6 +316,36 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
+		/// <summary>
+		/// TODO - This belongs in conferencing utils somewhere.
+		/// </summary>
+		/// <param name="status"></param>
+		/// <returns></returns>
+		private static bool IsOnline(eConferenceSourceStatus status)
+		{
+			switch (status)
+			{
+				case eConferenceSourceStatus.Undefined:
+				case eConferenceSourceStatus.Dialing:
+				case eConferenceSourceStatus.Connecting:
+				case eConferenceSourceStatus.Ringing:
+				case eConferenceSourceStatus.Disconnecting:
+				case eConferenceSourceStatus.Disconnected:
+				case eConferenceSourceStatus.Idle:
+					return false;
+
+				case eConferenceSourceStatus.Connected:
+				case eConferenceSourceStatus.OnHold:
+				case eConferenceSourceStatus.EarlyMedia:
+				case eConferenceSourceStatus.Preserved:
+				case eConferenceSourceStatus.RemotePreserved:
+					return true;
+
+				default:
+					throw new ArgumentOutOfRangeException("status");
+			}
+		}
+
 		#endregion
 
 		#region Sources
@@ -298,6 +363,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			try
 			{
+				if (m_ActiveSource != null)
+					UpdateSource(m_ActiveSource);
+
 				switch (status)
 				{
 					case eConferenceSourceStatus.Dialing:
@@ -338,17 +406,21 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinConferenceSource();
+				m_ActiveSource = new ThinConferenceSource { SourceType = eConferenceSourceType.Audio };
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties
 				UpdateSource(m_ActiveSource);
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
 				m_ActiveSourceSection.Leave();
 			}
 
+			SourceSubscribe(m_ActiveSource);
 			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
 		}
 
@@ -364,8 +436,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				if (m_ActiveSource == null)
 					return;
 
+				UpdateSource(m_ActiveSource);
+
 				Unsubscribe(m_ActiveSource);
+
+				SourceUnsubscribe(m_ActiveSource);
+				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(m_ActiveSource));
+
 				m_ActiveSource = null;
+
+				// Clear the hold state between calls
+				SetHold(false);
 			}
 			finally
 			{
@@ -374,55 +455,67 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		}
 
 		/// <summary>
-		/// Setup the source callbacks.
+		/// Subscribe to the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
 		private void Subscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback += AnswerCallback;
-			source.OnHoldCallback += HoldCallback;
-			source.OnResumeCallback += ResumeCallback;
-			source.OnHangupCallback += HangupCallback;
-			source.OnSendDtmfCallback += SendDtmfCallback;
+			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
+			source.HoldCallback += HoldCallback;
+			source.ResumeCallback += ResumeCallback;
+			source.SendDtmfCallback += SendDtmfCallback;
+			source.HangupCallback += HangupCallback;
 		}
 
 		/// <summary>
-		/// Remove the source callbacks.
+		/// Unsubscribe from the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
 		private void Unsubscribe(ThinConferenceSource source)
 		{
-			source.OnAnswerCallback -= AnswerCallback;
-			source.OnHoldCallback -= HoldCallback;
-			source.OnResumeCallback -= ResumeCallback;
-			source.OnHangupCallback -= HangupCallback;
-			source.OnSendDtmfCallback -= SendDtmfCallback;
+			source.AnswerCallback = null;
+			source.RejectCallback = null;
+			source.HoldCallback = null;
+			source.ResumeCallback = null;
+			source.SendDtmfCallback = null;
+			source.HangupCallback = null;
 		}
 
-		private void SendDtmfCallback(object sender, StringEventArgs stringEventArgs)
+		private void AnswerCallback(ThinConferenceSource sender)
 		{
-			foreach (char digit in stringEventArgs.Data)
-				m_TiControl.Dtmf(digit);
+			m_TiControl.Answer();
 		}
 
-		private void HangupCallback(object sender, EventArgs eventArgs)
-		{
-			m_TiControl.End();
-		}
-
-		private void ResumeCallback(object sender, EventArgs eventArgs)
-		{
-			SetHold(false);
-		}
-
-		private void HoldCallback(object sender, EventArgs eventArgs)
+		private void HoldCallback(ThinConferenceSource sender)
 		{
 			SetHold(true);
 		}
 
-		private void AnswerCallback(object sender, EventArgs eventArgs)
+		private void ResumeCallback(ThinConferenceSource sender)
 		{
-			m_TiControl.Answer();
+			SetHold(false);
+		}
+
+		private void SendDtmfCallback(ThinConferenceSource sender, string data)
+		{
+			foreach (char digit in data)
+				m_TiControl.Dtmf(digit);
+		}
+
+		private void HangupCallback(ThinConferenceSource sender)
+		{
+			// Ends the active call.
+			m_TiControl.End();
+		}
+
+		private void RejectCallback(ThinConferenceSource sender)
+		{
+			// Rejects the incoming call.
+			SetHold(true);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
+			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
+			SetHold(false);
 		}
 
 		#endregion
@@ -460,7 +553,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="args"></param>
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
-			IsOnHold = args.Data;
+			IsOnHold = m_HoldControl.State;
+
+			UpdateSource(m_ActiveSource);
 		}
 
 		#endregion
@@ -475,6 +570,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			attributeInterface.OnAutoAnswerChanged += AttributeInterfaceOnAutoAnswerChanged;
 			attributeInterface.OnCallStateChanged += AttributeInterfaceOnCallStateChanged;
+			attributeInterface.OnCallerNameChanged += AttributeInterfaceOnCallerNameChanged;
+			attributeInterface.OnCallerNumberChanged += AttributeInterfaceOnCallerNumberChanged;
 		}
 
 		/// <summary>
@@ -485,6 +582,20 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			attributeInterface.OnAutoAnswerChanged -= AttributeInterfaceOnAutoAnswerChanged;
 			attributeInterface.OnCallStateChanged -= AttributeInterfaceOnCallStateChanged;
+			attributeInterface.OnCallerNameChanged -= AttributeInterfaceOnCallerNameChanged;
+			attributeInterface.OnCallerNumberChanged -= AttributeInterfaceOnCallerNumberChanged;
+		}
+
+		private void AttributeInterfaceOnCallerNumberChanged(object sender, StringEventArgs stringEventArgs)
+		{
+			if (m_ActiveSource != null)
+				UpdateSource(m_ActiveSource);
+		}
+
+		private void AttributeInterfaceOnCallerNameChanged(object sender, StringEventArgs stringEventArgs)
+		{
+			if (m_ActiveSource != null)
+				UpdateSource(m_ActiveSource);
 		}
 
 		private void AttributeInterfaceOnAutoAnswerChanged(object sender, BoolEventArgs args)
@@ -511,6 +622,27 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			addRow("IsOnHold", IsOnHold);
 			addRow("Hold Control", m_Hold);
+		}
+
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+
+			yield return new GenericConsoleCommand<bool>("SetHold", "SetHold <true/false>", h => SetHold(h));
+		}
+
+		/// <summary>
+		/// Workaround for unverifiable code warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
 		}
 
 		#endregion
