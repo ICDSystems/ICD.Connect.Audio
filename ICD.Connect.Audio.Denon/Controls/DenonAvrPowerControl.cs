@@ -1,4 +1,5 @@
 ﻿using ICD.Common.Utils.EventArguments;
+using ICD.Connect.Audio.Denon.Devices;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Denon.Controls
@@ -20,6 +21,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 			Subscribe(parent);
 		}
 
+		/// <summary>
+		/// Override to release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
 			base.DisposeFinal(disposing);
@@ -29,6 +34,9 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Methods
 
+		/// <summary>
+		/// Powers on the device.
+		/// </summary>
 		public override void PowerOn()
 		{
 			DenonSerialData data = DenonSerialData.Command(POWER_ON);

@@ -1,17 +1,14 @@
-﻿using System;
-using ICD.Common.Utils.Xml;
+﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Denon
+namespace ICD.Connect.Audio.Denon.Devices
 {
-	[KrangSettings(FACTORY_NAME)]
+	[KrangSettings("DenonAvr", typeof(DenonAvrDevice))]
 	public sealed class DenonAvrDeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "DenonAvr";
-
 		private const string PORT_ELEMENT = "Port";
 
 		/// <summary>
@@ -19,16 +16,6 @@ namespace ICD.Connect.Audio.Denon
 		/// </summary>
 		[OriginatorIdSettingsProperty(typeof(ISerialPort))]
 		public int? Port { get; set; }
-
-		/// <summary>
-		/// Gets the originator factory name.
-		/// </summary>
-		public override string FactoryName { get { return FACTORY_NAME; } }
-
-		/// <summary>
-		/// Gets the type of the originator for this settings instance.
-		/// </summary>
-		public override Type OriginatorType { get { return typeof(DenonAvrDevice); } }
 
 		/// <summary>
 		/// Writes property elements to xml.
@@ -41,6 +28,10 @@ namespace ICD.Connect.Audio.Denon
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
 		}
 
+		/// <summary>
+		/// Updates the settings from xml.
+		/// </summary>
+		/// <param name="xml"></param>
 		public override void ParseXml(string xml)
 		{
 			base.ParseXml(xml);

@@ -12,7 +12,7 @@ using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings.Core;
 
-namespace ICD.Connect.Audio.Denon
+namespace ICD.Connect.Audio.Denon.Devices
 {
 	public sealed class DenonAvrDevice : AbstractDevice<DenonAvrDeviceSettings>
 	{

@@ -1,11 +1,12 @@
 ﻿using System;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
-using ICD.Connect.Devices.Controls;
+using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Denon.Devices;
 
 namespace ICD.Connect.Audio.Denon.Controls
 {
-    public sealed class DenonAvrVolumeControl : AbstractVolumeDeviceControl<DenonAvrDevice>
+    public sealed class DenonAvrVolumeControl : AbstractVolumeLevelDeviceControl<DenonAvrDevice>, IVolumeMuteFeedbackDeviceControl
 	{
 		private const string MASTER_VOLUME = "MV";
 		private const string MASTER_VOLUME_UP = MASTER_VOLUME + "UP";
@@ -38,6 +39,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 			Subscribe(parent);
 		}
 
+		/// <summary>
+		/// Override to release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
 			base.DisposeFinal(disposing);
