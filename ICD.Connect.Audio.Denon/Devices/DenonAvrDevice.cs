@@ -3,9 +3,9 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
-using ICD.Common.Utils.Timers;
 using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
@@ -17,9 +17,6 @@ namespace ICD.Connect.Audio.Denon.Devices
 	public sealed class DenonAvrDevice : AbstractDevice<DenonAvrDeviceSettings>
 	{
 		public delegate void ResponseCallback(DenonAvrDevice device, DenonSerialData response);
-
-		// How often to check the connection and reconnect if necessary.
-		private const long CONNECTION_CHECK_MILLISECONDS = 30 * 1000;
 
 		/// <summary>
 		/// Raised when the class initializes.
@@ -36,10 +33,8 @@ namespace ICD.Connect.Audio.Denon.Devices
 		/// </summary>
 		public event ResponseCallback OnDataReceived; 
 
-		private readonly SafeTimer m_ConnectionTimer;
-
-		private ISerialPort m_Port;
 		private readonly ISerialBuffer m_SerialBuffer;
+		private readonly ConnectionStateManager m_ConnectionStateManager;
 
 		private bool m_IsConnected;
 		private bool m_Initialized;
@@ -91,11 +86,13 @@ namespace ICD.Connect.Audio.Denon.Devices
 		/// </summary>
 		public DenonAvrDevice()
 		{
-			m_ConnectionTimer = new SafeTimer(ConnectionTimerCallback, 0, CONNECTION_CHECK_MILLISECONDS);
-
 			m_SerialBuffer = new DelimiterSerialBuffer(DenonSerialData.DELIMITER);
-
 			Subscribe(m_SerialBuffer);
+
+			m_ConnectionStateManager = new ConnectionStateManager(this) { ConfigurePort = ConfigurePort };
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
 
 			Controls.Add(new DenonAvrSwitcherRoutingControl(this, 0));
 			Controls.Add(new DenonAvrPowerControl(this, 1));
@@ -111,13 +108,11 @@ namespace ICD.Connect.Audio.Denon.Devices
 		{
 			OnInitializedChanged = null;
 			OnConnectedStateChanged = null;
-
-			m_ConnectionTimer.Dispose();
+			OnDataReceived = null;
 
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_SerialBuffer);
-			Unsubscribe(m_Port);
 		}
 
 		/// <summary>
@@ -126,17 +121,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		[PublicAPI]
 		public void Connect()
 		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to connect, port is null");
-				return;
-			}
-
-			m_Port.Connect();
-			IsConnected = m_Port.IsConnected;
-
-			if (IsConnected)
-				Initialize();
+			m_ConnectionStateManager.Connect();
 		}
 
 		/// <summary>
@@ -145,14 +130,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		[PublicAPI]
 		public void Disconnect()
 		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to disconnect, port is null");
-				return;
-			}
-
-			m_Port.Disconnect();
-			IsConnected = m_Port.IsConnected;
+			m_ConnectionStateManager.Disconnect();
 		}
 
 		/// <summary>
@@ -162,32 +140,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		[PublicAPI]
 		public void SetPort(ISerialPort port)
 		{
-			if (port == m_Port)
-				return;
-
-			IComPort comPort = port as IComPort;
-			if (comPort != null)
-				ConfigureComPort(comPort);
-
-			if (m_Port != null)
-				Disconnect();
-
-			Unsubscribe(m_Port);
-
-			m_SerialBuffer.Clear();
-			m_Port = port;
-
-			Subscribe(m_Port);
-
-			if (m_Port != null)
-			{
-				m_Port.DebugRx = true;
-				m_Port.DebugTx = true;
-
-				Connect();
-			}
-
-			UpdateCachedOnlineStatus();
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		/// <summary>
@@ -220,33 +173,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 			if (data == null)
 				throw new ArgumentNullException("data");
 
-			if (!IsConnected)
-			{
-				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
-				Connect();
-			}
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with device");
-				return;
-			}
-
-			m_Port.Send(data.Serialize());
-		}
-
-		/// <summary>
-		/// Logs the message.
-		/// </summary>
-		/// <param name="severity"></param>
-		/// <param name="message"></param>
-		/// <param name="args"></param>
-		public void Log(eSeverity severity, string message, params object[] args)
-		{
-			message = string.Format(message, args);
-			message = AddLogPrefix(message);
-
-			Logger.AddEntry(severity, message);
+			m_ConnectionStateManager.Send(data.Serialize());
 		}
 
 		#endregion
@@ -259,7 +186,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsConnected;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
 		/// <summary>
@@ -270,55 +197,14 @@ namespace ICD.Connect.Audio.Denon.Devices
 			Initialized = true;
 		}
 
-		/// <summary>
-		/// Returns the log message with a LutronQuantumNwkDevice prefix.
-		/// </summary>
-		/// <param name="log"></param>
-		/// <returns></returns>
-		private string AddLogPrefix(string log)
-		{
-			return string.Format("{0} - {1}", GetType().Name, log);
-		}
-
-		/// <summary>
-		/// Called periodically to maintain connection to the device.
-		/// </summary>
-		private void ConnectionTimerCallback()
-		{
-			if (m_Port != null && !m_Port.IsConnected)
-				Connect();
-		}
-
 		#endregion
 
 		#region Port Callbacks
 
-		/// <summary>
-		/// Subscribes to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
+		private void ConfigurePort(ISerialPort port)
 		{
-			if (port == null)
-				return;
-
-			port.OnSerialDataReceived += PortOnOnSerialDataReceived;
-			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnSerialDataReceived -= PortOnOnSerialDataReceived;
-			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			if (port is IComPort)
+				ConfigureComPort(port as IComPort);
 		}
 
 		/// <summary>
@@ -338,8 +224,6 @@ namespace ICD.Connect.Audio.Denon.Devices
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
-
-				m_ConnectionTimer.Reset(CONNECTION_CHECK_MILLISECONDS, CONNECTION_CHECK_MILLISECONDS);
 			}
 		}
 
@@ -353,7 +237,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 			UpdateCachedOnlineStatus();
 		}
 
-		private void PortOnOnSerialDataReceived(object sender, StringEventArgs args)
+		private void PortOnSerialDataReceived(object sender, StringEventArgs args)
 		{
 			m_SerialBuffer.Enqueue(args.Data);
 		}
@@ -414,7 +298,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		{
 			base.CopySettingsFinal(settings);
 
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 		}
 
 		/// <summary>
