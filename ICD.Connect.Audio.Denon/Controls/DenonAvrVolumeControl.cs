@@ -1,6 +1,8 @@
 ﻿using System;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
+using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Controls;
 using ICD.Connect.Audio.Denon.Devices;
 
@@ -20,11 +22,51 @@ namespace ICD.Connect.Audio.Denon.Controls
 		private const int VOLUME_MIN = 0;
 		private const int VOLUME_MAX = 98;
 
+		/// <summary>
+		/// Raised when the mute state changes.
+		/// </summary>
+		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+
+		private bool m_VolumeIsMuted;
+		private float m_VolumeLevel;
+
 		#region Properties
 
-		public override float RawVolumeMin { get { return VOLUME_MIN; } }
+		/// <summary>
+		/// Absolute Minimum the raw volume can be
+		/// Used as a last resort for position caculation
+		/// </summary>
+		protected override float VolumeRawMinAbsolute { get { return VOLUME_MIN; } }
 
-		public override float RawVolumeMax { get { return VOLUME_MAX; } }
+		/// <summary>
+		/// Absolute Maximum the raw volume can be
+		/// Used as a last resport for position caculation
+		/// </summary>
+		protected override float VolumeRawMaxAbsolute { get { return VOLUME_MAX; } }
+
+		/// <summary>
+		/// Gets the muted state.
+		/// </summary>
+		public bool VolumeIsMuted
+		{
+			get { return m_VolumeIsMuted; }
+			private set
+			{
+				if (value == m_VolumeIsMuted)
+					return;
+
+				m_VolumeIsMuted = value;
+
+				Log(eSeverity.Informational, "Mute set to {0}", m_VolumeIsMuted);
+
+				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_VolumeIsMuted));
+			}
+		}
+
+		/// <summary>
+		/// Gets the current volume, in the parent device's format
+		/// </summary>
+		public override float VolumeLevel { get { return m_VolumeLevel; } }
 
 		#endregion
 
@@ -52,28 +94,32 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Methods
 
-		public override void SetRawVolume(float volume)
+		/// <summary>
+		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// </summary>
+		/// <param name="volume"></param>
+		public override void SetVolumeLevel(float volume)
 		{
 			DenonSerialData data = GetVolumeCommand(volume);
 			Parent.SendData(data);
 		}
 
-		public override void SetMute(bool mute)
+		/// <summary>
+		/// Sets the mute state.
+		/// </summary>
+		/// <param name="mute"></param>
+		public void SetVolumeMute(bool mute)
 		{
 			DenonSerialData data = DenonSerialData.Command(mute ? MUTE_ON : MUTE_OFF);
 			Parent.SendData(data);
 		}
 
-		public override void RawVolumeIncrement()
+		/// <summary>
+		/// Toggles the current mute state.
+		/// </summary>
+		public void VolumeMuteToggle()
 		{
-			DenonSerialData data = DenonSerialData.Command(MASTER_VOLUME_UP);
-			Parent.SendData(data);
-		}
-
-		public override void RawVolumeDecrement()
-		{
-			DenonSerialData data = DenonSerialData.Command(MASTER_VOLUME_DOWN);
-			Parent.SendData(data);
+			SetVolumeMute(!VolumeIsMuted);
 		}
 
 		#endregion
@@ -138,16 +184,29 @@ namespace ICD.Connect.Audio.Denon.Controls
 			switch (data)
 			{
 				case MUTE_ON:
-					IsMuted = true;
+					VolumeIsMuted = true;
 					return;
 
 				case MUTE_OFF:
-					IsMuted = false;
+					VolumeIsMuted = false;
 					return;
 			}
 
 			if (data == MASTER_VOLUME)
-				RawVolume = GetVolumeFromResponse(response.GetValue());
+			{
+				float volume = GetVolumeFromResponse(response.GetValue());
+				UpdateVolumeLevel(volume);
+			}
+		}
+
+		private void UpdateVolumeLevel(float volume)
+		{
+			if (Math.Abs(volume - m_VolumeLevel) < 0.001f)
+				return;
+
+			m_VolumeLevel = volume;
+
+			VolumeFeedback(m_VolumeLevel);
 		}
 
 		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
