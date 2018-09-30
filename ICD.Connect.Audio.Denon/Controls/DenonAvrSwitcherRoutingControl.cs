@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Denon.Devices;
 using ICD.Connect.Routing;
@@ -11,7 +12,46 @@ using ICD.Connect.Routing.Utils;
 namespace ICD.Connect.Audio.Denon.Controls
 {
     public sealed class DenonAvrSwitcherRoutingControl : AbstractRouteSwitcherControl<DenonAvrDevice>
-    {
+	{
+		private const string SELECT_INPUT = "SI";
+
+		// Pulled from a couple models, almost certainly inconclusive
+		private readonly BiDictionary<int, string> s_InputMap = new BiDictionary<int, string>
+		{
+			{1, "TUNER"},
+			{2, "DVD"},
+			{3, "BD"},
+			{4, "TV"},
+			{5, "SAT/CBL"},
+			{6, "MPLAY"},
+			{7, "GAME"},
+			{8, "AUX1"},
+			{9, "NET"},
+			{10, "PANDORA"},
+			{11, "SIRIUSXM"},
+			{12, "SPOTIFY"},
+			{13, "FLICKR"},
+			{14, "FAVORITES"},
+			{15, "IRADIO"},
+			{16, "SERVER"},
+			{17, "USB/IPOD"},
+			{18, "USB"},
+			{19, "IPD"},
+			{20, "IRP"},
+			{21, "FVP"},
+			{21, "PHONO"},
+			{22, "CD"},
+			{23, "HDP"},
+			{24, "TV/CBL"},
+			{25, "SAT"},
+			{26, "VCR"},
+			{27, "DVR"},
+			{28, "V.AUX"},
+			{29, "NET/USB"},
+			{30, "XM"},
+			{31, "IPOD"},
+		};
+
 		/// <summary>
 		/// Raised when an input source status changes.
 		/// </summary>
@@ -64,6 +104,12 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Methods
 
+		/// <summary>
+		/// Returns true if a signal is detected at the given input.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <param name="type"></param>
+		/// <returns></returns>
 		public override bool GetSignalDetectedState(int input, eConnectionType type)
 		{
 			return true;
