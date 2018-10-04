@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Added shim for setting ShureMXA LED brightness and colour at the same time
 
 ## [6.0.0] - 2018-09-25
 ### Added
