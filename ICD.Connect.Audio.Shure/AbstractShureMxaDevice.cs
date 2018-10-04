@@ -136,6 +136,25 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="brightness"></param>
+		public void SetLedColor(eLedColor color, eLedBrightness brightness)
+		{
+			if (brightness == eLedBrightness.Disabled)
+			{
+				SetLedBrightness(brightness);
+				SetLedColor(color);
+			}
+			else
+			{
+				SetLedColor(color);
+				SetLedBrightness(brightness);
+			}
+		}
+
+		/// <summary>
 		/// Enables/disables LED flashing.
 		/// </summary>
 		/// <param name="on"></param>
