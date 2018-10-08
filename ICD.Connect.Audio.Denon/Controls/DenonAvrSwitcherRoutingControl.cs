@@ -1,12 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services;
 using ICD.Connect.Audio.Denon.Devices;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
+using ICD.Connect.Routing.Endpoints;
 using ICD.Connect.Routing.EventArguments;
+using ICD.Connect.Routing.RoutingGraphs;
 using ICD.Connect.Routing.Utils;
 
 namespace ICD.Connect.Audio.Denon.Controls
@@ -49,7 +54,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 			{28, "V.AUX"},
 			{29, "NET/USB"},
 			{30, "XM"},
-			{31, "IPOD"},
+			{31, "IPOD"}
 		};
 
 		/// <summary>
@@ -74,6 +79,16 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		private readonly SwitcherCache m_Cache;
 
+		private IRoutingGraph m_CachedRoutingGraph;
+
+		/// <summary>
+		/// Gets the routing graph.
+		/// </summary>
+		public IRoutingGraph RoutingGraph
+		{
+			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
+		}
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -84,6 +99,8 @@ namespace ICD.Connect.Audio.Denon.Controls
 		{
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
+
+			Subscribe(parent);
 		}
 
 		/// <summary>
@@ -100,6 +117,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_Cache);
+			Unsubscribe(Parent);
 		}
 
 		#region Methods
@@ -122,7 +140,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override ConnectorInfo GetInput(int input)
 		{
-			throw new NotImplementedException();
+			if (!s_InputMap.ContainsKey(input))
+				throw new ArgumentOutOfRangeException("input");
+
+			return new ConnectorInfo(input, eConnectionType.Audio | eConnectionType.Video);
 		}
 
 		/// <summary>
@@ -132,7 +153,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override bool ContainsInput(int input)
 		{
-			throw new NotImplementedException();
+			return s_InputMap.ContainsKey(input);
 		}
 
 		/// <summary>
@@ -141,7 +162,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
-			throw new NotImplementedException();
+			return s_InputMap.Keys.Select(i => new ConnectorInfo(i, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>
@@ -151,7 +172,11 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override ConnectorInfo GetOutput(int address)
 		{
-			throw new NotImplementedException();
+			Connection connection = RoutingGraph.Connections.GetOutputConnection(new EndpointInfo(Parent.Id, Id, address));
+			if (connection == null)
+				throw new ArgumentOutOfRangeException("address");
+
+			return new ConnectorInfo(connection.Source.Address, connection.ConnectionType);
 		}
 
 		/// <summary>
@@ -161,7 +186,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override bool ContainsOutput(int output)
 		{
-			throw new NotImplementedException();
+			return RoutingGraph.Connections.GetOutputConnection(new EndpointInfo(Parent.Id, Id, output)) != null;
 		}
 
 		/// <summary>
@@ -170,7 +195,9 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetOutputs()
 		{
-			throw new NotImplementedException();
+			return RoutingGraph.Connections
+							   .GetOutputConnections(Parent.Id, Id)
+							   .Select(c => new ConnectorInfo(c.Source.Address, c.ConnectionType));
 		}
 
 		/// <summary>
@@ -203,6 +230,9 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override bool Route(RouteOperation info)
 		{
+			if (info == null)
+				throw new ArgumentNullException("info");
+
 			throw new NotImplementedException();
 		}
 
@@ -214,7 +244,43 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns>True if successfully cleared.</returns>
 		public override bool ClearOutput(int output, eConnectionType type)
 		{
-			throw new NotImplementedException();
+			// No way of clearing output
+			return false;
+		}
+
+		#endregion
+
+		#region Parent Callbacks
+
+		private void Subscribe(DenonAvrDevice parent)
+		{
+			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
+			parent.OnDataReceived += ParentOnOnDataReceived;
+		}
+
+		private void Unsubscribe(DenonAvrDevice parent)
+		{
+			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
+			parent.OnDataReceived -= ParentOnOnDataReceived;
+		}
+
+		private void ParentOnOnDataReceived(DenonAvrDevice device, DenonSerialData response)
+		{
+			string data = response.GetCommand();
+
+			switch (data)
+			{
+				case SELECT_INPUT:
+					return;
+			}
+		}
+
+		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
+		{
+			if (!args.Data)
+				return;
+
+			Parent.SendData(DenonSerialData.Request(SELECT_INPUT));
 		}
 
 		#endregion
