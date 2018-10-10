@@ -15,7 +15,7 @@ using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Misc
 {
-	public class GenericMicButtonControllerDevice : AbstractDevice<GenericMicButtonControllerDeviceSettings>
+	public sealed class BiColorMicButtonDevice : AbstractDevice<BiColorMicButtonDeviceSettings>
 	{
 		private const int BUTTON_INDEX = 0;
 		private const int POWER_INDEX = 1;
@@ -169,7 +169,7 @@ namespace ICD.Connect.Audio.Misc
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public GenericMicButtonControllerDevice()
+		public BiColorMicButtonDevice()
 		{
 			m_Ports = new IIoPort[5];
 			m_PortsSection = new SafeCriticalSection();
@@ -435,7 +435,7 @@ namespace ICD.Connect.Audio.Misc
 		/// Override to apply properties to the settings instance.
 		/// </summary>
 		/// <param name="settings"></param>
-		protected override void CopySettingsFinal(GenericMicButtonControllerDeviceSettings settings)
+		protected override void CopySettingsFinal(BiColorMicButtonDeviceSettings settings)
 		{
 			base.CopySettingsFinal(settings);
 
@@ -470,7 +470,7 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="settings"></param>
 		/// <param name="factory"></param>
-		protected override void ApplySettingsFinal(GenericMicButtonControllerDeviceSettings settings, IDeviceFactory factory)
+		protected override void ApplySettingsFinal(BiColorMicButtonDeviceSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
 

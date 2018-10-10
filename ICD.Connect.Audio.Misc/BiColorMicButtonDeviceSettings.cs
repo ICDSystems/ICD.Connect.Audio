@@ -9,9 +9,9 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.Misc
 {
 	[KrangSettings(FACTORY_NAME)]
-	public sealed class GenericMicButtonControllerDeviceSettings : AbstractDeviceSettings
+	public sealed class BiColorMicButtonDeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "GenericMicButtonController";
+		private const string FACTORY_NAME = "BiColorMicButton";
 
 		private const string BUTTON_INPUT_PORT_ELEMENT = "ButtonInputPort";
 		private const string POWER_OUTPUT_PORT_ELEMENT = "PowerOutputPort";
@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.Misc
 		/// <summary>
 		/// Gets the type of the originator for this settings instance.
 		/// </summary>
-		public override Type OriginatorType { get { return typeof(GenericMicButtonControllerDevice); } }
+		public override Type OriginatorType { get { return typeof(BiColorMicButtonDevice); } }
 
 		/// <summary>
 		/// Writes property elements to xml.
