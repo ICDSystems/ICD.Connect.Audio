@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-###Changed
+
+## [7.0.0] - 2018-10-18
+### Added
+ - Dialers support booking dialing
+
+### Changed
  - Biamp now sets call appearance properly when adding/removing sources
  - MXA310 Format Exception bug fix. Fixed regex for Sample response types.
 
