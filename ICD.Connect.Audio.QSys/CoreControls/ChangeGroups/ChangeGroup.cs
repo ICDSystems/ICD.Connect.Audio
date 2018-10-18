@@ -119,6 +119,8 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 
 		public void AddNamedComponent(INamedComponent component, IEnumerable<INamedComponentControl> controls)
 		{
+			IList<INamedComponentControl> controlsList = controls as IList<INamedComponentControl> ?? controls.ToArray();
+
 			m_NamedComponentsCriticalSection.Enter();
 			try
 			{
@@ -127,7 +129,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 					m_NamedComponents[component] = new List<INamedComponentControl>();
 
 				// Add controls to component
-				m_NamedComponents[component].AddRange(controls);
+				m_NamedComponents[component].AddRange(controlsList);
 
 			}
 			finally
@@ -136,7 +138,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 			}
 
 			// Send subscribe to Core
-			SendData(new ChangeGroupAddComponentControlRpc(this, component, controls).Serialize());
+			SendData(new ChangeGroupAddComponentControlRpc(this, component, controlsList).Serialize());
 		}
 
 		public IEnumerable<INamedControl> GetControls()
