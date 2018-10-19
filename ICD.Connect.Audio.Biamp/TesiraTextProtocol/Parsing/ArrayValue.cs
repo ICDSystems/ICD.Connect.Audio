@@ -95,7 +95,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		protected override bool CompareEquality(ArrayValue other)
 		{
-			return other.SequenceEqual(other, (a, b) => a.CompareEquality(b));
+			return other != null && other.SequenceEqual(other, (a, b) => a.CompareEquality(b));
 		}
 
 		#endregion

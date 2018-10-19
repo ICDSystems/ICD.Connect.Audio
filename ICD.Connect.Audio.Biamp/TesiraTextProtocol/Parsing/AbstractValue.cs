@@ -16,10 +16,7 @@
 		/// <returns></returns>
 		bool IValue.CompareEquality(IValue other)
 		{
-			if (other == null)
-				return false;
-
-			return other.GetType() == GetType() && CompareEquality(other as T);
+			return CompareEquality(other as T);
 		}
 
 		/// <summary>

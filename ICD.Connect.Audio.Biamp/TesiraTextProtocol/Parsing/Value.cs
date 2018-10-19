@@ -103,7 +103,6 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		{
 			get
 			{
-
 				try
 				{
 					return DateTime.ParseExact(m_Value, DATETIME_FORMAT, CultureInfo.InvariantCulture);
@@ -196,7 +195,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		protected override bool CompareEquality(Value other)
 		{
-			return m_Value == other.m_Value;
+			return other != null && m_Value == other.m_Value;
 		}
 
 		/// <summary>

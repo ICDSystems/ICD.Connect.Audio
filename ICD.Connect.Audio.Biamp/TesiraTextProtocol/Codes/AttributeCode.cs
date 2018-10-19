@@ -56,8 +56,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <param name="attribute"></param>
 		/// <param name="value"></param>
 		/// <param name="indices"></param>
-		private AttributeCode(string instanceTag, eCommand command, string attribute, IValue value,
-		                     object[] indices)
+		private AttributeCode(string instanceTag, eCommand command, string attribute, IValue value, object[] indices)
 			: base(instanceTag, value, indices)
 		{
 			m_Command = command;
@@ -213,10 +212,13 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <returns></returns>
 		public override bool CompareEquality(AttributeCode other)
 		{
-			if (Command != other.Command)
+			if (other == null)
 				return false;
 
-			return Attribute == other.Attribute && base.CompareEquality(other);
+			if (m_Command != other.m_Command)
+				return false;
+
+			return m_Attribute == other.m_Attribute && base.CompareEquality(other);
 		}
 	}
 }
