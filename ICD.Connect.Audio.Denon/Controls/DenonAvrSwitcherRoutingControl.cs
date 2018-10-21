@@ -21,7 +21,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		private const string SELECT_INPUT = "SI";
 
 		// Pulled from a couple models, almost certainly inconclusive
-		private readonly BiDictionary<int, string> s_InputMap = new BiDictionary<int, string>
+		private static readonly BiDictionary<int, string> s_InputMap = new BiDictionary<int, string>
 		{
 			{1, "TUNER"},
 			{2, "DVD"},
@@ -44,17 +44,17 @@ namespace ICD.Connect.Audio.Denon.Controls
 			{19, "IPD"},
 			{20, "IRP"},
 			{21, "FVP"},
-			{21, "PHONO"},
-			{22, "CD"},
-			{23, "HDP"},
-			{24, "TV/CBL"},
-			{25, "SAT"},
-			{26, "VCR"},
-			{27, "DVR"},
-			{28, "V.AUX"},
-			{29, "NET/USB"},
-			{30, "XM"},
-			{31, "IPOD"}
+			{22, "PHONO"},
+			{23, "CD"},
+			{24, "HDP"},
+			{25, "TV/CBL"},
+			{26, "SAT"},
+			{27, "VCR"},
+			{28, "DVR"},
+			{29, "V.AUX"},
+			{30, "NET/USB"},
+			{31, "XM"},
+			{32, "IPOD"}
 		};
 
 		/// <summary>
