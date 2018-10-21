@@ -206,6 +206,8 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 			m_VolumeLevel = volume;
 
+			Log(eSeverity.Informational, "Volume level set to {0}", StringUtils.NiceName(m_VolumeLevel));
+
 			VolumeFeedback(m_VolumeLevel);
 		}
 
