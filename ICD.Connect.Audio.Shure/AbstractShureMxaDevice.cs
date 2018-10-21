@@ -126,6 +126,22 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Turns Metering On.
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		public void TurnMeteringOn(uint milliseconds)
+		{
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "METER_RATE",
+				Value = milliseconds.ToString()
+			};
+
+			Send(command.Serialize());
+		}
+
+		/// <summary>
 		/// Sets the color of the hardware LED.
 		/// </summary>
 		/// <param name="color"></param>
@@ -133,6 +149,25 @@ namespace ICD.Connect.Audio.Shure
 		{
 			SetLedMuteColor(color);
 			SetLedUnmuteColor(color);
+		}
+
+		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="brightness"></param>
+		public void SetLedColor(eLedColor color, eLedBrightness brightness)
+		{
+			if (brightness == eLedBrightness.Disabled)
+			{
+				SetLedBrightness(brightness);
+				SetLedColor(color);
+			}
+			else
+			{
+				SetLedColor(color);
+				SetLedBrightness(brightness);
+			}
 		}
 
 		/// <summary>
@@ -319,6 +354,7 @@ namespace ICD.Connect.Audio.Shure
 			yield return new GenericConsoleCommand<eLedColor>("SetLedMuteColor", "SetLedMuteColor " + colorEnumString, e => SetLedMuteColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedUnmuteColor", "SetLedUnmuteColor " + colorEnumString, e => SetLedUnmuteColor(e));
 			yield return new GenericConsoleCommand<bool>("SetLedFlash", "SetLedFlash <true/false>", o => SetLedFlash(o));
+			yield return new GenericConsoleCommand<uint>("TurnMeteringOn", "TurnMeteringOn <uint>", o => TurnMeteringOn(o));
 		}
 
 		/// <summary>

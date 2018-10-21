@@ -39,5 +39,18 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="color"></param>
 		void SetLedColor(eLedColor color);
+
+		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="brightness"></param>
+		void SetLedColor(eLedColor color, eLedBrightness brightness);
+
+		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		void TurnMeteringOn(uint milliseconds);
 	}
 }

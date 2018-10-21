@@ -22,7 +22,6 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 		#endregion
 
-
 		#region Fields
 
 	    /// <summary>
@@ -116,7 +115,6 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 	    }
 
 		#endregion
-
 
 		#region Methods
 

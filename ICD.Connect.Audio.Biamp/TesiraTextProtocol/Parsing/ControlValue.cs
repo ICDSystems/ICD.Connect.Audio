@@ -28,7 +28,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// Constructor.
 		/// </summary>
 		public ControlValue()
-			: this(new Dictionary<string, IValue>())
+			: this(Enumerable.Empty<KeyValuePair<string, IValue>>())
 		{
 		}
 
@@ -115,7 +115,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		protected override bool CompareEquality(ControlValue other)
 		{
-			return m_Values.DictionaryEqual(other.m_Values, (a, b) => a.CompareEquality(b));
+			return other != null && m_Values.DictionaryEqual(other.m_Values, (a, b) => a.CompareEquality(b));
 		}
 
 		#endregion

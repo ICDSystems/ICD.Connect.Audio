@@ -108,11 +108,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <summary>
 		/// Returns the level of support the dialer has for the given booking.
 		/// </summary>
-		/// <param name="booking"></param>
+		/// <param name="bookingNumber"></param>
 		/// <returns></returns>
-		public override eBookingSupport CanDial(IBooking booking)
+		public override eBookingSupport CanDial(IBookingNumber bookingNumber)
 		{
-			var potsBooking = booking as IPstnBooking;
+			var potsBooking = bookingNumber as IPstnBookingNumber;
 			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
 				return eBookingSupport.Supported;
 
@@ -122,10 +122,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <summary>
 		/// Dials the given booking.
 		/// </summary>
-		/// <param name="booking"></param>
-		public override void Dial(IBooking booking)
+		/// <param name="bookingNumber"></param>
+		public override void Dial(IBookingNumber bookingNumber)
 		{
-			var potsBooking = booking as IPstnBooking;
+			var potsBooking = bookingNumber as IPstnBookingNumber;
 			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
 				return;
 
