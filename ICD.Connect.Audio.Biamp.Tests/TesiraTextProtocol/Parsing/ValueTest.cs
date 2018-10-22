@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ICD.Common.Properties;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using NUnit.Framework;
@@ -46,6 +47,18 @@ namespace ICD.Connect.Audio.Biamp.Tests.TesiraTextProtocol.Parsing
 		public void SerializeTest(string data, string expected)
 		{
 			Assert.AreEqual(expected, new Value(data).Serialize());
+		}
+
+		[Test]
+		public void GetStringValuesTest()
+		{
+			const string data = @"\""01131947\""\""test\""\""\""";
+			string[] expected = {"01131947", "test", ""};
+
+			Value value = new Value(data);
+			string[] result = value.GetStringValues().ToArray();
+
+			Assert.IsTrue(expected.SequenceEqual(result));
 		}
 	}
 }
