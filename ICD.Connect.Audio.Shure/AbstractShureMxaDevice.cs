@@ -322,9 +322,14 @@ namespace ICD.Connect.Audio.Shure
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+				}
 			}
 
 			m_ConnectionStateManager.SetPort(port);
