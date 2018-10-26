@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 
@@ -21,6 +22,15 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		// YYYY = Year must be >= 2000
 		// Spaces are not permitted after the : and before YYYY so “: 2000” is not valid.
 		private const string DATETIME_FORMAT = "HH:mm:ss:MM:dd:yyyy";
+
+		/// <summary>
+		/// In some cases (such as caller id) the value will be a string of quote delimited strings.
+		/// E.g. the string literal
+		///		"cid":"\"01131947\"\"test\"\"\"" 
+		/// Becomes the sequence of strings
+		///		"01131947", "test", ""
+		/// </summary>
+		private const string GET_STRING_VALUES_REGEX = @"\\\""(?'data'.*?)\\\""";
 
 		private string m_Value;
 
@@ -262,19 +272,17 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 
 		/// <summary>
 		/// In some cases (such as caller id) the value will be a string of quote delimited strings.
-		/// E.g.
+		/// E.g. the string literal
 		///		"cid":"\"01131947\"\"test\"\"\"" 
-		/// Becomes
+		/// Becomes the sequence of strings
 		///		"01131947", "test", ""
 		/// </summary>
 		/// <returns></returns>
 		public IEnumerable<string> GetStringValues()
 		{
-			string stringValue = StringValue;
-
-			return string.IsNullOrEmpty(stringValue)
-				       ? Enumerable.Empty<string>()
-				       : stringValue.Substring(1, stringValue.Length - 2).Split(@"\""\""");
+			return Regex.Matches(StringValue, GET_STRING_VALUES_REGEX)
+			            .Cast<Match>()
+			            .Select(match => match.Groups["data"].Value);
 		}
 
 		#endregion

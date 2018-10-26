@@ -437,10 +437,17 @@ namespace ICD.Connect.Audio.ClockAudio
 			if (portId == null)
 				return null;
 
-			IIoPort port = factory.GetPortById((int)portId) as IIoPort;
-			if (port == null)
-				Logger.AddEntry(eSeverity.Error, "No Serial Port with id {0}", portId);
+			IIoPort port = null;
 
+			try
+			{
+				port = factory.GetPortById((int)portId) as IIoPort;
+			}
+			catch (KeyNotFoundException)
+			{
+				Log(eSeverity.Error, "No Serial Port with id {0}", portId);
+			}
+			
 			return port;
 		}
 
