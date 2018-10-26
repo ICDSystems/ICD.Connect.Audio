@@ -140,7 +140,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override ConnectorInfo GetInput(int input)
 		{
-			if (!s_InputMap.ContainsKey(input))
+			if (!ContainsInput(input))
 				throw new ArgumentOutOfRangeException("input");
 
 			return new ConnectorInfo(input, eConnectionType.Audio | eConnectionType.Video);
@@ -153,7 +153,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override bool ContainsInput(int input)
 		{
-			return s_InputMap.ContainsKey(input);
+			return RoutingGraph.Connections.GetInputConnection(new EndpointInfo(Parent.Id, Id, input)) != null;
 		}
 
 		/// <summary>
@@ -162,7 +162,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
-			return s_InputMap.Keys.Select(i => new ConnectorInfo(i, eConnectionType.Audio | eConnectionType.Video));
+			return RoutingGraph.Connections
+			                   .GetInputConnections(Parent.Id, Id)
+							   .Where(c => s_InputMap.ContainsKey(c.Destination.Address))
+			                   .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>
@@ -172,11 +175,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override ConnectorInfo GetOutput(int address)
 		{
-			Connection connection = RoutingGraph.Connections.GetOutputConnection(new EndpointInfo(Parent.Id, Id, address));
-			if (connection == null)
+			if (!ContainsOutput(address))
 				throw new ArgumentOutOfRangeException("address");
 
-			return new ConnectorInfo(connection.Source.Address, connection.ConnectionType);
+			return new ConnectorInfo(address, eConnectionType.Audio | eConnectionType.Video);
 		}
 
 		/// <summary>
@@ -197,7 +199,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		{
 			return RoutingGraph.Connections
 							   .GetOutputConnections(Parent.Id, Id)
-							   .Select(c => new ConnectorInfo(c.Source.Address, c.ConnectionType));
+							   .Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>
@@ -208,7 +210,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetOutputs(int input, eConnectionType type)
 		{
-			throw new NotImplementedException();
+			return m_Cache.GetOutputsForInput(input, type);
 		}
 
 		/// <summary>
@@ -220,7 +222,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <exception cref="InvalidOperationException">Type has multiple flags.</exception>
 		public override ConnectorInfo? GetInput(int output, eConnectionType type)
 		{
-			throw new NotImplementedException();
+			return m_Cache.GetInputConnectorInfoForOutput(output, type);
 		}
 
 		/// <summary>
@@ -252,18 +254,31 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Parent Callbacks
 
+		/// <summary>
+		/// Subscribe to the parent events.
+		/// </summary>
+		/// <param name="parent"></param>
 		private void Subscribe(DenonAvrDevice parent)
 		{
 			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
 			parent.OnDataReceived += ParentOnOnDataReceived;
 		}
 
+		/// <summary>
+		/// Unsubscribe from the parent events.
+		/// </summary>
+		/// <param name="parent"></param>
 		private void Unsubscribe(DenonAvrDevice parent)
 		{
 			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
 			parent.OnDataReceived -= ParentOnOnDataReceived;
 		}
 
+		/// <summary>
+		/// Called when serial data is received from the device.
+		/// </summary>
+		/// <param name="device"></param>
+		/// <param name="response"></param>
 		private void ParentOnOnDataReceived(DenonAvrDevice device, DenonSerialData response)
 		{
 			string data = response.GetCommand();
@@ -275,6 +290,11 @@ namespace ICD.Connect.Audio.Denon.Controls
 			}
 		}
 
+		/// <summary>
+		/// Called when the parent initialization state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="args"></param>
 		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
 		{
 			if (!args.Data)
