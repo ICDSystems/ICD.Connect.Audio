@@ -143,6 +143,12 @@ namespace ICD.Connect.Audio.Denon.Devices
 			m_ConnectionStateManager.SetPort(port);
 		}
 
+		public void ConfigurePort(ISerialPort port)
+		{
+			if (port is IComPort)
+				ConfigureComPort(port as IComPort);
+		}
+
 		/// <summary>
 		/// Configures a com port for communication with the hardware.
 		/// </summary>
@@ -200,12 +206,6 @@ namespace ICD.Connect.Audio.Denon.Devices
 		#endregion
 
 		#region Port Callbacks
-
-		private void ConfigurePort(ISerialPort port)
-		{
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-		}
 
 		/// <summary>
 		/// Called when the port connection status changes.
