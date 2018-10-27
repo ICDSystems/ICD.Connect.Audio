@@ -235,7 +235,30 @@ namespace ICD.Connect.Audio.Denon.Controls
 			if (info == null)
 				throw new ArgumentNullException("info");
 
-			throw new NotImplementedException();
+			eConnectionType unsupported = info.ConnectionType & ~(eConnectionType.Audio | eConnectionType.Video);
+			if (unsupported != eConnectionType.None)
+				throw new ArgumentException("Unsupported connection type", "info");
+
+			int input = info.LocalInput;
+			return Route(input);
+		}
+
+		/// <summary>
+		/// Routes the given input to the outputs.
+		/// </summary>
+		/// <param name="input"></param>
+		/// <returns></returns>
+		public bool Route(int input)
+		{
+			if (!ContainsInput(input))
+				throw new ArgumentOutOfRangeException("input");
+
+			string inputName = s_InputMap.GetValue(input);
+
+			DenonSerialData data = DenonSerialData.Command(SELECT_INPUT + inputName);
+			Parent.SendData(data);
+
+			return true;
 		}
 
 		/// <summary>
@@ -283,10 +306,16 @@ namespace ICD.Connect.Audio.Denon.Controls
 		{
 			string data = response.GetCommand();
 
-			switch (data)
+			if (data.StartsWith(SELECT_INPUT))
 			{
-				case SELECT_INPUT:
-					return;
+				string inputName = data.Substring(SELECT_INPUT.Length);
+
+				int input;
+				bool known = s_InputMap.TryGetKey(inputName, out input) && ContainsInput(input);
+
+				foreach (ConnectorInfo output in GetOutputs())
+					m_Cache.SetInputForOutput(output.Address, known ? input : (int?)null,
+											  eConnectionType.Audio | eConnectionType.Video);
 			}
 		}
 
