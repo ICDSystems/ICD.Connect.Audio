@@ -54,7 +54,9 @@ namespace ICD.Connect.Audio.Denon.Controls
 			{29, "V.AUX"},
 			{30, "NET/USB"},
 			{31, "XM"},
-			{32, "IPOD"}
+			{32, "IPOD"},
+			{33, "GAME2"},
+			{34, "DOCK"},
 		};
 
 		/// <summary>
