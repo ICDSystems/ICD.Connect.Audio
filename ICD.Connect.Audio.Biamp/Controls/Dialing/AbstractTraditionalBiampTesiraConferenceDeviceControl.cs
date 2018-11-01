@@ -8,8 +8,8 @@ using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 {
-	public abstract class AbstractBiampTesiraDialingDeviceControl : AbstractDialingDeviceControl<BiampTesiraDevice>,
-	                                                                IBiampTesiraDialingDeviceControl
+	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractTraditionalConferenceDeviceControl<BiampTesiraDevice>,
+	                                                                IBiampTesiraConferenceDeviceControl
 	{
 		private readonly string m_Name;
 		private readonly IBiampTesiraStateDeviceControl m_DoNotDisturbControl;
@@ -25,7 +25,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// <summary>
 		/// Gets the type of conference this dialer supports.
 		/// </summary>
-		public override eConferenceSourceType Supports { get { return eConferenceSourceType.Audio; } }
+		public override eCallType Supports { get { return eCallType.Audio; } }
 
 		#endregion
 
@@ -37,7 +37,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// <param name="parent"></param>
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
-		protected AbstractBiampTesiraDialingDeviceControl(int id, string name, BiampTesiraDevice parent,
+		protected AbstractBiampTesiraConferenceDeviceControl(int id, string name, BiampTesiraDevice parent,
 														  IBiampTesiraStateDeviceControl doNotDisturbControl,
 														  IBiampTesiraStateDeviceControl privacyMuteControl)
 			: base(parent, id)
@@ -64,24 +64,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		}
 
 		#region Methods
-
-		/// <summary>
-		/// Dials the given number.
-		/// </summary>
-		/// <param name="number"></param>
-		/// <param name="callType"></param>
-		public override void Dial(string number, eConferenceSourceType callType)
-		{
-			switch (callType)
-			{
-				case eConferenceSourceType.Audio:
-					Dial(number);
-					break;
-
-				default:
-					throw new ArgumentOutOfRangeException("callType", string.Format("Unable to place {0} call", callType));
-			}
-		}
 
 		/// <summary>
 		/// Sets the do-not-disturb enabled state.

@@ -7,22 +7,23 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
-using ICD.Connect.Calendaring.Booking;
-using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls.Dialing;
+using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Common.Properties;
+using ICD.Connect.Conferencing.Participants;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 {
-	public sealed class VoIpDialingDeviceControl : AbstractBiampTesiraDialingDeviceControl
+	public sealed class VoIpConferenceDeviceControl : AbstractBiampTesiraConferenceDeviceControl
 	{
-		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
-		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
+		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallAdded;
+		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallRemoved;
 
 		private readonly VoIpControlStatusLine m_Line;
 
-		private readonly Dictionary<int, ThinConferenceSource> m_AppearanceSources;
+		private readonly Dictionary<int, ThinTraditionalParticipant> m_AppearanceSources;
+		private readonly Dictionary<int, ThinIncomingCall> m_AppearanceIncomingCalls; 
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 		private string m_LastDialedNumber;
 
@@ -34,12 +35,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="line"></param>
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
-		public VoIpDialingDeviceControl(int id, string name, VoIpControlStatusLine line,
+		public VoIpConferenceDeviceControl(int id, string name, VoIpControlStatusLine line,
 										IBiampTesiraStateDeviceControl doNotDisturbControl,
 										IBiampTesiraStateDeviceControl privacyMuteControl)
 			: base(id, name, line.Device, doNotDisturbControl, privacyMuteControl)
 		{
-			m_AppearanceSources = new Dictionary<int, ThinConferenceSource>();
+			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
+			m_AppearanceIncomingCalls = new Dictionary<int, ThinIncomingCall>();
 			m_AppearanceSourcesSection = new SafeCriticalSection();
 
 			m_Line = line;
@@ -53,8 +55,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
-			OnSourceAdded = null;
-			OnSourceRemoved = null;
+			OnIncomingCallAdded = null;
+			OnIncomingCallRemoved = null;
 
 			base.DisposeFinal(disposing);
 
@@ -62,24 +64,43 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			foreach (int item in m_AppearanceSources.Keys.ToArray())
 				RemoveSource(item);
+
+			foreach (int item in m_AppearanceIncomingCalls.Keys.ToArray())
+				RemoveIncomingCall(item);
 		}
 
 		#region Methods
 
 		/// <summary>
-		/// Gets the active conference sources.
+		/// Returns the level of support the dialer has for the given booking.
 		/// </summary>
+		/// <param name="dialContext"></param>
 		/// <returns></returns>
-		public override IEnumerable<IConferenceSource> GetSources()
+		public override eDialContextSupport CanDial(IDialContext dialContext)
 		{
-			return m_AppearanceSourcesSection.Execute(() => m_AppearanceSources.OrderValuesByKey().ToArray());
+			if (dialContext == null)
+				throw new ArgumentNullException("dialContext");
+
+			if (dialContext.Protocol == eDialProtocol.Pstn && !string.IsNullOrEmpty(dialContext.DialString))
+				return eDialContextSupport.Supported;
+
+			switch (dialContext.Protocol)
+			{
+				case eDialProtocol.Pstn:
+					return eDialContextSupport.Supported;
+				case eDialProtocol.Unknown:
+					return eDialContextSupport.Unknown;
+				default:
+					return eDialContextSupport.Unsupported;
+			}
+			
 		}
 
 		/// <summary>
-		/// Dials the given number.
+		/// Dials the given booking.
 		/// </summary>
-		/// <param name="number"></param>
-		public override void Dial(string number)
+		/// <param name="dialContext"></param>
+		public override void Dial(IDialContext dialContext)
 		{
 			m_AppearanceSourcesSection.Enter();
 
@@ -88,7 +109,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				// Find the first empty CallAppearance
 				VoIpControlStatusCallAppearance callAppearance
 					= m_Line.GetCallAppearances()
-					        .FirstOrDefault(c => !m_AppearanceSources.ContainsKey(c.Index));
+							.FirstOrDefault(c => !m_AppearanceSources.ContainsKey(c.Index) 
+								&& !m_AppearanceIncomingCalls.ContainsKey(c.Index));
 
 				if (callAppearance == null)
 				{
@@ -96,40 +118,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					return;
 				}
 
-				m_LastDialedNumber = number;
-				callAppearance.Dial(number);
+				m_LastDialedNumber = dialContext.DialString;
+				callAppearance.Dial(dialContext.DialString);
 			}
 			finally
 			{
 				m_AppearanceSourcesSection.Leave();
 			}
-		}
-
-		/// <summary>
-		/// Returns the level of support the dialer has for the given booking.
-		/// </summary>
-		/// <param name="bookingNumber"></param>
-		/// <returns></returns>
-		public override eBookingSupport CanDial(IBookingNumber bookingNumber)
-		{
-			var potsBooking = bookingNumber as IPstnBookingNumber;
-			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
-				return eBookingSupport.Supported;
-
-			return eBookingSupport.Unsupported;
-		}
-
-		/// <summary>
-		/// Dials the given booking.
-		/// </summary>
-		/// <param name="bookingNumber"></param>
-		public override void Dial(IBookingNumber bookingNumber)
-		{
-			var potsBooking = bookingNumber as IPstnBookingNumber;
-			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
-				return;
-
-			Dial(potsBooking.PhoneNumber);
 		}
 
 		/// <summary>
@@ -146,16 +141,80 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		#region Private Methods
 
 		/// <summary>
+		/// Creates a source if a call is active but no source exists yet. Clears the source if an existing call becomes inactive.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <param name="state"></param>
+		/// <returns></returns>
+		private void CreateOrRemoveSourceForCallState(int index, VoIpControlStatusCallAppearance.eVoIpCallState state)
+		{
+
+			eParticipantStatus status = VoIpCallStateToSourceStatus(state);
+
+			m_AppearanceSourcesSection.Enter();
+
+			try
+			{
+				ThinTraditionalParticipant source = GetSource(index);
+				if (source != null)
+				{
+					VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+					UpdateSource(source, callAppearance);
+				}
+
+				ThinIncomingCall call = GetIncomingCall(index);
+				if (call != null)
+				{
+					VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+					UpdateIncomingCall(call, callAppearance);
+				}
+
+				switch (status)
+				{
+					case eParticipantStatus.Dialing:
+						if (call == null && VoIpCallStateToDirection(state) == eCallDirection.Incoming)
+							CreateIncomingCall(index);
+						else if (source == null)
+							CreateSource(index);
+						break;
+
+					case eParticipantStatus.Ringing:
+					case eParticipantStatus.Connecting:
+					case eParticipantStatus.Connected:
+					case eParticipantStatus.OnHold:
+					case eParticipantStatus.EarlyMedia:
+					case eParticipantStatus.Preserved:
+					case eParticipantStatus.RemotePreserved:
+						if (source == null)
+							CreateSource(index);
+						break;
+
+					case eParticipantStatus.Undefined:
+					case eParticipantStatus.Idle:
+					case eParticipantStatus.Disconnecting:
+					case eParticipantStatus.Disconnected:
+						if (source != null)
+							RemoveSource(index);
+						break;
+				}
+			}
+			finally
+			{
+				m_AppearanceSourcesSection.Leave();
+			}
+		}
+
+		/// <summary>
 		/// Updates the source to match the state of the given call appearance.
 		/// </summary>
 		/// <param name="source"></param>
 		/// <param name="callAppearance"></param>
-		private void UpdateSource(ThinConferenceSource source, VoIpControlStatusCallAppearance callAppearance)
+		private void UpdateSource(ThinTraditionalParticipant source, VoIpControlStatusCallAppearance callAppearance)
 		{
 			if (source == null || callAppearance == null)
 				return;
 
-			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(callAppearance.State);
+			eParticipantStatus status = VoIpCallStateToSourceStatus(callAppearance.State);
 
 			if (!string.IsNullOrEmpty(callAppearance.CallerName))
 				source.Name = callAppearance.CallerName;
@@ -167,13 +226,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
-			eConferenceSourceDirection direction = VoIpCallStateToDirection(callAppearance.State);
-			if (direction == eConferenceSourceDirection.Incoming)
+			eCallDirection direction = VoIpCallStateToDirection(callAppearance.State);
+			if (direction == eCallDirection.Incoming)
 			{
 				m_LastDialedNumber = null;
-				source.Direction = eConferenceSourceDirection.Incoming;
+				source.Direction = eCallDirection.Incoming;
 			}
-			else if (source.Direction != eConferenceSourceDirection.Incoming)
+			else if (source.Direction != eCallDirection.Incoming)
 			{
 				if (string.IsNullOrEmpty(source.Number) &&
 				    string.IsNullOrEmpty(source.Name) &&
@@ -184,82 +243,23 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					m_LastDialedNumber = null;
 				}
 
-				source.Direction = eConferenceSourceDirection.Outgoing;
+				source.Direction = eCallDirection.Outgoing;
 			}
-
-			// Don't update the answer state if we can't determine the current answer state
-			eConferenceSourceAnswerState answerState = VoIpCallStateToAnswerState(callAppearance.State);
-			if (answerState != eConferenceSourceAnswerState.Unknown)
-				source.AnswerState = answerState;
 
 			// Start/End
 			switch (status)
 			{
-				case eConferenceSourceStatus.Connected:
+				case eParticipantStatus.Connected:
 					source.Start = source.Start ?? IcdEnvironment.GetLocalTime();
 					break;
-				case eConferenceSourceStatus.Disconnected:
+				case eParticipantStatus.Disconnected:
 					source.End = source.End ?? IcdEnvironment.GetLocalTime();
 					break;
 			}
 		}
 
-		/// <summary>
-		/// Creates a source if a call is active but no source exists yet. Clears the source if an existing call becomes inactive.
-		/// </summary>
-		/// <param name="index"></param>
-		/// <param name="state"></param>
-		/// <returns></returns>
-		private ThinConferenceSource CreateOrRemoveSourceForCallState(int index,
-		                                                                VoIpControlStatusCallAppearance.eVoIpCallState state)
-		{
-			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(state);
-
-			m_AppearanceSourcesSection.Enter();
-
-			ThinConferenceSource source = GetSource(index);
-
-			if (source != null)
-			{
-				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
-				UpdateSource(source, callAppearance);
-			}
-
-			try
-			{
-				switch (status)
-				{
-					case eConferenceSourceStatus.Dialing:
-					case eConferenceSourceStatus.Ringing:
-					case eConferenceSourceStatus.Connecting:
-					case eConferenceSourceStatus.Connected:
-					case eConferenceSourceStatus.OnHold:
-					case eConferenceSourceStatus.EarlyMedia:
-					case eConferenceSourceStatus.Preserved:
-					case eConferenceSourceStatus.RemotePreserved:
-						if (source == null)
-							return CreateSource(index);
-						break;
-
-					case eConferenceSourceStatus.Undefined:
-					case eConferenceSourceStatus.Idle:
-					case eConferenceSourceStatus.Disconnecting:
-					case eConferenceSourceStatus.Disconnected:
-						if (source != null)
-							RemoveSource(index);
-						return source;
-				}
-			}
-			finally
-			{
-				m_AppearanceSourcesSection.Leave();
-			}
-
-			return source;
-		}
-
 		[CanBeNull]
-		private ThinConferenceSource GetSource(int index)
+		private ThinTraditionalParticipant GetSource(int index)
 		{
 			return m_AppearanceSourcesSection.Execute(() => m_AppearanceSources.GetDefault(index));
 		}
@@ -269,17 +269,21 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// </summary>
 		/// <param name="index"></param>
 		/// <returns></returns>
-		private ThinConferenceSource CreateSource(int index)
+		private void CreateSource(int index)
 		{
-			ThinConferenceSource source;
+			ThinTraditionalParticipant source;
 
 			m_AppearanceSourcesSection.Enter();
 
-			RemoveSource(index);
-
 			try
 			{
-				source = new ThinConferenceSource {SourceType = eConferenceSourceType.Audio};
+				ThinIncomingCall call = GetIncomingCall(index);
+				if (call != null)
+					RemoveIncomingCall(index);
+
+				RemoveSource(index);
+
+				source = new ThinTraditionalParticipant {SourceType = eCallType.Audio};
 
 				Subscribe(source);
 
@@ -293,9 +297,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				m_AppearanceSourcesSection.Leave();
 			}
 
-			SourceSubscribe(source);
-			OnSourceAdded.Raise(this, new ConferenceSourceEventArgs(source));
-			return source;
+			AddParticipant(source);
 		}
 
 		/// <summary>
@@ -308,14 +310,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				ThinConferenceSource source;
+				ThinTraditionalParticipant source;
 				if (!m_AppearanceSources.TryGetValue(index, out source))
 					return;
 
 				Unsubscribe(source);
 
-				SourceUnsubscribe(source);
-				OnSourceRemoved.Raise(this, new ConferenceSourceEventArgs(source));
+				RemoveParticipant(source);
 
 				m_AppearanceSources.Remove(index);
 			}
@@ -325,61 +326,174 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			}
 		}
 
-		private static eConferenceSourceStatus VoIpCallStateToSourceStatus(VoIpControlStatusCallAppearance.eVoIpCallState state)
+		/// <summary>
+		/// Updates the source to match the state of the given call appearance.
+		/// </summary>
+		/// <param name="call"></param>
+		/// <param name="callAppearance"></param>
+		private void UpdateIncomingCall(ThinIncomingCall call, VoIpControlStatusCallAppearance callAppearance)
+		{
+			if (call == null || callAppearance == null)
+				return;
+
+			if (!string.IsNullOrEmpty(callAppearance.CallerName))
+				call.Name = callAppearance.CallerName;
+
+			if (!string.IsNullOrEmpty(callAppearance.CallerNumber))
+				call.Number = callAppearance.CallerNumber;
+
+			call.Name = call.Name ?? call.Number;
+
+			// Assume the call is outgoing unless we discover otherwise.
+			eCallDirection direction = VoIpCallStateToDirection(callAppearance.State);
+			if (direction == eCallDirection.Incoming)
+			{
+				m_LastDialedNumber = null;
+				call.Direction = eCallDirection.Incoming;
+			}
+			else if (call.Direction != eCallDirection.Incoming)
+			{
+				if (string.IsNullOrEmpty(call.Number) &&
+					string.IsNullOrEmpty(call.Name) &&
+					!string.IsNullOrEmpty(m_LastDialedNumber))
+				{
+					call.Number = m_LastDialedNumber;
+					call.Name = m_LastDialedNumber;
+					m_LastDialedNumber = null;
+				}
+
+				call.Direction = eCallDirection.Outgoing;
+			}
+
+			// Don't update the answer state if we can't determine the current answer state
+			eCallAnswerState answerState = VoIpCallStateToAnswerState(callAppearance.State);
+			if (answerState != eCallAnswerState.Unknown)
+				call.AnswerState = answerState;
+		}
+
+		[CanBeNull]
+		private ThinIncomingCall GetIncomingCall(int index)
+		{
+			return m_AppearanceSourcesSection.Execute(() => m_AppearanceIncomingCalls.GetDefault(index));
+		}
+
+		/// <summary>
+		/// Creates a source for the given call appearance index.
+		/// </summary>
+		/// <param name="index"></param>
+		/// <returns></returns>
+		private void CreateIncomingCall(int index)
+		{
+			ThinIncomingCall call;
+
+			m_AppearanceSourcesSection.Enter();
+
+			try
+			{
+				RemoveIncomingCall(index);
+
+				ThinTraditionalParticipant source = GetSource(index);
+				if (source != null)
+					RemoveSource(index);
+
+				call = new ThinIncomingCall();
+
+				Subscribe(call);
+
+				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+				UpdateIncomingCall(call, callAppearance);
+
+				m_AppearanceIncomingCalls.Add(index, call);
+			}
+			finally
+			{
+				m_AppearanceSourcesSection.Leave();
+			}
+
+			OnIncomingCallAdded.Raise(this, new GenericEventArgs<IIncomingCall>(call));
+		}
+
+		/// <summary>
+		/// Removes the source for the given call appearance index.
+		/// </summary>
+		/// <param name="index"></param>
+		private void RemoveIncomingCall(int index)
+		{
+			m_AppearanceSourcesSection.Enter();
+
+			try
+			{
+				ThinIncomingCall call;
+				if (!m_AppearanceIncomingCalls.TryGetValue(index, out call))
+					return;
+
+				Unsubscribe(call);
+
+				OnIncomingCallRemoved.Raise(this, new GenericEventArgs<IIncomingCall>(call));
+
+				m_AppearanceIncomingCalls.Remove(index);
+			}
+			finally
+			{
+				m_AppearanceSourcesSection.Leave();
+			}
+		}
+
+		private static eParticipantStatus VoIpCallStateToSourceStatus(VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
 			switch (state)
 			{
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Init:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Fault:
-					return eConferenceSourceStatus.Undefined;
+					return eParticipantStatus.Undefined;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.DialTone:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Silent:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Dialing:
-					return eConferenceSourceStatus.Dialing;
+					return eParticipantStatus.Dialing;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.RingBack:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Ringing:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.WaitingRing:
-					return eConferenceSourceStatus.Ringing;
+					return eParticipantStatus.Ringing;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Idle:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Busy:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Reject:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.InvalidNumber:
-					return eConferenceSourceStatus.Disconnected;
+					return eParticipantStatus.Disconnected;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.AnswerCall:
-					return eConferenceSourceStatus.Connecting;
+					return eParticipantStatus.Connecting;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Active:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ActiveMuted:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfActive:
-					return eConferenceSourceStatus.Connected;
+					return eParticipantStatus.Connected;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Hold:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfHold:
-					return eConferenceSourceStatus.OnHold;
+					return eParticipantStatus.OnHold;
 
 				default:
 					throw new ArgumentOutOfRangeException("state");
 			}
 		}
 
-		private static eConferenceSourceDirection VoIpCallStateToDirection(VoIpControlStatusCallAppearance.eVoIpCallState state)
+		private static eCallDirection VoIpCallStateToDirection(VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
 			switch (state)
 			{
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Ringing:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.AnswerCall:
-					return eConferenceSourceDirection.Incoming;
+					return eCallDirection.Incoming;
 
 				default:
-					return eConferenceSourceDirection.Undefined;
+					return eCallDirection.Undefined;
 			}
 		}
 
-		private static eConferenceSourceAnswerState VoIpCallStateToAnswerState(VoIpControlStatusCallAppearance.eVoIpCallState state)
+		private static eCallAnswerState VoIpCallStateToAnswerState(VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
 			switch (state)
 			{
@@ -388,7 +502,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				case VoIpControlStatusCallAppearance.eVoIpCallState.DialTone:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Silent:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Init:
-					return eConferenceSourceAnswerState.Unknown;
+					return eCallAnswerState.Unknown;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.WaitingRing:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Dialing:
@@ -397,7 +511,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Busy:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Reject:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.InvalidNumber:
-					return eConferenceSourceAnswerState.Unanswered;
+					return eCallAnswerState.Unanswered;
 
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Hold:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.Active:
@@ -405,7 +519,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfActive:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfHold:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.AnswerCall:
-					return eConferenceSourceAnswerState.Answered;
+					return eCallAnswerState.Answered;
 
 				default:
 					throw new ArgumentOutOfRangeException("state");
@@ -420,10 +534,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// Subscribe to the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Subscribe(ThinConferenceSource source)
+		private void Subscribe(ThinTraditionalParticipant source)
 		{
-			source.AnswerCallback += AnswerCallback;
-			source.RejectCallback += RejectCallback;
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
 			source.SendDtmfCallback += SendDtmfCallback;
@@ -434,64 +546,92 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// Unsubscribe from the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Unsubscribe(ThinConferenceSource source)
+		private void Unsubscribe(ThinTraditionalParticipant source)
 		{
-			source.AnswerCallback = null;
-			source.RejectCallback = null;
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
 			source.SendDtmfCallback = null;
 			source.HangupCallback = null;
 		}
 
-		private void AnswerCallback(ThinConferenceSource sender)
-		{
-			int index;
-			if (TryGetCallAppearance(sender, out index))
-				m_Line.GetCallAppearance(index).Answer();
-		}
-
-		private void HoldCallback(ThinConferenceSource sender)
+		private void HoldCallback(ThinTraditionalParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Hold();
 		}
 
-		private void RejectCallback(ThinConferenceSource sender)
-		{
-			int index;
-			if (TryGetCallAppearance(sender, out index))
-				m_Line.GetCallAppearance(index).End();
-		}
-
-		private void ResumeCallback(ThinConferenceSource sender)
+		private void ResumeCallback(ThinTraditionalParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
-		private void SendDtmfCallback(ThinConferenceSource sender, string data)
+		private void SendDtmfCallback(ThinTraditionalParticipant sender, string data)
 		{
 			foreach (char digit in data)
 				m_Line.Dtmf(digit);
 		}
 
-		private void HangupCallback(ThinConferenceSource sender)
+		private void HangupCallback(ThinTraditionalParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
-		private bool TryGetCallAppearance(ThinConferenceSource source, out int index)
+		private bool TryGetCallAppearance(ThinTraditionalParticipant source, out int index)
 		{
 			m_AppearanceSourcesSection.Enter();
 
 			try
 			{
 				return m_AppearanceSources.TryGetKey(source, out index);
+			}
+			finally
+			{
+				m_AppearanceSourcesSection.Leave();
+			}
+		}
+
+		#endregion
+
+		#region Incoming Call Callbacks
+
+		private void Subscribe(ThinIncomingCall call)
+		{
+			call.AnswerCallback += AnswerCallback;
+			call.RejectCallback += RejectCallback;
+		}
+
+		private void Unsubscribe(ThinIncomingCall call)
+		{
+			call.AnswerCallback = null;
+			call.RejectCallback = null;
+		}
+
+		private void AnswerCallback(ThinIncomingCall sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender, out index))
+				m_Line.GetCallAppearance(index).Answer();
+		}
+
+		private void RejectCallback(ThinIncomingCall sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender, out index))
+				m_Line.GetCallAppearance(index).End();
+		}
+
+		private bool TryGetCallAppearance(ThinIncomingCall source, out int index)
+		{
+			m_AppearanceSourcesSection.Enter();
+
+			try
+			{
+				return m_AppearanceIncomingCalls.TryGetKey(source, out index);
 			}
 			finally
 			{
@@ -575,8 +715,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			if (callAppearance == null)
 				return;
 
-			ThinConferenceSource source = GetSource(callAppearance.Index);
-			UpdateSource(source, callAppearance);
+			ThinTraditionalParticipant source = GetSource(callAppearance.Index);
+			if (source != null)
+				UpdateSource(source, callAppearance);
+
+			ThinIncomingCall call = GetIncomingCall(callAppearance.Index);
+			if (call != null)
+				UpdateIncomingCall(call, callAppearance);
 		}
 
 		private void AppearanceOnCallerNameChanged(object sender, StringEventArgs args)
@@ -585,8 +730,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			if (callAppearance == null)
 				return;
 
-			ThinConferenceSource source = GetSource(callAppearance.Index);
-			UpdateSource(source, callAppearance);
+			ThinTraditionalParticipant source = GetSource(callAppearance.Index);
+			if(source != null)
+				UpdateSource(source, callAppearance);
+
+			ThinIncomingCall call = GetIncomingCall(callAppearance.Index);
+			if (call != null)
+				UpdateIncomingCall(call, callAppearance);
 		}
 
 		/// <summary>
@@ -596,8 +746,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="state"></param>
 		private void AppearanceOnCallStateChanged(VoIpControlStatusCallAppearance callAppearance, VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
-			ThinConferenceSource source = CreateOrRemoveSourceForCallState(callAppearance.Index, state);
-			UpdateSource(source, callAppearance);
+			CreateOrRemoveSourceForCallState(callAppearance.Index, state);
 		}
 
 		#endregion
