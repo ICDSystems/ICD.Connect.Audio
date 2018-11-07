@@ -8,11 +8,9 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Misc
 {
-	[KrangSettings(FACTORY_NAME)]
+	[KrangSettings("BiColorMicButton", typeof(BiColorMicButtonDevice))]
 	public sealed class BiColorMicButtonDeviceSettings : AbstractDeviceSettings
 	{
-		private const string FACTORY_NAME = "BiColorMicButton";
-
 		private const string BUTTON_INPUT_PORT_ELEMENT = "ButtonInputPort";
 		private const string POWER_OUTPUT_PORT_ELEMENT = "PowerOutputPort";
 		private const string RED_LED_OUTPUT_PORT_ELEMENT = "RedLedOutputPort";
@@ -33,11 +31,6 @@ namespace ICD.Connect.Audio.Misc
 
 		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? VoltageInputPort { get; set; }
-
-		/// <summary>
-		/// Gets the originator factory name.
-		/// </summary>
-		public override string FactoryName { get { return FACTORY_NAME; } }
 
 		/// <summary>
 		/// Gets the type of the originator for this settings instance.
