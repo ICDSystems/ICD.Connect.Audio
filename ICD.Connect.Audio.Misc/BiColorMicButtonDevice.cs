@@ -9,6 +9,7 @@ using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Core;
@@ -78,7 +79,7 @@ namespace ICD.Connect.Audio.Misc
 
 				m_Voltage = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - Voltage changed to {1}", this, m_Voltage);
+				Log(eSeverity.Informational, "{0} - Voltage changed to {1}", this, m_Voltage);
 
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
@@ -98,7 +99,7 @@ namespace ICD.Connect.Audio.Misc
 
 				m_ButtonPressed = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - Button pressed changed to {1}", this, m_ButtonPressed);
+				Log(eSeverity.Informational, "{0} - Button pressed changed to {1}", this, m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -118,7 +119,7 @@ namespace ICD.Connect.Audio.Misc
 
 				m_PowerEnabled = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - Power enabled changed to {1}", this, m_PowerEnabled);
+				Log(eSeverity.Informational, "{0} - Power enabled changed to {1}", this, m_PowerEnabled);
 
 				OnPowerEnabledChanged.Raise(this, new BoolEventArgs(m_PowerEnabled));
 			}
@@ -138,7 +139,7 @@ namespace ICD.Connect.Audio.Misc
 
 				m_RedLedEnabled = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - Red LED enabled changed to {1}", this, m_RedLedEnabled);
+				Log(eSeverity.Informational, "{0} - Red LED enabled changed to {1}", this, m_RedLedEnabled);
 
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
@@ -158,7 +159,7 @@ namespace ICD.Connect.Audio.Misc
 
 				m_GreenLedEnabled = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} - Green LED enabled changed to {1}", this, m_GreenLedEnabled);
+				Log(eSeverity.Informational, "{0} - Green LED enabled changed to {1}", this, m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}
@@ -380,7 +381,7 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
+		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
@@ -490,7 +491,7 @@ namespace ICD.Connect.Audio.Misc
 
 			IIoPort port = factory.GetPortById((int)portId) as IIoPort;
 			if (port == null)
-				Logger.AddEntry(eSeverity.Error, "No IO Port with id {0}", portId);
+				Log(eSeverity.Error, "No IO Port with id {0}", portId);
 
 			return port;
 		}
