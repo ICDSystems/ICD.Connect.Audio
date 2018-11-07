@@ -397,8 +397,6 @@ namespace ICD.Connect.Audio.Devices
 					return null;
 
 				IRouteSourceControl sourceControl = graph.GetSourceControl(inputConnection);
-				if (sourceControl == null)
-					return null;
 
 				// Find the volume control on the source.
 				IVolumeDeviceControl volumeControl = sourceControl.Parent.Controls.GetControl<IVolumeDeviceControl>();

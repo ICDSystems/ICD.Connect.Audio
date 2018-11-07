@@ -174,9 +174,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			m_WallsSection.Enter();
 			try
 			{
-				if (!m_Walls.ContainsKey(id))
-					m_Walls.Add(id, new RoomCombinerWall(this, id));
-				return m_Walls[id];
+				RoomCombinerWall wall;
+
+				if (!m_Walls.TryGetValue(id, out wall))
+				{
+					wall = new RoomCombinerWall(this, id);
+					m_Walls.Add(id, wall);
+				}
+
+				return wall;
 			}
 			finally
 			{
@@ -187,15 +193,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		[PublicAPI]
 		public IEnumerable<RoomCombinerWall> GetWalls()
 		{
-			m_WallsSection.Enter();
-			try
-			{
-				return m_Walls.Values;
-			}
-			finally
-			{
-				m_WallsSection.Leave();
-			}
+			return m_WallsSection.Execute(() => m_Walls.Values.ToArray(m_Walls.Count));
 		}
 
 		[PublicAPI]
@@ -204,9 +202,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			m_RoomsSection.Enter();
 			try
 			{
-				if (!m_Rooms.ContainsKey(id))
-					m_Rooms.Add(id, new RoomCombinerRoom(this, id));
-				return m_Rooms[id];
+				RoomCombinerRoom room;
+
+				if (!m_Rooms.TryGetValue(id, out room))
+				{
+					room = new RoomCombinerRoom(this, id);
+					m_Rooms.Add(id, room);
+				}
+
+				return room;
 			}
 			finally
 			{
@@ -217,15 +221,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		[PublicAPI]
 		public IEnumerable<RoomCombinerRoom> GetRooms()
 		{
-			m_RoomsSection.Enter();
-			try
-			{
-				return m_Rooms.Values;
-			}
-			finally
-			{
-				m_RoomsSection.Leave();
-			}
+			return m_RoomsSection.Execute(() => m_Rooms.Values.ToArray(m_Rooms.Count));
 		}
 
 		[PublicAPI]
@@ -234,9 +230,15 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			m_SourcesSection.Enter();
 			try
 			{
-				if (!m_Sources.ContainsKey(id))
-					m_Sources.Add(id, new RoomCombinerSource(this, id));
-				return m_Sources[id];
+				RoomCombinerSource source;
+
+				if (!m_Sources.TryGetValue(id, out source))
+				{
+					source = new RoomCombinerSource(this, id);
+					m_Sources.Add(id, source);
+				}
+
+				return source;
 			}
 			finally
 			{
@@ -247,15 +249,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 		[PublicAPI]
 		public IEnumerable<RoomCombinerSource> GetSources()
 		{
-			m_SourcesSection.Enter();
-			try
-			{
-				return m_Sources.Values;
-			}
-			finally
-			{
-				m_SourcesSection.Leave();
-			}
+			return m_SourcesSection.Execute(() => m_Sources.Values.ToArray(m_Sources.Count));
 		}
 
 		#endregion

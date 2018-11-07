@@ -6,6 +6,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [8.0.0] - 2018-10-30
+### Added
+ - Added DenonAVR project and device driver
+
+### Changed
+ - Small optimizations to TesiraTextProtocol deserialization
+ - Fixed potential multi-enumeration
+ - Fixed loading issues where devices would not fail gracefully if a port was missing
+
 ## [7.0.0] - 2018-10-18
 ### Added
  - Dialers support booking dialing
