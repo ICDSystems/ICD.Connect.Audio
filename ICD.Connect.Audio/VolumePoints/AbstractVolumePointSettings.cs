@@ -54,18 +54,5 @@ namespace ICD.Connect.Audio.VolumePoints
 		}
 
 		#endregion
-
-		public override int DependencyCount { get { return DeviceId == 0 ? 0 : 1; } }
-
-		/// <summary>
-		/// Returns true if the settings depend on a device with the given ID.
-		/// For example, to instantiate an IR Port from settings, the device the physical port
-		/// belongs to will need to be instantiated first.
-		/// </summary>
-		/// <returns></returns>
-		public override bool HasDeviceDependency(int id)
-		{
-			return id != 0 && id == DeviceId;
-		}
 	}
 }
