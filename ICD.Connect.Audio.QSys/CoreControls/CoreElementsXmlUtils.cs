@@ -93,7 +93,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 			// Setup Default Change Group
 			IcdXmlAttribute defaultChangeGroup;
-			if (attributes.TryGetValue("DefaulthangeGroup", out defaultChangeGroup))
+			if (attributes.TryGetValue("DefaultChangeGroup", out defaultChangeGroup))
 			{
 				int defaultChangeGroupId = int.Parse(defaultChangeGroup.Value);
 				if (typeof(IChangeGroup).IsAssignableFrom(loadContext.GetTypeForId(defaultChangeGroupId)))
