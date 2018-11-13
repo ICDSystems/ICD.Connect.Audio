@@ -150,6 +150,12 @@ namespace ICD.Connect.Audio.Biamp
 			m_AttributeInterfaces.Dispose();
 		}
 
+		private void ConfigurePort(ISerialPort port)
+		{
+			if (port is IComPort)
+				ConfigureComPort(port as IComPort);
+		}
+
 		/// <summary>
 		/// Configures a com port for communication with the hardware.
 		/// </summary>
@@ -207,12 +213,6 @@ namespace ICD.Connect.Audio.Biamp
 			}
 		}
 
-		private void ConfigurePort(ISerialPort port)
-		{
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-		}
-
 		#endregion
 
 		#region Attribute Subscription
@@ -234,12 +234,15 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				if (!m_SubscriptionCallbacks.ContainsKey(key))
-					m_SubscriptionCallbacks[key] = new IcdHashSet<SubscriptionCallbackInfo>();
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
+					infos = new IcdHashSet<SubscriptionCallbackInfo>();
+					m_SubscriptionCallbacks[key] = infos;
+				}
 
-				if (!m_SubscriptionCallbacks[key].Any(s => s.Callback == callback &&
-				                                           s.Code.CompareEquality(code)))
-					m_SubscriptionCallbacks[key].Add(info);
+				if (infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+					infos.Add(info);
 			}
 			finally
 			{
@@ -265,18 +268,20 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				if (m_SubscriptionCallbacks.ContainsKey(key))
-				{
-					SubscriptionCallbackInfo remove =
-						m_SubscriptionCallbacks[key].FirstOrDefault(s => s.Callback == callback &&
-						                                                 s.Code.CompareEquality(code));
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+					return;
 
-					if (remove != null)
-						m_SubscriptionCallbacks[key].Remove(remove);
+				SubscriptionCallbackInfo remove = infos.FirstOrDefault(s => s.Callback == callback && s.Code.CompareEquality(code));
+				if (remove == null)
+					return;
 
-					if (m_SubscriptionCallbacks[key].Count == 0)
-						m_SubscriptionCallbacks.Remove(key);
-				}
+				infos.Remove(remove);
+
+				if (infos.Count == 0)
+					m_SubscriptionCallbacks.Remove(key);
+				else
+					return;
 			}
 			finally
 			{
@@ -295,26 +300,14 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		private void SubscriptionTimerCallback()
 		{
-			SubscriptionCallbackInfo[] subscriptions;
+			if (!m_ConnectionStateManager.IsConnected)
+				return;
 
-			m_SubscriptionCallbacksSection.Enter();
-
-			try
-			{
-				subscriptions = m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray();
-			}
-			finally
-			{
-				m_SubscriptionCallbacksSection.Leave();
-			}
+			SubscriptionCallbackInfo[] subscriptions =
+				m_SubscriptionCallbacksSection.Execute(() => m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray());
 
 			foreach (SubscriptionCallbackInfo subscription in subscriptions)
-			{
-				if (!m_ConnectionStateManager.IsConnected)
-					return;
-
 				SendData(subscription.Callback, subscription.Code);
-			}
 		}
 
 		#endregion
@@ -386,7 +379,7 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (args.Data)
 			{
-				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS, SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_SubscriptionTimer.Reset(0, SUBSCRIPTION_INTERVAL_MILLISECONDS);
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 			else
@@ -639,10 +632,16 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				}
 			}
+
 			m_SerialQueue.SetPort(port);
 			m_ConnectionStateManager.SetPort(port);
 		}

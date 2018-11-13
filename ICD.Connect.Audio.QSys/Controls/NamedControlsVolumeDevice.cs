@@ -89,10 +89,10 @@ namespace ICD.Connect.Audio.QSys.Controls
 			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
 			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
 
-			if (incrementValue != null)
-			{
-				VolumePositionRepeater positionRepeater = VolumeRepeater as VolumePositionRepeater;
+			VolumePositionRepeater positionRepeater = VolumeRepeater as VolumePositionRepeater;
 
+			if (incrementValue != null && positionRepeater != null)
+			{
 				positionRepeater.InitialIncrement = (float)incrementValue;
 				positionRepeater.RepeatIncrement = (float)incrementValue;
 			}

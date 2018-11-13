@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
@@ -40,7 +41,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			CoreElementsLoadContext loadContext = new CoreElementsLoadContext(qSysCore);
 
 			// Load attributes into dictionary for easier lookup
-			Dictionary<string, IcdXmlAttribute> attributes = XmlUtils.GetAttributes(xml).ToDictionary(attribute => attribute.Name);
+			Dictionary<string, string> attributes = XmlUtils.GetAttributes(xml).ToDictionary();
 
 			// Load Id's and Types To continue in proper order
 			foreach (string elementXml in XmlUtils.GetChildElementsAsString(xml))
@@ -92,10 +93,10 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			}
 
 			// Setup Default Change Group
-			IcdXmlAttribute defaultChangeGroup;
-			if (attributes.TryGetValue("DefaulthangeGroup", out defaultChangeGroup))
+			string defaultChangeGroup;
+			if (attributes.TryGetValue("DefaultChangeGroup", out defaultChangeGroup))
 			{
-				int defaultChangeGroupId = int.Parse(defaultChangeGroup.Value);
+				int defaultChangeGroupId = int.Parse(defaultChangeGroup);
 				if (typeof(IChangeGroup).IsAssignableFrom(loadContext.GetTypeForId(defaultChangeGroupId)))
 					loadContext.AddDefaultChangeGroup(defaultChangeGroupId);
 				else
@@ -106,9 +107,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 			// Is Auto Change Group Disabled?
 			bool autoChangeGroupEnabled = true;
-			IcdXmlAttribute autoChangeGroupAttribute;
+			string autoChangeGroupAttribute;
 			if (attributes.TryGetValue("DisableAutoChangeGroup", out autoChangeGroupAttribute))
-				autoChangeGroupEnabled = !(bool.Parse(autoChangeGroupAttribute.Value));
+				autoChangeGroupEnabled = !(bool.Parse(autoChangeGroupAttribute));
 
 			// Setup Auto Change Group
 			if (autoChangeGroupEnabled)

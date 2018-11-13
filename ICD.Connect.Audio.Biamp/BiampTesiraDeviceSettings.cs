@@ -69,13 +69,9 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			base.ParseXml(xml);
 
-			int? port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
-			string username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
-			string config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
-
-			Port = port;
-			Username = username;
-			Config = config;
+			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
+			Username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
+			Config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 		}
 	}
 }

@@ -315,7 +315,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			catch (Exception e)
 			{
-				Logger.AddEntry(eSeverity.Error, e, "{0} - Failed to load integration config {1} - {2}", this, fullPath, e.Message);
+				Log(eSeverity.Error, e, "{0} - Failed to load integration config {1} - {2}", this, fullPath, e.Message);
 			}
 		}
 
@@ -360,20 +360,6 @@ namespace ICD.Connect.Audio.QSys
 				json = json + DELIMITER;
 
 			m_ConnectionStateManager.Send(json);
-		}
-
-		/// <summary>
-		/// Logs the message.
-		/// </summary>
-		/// <param name="severity"></param>
-		/// <param name="message"></param>
-		/// <param name="args"></param>
-		public void Log(eSeverity severity, string message, params object[] args)
-		{
-			message = string.Format(message, args);
-			message = AddLogPrefix(message);
-
-			Logger.AddEntry(severity, message);
 		}
 
 		/// <summary>
@@ -813,9 +799,14 @@ namespace ICD.Connect.Audio.QSys
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				}
 			}
 
 			m_ConnectionStateManager.SetPort(port);

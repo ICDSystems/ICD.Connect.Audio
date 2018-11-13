@@ -5,8 +5,29 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-###Changed
+### Added
+ - Added missing enum for Biamp Tesira VOIP prompt
+
+## [8.1.0] - 2018-11-08
+### Added
+ - Added Misc project and BiColorMicButton device
+
+## [8.0.0] - 2018-10-30
+### Added
+ - Added DenonAVR project and device driver
+
+### Changed
+ - Small optimizations to TesiraTextProtocol deserialization
+ - Fixed potential multi-enumeration
+ - Fixed loading issues where devices would not fail gracefully if a port was missing
+
+## [7.0.0] - 2018-10-18
+### Added
+ - Dialers support booking dialing
+
+### Changed
  - Biamp now sets call appearance properly when adding/removing sources
+ - MXA310 Format Exception bug fix. Fixed regex for Sample response types.
 
 ## [6.1.0] - 2018-10-04
 ### Added

@@ -49,12 +49,10 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 
 			serialized = serialized.Trim();
 
-			if (serialized.StartsWith('"'))
-				serialized = serialized.Substring(1);
-			if (serialized.EndsWith('"') && !serialized.EndsWith("\\\""))
-				serialized = serialized.Substring(0, serialized.Length - 1);
+			int startIndex = serialized.StartsWith('"') ? 1 : 0;
+			int endIndex = serialized.EndsWith('"') ? serialized.Length - 1 : serialized.Length;
 
-			return serialized;
+			return serialized.Substring(startIndex, endIndex - startIndex);
 		}
 
 		/// <summary>

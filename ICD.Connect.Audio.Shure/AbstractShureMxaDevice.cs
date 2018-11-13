@@ -126,6 +126,22 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Turns Metering On.
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		public void TurnMeteringOn(uint milliseconds)
+		{
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "METER_RATE",
+				Value = milliseconds.ToString()
+			};
+
+			Send(command.Serialize());
+		}
+
+		/// <summary>
 		/// Sets the color of the hardware LED.
 		/// </summary>
 		/// <param name="color"></param>
@@ -306,9 +322,14 @@ namespace ICD.Connect.Audio.Shure
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+				}
 			}
 
 			m_ConnectionStateManager.SetPort(port);
@@ -338,6 +359,7 @@ namespace ICD.Connect.Audio.Shure
 			yield return new GenericConsoleCommand<eLedColor>("SetLedMuteColor", "SetLedMuteColor " + colorEnumString, e => SetLedMuteColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedUnmuteColor", "SetLedUnmuteColor " + colorEnumString, e => SetLedUnmuteColor(e));
 			yield return new GenericConsoleCommand<bool>("SetLedFlash", "SetLedFlash <true/false>", o => SetLedFlash(o));
+			yield return new GenericConsoleCommand<uint>("TurnMeteringOn", "TurnMeteringOn <uint>", o => TurnMeteringOn(o));
 		}
 
 		/// <summary>
