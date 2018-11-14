@@ -379,7 +379,7 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (args.Data)
 			{
-				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS, SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_SubscriptionTimer.Reset(0, SUBSCRIPTION_INTERVAL_MILLISECONDS);
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 			else
