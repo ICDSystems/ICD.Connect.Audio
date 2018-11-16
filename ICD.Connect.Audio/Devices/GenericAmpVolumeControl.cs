@@ -360,7 +360,7 @@ namespace ICD.Connect.Audio.Devices
 				return;
 
 			// If the active input is null then there is no active volume control
-			int? activeInput = inputSelectControl.ActiveInput;
+			int? activeInput = inputSelectControl.GetActiveInput(eConnectionType.Audio);
 			if (!activeInput.HasValue)
 				return;
 			
