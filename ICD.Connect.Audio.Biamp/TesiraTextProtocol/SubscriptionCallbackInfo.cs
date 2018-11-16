@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 
 namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol
@@ -6,7 +7,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol
 	/// <summary>
 	/// Simple pairing of a subscription callback and an attribute code.
 	/// </summary>
-	public sealed class SubscriptionCallbackInfo
+	public sealed class SubscriptionCallbackInfo : IEquatable<SubscriptionCallbackInfo>
 	{
 		private readonly BiampTesiraDevice.SubscriptionCallback m_Callback;
 		private readonly AttributeCode m_Code;
@@ -44,6 +45,24 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol
 		{
 			string indicesString = string.Join("-", indices.Select(i => i.ToString()).ToArray());
 			return string.Format("{0}-{1}-{2}", instanceTag, attribute, indicesString);
+		}
+
+		public bool Equals(SubscriptionCallbackInfo other)
+		{
+			return other != null &&
+			       other.m_Callback == m_Callback &&
+			       other.m_Code == m_Code;
+		}
+
+		public override int GetHashCode()
+		{
+			unchecked
+			{
+				int hash = 17;
+				hash = hash * 23 + m_Callback.GetHashCode();
+				hash = hash * 23 + m_Code.GetHashCode();
+				return hash;
+			}
 		}
 	}
 }
