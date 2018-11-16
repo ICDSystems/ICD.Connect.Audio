@@ -59,8 +59,8 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol
 			unchecked
 			{
 				int hash = 17;
-				hash = hash * 23 + m_Callback.GetHashCode();
-				hash = hash * 23 + m_Code.GetHashCode();
+				hash = hash * 23 + (m_Callback == null ? 0 : m_Callback.GetHashCode());
+				hash = hash * 23 + (m_Code == null ? 0 : m_Code.GetHashCode());
 				return hash;
 			}
 		}
