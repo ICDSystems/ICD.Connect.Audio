@@ -50,18 +50,6 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		/// <summary>
-		/// Gets the current active input.
-		/// </summary>
-		public int? ActiveInput
-		{
-			get
-			{
-				ConnectorInfo? input = GetInput(1, eConnectionType.Audio);
-				return input.HasValue ? input.Value.Address : (int?)null;
-			}
-		}
-
-		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="parent"></param>
@@ -222,6 +210,18 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		/// <summary>
+		/// Gets the current active input.
+		/// </summary>
+		public int? GetActiveInput(eConnectionType flag)
+		{
+			if (flag != eConnectionType.Audio)
+				return null;
+
+			ConnectorInfo? input = GetInput(1, eConnectionType.Audio);
+			return input.HasValue ? input.Value.Address : (int?)null;
+		}
+
+		/// <summary>
 		/// Sets the current active input.
 		/// </summary>
 		/// <param name="input"></param>
@@ -237,9 +237,11 @@ namespace ICD.Connect.Audio.Devices
 		/// Sets the current active input.
 		/// </summary>
 		/// <param name="input"></param>
-		void IRouteInputSelectControl.SetActiveInput(int? input)
+		/// <param name="type"></param>
+		void IRouteInputSelectControl.SetActiveInput(int? input, eConnectionType type)
 		{
-			SetActiveInput(input);
+			if (type.HasFlag(eConnectionType.Audio))
+				SetActiveInput(input);
 		}
 
 		#endregion
