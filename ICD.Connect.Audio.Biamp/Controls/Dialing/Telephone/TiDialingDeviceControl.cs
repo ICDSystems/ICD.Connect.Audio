@@ -269,7 +269,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				case TiControlStatusBlock.eTiCallState.Dialing:
 					return eConferenceSourceStatus.Dialing;
 
-				case TiControlStatusBlock.eTiCallState.RingBack:
 				case TiControlStatusBlock.eTiCallState.Ringing:
 					return eConferenceSourceStatus.Ringing;
 
@@ -280,6 +279,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				case TiControlStatusBlock.eTiCallState.Connected:
 				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+				case TiControlStatusBlock.eTiCallState.RingBack:
 					return eConferenceSourceStatus.Connected;
 
 				default:
