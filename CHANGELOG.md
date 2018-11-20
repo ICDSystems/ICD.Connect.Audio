@@ -5,11 +5,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [8.2.0] - 2018-11-20
 ### Added
  - Added missing enum for Biamp Tesira VOIP prompt
 
 ### Changed
  - Fixed bad validation that was breaking Biamp Tesira feedback
+ - Fixed typo in QSys configuration parsing
+ - Improved Biamp Tesira POTS call performance
+ - Fixed potential memory leak in Biamp Tesira feedback subscription
 
 ## [8.1.0] - 2018-11-08
 ### Added
