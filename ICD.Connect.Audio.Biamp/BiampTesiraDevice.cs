@@ -241,7 +241,7 @@ namespace ICD.Connect.Audio.Biamp
 					m_SubscriptionCallbacks[key] = infos;
 				}
 
-				if (infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+				if (!infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
 					infos.Add(info);
 			}
 			finally

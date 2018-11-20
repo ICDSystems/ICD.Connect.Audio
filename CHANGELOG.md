@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added missing enum for Biamp Tesira VOIP prompt
 
+### Changed
+ - Fixed bad validation that was breaking Biamp Tesira feedback
+
 ## [8.1.0] - 2018-11-08
 ### Added
  - Added Misc project and BiColorMicButton device
