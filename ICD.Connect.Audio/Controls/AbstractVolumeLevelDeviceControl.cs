@@ -1,32 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using ICD.Common.Properties;
-using ICD.Common.Utils;
-using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console;
-using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.Repeaters;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
-	public abstract class AbstractVolumeLevelDeviceControl<T> : AbstractDeviceControl<T>, IVolumeLevelDeviceControl
+	public abstract class AbstractVolumeLevelDeviceControl<T> : AbstractVolumePositionDeviceControl<T>, IVolumeLevelDeviceControl
 		where T : IDeviceBase
 	{
-		#region Constants
-		/// <summary>
-		/// Default time before repeat for volume ramping operations
-		/// </summary>
-		private const int DEFAULT_REPEAT_BEFORE_TIME = 250;
-
-		/// <summary>
-		/// Default time between repeats for volume ramping operations
-		/// </summary>
-		private const int DEFAULT_REPEAT_BETWEEN_TIME = 250;
-
 		/// <summary>
 		/// Default value to increment by
 		/// </summary>
@@ -35,89 +19,48 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Tolerance for float comparisons
 		/// </summary>
-		private const float FLOAT_COMPARE_TOLERANCE = 0.00001F;
-		#endregion
+		private const float FLOAT_COMPARE_TOLERANCE = 0.00001f;
 
-		#region Fields
-		private float? m_IncrementValue;
-
-		/// <summary>
-		/// Repeater for volume ramping operaions
-		/// </summary>
-		private VolumeRepeater m_Repeater;
-
-		/// <summary>
-		/// Used when creating/accessing/disposing repeater
-		/// </summary>
-		private readonly SafeCriticalSection m_RepeaterCriticalSection;
-
-		private int? m_RepeatBeforeTime;
-
-		private int? m_RepeatBetweenTime;
+		private readonly VolumeLevelRepeater m_Repeater;
 
 		private float? m_VolumeRawMax;
 		private float? m_VolumeRawMin;
 
-		#endregion
-
-		#region Events
-
-		public virtual event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
-		
-		#endregion
-
-		#region Abstract Properties
-
-		public abstract float VolumeRaw { get; }
-		public abstract float VolumePosition { get; }
-
-		#endregion
-
 		#region Properties
 
-		public virtual string VolumeString
-		{
-			get { return ConvertLevelToString(VolumeRaw); }
-		}
+		/// <summary>
+		/// Gets the current volume, in string representation
+		/// </summary>
+		public override string VolumeString { get { return ConvertLevelToString(VolumeLevel); } }
 
-		public float IncrementValue
-		{
-			get
-			{
-				if (m_IncrementValue != null)
-					return (float)m_IncrementValue;
-				return DEFAULT_INCREMENT_VALUE;
-			}
-			set
-			{
-				if (Math.Abs(value) > FLOAT_COMPARE_TOLERANCE)
-					m_IncrementValue = value;
-				else
-					m_IncrementValue = null;
-			}
-		}
+		/// <summary>
+		/// Gets the current volume, in the parent device's format
+		/// </summary>
+		public abstract float VolumeLevel { get; }
 
+		/// <summary>
+		/// Maximum value for the raw volume level
+		/// This could be the maximum permitted by the device/control, or a safety max
+		/// </summary>
 		public virtual float? VolumeRawMax
 		{
-			get
-			{
-				return m_VolumeRawMax;
-			}
+			get { return m_VolumeRawMax; }
 			set
 			{
 				m_VolumeRawMax = value;
+
 				if (m_VolumeRawMax != null)
 					ClampLevel();
-
 			}
 		}
 
+		/// <summary>
+		/// Minimum value for the raw volume level
+		/// This could be the minimum permitted by the device/control, or a safety min
+		/// </summary>
 		public virtual float? VolumeRawMin
 		{
-			get
-			{
-				return m_VolumeRawMin;
-			}
+			get { return m_VolumeRawMin; }
 			set
 			{
 				m_VolumeRawMin = value;
@@ -127,46 +70,44 @@ namespace ICD.Connect.Audio.Controls
 		}
 
 		/// <summary>
-		/// Time from the press to the repeat
+		/// VolumeRawMinRange is the best min volume we have for the control
+		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		[PublicAPI]
-		public virtual int RepeatBeforeTime
+		public float VolumeLevelMinRange
 		{
-			get
-			{
-				if (m_RepeatBeforeTime != null)
-					return (int)m_RepeatBeforeTime;
-				return DEFAULT_REPEAT_BEFORE_TIME;
-			}
-			set
-			{
-				if (Math.Abs(value) > FLOAT_COMPARE_TOLERANCE)
-					m_RepeatBeforeTime = value;
-				else
-					m_RepeatBeforeTime = null;
-			}
+			get { return VolumeRawMin == null ? VolumeRawMinAbsolute : Math.Max(VolumeRawMinAbsolute, (float)VolumeRawMin); }
 		}
 
 		/// <summary>
-		/// Time between repeats
+		/// VolumeRawMaxRange is the best max volume we have for the control
+		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		[PublicAPI]
-		public virtual int RepeatBetweenTime
+		public float VolumeLevelMaxRange
 		{
-			get
-			{
-				if (m_RepeatBetweenTime != null)
-					return (int)m_RepeatBetweenTime;
-				return DEFAULT_REPEAT_BETWEEN_TIME;
-			}
-			set
-			{
-				if (Math.Abs(value) > FLOAT_COMPARE_TOLERANCE)
-					m_RepeatBetweenTime = value;
-				else
-					m_RepeatBetweenTime = null;
-			}
+			get { return VolumeRawMax == null ? VolumeRawMaxAbsolute : Math.Min(VolumeRawMaxAbsolute, (float)VolumeRawMax); }
 		}
+
+		/// <summary>
+		/// Gets the position of the volume in the specified range
+		/// </summary>
+		public override float VolumePosition { get { return this.ConvertLevelToPosition(VolumeLevel); } }
+
+		/// <summary>
+		/// Gets the volume repeater for this instance.
+		/// </summary>
+		protected override IVolumeRepeater VolumeRepeater { get { return m_Repeater; } }
+
+		/// <summary>
+		/// Absolute Minimum the raw volume can be
+		/// Used as a last resort for position caculation
+		/// </summary>
+		protected abstract float VolumeRawMinAbsolute { get; }
+
+		/// <summary>
+		/// Absolute Maximum the raw volume can be
+		/// Used as a last resport for position caculation
+		/// </summary>
+		protected abstract float VolumeRawMaxAbsolute { get; }
 
 		#endregion
 
@@ -175,141 +116,99 @@ namespace ICD.Connect.Audio.Controls
 		/// </summary>
 		/// <param name="parent">Device this control belongs to</param>
 		/// <param name="id">Id of this control in the device</param>
-		protected AbstractVolumeLevelDeviceControl(T parent, int id) : base(parent, id)
+		protected AbstractVolumeLevelDeviceControl(T parent, int id)
+			: base(parent, id)
 		{
-			m_RepeaterCriticalSection = new SafeCriticalSection();
+			m_Repeater = new VolumeLevelRepeater(DEFAULT_INCREMENT_VALUE,
+			                                     DEFAULT_INCREMENT_VALUE,
+			                                     DEFAULT_REPEAT_BEFORE_TIME,
+			                                     DEFAULT_REPEAT_BETWEEN_TIME);
+			m_Repeater.SetControl(this);
 		}
-
-		#region Abstract Methods
-
-		public abstract void SetVolumeRaw(float volume);
-		public abstract void SetVolumePosition(float position);
-
-		public virtual void VolumeLevelIncrement(float incrementValue)
-		{
-			SetVolumeRaw(this.ClampRawVolume(VolumeRaw + incrementValue));
-		}
-
-		public virtual void VolumeLevelDecrement(float decrementValue)
-		{
-			SetVolumeRaw(this.ClampRawVolume(VolumeRaw - decrementValue));
-		}
-
-		#endregion
 
 		#region Methods
 
 		/// <summary>
-		/// Volume Level Increment
+		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
-		public virtual void VolumeLevelIncrement()
+		/// <param name="volume"></param>
+		public abstract void SetVolumeLevel(float volume);
+
+		/// <summary>
+		/// Sets the volume position in the specified range
+		/// </summary>
+		/// <param name="position"></param>
+		public override void SetVolumePosition(float position)
 		{
-			VolumeLevelIncrement(IncrementValue);
+			float level = this.ConvertPositionToLevel(position);
+			SetVolumeLevel(level);
 		}
 
 		/// <summary>
-		/// Volume Level Decrement
+		/// Raises the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public virtual void VolumeLevelDecrement()
+		public override void VolumeIncrement()
 		{
-			VolumeLevelDecrement(IncrementValue);
+			VolumeLevelIncrement(DEFAULT_INCREMENT_VALUE);
 		}
 
 		/// <summary>
-		/// Starts a volume ramp up operation
-		/// VolumeLevelRampStop() must be called to stop the ramping
+		/// Lowers the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public void VolumeLevelRampUp()
+		public override void VolumeDecrement()
 		{
-			VolumeLevelRamp(true);
+			VolumeLevelDecrement(DEFAULT_INCREMENT_VALUE);
 		}
 
 		/// <summary>
-		/// Starts a volume ramp down operation
-		/// VolumeLevelRampStop() must be called to stop the ramping
+		/// Increments the volume once.
 		/// </summary>
-		public void VolumeLevelRampDown()
+		public virtual void VolumeLevelIncrement(float incrementValue)
 		{
-			VolumeLevelRamp(false);
+			float newRaw = this.ClampToVolumeLevel(VolumeLevel + incrementValue);
+			SetVolumeLevel(newRaw);
 		}
 
 		/// <summary>
-		/// Stops the volume ramp and disposes of the repeater timer
+		/// Decrements the volume once.
 		/// </summary>
-		public void VolumeLevelRampStop()
+		public virtual void VolumeLevelDecrement(float decrementValue)
 		{
-			m_RepeaterCriticalSection.Enter();
-			try
-			{
-				if (m_Repeater == null)
-					return;
-
-				m_Repeater.Release();
-				m_Repeater.Dispose();
-				m_Repeater = null;
-			}
-			finally
-			{
-				m_RepeaterCriticalSection.Leave();
-			}
-		}
-
-		public virtual string ConvertLevelToString(float level)
-		{
-			return level.ToString("n2");
+			float newRaw = this.ClampToVolumeLevel(VolumeLevel - decrementValue);
+			SetVolumeLevel(newRaw);
 		}
 
 		#endregion
 
 		#region Private/Protected Methods
 
+		private void ClampLevel()
+		{
+			float clampValue = this.ClampToVolumeLevel(VolumeLevel);
+			if (Math.Abs(clampValue - VolumeLevel) > FLOAT_COMPARE_TOLERANCE)
+				SetVolumeLevel(clampValue);
+		}
+
+		protected virtual void VolumeFeedback(float volumeRaw)
+		{
+			VolumeFeedback(volumeRaw, this.ConvertLevelToPosition(volumeRaw));
+		}
+
+		protected virtual string ConvertLevelToString(float level)
+		{
+			return level.ToString("n2");
+		}
+
 		/// <summary>
-		/// Creates the repeater timer and starts up/down ramp
+		/// Stops any current ramp up/down in progress.
 		/// </summary>
-		/// <param name="up">true for up ramp, false for down ramp</param>
-		private void VolumeLevelRamp(bool up)
+		public override void VolumeRampStop()
 		{
-			m_RepeaterCriticalSection.Enter();
-			try
-			{
-				if (m_Repeater == null)
-				{
-					// Use m_IncrementValue to capture null
-					// VolumeRepater will call VolumeLevelIncrement() when incrementvalue is null
-					m_Repeater = new VolumeRepeater(m_IncrementValue, m_IncrementValue, RepeatBeforeTime, RepeatBetweenTime);
-					m_Repeater.SetControl(this);
-				}
-				else
-					m_Repeater.Release();
+			base.VolumeRampStop();
 
-				m_Repeater.VolumeHold(up);
-			}
-			finally
-			{
-				m_RepeaterCriticalSection.Leave();
-			}
-		}
-
-		protected void ClampLevel()
-		{
-			float clampValue = this.ClampRawVolume(VolumeRaw);
-			if (Math.Abs(clampValue - VolumeRaw) > FLOAT_COMPARE_TOLERANCE)
-				SetVolumeRaw(clampValue);
-		}
-
-		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition)
-		{
-			VolumeFeedback(volumeRaw, volumePosition, ConvertLevelToString(volumeRaw));
-		}
-
-		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition, string volumeString)
-		{
-			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(volumeRaw, volumePosition, volumeString));
-		}
-
-		protected virtual void VolumeFeedback(VolumeDeviceVolumeChangedEventArgs args)
-		{
-			OnVolumeChanged.Raise(this, args);
+			m_Repeater.Release();
 		}
 
 		#endregion

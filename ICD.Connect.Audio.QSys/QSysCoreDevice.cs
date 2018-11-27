@@ -20,9 +20,8 @@ using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
-using ICD.Connect.Devices.EventArguments;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
-using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
@@ -32,7 +31,7 @@ using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys
 {
-	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>, IConnectable
+	public sealed class QSysCoreDevice : AbstractDevice<QSysCoreDeviceSettings>
 	{
 		private const char DELIMITER = '\x00';
 
@@ -48,14 +47,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnInitializedChanged;
 
-		/// <summary>
-		/// Raised when the codec becomes connected or disconnected.
-		/// </summary>
-		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
-
 		private bool m_Initialized;
-		private bool m_IsConnected;
-		private ISerialPort m_Port;
 		private readonly SafeTimer m_OnlineNoOpTimer;
 
 		/// <summary>
@@ -81,6 +73,7 @@ namespace ICD.Connect.Audio.QSys
 		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
 
 		private readonly ISerialBuffer m_SerialBuffer;
+		private readonly ConnectionStateManager m_ConnectionStateManager;
 
 		/// <summary>
 		/// Configuration Path for reload
@@ -91,8 +84,6 @@ namespace ICD.Connect.Audio.QSys
 		private readonly SecureNetworkProperties m_NetworkProperties;
 
 		#region Properties
-
-		public Heartbeat Heartbeat { get; private set; }
 
 		/// <summary>
 		/// Username for logging in to the device.
@@ -105,30 +96,6 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		[PublicAPI]
 		public string Password { get; set; }
-
-		/// <summary>
-		/// Returns true when the core is connected.
-		/// </summary>
-		public bool IsConnected
-		{
-			get { return m_IsConnected; }
-			private set
-			{
-				if (value == m_IsConnected)
-					return;
-
-				m_IsConnected = value;
-
-				//todo: clean this up
-
-				if (m_IsConnected)
-				{
-					m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
-				}
-
-				OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_IsConnected));
-			}
-		}
 
 		/// <summary>
 		/// Device Initialized Status.
@@ -159,7 +126,6 @@ namespace ICD.Connect.Audio.QSys
 
 			Controls.Add(new QSysCoreRoutingControl(this, 0));
 
-			Heartbeat = new Heartbeat(this);
 			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
 			m_SerialBuffer = new JsonSerialBuffer();
@@ -176,6 +142,11 @@ namespace ICD.Connect.Audio.QSys
 			m_NamedComponentsCriticalSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
 			m_NamedComponentsById = new Dictionary<int, INamedComponent>();
+
+			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
 		}
 
 		#region Methods
@@ -186,47 +157,13 @@ namespace ICD.Connect.Audio.QSys
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnInitializedChanged = null;
-			OnConnectedStateChanged = null;
-
-			Heartbeat.StopMonitoring();
-			Heartbeat.Dispose();
 
 			Unsubscribe(m_SerialBuffer);
-			Unsubscribe(m_Port);
 
-			base.DisposeFinal(disposing);
-		}
-
-		/// <summary>
-		/// Connect to the device.
-		/// </summary>
-		[PublicAPI]
-		public void Connect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to connect, port is null");
-				return;
-			}
-
-			m_Port.Connect();
-			IsConnected = m_Port.IsConnected;
-		}
-
-		/// <summary>
-		/// Disconnect from the device.
-		/// </summary>
-		[PublicAPI]
-		public void Disconnect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to disconnect, port is null");
-				return;
-			}
-
-			m_Port.Disconnect();
-			IsConnected = m_Port.IsConnected;
+			m_ConnectionStateManager.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived -= PortOnSerialDataReceived;
+			m_ConnectionStateManager.Dispose();
 		}
 
 		/// <summary>
@@ -236,24 +173,7 @@ namespace ICD.Connect.Audio.QSys
 		[PublicAPI]
 		public void SetPort(ISerialPort port)
 		{
-			if (port == m_Port)
-				return;
-
-			ConfigurePort(port);
-
-			if (m_Port != null)
-				Disconnect();
-
-			Unsubscribe(m_Port);
-			m_Port = port;
-			Subscribe(m_Port);
-
-			if (m_Port != null)
-				Connect();
-
-			Heartbeat.StartMonitoring();
-
-			UpdateCachedOnlineStatus();
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		/// <summary>
@@ -282,19 +202,6 @@ namespace ICD.Connect.Audio.QSys
 					m_OnlineNoOpTimer.Stop();
 			}
 		}
-
-		/*
-		public void AddNamedControlToChangeGroupById(int changeGroupId, AbstractNamedControl control)
-		{
-			ChangeGroup changeGroup = GetChangeGroupById(changeGroupId);
-
-			// todo: log or exception here
-			if (changeGroup == null)
-				return;
-
-			changeGroup.AddNamedControl(control);
-		}
-		*/
 
 		public void AddChangeGroup(IEnumerable<IChangeGroup> changeGroups)
 		{
@@ -415,7 +322,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Log(eSeverity.Error, e, "{0} - Failed to load integration config {1} - {2}", this, fullPath, e.Message);
 			}
 		}
 
@@ -455,25 +362,11 @@ namespace ICD.Connect.Audio.QSys
 		/// <param name="json"></param>
 		internal void SendData(string json)
 		{
-			//JsonUtils.Print(json);
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
-				Connect();
-			}
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with device");
-				return;
-			}
-
 			// Pad with the delimiter
 			if (!json.EndsWith(DELIMITER))
 				json = json + DELIMITER;
 
-			m_Port.Send(json);
+			m_ConnectionStateManager.Send(json);
 		}
 
 		#endregion
@@ -486,7 +379,7 @@ namespace ICD.Connect.Audio.QSys
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsConnected;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
 		/// <summary>
@@ -494,6 +387,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private void Initialize()
 		{
+			m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
+
 			Initialized = true;
 		}
 
@@ -502,8 +397,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private void SendNoOpKeepalive()
 		{
-			if (!IsConnected)
-				return;
+            if (!m_ConnectionStateManager.IsConnected)
+                return;
 
 			SendData(new NoOpRpc().Serialize());
 		}
@@ -583,41 +478,20 @@ namespace ICD.Connect.Audio.QSys
 		#region Port Callbacks
 
 		/// <summary>
-		/// Subscribes to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-			port.OnSerialDataReceived += PortOnSerialDataReceived;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-			port.OnSerialDataReceived -= PortOnSerialDataReceived;
-		}
-
-		/// <summary>
 		/// Called when we receive data from the port.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="stringEventArgs"></param>
 		private void PortOnSerialDataReceived(object sender, StringEventArgs stringEventArgs)
 		{
-			m_SerialBuffer.Enqueue(stringEventArgs.Data);
+			string data = stringEventArgs.Data;
+
+			// Ignore empty change groups
+			if (data ==
+			    @"{""jsonrpc"":""2.0"",""method"":""ChangeGroup.Poll"",""params"":{""Id"":""AutoChangeGroup"",""Changes"":[]}}")
+				return;
+
+			m_SerialBuffer.Enqueue(data);
 		}
 
 		/// <summary>
@@ -629,9 +503,7 @@ namespace ICD.Connect.Audio.QSys
 		{
 			m_SerialBuffer.Clear();
 
-			IsConnected = args.Data;
-
-			if (IsConnected)
+			if (args.Data)
 				Initialize();
 			else
 			{
@@ -645,7 +517,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
+		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
@@ -693,9 +565,7 @@ namespace ICD.Connect.Audio.QSys
 			}
 
 			string responseMethod = (string)json.SelectToken("method");
-
-			if (!string.IsNullOrEmpty(responseMethod) &&
-			    string.Equals(responseMethod.ToLower(), "ChangeGroup.Poll", StringComparison.OrdinalIgnoreCase))
+			if (string.Equals(responseMethod, "ChangeGroup.Poll", StringComparison.OrdinalIgnoreCase))
 			{
 				ParseChangeGroupResponse(json);
 				return;
@@ -703,20 +573,20 @@ namespace ICD.Connect.Audio.QSys
 
 			string responseId = (string)json.SelectToken("id");
 
-			if (!string.IsNullOrEmpty(responseId))
+			switch (responseId)
 			{
-				switch (responseId)
-				{
-					case (RpcUtils.RPCID_NO_OP):
-						return;
-					case (RpcUtils.RPCID_NAMED_CONTROL_GET):
-						ParseNamedControlGetResponse(json);
-						return;
-					case (RpcUtils.RPCID_NAMED_CONTROL_SET):
-						ParseNamedControlSetResponse(json);
-						break;
+				case (RpcUtils.RPCID_NO_OP):
+					return;
+				case (RpcUtils.RPCID_NAMED_CONTROL_GET):
+					ParseNamedControlGetResponse(json);
+					return;
+				case (RpcUtils.RPCID_NAMED_CONTROL_SET):
+					ParseNamedControlSetResponse(json);
+					break;
+				case (RpcUtils.RPCID_NAMED_COMPONENT_GET):
+					ParseNamedComponentGetResponse(json);
+					break;
 
-				}
 			}
 		}
 
@@ -740,8 +610,8 @@ namespace ICD.Connect.Audio.QSys
 			foreach (JToken change in changes)
 			{
 				JToken component = change.SelectToken("Component");
-				if (component != null && component.HasValues)
-					ParseNamedComponentResponse(change);
+				if (component != null)
+					ParseNamedComponentChangeGroupResponse(change);
 				else
 				{
 					ParseNamedControlResponse(change);
@@ -749,9 +619,59 @@ namespace ICD.Connect.Audio.QSys
 			}
 		}
 
-		private void ParseNamedComponentResponse(JToken json)
+		private void ParseNamedComponentChangeGroupResponse(JToken result)
 		{
-			// todo: Parse Responses
+			string nameToken = (string)result.SelectToken("Component");
+
+			if (string.IsNullOrEmpty(nameToken))
+				return;
+
+			INamedComponent component;
+
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				if (!m_NamedComponents.TryGetValue(nameToken, out component))
+					return;
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+
+			component.ParseFeedback(result);
+		}
+
+		private void ParseNamedComponentGetResponse(JToken response)
+		{
+			JToken result = response.SelectToken("result");
+			if (result == null || !result.HasValues)
+				return;
+
+			string nameToken = (string)result.SelectToken("Name");
+
+			if (string.IsNullOrEmpty(nameToken))
+				return;
+
+			INamedComponent component;
+
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				if (!m_NamedComponents.TryGetValue(nameToken, out component))
+					return;
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+
+			JToken controls = result.SelectToken("Controls");
+			if (!controls.HasValues)
+				return;
+
+			foreach (JToken control in controls)
+				component.ParseFeedback(control);
 		}
 
 		/// <summary>
@@ -761,12 +681,11 @@ namespace ICD.Connect.Audio.QSys
 	    private void ParseNamedControlGetResponse(JObject json)
 	    {
 	        JToken results = json.SelectToken("result");
-	        if (!results.HasValues)
+	        if (results == null || !results.HasValues)
 	            return;
-	        foreach (JToken result in results)
-	        {
-	            ParseNamedControlResponse(result);
-	        }
+
+			foreach (JToken result in results)
+				ParseNamedControlResponse(result);
 	    }
 
         /// <summary>
@@ -811,10 +730,12 @@ namespace ICD.Connect.Audio.QSys
 			Username = null;
 			Password = null;
 			m_ConfigPath = null;
+
 			DisposeLoadedControls();
-			SetPort(null);
 
 			m_NetworkProperties.Clear();
+
+			SetPort(null);
 		}
 
 		/// <summary>
@@ -828,7 +749,7 @@ namespace ICD.Connect.Audio.QSys
 			settings.Username = Username;
 			settings.Password = Password;
 			settings.Config = m_ConfigPath;
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 
 			settings.Copy(m_NetworkProperties);
 		}
@@ -848,20 +769,25 @@ namespace ICD.Connect.Audio.QSys
 
 			m_NetworkProperties.Copy(settings);
 
+			// Load the config
+			if (!string.IsNullOrEmpty(settings.Config))
+				LoadControls(settings.Config);
+
 			ISerialPort port = null;
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				}
 			}
 
-			SetPort(port);
-
-			// Load the config
-			if (!string.IsNullOrEmpty(settings.Config))
-				LoadControls(settings.Config);
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		#endregion
@@ -877,7 +803,7 @@ namespace ICD.Connect.Audio.QSys
 			base.BuildConsoleStatus(addRow);
 
 			addRow("Loaded Config", m_ConfigPath);
-			addRow("Connected", IsConnected);
+			addRow("Connected", m_ConnectionStateManager.IsConnected);
 			addRow("Initialized", Initialized);
 		}
 

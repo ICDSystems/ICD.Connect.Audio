@@ -32,7 +32,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 					return m_Values[index];
 
 				string message = string.Format("{0} has no item at index {1}", GetType().Name, index);
-				throw new IndexOutOfRangeException(message);
+				throw new ArgumentOutOfRangeException("index", message);
 			}
 		}
 
@@ -95,7 +95,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 		/// <returns></returns>
 		protected override bool CompareEquality(ArrayValue other)
 		{
-			return other.SequenceEqual(other, (a, b) => a.CompareEquality(b));
+			return other != null && other.SequenceEqual(other, (a, b) => a.CompareEquality(b));
 		}
 
 		#endregion

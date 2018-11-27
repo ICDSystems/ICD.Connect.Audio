@@ -65,7 +65,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			UnexpectedError,
 			AuthUserNotConfigured,
 			AuthPasswordNotConfigured,
-            InvalidNumber
+			InvalidNumber,
+			TempUnavailable
 		}
 
 		private static readonly Dictionary<string, eVoIpCallState> s_CallStateSerials =
@@ -121,8 +122,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				{"VOIP_PROMPT_UNEXPECTED_ERROR", eVoIpPrompt.UnexpectedError},
 				{"VOIP_PROMPT_AUTH_USER_NOT_CONFIGURED", eVoIpPrompt.AuthUserNotConfigured},
 				{"VOIP_PROMPT_AUTH_PASSWORD_NOT_CONFIGURED", eVoIpPrompt.AuthPasswordNotConfigured},
-                {"VOIP_PROMPT_INVALID_NUMBER", eVoIpPrompt.InvalidNumber}
-			}; 
+				{"VOIP_PROMPT_INVALID_NUMBER", eVoIpPrompt.InvalidNumber},
+				{"VOIP_PROMPT_TEMP_UNAVAILABLE", eVoIpPrompt.TempUnavailable}
+			};
 
 		private const string REDIAL_SERVICE = "redial";
 		private const string END_SERVICE = "end";
@@ -339,7 +341,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				Value cidValue = callState.GetValue<Value>("cid");
 				string[] cidSplit = cidValue.GetStringValues().ToArray();
 				// First portion is datetime
-				
+
 				// If length is greater than 0, CID info was parsed, so clear current info (sometimes no info is received)
 				if (cidSplit.Length > 0)
 				{

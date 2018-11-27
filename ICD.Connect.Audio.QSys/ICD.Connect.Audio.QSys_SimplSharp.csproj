@@ -1,4 +1,5 @@
-﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -67,6 +68,11 @@
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
+    <Compile Include="Controls\VoipComponentDialingDevice.cs" />
+    <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
+    <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\VoipNamedComponent.cs" />
     <Compile Include="QSysCoreRoutingControl.cs" />
     <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
     <Compile Include="CoreControls\AbstractCoreControl.cs" />
@@ -87,6 +93,7 @@
     <Compile Include="QSysCoreDeviceSettings.cs" />
     <Compile Include="Rpc\AbstractControlSetRpc.cs" />
     <Compile Include="Rpc\AbstractRpc.cs" />
+    <Compile Include="Rpc\ChangeGroupAddComponentControlRpc.cs" />
     <Compile Include="Rpc\ChangeGroupAddControlRpc.cs" />
     <Compile Include="Rpc\ChangeGroupAutoPollRpc.cs" />
     <Compile Include="Rpc\ChangeGroupDestroyRpc.cs" />
@@ -112,6 +119,14 @@
     <ProjectReference Include="..\..\ICD.Connect.API\ICD.Connect.API\ICD.Connect.API_SimplSharp.csproj">
       <Project>{727F5820-5A61-440D-8899-E454FE8238D7}</Project>
       <Name>ICD.Connect.API_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Calendaring\ICD.Connect.Calendaring\ICD.Connect.Calendaring_SimplSharp.csproj">
+      <Project>{3C084F11-8810-4B87-970C-F97E2905ACEB}</Project>
+      <Name>ICD.Connect.Calendaring_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Conferencing\ICD.Connect.Conferencing\ICD.Connect.Conferencing_SimplSharp.csproj">
+      <Project>{1CCA89DA-1F1C-4997-A94F-ABCE878BD6DE}</Project>
+      <Name>ICD.Connect.Conferencing_SimplSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_SimplSharp.csproj">
       <Project>{FD46A717-5836-4B73-ADD0-2706639DA8ED}</Project>

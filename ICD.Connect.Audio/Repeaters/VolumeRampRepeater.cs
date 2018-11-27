@@ -7,9 +7,9 @@ namespace ICD.Connect.Audio.Repeaters
 	/// VolumeRepeater allows for a virtual "button" to be held, raising a callback for
 	/// every repeat interval.
 	/// </summary>
-	public sealed class VolumeBasicRepeater : AbstactVolumeRepeater
+	public sealed class VolumeRampRepeater : AbstactVolumeRepeater
 	{
-		private IVolumeLevelBasicDeviceControl m_Control;
+		private IVolumeRampDeviceControl m_Control;
 
 		#region Constructor
 
@@ -18,14 +18,15 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumeBasicRepeater(int beforeRepeat, int betweenRepeat) : base(beforeRepeat, betweenRepeat)
+		public VolumeRampRepeater(long beforeRepeat, long betweenRepeat)
+			: base(beforeRepeat, betweenRepeat)
 		{
 		}
 
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~VolumeBasicRepeater()
+		~VolumeRampRepeater()
 		{
 			Dispose();
 		}
@@ -38,7 +39,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// Sets the control.
 		/// </summary>
 		/// <param name="control"></param>
-		public void SetControl(IVolumeLevelBasicDeviceControl control)
+		public void SetControl(IVolumeRampDeviceControl control)
 		{
 			m_Control = control;
 		}
@@ -47,11 +48,17 @@ namespace ICD.Connect.Audio.Repeaters
 
 		#region Private Methods
 
+		/// <summary>
+		/// Callback for the initial ramp increment.
+		/// </summary>
 		protected override void IncrementVolumeInitial()
 		{
 			IncrementVolume();
 		}
 
+		/// <summary>
+		/// Callback for each subsequent ramp increment.
+		/// </summary>
 		protected override void IncrementVolumeSubsequent()
 		{
 			IncrementVolume();
@@ -66,9 +73,9 @@ namespace ICD.Connect.Audio.Repeaters
 				throw new InvalidOperationException("Can't increment volume without control set");
 
 			if (Up)
-				m_Control.VolumeLevelIncrement();
+				m_Control.VolumeIncrement();
 			else
-				m_Control.VolumeLevelDecrement();
+				m_Control.VolumeDecrement();
 
 		}
 

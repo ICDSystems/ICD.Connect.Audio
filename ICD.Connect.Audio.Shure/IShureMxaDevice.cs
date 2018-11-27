@@ -1,9 +1,21 @@
-﻿using ICD.Connect.Devices;
+﻿using System;
+using ICD.Common.Utils.EventArguments;
+using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Shure
 {
 	public interface IShureMxaDevice : IDevice
 	{
+		/// <summary>
+		/// Raised when the mute button is pressed/released.
+		/// </summary>
+		event EventHandler<BoolEventArgs> OnMuteButtonStatusChanged; 
+
+		/// <summary>
+		/// Gets the mute button state.
+		/// </summary>
+		bool MuteButtonStatus { get; }
+
 		/// <summary>
 		/// Sets the brightness of the hardware LED.
 		/// </summary>
@@ -27,5 +39,18 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="color"></param>
 		void SetLedColor(eLedColor color);
+
+		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="brightness"></param>
+		void SetLedColor(eLedColor color, eLedBrightness brightness);
+
+		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		void TurnMeteringOn(uint milliseconds);
 	}
 }

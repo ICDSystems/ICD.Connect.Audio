@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Utils;
+using ICD.Common.Utils.EventArguments;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.EventArguments;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings;
+using ICD.Connect.Protocol.SerialBuffers;
 
 namespace ICD.Connect.Audio.Shure
 {
@@ -17,25 +21,67 @@ namespace ICD.Connect.Audio.Shure
 	{
 		private readonly SecureNetworkProperties m_NetworkProperties;
 
-		private ISerialPort m_Port;
+		/// <summary>
+		/// Raised when the mute button is pressed/released.
+		/// </summary>
+		public event EventHandler<BoolEventArgs> OnMuteButtonStatusChanged; 
 
-		#region Methods
+		private readonly ConnectionStateManager m_ConnectionStateManager;
+		private readonly ShureMxaSerialBuffer m_SerialBuffer;
+
+		private bool m_MuteButtonStatus;
 
 		/// <summary>
-		/// Sets the wrapped port for communication with the hardware.
+		/// Gets the mute button state.
 		/// </summary>
-		/// <param name="port"></param>
-		public void SetPort(ISerialPort port)
+		public bool MuteButtonStatus
 		{
-			if (port == m_Port)
-				return;
+			get { return m_MuteButtonStatus; }
+			private set
+			{
+				if (value == m_MuteButtonStatus)
+					return;
 
-			ConfigurePort(port);
+				m_MuteButtonStatus = value;
 
-			Unsubscribe(m_Port);
-			m_Port = port;
-			Subscribe(m_Port);
+				OnMuteButtonStatusChanged.Raise(this, new BoolEventArgs(m_MuteButtonStatus));
+			}
 		}
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		protected AbstractShureMxaDevice()
+		{
+			m_NetworkProperties = new SecureNetworkProperties();
+
+			m_SerialBuffer = new ShureMxaSerialBuffer();
+			Subscribe(m_SerialBuffer);
+
+			m_ConnectionStateManager = new ConnectionStateManager(this) {ConfigurePort = ConfigurePort};
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
+
+			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
+		}
+
+		/// <summary>
+		/// Release resources.
+		/// </summary>
+		protected override void DisposeFinal(bool disposing)
+		{
+			OnMuteButtonStatusChanged = null;
+
+			base.DisposeFinal(disposing);
+
+			Unsubscribe(m_SerialBuffer);
+
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.Dispose();
+		}
+
+		#region Methods
 
 		/// <summary>
 		/// Configures the given port for communication with the device.
@@ -56,7 +102,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="brightness"></param>
 		public void SetLedBrightness(eLedBrightness brightness)
 		{
-			Send(string.Format("< SET LED_BRIGHTNESS {0} >", (int)brightness));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_BRIGHTNESS",
+				Value = ((int)brightness).ToString()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -65,7 +118,14 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedMuteColor(eLedColor color)
 		{
-			Send(string.Format("< SET LED_COLOR_MUTED {0} >", color.ToString().ToUpper()));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_COLOR_MUTED",
+				Value = color.ToString().ToUpper()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -74,7 +134,30 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedUnmuteColor(eLedColor color)
 		{
-			Send(string.Format("< SET LED_COLOR_UNMUTED {0} >", color.ToString().ToUpper()));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "LED_COLOR_UNMUTED",
+				Value = color.ToString().ToUpper()
+			};
+
+			Send(command.Serialize());
+		}
+
+		/// <summary>
+		/// Turns Metering On.
+		/// </summary>
+		/// <param name="milliseconds"></param>
+		public void TurnMeteringOn(uint milliseconds)
+		{
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "METER_RATE",
+				Value = milliseconds.ToString()
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -88,12 +171,38 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		/// <summary>
+		/// Sets the color and brightness of the hardware LED.
+		/// </summary>
+		/// <param name="color"></param>
+		/// <param name="brightness"></param>
+		public void SetLedColor(eLedColor color, eLedBrightness brightness)
+		{
+			if (brightness == eLedBrightness.Disabled)
+			{
+				SetLedBrightness(brightness);
+				SetLedColor(color);
+			}
+			else
+			{
+				SetLedColor(color);
+				SetLedBrightness(brightness);
+			}
+		}
+
+		/// <summary>
 		/// Enables/disables LED flashing.
 		/// </summary>
 		/// <param name="on"></param>
 		public void SetLedFlash(bool on)
 		{
-			Send(string.Format("< SET FLASH {0} >", on ? "ON" : "OFF"));
+			ShureMxaSerialData command = new ShureMxaSerialData
+			{
+				Type = ShureMxaSerialData.SET,
+				Command = "FLASH",
+				Value = on ? "ON" : "OFF"
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -102,20 +211,10 @@ namespace ICD.Connect.Audio.Shure
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsOnline;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		protected AbstractShureMxaDevice()
-		{
-			m_NetworkProperties = new SecureNetworkProperties();
-
-			Controls.Add(new ShureMxaRouteSourceControl(this, 0));
-		}
 
 		/// <summary>
 		/// Sends the message to the device.
@@ -123,43 +222,85 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="message"></param>
 		private void Send(string message)
 		{
-			m_Port.Send(message + "\r\n");
+			m_ConnectionStateManager.Send(message + "\r\n");
 		}
 
 		#region Port Callbacks
-
-		/// <summary>
-		/// Subscribe to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-		}
 
 		/// <summary>
 		/// Called when the port online state changes.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
+		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
+		}
+
+		/// <summary>
+		/// Called when the port connection state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PortOnConnectionStatusChanged(object sender, BoolEventArgs e)
+		{
+			m_SerialBuffer.Clear();
+		}
+
+		/// <summary>
+		/// Called when we receive data from the device.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void PortOnSerialDataReceived(object sender, StringEventArgs e)
+		{
+			m_SerialBuffer.Enqueue(e.Data);
+		}
+
+		#endregion
+
+		#region Serial Buffer Callbacks
+
+		/// <summary>
+		/// Subscribe to the serial buffer events.
+		/// </summary>
+		/// <param name="serialBuffer"></param>
+		private void Subscribe(ISerialBuffer serialBuffer)
+		{
+			serialBuffer.OnCompletedSerial += SerialBufferOnCompletedSerial;
+		}
+
+		/// <summary>
+		/// Unsubscribe from the serial buffer events.
+		/// </summary>
+		/// <param name="serialBuffer"></param>
+		private void Unsubscribe(ISerialBuffer serialBuffer)
+		{
+			serialBuffer.OnCompletedSerial -= SerialBufferOnCompletedSerial;
+		}
+
+		/// <summary>
+		/// Called when we receive a complete message from the device.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="stringEventArgs"></param>
+		private void SerialBufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
+		{
+			ShureMxaSerialData response = ShureMxaSerialData.Deserialize(stringEventArgs.Data);
+
+			switch (response.Type)
+			{
+				case ShureMxaSerialData.REP:
+
+					switch (response.Command)
+					{
+						case "MUTE_BUTTON_STATUS":
+							MuteButtonStatus = response.Value == "ON";
+							break;
+					}
+
+					break;
+			}
 		}
 
 		#endregion
@@ -174,7 +315,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.CopySettingsFinal(settings);
 
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 
 			settings.Copy(m_NetworkProperties);
 		}
@@ -186,9 +327,9 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.ClearSettingsFinal();
 
-			SetPort(null);
-
 			m_NetworkProperties.Clear();
+
+			m_ConnectionStateManager.SetPort(null);
 		}
 
 		/// <summary>
@@ -206,12 +347,17 @@ namespace ICD.Connect.Audio.Shure
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+				}
 			}
 
-			SetPort(port);
+			m_ConnectionStateManager.SetPort(port);
 		}
 
 		#endregion
@@ -238,6 +384,7 @@ namespace ICD.Connect.Audio.Shure
 			yield return new GenericConsoleCommand<eLedColor>("SetLedMuteColor", "SetLedMuteColor " + colorEnumString, e => SetLedMuteColor(e));
 			yield return new GenericConsoleCommand<eLedColor>("SetLedUnmuteColor", "SetLedUnmuteColor " + colorEnumString, e => SetLedUnmuteColor(e));
 			yield return new GenericConsoleCommand<bool>("SetLedFlash", "SetLedFlash <true/false>", o => SetLedFlash(o));
+			yield return new GenericConsoleCommand<uint>("TurnMeteringOn", "TurnMeteringOn <uint>", o => TurnMeteringOn(o));
 		}
 
 		/// <summary>

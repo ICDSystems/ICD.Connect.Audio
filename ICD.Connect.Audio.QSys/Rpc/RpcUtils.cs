@@ -7,7 +7,7 @@
 	    internal const string RPCID_STATUS_GET = "Status";
 	    internal const string RPCID_NAMED_CONTROL_GET = "NamedControlGet";
 	    internal const string RPCID_NAMED_CONTROL_SET = "NamedControlSet";
-	    internal const string RPCID_NAMED_COMPONENT = "NamedComponent";
+	    internal const string RPCID_NAMED_COMPONENT_GET = "NamedComponentGet";
 	    internal const string RPCID_CHANGEGROUP_RESPONSE = "ChangeGroupResponse";
     }
 }

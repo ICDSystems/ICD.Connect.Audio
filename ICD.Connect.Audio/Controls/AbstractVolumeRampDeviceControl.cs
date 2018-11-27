@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using ICD.Common.Properties;
-using ICD.Common.Utils;
+﻿using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console;
@@ -11,86 +8,51 @@ using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Controls
 {
-	public abstract class AbstractVolumeLevelBasicDeviceControl<T> : AbstractDeviceControl<T>, IVolumeLevelBasicDeviceControl
+	public abstract class AbstractVolumeRampDeviceControl<T> : AbstractDeviceControl<T>, IVolumeRampDeviceControl
 		where T : IDeviceBase
 	{
-
 		#region Constants
+
 		/// <summary>
 		/// Default time before repeat for volume ramping operations
 		/// </summary>
-		private const int DEFAULT_REPEAT_BEFORE_TIME = 250;
+		protected const long DEFAULT_REPEAT_BEFORE_TIME = 250;
 
 		/// <summary>
 		/// Default time between repeats for volume ramping operations
 		/// </summary>
-		private const int DEFAULT_REPEAT_BETWEEN_TIME = 250;
+		protected const long DEFAULT_REPEAT_BETWEEN_TIME = 250;
 
-		/// <summary>
-		/// Tolerance for float comparisons
-		/// </summary>
-		private const float FLOAT_COMPARE_TOLERANCE = 0.00001F;
 		#endregion
 
-		#region Fields
 		/// <summary>
 		/// Repeater for volume ramping operaions
 		/// </summary>
-		private VolumeBasicRepeater m_Repeater;
-
-		/// <summary>
-		/// Used when creating/accessing/disposing repeater
-		/// </summary>
-		private readonly SafeCriticalSection m_RepeaterCriticalSection;
-
-		private int? m_RepeatBeforeTime;
-
-		private int? m_RepeatBetweenTime;
-
-		#endregion
+		private readonly VolumeRampRepeater m_Repeater;
 
 		#region Properties
 
 		/// <summary>
+		/// Gets the volume repeater for this instance.
+		/// </summary>
+		protected virtual IVolumeRepeater VolumeRepeater { get { return m_Repeater; } }
+
+		/// <summary>
 		/// Time from the press to the repeat
 		/// </summary>
-		[PublicAPI]
-		public virtual int RepeatBeforeTime
+		public long RepeatBeforeTime
 		{
-			get
-			{
-				if (m_RepeatBeforeTime != null)
-					return (int)m_RepeatBeforeTime;
-				return DEFAULT_REPEAT_BEFORE_TIME;
-			}
-			set
-			{
-				if (Math.Abs(value) > FLOAT_COMPARE_TOLERANCE)
-					m_RepeatBeforeTime = value;
-				else
-					m_RepeatBeforeTime = null;
-			}
+			get { return VolumeRepeater.BeforeRepeat; }
+			set { VolumeRepeater.BeforeRepeat = value; }
 		}
 
 		/// <summary>
 		/// Time between repeats
 		/// </summary>
-		[PublicAPI]
-		public virtual int RepeatBetweenTime
+		public long RepeatBetweenTime
 		{
-			get
-			{
-				if (m_RepeatBetweenTime != null)
-					return (int)m_RepeatBetweenTime;
-				return DEFAULT_REPEAT_BETWEEN_TIME;
-			}
-			set
-			{
-				if (Math.Abs(value) > FLOAT_COMPARE_TOLERANCE)
-					m_RepeatBetweenTime = value;
-				else
-					m_RepeatBetweenTime = null;
-			}
+			get { return VolumeRepeater.BetweenRepeat; }
+			set { VolumeRepeater.BetweenRepeat = value; }
 		}
 
 		#endregion
@@ -100,28 +62,30 @@ namespace ICD.Connect.Audio.Controls
 		/// </summary>
 		/// <param name="parent">Device this control belongs to</param>
 		/// <param name="id">Id of this control in the device</param>
-		protected AbstractVolumeLevelBasicDeviceControl(T parent, int id) : base(parent, id)
+		protected AbstractVolumeRampDeviceControl(T parent, int id)
+			: base(parent, id)
 		{
-			m_RepeaterCriticalSection = new SafeCriticalSection();
+			m_Repeater = new VolumeRampRepeater(DEFAULT_REPEAT_BEFORE_TIME, DEFAULT_REPEAT_BETWEEN_TIME);
+			m_Repeater.SetControl(this);
 		}
 
 		#region Methods
 
 		/// <summary>
-		/// Volume Level Increment
+		/// Default volume increment.
 		/// </summary>
-		public abstract void VolumeLevelIncrement();
+		public abstract void VolumeIncrement();
 
 		/// <summary>
-		/// Volume Level Decrement
+		/// Default volume increment.
 		/// </summary>
-		public abstract void VolumeLevelDecrement();
+		public abstract void VolumeDecrement();
 
 		/// <summary>
 		/// Starts a volume ramp up operation
 		/// VolumeLevelRampStop() must be called to stop the ramping
 		/// </summary>
-		public void VolumeLevelRampUp()
+		public void VolumeRampUp()
 		{
 			VolumeLevelRamp(true);
 		}
@@ -130,7 +94,7 @@ namespace ICD.Connect.Audio.Controls
 		/// Starts a volume ramp down operation
 		/// VolumeLevelRampStop() must be called to stop the ramping
 		/// </summary>
-		public void VolumeLevelRampDown()
+		public void VolumeRampDown()
 		{
 			VolumeLevelRamp(false);
 		}
@@ -138,21 +102,9 @@ namespace ICD.Connect.Audio.Controls
 		/// <summary>
 		/// Stops the volume ramp and disposes of the repeater timer
 		/// </summary>
-		public void VolumeLevelRampStop()
+		public virtual void VolumeRampStop()
 		{
-			m_RepeaterCriticalSection.Enter();
-			try
-			{
-				if (m_Repeater == null)
-					return;
-				m_Repeater.Release();
-				m_Repeater.Dispose();
-				m_Repeater = null;
-			}
-			finally
-			{
-				m_RepeaterCriticalSection.Leave();
-			}
+			m_Repeater.Release();
 		}
 
 		#endregion
@@ -165,23 +117,7 @@ namespace ICD.Connect.Audio.Controls
 		/// <param name="up">true for up ramp, false for down ramp</param>
 		private void VolumeLevelRamp(bool up)
 		{
-			m_RepeaterCriticalSection.Enter();
-			try
-			{
-				if (m_Repeater == null)
-				{
-					m_Repeater = new VolumeBasicRepeater(RepeatBeforeTime, RepeatBetweenTime);
-					m_Repeater.SetControl(this);
-				}
-				else
-					m_Repeater.Release();
-
-				m_Repeater.VolumeHold(up);
-			}
-			finally
-			{
-				m_RepeaterCriticalSection.Leave();
-			}
+			VolumeRepeater.VolumeHold(up);
 		}
 
 		#endregion
@@ -197,7 +133,7 @@ namespace ICD.Connect.Audio.Controls
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
 
-			foreach (IConsoleNodeBase node in VolumeLevelBasicDeviceControlConsole.GetConsoleNodes(this))
+			foreach (IConsoleNodeBase node in VolumeRampDeviceControlConsole.GetConsoleNodes(this))
 				yield return node;
 		}
 
@@ -218,7 +154,7 @@ namespace ICD.Connect.Audio.Controls
 		{
 			base.BuildConsoleStatus(addRow);
 
-			VolumeLevelBasicDeviceControlConsole.BuildConsoleStatus(this, addRow);
+			VolumeRampDeviceControlConsole.BuildConsoleStatus(this, addRow);
 		}
 
 		/// <summary>
@@ -230,7 +166,7 @@ namespace ICD.Connect.Audio.Controls
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
 				yield return command;
 
-			foreach (IConsoleCommand command in VolumeLevelBasicDeviceControlConsole.GetConsoleCommands(this))
+			foreach (IConsoleCommand command in VolumeRampDeviceControlConsole.GetConsoleCommands(this))
 				yield return command;
 		}
 

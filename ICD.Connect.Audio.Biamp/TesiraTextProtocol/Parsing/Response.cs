@@ -33,6 +33,12 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 				{GENERAL_FAILURE, eResponseType.GeneralFailure}
 			};
 
+		private static readonly char[] s_OpenTokens =
+		{
+			'"',
+			'{'
+		};
+
 		private readonly eResponseType m_ResponseType;
 		private readonly string m_Message;
 		private readonly ControlValue m_Values;
@@ -89,7 +95,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing
 			string remaining = data.Substring(key.Length);
 
 			// Look for the first quote or open bracket
-			int index = remaining.IndexOfAny(new []{'"', '{'});
+			int index = remaining.IndexOfAny(s_OpenTokens);
 			if (index == -1)
 				return new Response(responseType, remaining.Trim(), new ControlValue());
 

@@ -6,14 +6,14 @@ using ICD.Connect.Audio.Controls;
 
 namespace ICD.Connect.Audio.Console
 {
-	public static class VolumeRawLevelDeviceControlConsole
+	public static class VolumePositionDeviceControlConsole
 	{
 		/// <summary>
 		/// Gets the child console nodes.
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumeRawLevelDeviceControl instance)
+		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumePositionDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
@@ -26,13 +26,13 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <param name="addRow"></param>
-		public static void BuildConsoleStatus(IVolumeRawLevelDeviceControl instance, AddStatusRowDelegate addRow)
+		public static void BuildConsoleStatus(IVolumePositionDeviceControl instance, AddStatusRowDelegate addRow)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			addRow("Volume Raw Max Range", instance.VolumeRawMaxRange);
-			addRow("Volume Raw Min Range", instance.VolumeRawMinRange);
+			addRow("VolumePosition", instance.VolumePosition);
+			addRow("VolumeString", instance.VolumeString);
 		}
 
 		/// <summary>
@@ -40,12 +40,12 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumeRawLevelDeviceControl instance)
+		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumePositionDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			yield break;
+			yield return new GenericConsoleCommand<float>("SetVolumePosition", "SetVolumePosition <Position>", v => instance.SetVolumePosition(v));
 		}
 	}
 }

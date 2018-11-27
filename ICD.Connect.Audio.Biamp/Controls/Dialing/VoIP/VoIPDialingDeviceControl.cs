@@ -7,7 +7,9 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Controls.State;
+using ICD.Connect.Calendaring.Booking;
 using ICD.Connect.Conferencing.ConferenceSources;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Common.Properties;
 
@@ -104,6 +106,33 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		}
 
 		/// <summary>
+		/// Returns the level of support the dialer has for the given booking.
+		/// </summary>
+		/// <param name="bookingNumber"></param>
+		/// <returns></returns>
+		public override eBookingSupport CanDial(IBookingNumber bookingNumber)
+		{
+			var potsBooking = bookingNumber as IPstnBookingNumber;
+			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return eBookingSupport.Supported;
+
+			return eBookingSupport.Unsupported;
+		}
+
+		/// <summary>
+		/// Dials the given booking.
+		/// </summary>
+		/// <param name="bookingNumber"></param>
+		public override void Dial(IBookingNumber bookingNumber)
+		{
+			var potsBooking = bookingNumber as IPstnBookingNumber;
+			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return;
+
+			Dial(potsBooking.PhoneNumber);
+		}
+
+		/// <summary>
 		/// Sets the auto-answer enabled state.
 		/// </summary>
 		/// <param name="enabled"></param>
@@ -128,11 +157,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			eConferenceSourceStatus status = VoIpCallStateToSourceStatus(callAppearance.State);
 
-			source.Name = string.IsNullOrEmpty(callAppearance.CallerName)
-				              ? callAppearance.CallerNumber
-				              : callAppearance.CallerName;
-			source.Number = callAppearance.CallerNumber;
+			if (!string.IsNullOrEmpty(callAppearance.CallerName))
+				source.Name = callAppearance.CallerName;
+
+			if (!string.IsNullOrEmpty(callAppearance.CallerNumber))
+				source.Number = callAppearance.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = VoIpCallStateToDirection(callAppearance.State);
@@ -186,6 +218,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			m_AppearanceSourcesSection.Enter();
 
 			ThinConferenceSource source = GetSource(index);
+
+			if (source != null)
+			{
+				VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
+				UpdateSource(source, callAppearance);
+			}
 
 			try
 			{
@@ -241,7 +279,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				source = new ThinConferenceSource();
+				source = new ThinConferenceSource {SourceType = eConferenceSourceType.Audio};
 
 				Subscribe(source);
 
@@ -385,6 +423,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void Subscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
 			source.SendDtmfCallback += SendDtmfCallback;
@@ -398,6 +437,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void Unsubscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback = null;
+			source.RejectCallback = null;
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
 			source.SendDtmfCallback = null;
@@ -407,21 +447,28 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void AnswerCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Answer();
 		}
 
 		private void HoldCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Hold();
+		}
+
+		private void RejectCallback(ThinConferenceSource sender)
+		{
+			int index;
+			if (TryGetCallAppearance(sender, out index))
+				m_Line.GetCallAppearance(index).End();
 		}
 
 		private void ResumeCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
@@ -434,7 +481,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void HangupCallback(ThinConferenceSource sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender as ThinConferenceSource, out index))
+			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 

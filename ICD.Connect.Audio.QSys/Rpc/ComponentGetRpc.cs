@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 
 namespace ICD.Connect.Audio.QSys.Rpc
@@ -29,14 +30,26 @@ namespace ICD.Connect.Audio.QSys.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
+		public override string Id { get { return RpcUtils.RPCID_NAMED_COMPONENT_GET; }}
+
 		public string Name { get; set; }
 
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public ComponentGetRpc()
+		public ComponentGetRpc(string componentName, string control)
 		{
-			m_Controls = new List<string>();
+			Name = componentName;
+			m_Controls = new List<string>{control};
+		}
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		public ComponentGetRpc(string componentName, IEnumerable<string> controls)
+		{
+			Name = componentName;
+			m_Controls = controls.ToList();
 		}
 
 		/// <summary>
@@ -62,6 +75,7 @@ namespace ICD.Connect.Audio.QSys.Rpc
 			writer.WriteValue(Name);
 
 			// Controls
+			writer.WritePropertyName(CONTROLS_PROPERTY);
 			writer.WriteStartArray();
 			{
 				foreach (string control in m_Controls)

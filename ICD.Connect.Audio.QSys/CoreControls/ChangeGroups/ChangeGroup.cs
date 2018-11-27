@@ -4,6 +4,7 @@ using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Xml;
+using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Rpc;
 
@@ -11,11 +12,13 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 {
 	public sealed class ChangeGroup : AbstractCoreControl, IChangeGroup
 	{
-
-		private const float DEFAULT_POLL_INTERVAL = (float).2;
+		private const float DEFAULT_POLL_INTERVAL = 0.5f;
 
 	    private readonly SafeCriticalSection m_NamedControlCriticalSection;
 	    private readonly List<INamedControl> m_NamedControls;
+
+		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
+		private readonly Dictionary<INamedComponent, List<INamedComponentControl>> m_NamedComponents;
 
 		public string ChangeGroupId { get; private set; }
 
@@ -33,6 +36,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 		{
 			m_NamedControlCriticalSection = new SafeCriticalSection();
 			m_NamedControls = new List<INamedControl>();
+
+			m_NamedComponentsCriticalSection = new SafeCriticalSection();
+			m_NamedComponents = new Dictionary<INamedComponent, List<INamedComponentControl>>();
 
 			ChangeGroupId = XmlUtils.GetAttributeAsString(xml, "changeGroupId");
 			try
@@ -56,6 +62,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 		{
 			m_NamedControlCriticalSection = new SafeCriticalSection();
 			m_NamedControls = new List<INamedControl>();
+
+			m_NamedComponentsCriticalSection = new SafeCriticalSection();
+			m_NamedComponents = new Dictionary<INamedComponent, List<INamedComponentControl>>();
 
 			ChangeGroupId = changeGroupId;
 			PollInterval = DEFAULT_POLL_INTERVAL;
@@ -103,6 +112,35 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 
 	    }
 
+		public void AddNamedComponent(INamedComponent component)
+		{
+			AddNamedComponent(component, component.GetControls());
+		}
+
+		public void AddNamedComponent(INamedComponent component, IEnumerable<INamedComponentControl> controls)
+		{
+			IList<INamedComponentControl> controlsList = controls as IList<INamedComponentControl> ?? controls.ToArray();
+
+			m_NamedComponentsCriticalSection.Enter();
+			try
+			{
+				// If component isn't in dict, add it
+				if (!m_NamedComponents.ContainsKey(component))
+					m_NamedComponents[component] = new List<INamedComponentControl>();
+
+				// Add controls to component
+				m_NamedComponents[component].AddRange(controlsList);
+
+			}
+			finally
+			{
+				m_NamedComponentsCriticalSection.Leave();
+			}
+
+			// Send subscribe to Core
+			SendData(new ChangeGroupAddComponentControlRpc(this, component, controlsList).Serialize());
+		}
+
 		public IEnumerable<INamedControl> GetControls()
 	    {
 			List<INamedControl> controls;
@@ -133,8 +171,24 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 
 	    public void Initialize()
 	    {
+			// Send Named Controls
 		    SendData(new ChangeGroupAddControlRpc(this, GetControls()).Serialize());
-			SendData(new ChangeGroupAutoPollRpc(this).Serialize());
+
+			// Send Named Components
+			m_NamedComponentsCriticalSection.Enter();
+		    try
+		    {
+			    foreach (KeyValuePair<INamedComponent, List<INamedComponentControl>> kvp in m_NamedComponents)
+					SendData(new ChangeGroupAddComponentControlRpc(this, kvp.Key, kvp.Value).Serialize());
+
+		    }
+		    finally
+		    {
+			    m_NamedComponentsCriticalSection.Leave();
+		    }
+
+			// Setup Auto-Polling
+		    SendData(new ChangeGroupAutoPollRpc(this).Serialize());
 			SendData(new ChangeGroupPollRpc(this).Serialize());
 	    }
 

@@ -10,7 +10,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
     /// </summary>
 	public abstract class AbstractCoreControl : IConsoleNode, IStateDisposable, IQSysCoreControl
     {
-	    private readonly QSysCoreDevice m_Core;
+	   private readonly QSysCoreDevice m_Core;
 
 	    private readonly string m_Name;
 
@@ -59,7 +59,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 	    /// Gets the child console nodes.
 	    /// </summary>
 	    /// <returns></returns>
-	    public IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+	    public virtual IEnumerable<IConsoleNodeBase> GetConsoleNodes()
 	    {
 		    yield break;
 	    }

@@ -54,11 +54,7 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <returns></returns>
 		bool ICode.CompareEquality(ICode other)
 		{
-			if (other == null)
-				return false;
-
-			T otherT = other as T;
-			return otherT != null && CompareEquality(otherT);
+			return CompareEquality(other as T);
 		}
 
 		/// <summary>
@@ -68,19 +64,24 @@ namespace ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes
 		/// <returns></returns>
 		public virtual bool CompareEquality(T other)
 		{
-			if (InstanceTag != other.InstanceTag)
+			if (other == null)
 				return false;
 
-			if (!Indices.SequenceEqual(other.Indices))
+			if (m_InstanceTag != other.m_InstanceTag)
 				return false;
 
-			if (Value == null && other.Value == null)
-				return true;
-			if (Value == null)
-				return false;
-			if (other.Value == null)
-				return false;
-			return Value.CompareEquality(other.Value);
+			if (m_Value == null)
+			{
+				if (other.m_Value != null)
+					return false;
+			}
+			else
+			{
+				if (!m_Value.CompareEquality(other.m_Value))
+					return false;
+			}
+
+			return m_Indices.SequenceEqual(other.m_Indices);
 		}
 	}
 }

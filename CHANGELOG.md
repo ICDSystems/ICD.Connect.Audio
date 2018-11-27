@@ -6,6 +6,85 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [8.2.0] - 2018-11-20
+### Added
+ - Added missing enum for Biamp Tesira VOIP prompt
+
+### Changed
+ - Fixed bad validation that was breaking Biamp Tesira feedback
+ - Fixed typo in QSys configuration parsing
+ - Improved Biamp Tesira POTS call performance
+ - Fixed potential memory leak in Biamp Tesira feedback subscription
+
+## [8.1.0] - 2018-11-08
+### Added
+ - Added Misc project and BiColorMicButton device
+
+## [8.0.0] - 2018-10-30
+### Added
+ - Added DenonAVR project and device driver
+
+### Changed
+ - Small optimizations to TesiraTextProtocol deserialization
+ - Fixed potential multi-enumeration
+ - Fixed loading issues where devices would not fail gracefully if a port was missing
+
+## [7.0.0] - 2018-10-18
+### Added
+ - Dialers support booking dialing
+
+### Changed
+ - Biamp now sets call appearance properly when adding/removing sources
+ - MXA310 Format Exception bug fix. Fixed regex for Sample response types.
+
+## [6.1.0] - 2018-10-04
+### Added
+ - Added shim for setting ShureMXA LED brightness and colour at the same time
+ 
+### Changed
+ - MockAudioDeviceVolumeControl better implements new volume control features
+
+## [6.0.0] - 2018-09-25
+### Added
+ - Positional volume ramping
+
+### Changed
+ - Untangled volume control inheritance
+
+## [5.4.0] - 2018-09-14
+### Added
+ - MXA microphones report mute button state
+
+### Changed
+ - Significant optimizations
+
+## [5.3.0] - 2018-07-19
+### Changed
+ - No longer choking completely when a control loads with partially valid data
+ - QSys Core named controls query initial values on initialization
+ - ThinConferenceSource SourceType must now be specified
+
+## [5.2.1] - 2018-07-02
+### Changed
+ - Potential fix for bug where Biamp calls would lose caller information
+
+## [5.2.0] - 2018-06-19
+### Added
+ - Added distinct call reject method
+
+### Changed
+ - Using new conferencing interfaces
+ - QSys feedback improvements on reconnect
+
+## [5.1.0] - 2018-06-04
+### Changed
+ - Fixed bug that was preventing Biamp Tesira devices from loading
+ - Serial devices use ConnectionStateManager for maintaining connection to remote endpoints
+
+## [5.0.0] - 2018-05-24
+### Added
+ - QSys Core VoIP dialer implementation
+
 ## [4.0.0] - 2018-05-09
 ### Added
  - Added ICD.Connect.Audio.Mock project

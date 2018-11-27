@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.Timers;
+﻿using ICD.Common.Utils.Timers;
 
 namespace ICD.Connect.Audio.Repeaters
 {
@@ -7,14 +6,21 @@ namespace ICD.Connect.Audio.Repeaters
 	/// VolumeRepeater allows for a virtual "button" to be held, raising a callback for
 	/// every repeat interval.
 	/// </summary>
-	public abstract class AbstactVolumeRepeater : IDisposable
+	public abstract class AbstactVolumeRepeater : IVolumeRepeater
 	{
 		private readonly SafeTimer m_RepeatTimer;
 
-		private readonly int m_BeforeRepeat;
-		private readonly int m_BetweenRepeat;
-
 		protected bool Up { get; private set; }
+
+		/// <summary>
+		/// Gets/sets amount of time in milliseconds before the initial ramp.
+		/// </summary>
+		public long BeforeRepeat { get; set; }
+
+		/// <summary>
+		/// Gets/sets the amount of time in milliseconds between every subsequent ramp.
+		/// </summary>
+		public long BetweenRepeat { get; set; }
 
 		#region Constructor
 
@@ -23,11 +29,12 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		protected AbstactVolumeRepeater(int beforeRepeat, int betweenRepeat)
+		protected AbstactVolumeRepeater(long beforeRepeat, long betweenRepeat)
 		{
-			m_RepeatTimer = SafeTimer.Stopped(RepeatCallback);
-			m_BeforeRepeat = beforeRepeat;
-			m_BetweenRepeat = betweenRepeat;
+			m_RepeatTimer = SafeTimer.Stopped(IncrementVolumeSubsequent);
+
+			BeforeRepeat = beforeRepeat;
+			BetweenRepeat = betweenRepeat;
 		}
 
 		/// <summary>
@@ -49,7 +56,6 @@ namespace ICD.Connect.Audio.Repeaters
 		{
 			m_RepeatTimer.Dispose();
 		}
-
 
 		/// <summary>
 		/// Begin incrementing the volume.
@@ -82,7 +88,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <summary>
 		/// Stops the repeat timer.
 		/// </summary>
-		public void Release()
+		public virtual void Release()
 		{
 			m_RepeatTimer.Stop();
 		}
@@ -101,22 +107,17 @@ namespace ICD.Connect.Audio.Repeaters
 
 			IncrementVolumeInitial();
 
-			m_RepeatTimer.Reset(m_BeforeRepeat, m_BetweenRepeat);
+			m_RepeatTimer.Reset(BeforeRepeat, BetweenRepeat);
 		}
 
 		/// <summary>
-		/// Called for every repeat.
-		/// </summary>
-		private void RepeatCallback()
-		{
-			IncrementVolumeSubsequent();
-		}
-
-		/// <summary>
-		/// Adjusts the device volume.
+		/// Callback for the initial ramp increment.
 		/// </summary>
 		protected abstract void IncrementVolumeInitial();
 
+		/// <summary>
+		/// Callback for each subsequent ramp increment.
+		/// </summary>
 		protected abstract void IncrementVolumeSubsequent();
 
 		#endregion

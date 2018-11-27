@@ -9,7 +9,9 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
+using ICD.Connect.Calendaring.Booking;
 using ICD.Connect.Conferencing.ConferenceSources;
+using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
@@ -114,6 +116,33 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		}
 
 		/// <summary>
+		/// Returns the level of support the dialer has for the given booking.
+		/// </summary>
+		/// <param name="bookingNumber"></param>
+		/// <returns></returns>
+		public override eBookingSupport CanDial(IBookingNumber bookingNumber)
+		{
+			var potsBooking = bookingNumber as IPstnBookingNumber;
+			if (potsBooking != null && !string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return eBookingSupport.Supported;
+
+			return eBookingSupport.Unsupported;
+		}
+
+		/// <summary>
+		/// Dials the given booking.
+		/// </summary>
+		/// <param name="bookingNumber"></param>
+		public override void Dial(IBookingNumber bookingNumber)
+		{
+			var potsBooking = bookingNumber as IPstnBookingNumber;
+			if (potsBooking == null || string.IsNullOrEmpty(potsBooking.PhoneNumber))
+				return;
+
+			Dial(potsBooking.PhoneNumber);
+		}
+
+		/// <summary>
 		/// Sets the auto-answer enabled state.
 		/// </summary>
 		/// <param name="enabled"></param>
@@ -171,11 +200,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			if (IsOnline(status) && IsOnHold)
 				status = eConferenceSourceStatus.OnHold;
 
-			source.Name = string.IsNullOrEmpty(m_TiControl.CallerName)
-							  ? m_TiControl.CallerNumber
-							  : m_TiControl.CallerName;
-			source.Number = m_TiControl.CallerNumber;
+			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
+				source.Name = m_TiControl.CallerName;
+
+			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				source.Number = m_TiControl.CallerNumber;
+
 			source.Status = status;
+			source.Name = source.Name ?? source.Number;
 
 			// Assume the call is outgoing unless we discover otherwise.
 			eConferenceSourceDirection direction = TiControlStateToDirection(m_TiControl.State);
@@ -266,7 +298,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				case TiControlStatusBlock.eTiCallState.Dialing:
 					return eConferenceSourceStatus.Dialing;
 
-				case TiControlStatusBlock.eTiCallState.RingBack:
 				case TiControlStatusBlock.eTiCallState.Ringing:
 					return eConferenceSourceStatus.Ringing;
 
@@ -277,6 +308,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				case TiControlStatusBlock.eTiCallState.Connected:
 				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+				case TiControlStatusBlock.eTiCallState.RingBack:
 					return eConferenceSourceStatus.Connected;
 
 				default:
@@ -374,7 +406,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			{
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinConferenceSource();
+				m_ActiveSource = new ThinConferenceSource { SourceType = eConferenceSourceType.Audio };
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties
@@ -429,6 +461,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Subscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback += AnswerCallback;
+			source.RejectCallback += RejectCallback;
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
 			source.SendDtmfCallback += SendDtmfCallback;
@@ -442,6 +475,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private void Unsubscribe(ThinConferenceSource source)
 		{
 			source.AnswerCallback = null;
+			source.RejectCallback = null;
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
 			source.SendDtmfCallback = null;
@@ -473,7 +507,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			// Ends the active call.
 			m_TiControl.End();
+		}
 
+		private void RejectCallback(ThinConferenceSource sender)
+		{
 			// Rejects the incoming call.
 			SetHold(true);
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);

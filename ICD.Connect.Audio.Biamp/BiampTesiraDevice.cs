@@ -19,11 +19,10 @@ using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
 using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
-using ICD.Connect.Devices.EventArguments;
+using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
-using ICD.Connect.Protocol.Heartbeat;
 using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
@@ -33,7 +32,7 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>, IConnectable
+	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>
 	{
 		// How often to re-subscribe to device events
 		private const long SUBSCRIPTION_INTERVAL_MILLISECONDS = 10 * 60 * 1000;
@@ -53,21 +52,16 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnInitializedChanged;
 
-		/// <summary>
-		/// Raised when the device becomes connected or disconnected.
-		/// </summary>
-		public event EventHandler<BoolEventArgs> OnConnectedStateChanged;
-
 		private readonly Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>> m_SubscriptionCallbacks;
 		private readonly SafeCriticalSection m_SubscriptionCallbacksSection;
 
 		private readonly SafeTimer m_SubscriptionTimer;
 		private readonly SafeTimer m_InitializationTimer;
 
-		private ISerialPort m_Port;
 		private readonly BiampTesiraSerialQueue m_SerialQueue;
 
-		private bool m_IsConnected;
+		private readonly ConnectionStateManager m_ConnectionStateManager;
+
 		private bool m_Initialized;
 
 		private readonly AttributeInterfaceFactory m_AttributeInterfaces;
@@ -97,28 +91,6 @@ namespace ICD.Connect.Audio.Biamp
 				OnInitializedChanged.Raise(this, new BoolEventArgs(m_Initialized));
 			}
 		}
-
-		/// <summary>
-		/// Returns true when the device is connected.
-		/// </summary>
-		[PublicAPI]
-		public bool IsConnected
-		{
-			get { return m_IsConnected; }
-			private set
-			{
-				if (value == m_IsConnected)
-					return;
-
-				m_IsConnected = value;
-
-				UpdateCachedOnlineStatus();
-
-				OnConnectedStateChanged.Raise(this, new BoolEventArgs(m_IsConnected));
-			}
-		}
-
-		public Heartbeat Heartbeat { get; private set; }
 
 		/// <summary>
 		/// Provides features for lazy loading attribute interface blocks and services.
@@ -154,7 +126,10 @@ namespace ICD.Connect.Audio.Biamp
 			Subscribe(m_SerialQueue);
 
 			m_AttributeInterfaces = new AttributeInterfaceFactory(this);
-			Heartbeat = new Heartbeat(this);
+			
+			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
+			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 		}
 
 		#region Methods
@@ -165,79 +140,22 @@ namespace ICD.Connect.Audio.Biamp
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnInitializedChanged = null;
-			OnConnectedStateChanged = null;
 
 			Unsubscribe(m_SerialQueue);
-			Unsubscribe(m_Port);
 
-			Heartbeat.Dispose();
+			m_ConnectionStateManager.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
+			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+			m_ConnectionStateManager.Dispose();
 
 			base.DisposeFinal(disposing);
 
 			m_AttributeInterfaces.Dispose();
 		}
 
-		/// <summary>
-		/// Connect to the device.
-		/// </summary>
-		[PublicAPI]
-		public void Connect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to connect, port is null");
-				return;
-			}
-
-			m_Port.Connect();
-			IsConnected = m_Port.IsConnected;
-
-			if (IsConnected)
-				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
-		}
-
-		/// <summary>
-		/// Disconnect from the device.
-		/// </summary>
-		[PublicAPI]
-		public void Disconnect()
-		{
-			if (m_Port == null)
-			{
-				Log(eSeverity.Critical, "Unable to disconnect, port is null");
-				return;
-			}
-
-			m_Port.Disconnect();
-			IsConnected = m_Port.IsConnected;
-		}
-
-		/// <summary>
-		/// Sets the port for communicating with the device.
-		/// </summary>
-		/// <param name="port"></param>
-		[PublicAPI]
 		public void SetPort(ISerialPort port)
 		{
-			if (port == m_Port)
-				return;
-
-			ConfigurePort(port);
-
-			if (m_Port != null)
-				Disconnect();
-
-			Unsubscribe(m_Port);
-
-			m_Port = port;
-			m_SerialQueue.SetPort(m_Port);
-
-			Subscribe(m_Port);
-
-			if (m_Port != null)
-				Heartbeat.StartMonitoring();
-
-			UpdateCachedOnlineStatus();
+			m_ConnectionStateManager.SetPort(port);
+			m_SerialQueue.SetPort(port);
 		}
 
 		/// <summary>
@@ -318,12 +236,15 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				if (!m_SubscriptionCallbacks.ContainsKey(key))
-					m_SubscriptionCallbacks[key] = new IcdHashSet<SubscriptionCallbackInfo>();
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
+					infos = new IcdHashSet<SubscriptionCallbackInfo>();
+					m_SubscriptionCallbacks[key] = infos;
+				}
 
-				if (!m_SubscriptionCallbacks[key].Any(s => s.Callback == callback &&
-				                                           s.Code.CompareEquality(code)))
-					m_SubscriptionCallbacks[key].Add(info);
+				if (!infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+					infos.Add(info);
 			}
 			finally
 			{
@@ -349,18 +270,20 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				if (m_SubscriptionCallbacks.ContainsKey(key))
-				{
-					SubscriptionCallbackInfo remove =
-						m_SubscriptionCallbacks[key].FirstOrDefault(s => s.Callback == callback &&
-						                                                 s.Code.CompareEquality(code));
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+					return;
 
-					if (remove != null)
-						m_SubscriptionCallbacks[key].Remove(remove);
+				SubscriptionCallbackInfo remove = infos.FirstOrDefault(s => s.Callback == callback && s.Code.CompareEquality(code));
+				if (remove == null)
+					return;
 
-					if (m_SubscriptionCallbacks[key].Count == 0)
-						m_SubscriptionCallbacks.Remove(key);
-				}
+				infos.Remove(remove);
+
+				if (infos.Count == 0)
+					m_SubscriptionCallbacks.Remove(key);
+				else
+					return;
 			}
 			finally
 			{
@@ -368,7 +291,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			// Don't bother trying to unsubscribe from the device if we aren't connected.
-			if (!m_IsConnected)
+			if (!m_ConnectionStateManager.IsConnected)
 				return;
 
 			SendData(callback, code);
@@ -379,26 +302,14 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		private void SubscriptionTimerCallback()
 		{
-			SubscriptionCallbackInfo[] subscriptions;
+			if (!m_ConnectionStateManager.IsConnected)
+				return;
 
-			m_SubscriptionCallbacksSection.Enter();
-
-			try
-			{
-				subscriptions = m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray();
-			}
-			finally
-			{
-				m_SubscriptionCallbacksSection.Leave();
-			}
+			SubscriptionCallbackInfo[] subscriptions =
+				m_SubscriptionCallbacksSection.Execute(() => m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray());
 
 			foreach (SubscriptionCallbackInfo subscription in subscriptions)
-			{
-				if (!m_IsConnected)
-					return;
-
 				SendData(subscription.Callback, subscription.Code);
-			}
 		}
 
 		#endregion
@@ -421,18 +332,6 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="data"></param>
 		internal void SendData(SubscriptionCallback callback, ICode data)
 		{
-			if (!IsConnected)
-			{
-				Log(eSeverity.Warning, "Device disconnected, attempting reconnect");
-				Connect();
-			}
-
-			if (!IsConnected)
-			{
-				Log(eSeverity.Critical, "Unable to communicate with device");
-				return;
-			}
-
 			CodeCallbackPair pair = new CodeCallbackPair(data, callback);
 			m_SerialQueue.Enqueue(pair, (a, b) => a.Code.CompareEquality(b.Code));
 		}
@@ -447,7 +346,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			return m_Port != null && m_Port.IsConnected;
+			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
 		/// <summary>
@@ -474,43 +373,15 @@ namespace ICD.Connect.Audio.Biamp
 		#region Port Callbacks
 
 		/// <summary>
-		/// Subscribes to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged += PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
-		/// Unsubscribe from the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Unsubscribe(ISerialPort port)
-		{
-			if (port == null)
-				return;
-
-			port.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-		}
-
-		/// <summary>
 		/// Called when the port connection status changes.
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
 		private void PortOnConnectionStatusChanged(object sender, BoolEventArgs args)
 		{
-			IsConnected = args.Data;
-
-			if (IsConnected)
+			if (args.Data)
 			{
-				m_SubscriptionTimer.Reset(SUBSCRIPTION_INTERVAL_MILLISECONDS, SUBSCRIPTION_INTERVAL_MILLISECONDS);
+				m_SubscriptionTimer.Reset(0, SUBSCRIPTION_INTERVAL_MILLISECONDS);
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 			else
@@ -529,7 +400,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
+		private void PortOnIsOnlineStateChanged(object sender, BoolEventArgs args)
 		{
 			UpdateCachedOnlineStatus();
 		}
@@ -727,6 +598,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_Config = null;
 			DisposeLoadedControls();
+
 			SetPort(null);
 
 			m_NetworkProperties.Clear();
@@ -742,7 +614,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.CopySettingsFinal(settings);
 
 			settings.Config = m_Config;
-			settings.Port = m_Port == null ? (int?)null : m_Port.Id;
+			settings.Port = m_ConnectionStateManager.PortNumber;
 
 			settings.Copy(m_NetworkProperties);
 			settings.Copy(m_ComSpecProperties);
@@ -768,9 +640,14 @@ namespace ICD.Connect.Audio.Biamp
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
 					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				}
 			}
 
 			SetPort(port);
@@ -789,7 +666,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.BuildConsoleStatus(addRow);
 
 			addRow("Loaded Config", m_Config);
-			addRow("Connected", IsConnected);
+			addRow("Connected", m_ConnectionStateManager.IsConnected);
 			addRow("Initialized", Initialized);
 		}
 

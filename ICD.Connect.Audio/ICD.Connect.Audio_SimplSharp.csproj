@@ -1,4 +1,5 @@
-﻿<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="3.5" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -62,23 +63,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Console\VolumeDeviceControlConsole.cs" />
-    <Compile Include="Console\VolumeLevelBasicDeviceControlConsole.cs" />
-    <Compile Include="Console\VolumeLevelDeviceControlConsole.cs" />
+    <Compile Include="Console\VolumeRampDeviceControlConsole.cs" />
+    <Compile Include="Console\VolumePositionDeviceControlConsole.cs" />
     <Compile Include="Console\VolumeMuteBasicDeviceControlConsole.cs" />
     <Compile Include="Console\VolumeMuteDeviceControlConsole.cs" />
     <Compile Include="Console\VolumeMuteFeedbackDeviceControlConsole.cs" />
-    <Compile Include="Console\VolumeRawLevelDeviceControlConsole.cs" />
-    <Compile Include="Controls\AbstractVolumeLevelBasicDeviceControl.cs" />
+    <Compile Include="Console\VolumeLevelDeviceControlConsole.cs" />
+    <Compile Include="Controls\AbstractVolumeRampDeviceControl.cs" />
+    <Compile Include="Controls\AbstractVolumePositionDeviceControl.cs" />
     <Compile Include="Controls\AbstractVolumeLevelDeviceControl.cs" />
-    <Compile Include="Controls\AbstractVolumeRawLevelDeviceControl.cs" />
     <Compile Include="Controls\IVolumeDeviceControl.cs" />
-    <Compile Include="Controls\IVolumeLevelBasicDeviceControl.cs" />
-    <Compile Include="Controls\IVolumeLevelDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeRampDeviceControl.cs" />
+    <Compile Include="Controls\IVolumePositionDeviceControl.cs" />
     <Compile Include="Proxies\Controls\VolumeMuteBasicDeviceControlApi.cs" />
     <Compile Include="Controls\IVolumeMuteBasicDeviceControl.cs" />
     <Compile Include="Controls\IVolumeMuteDeviceControl.cs" />
     <Compile Include="Controls\IVolumeMuteFeedbackDeviceControl.cs" />
-    <Compile Include="Controls\IVolumeRawLevelDeviceControl.cs" />
+    <Compile Include="Controls\IVolumeLevelDeviceControl.cs" />
     <Compile Include="EventArguments\VolumeDeviceVolumeChangedEventArgs.cs" />
     <Compile Include="Devices\GenericAmpDevice.cs" />
     <Compile Include="Devices\GenericAmpDeviceSettings.cs" />
@@ -87,14 +88,17 @@
     <Compile Include="KrangPlugin.cs" />
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Proxies\Controls\VolumeLevelBasicDeviceControlApi.cs" />
+    <Compile Include="Proxies\Controls\VolumeRampDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\VolumeLevelDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\VolumeMuteDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\VolumeMuteFeedbackDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\VolumeRawLevelDeviceControlApi.cs" />
     <Compile Include="Repeaters\AbstactVolumeRepeater.cs" />
-    <Compile Include="Repeaters\VolumeBasicRepeater.cs" />
-    <Compile Include="Repeaters\VolumeRepeater.cs" />
+    <Compile Include="Repeaters\VolumePositionRepeater.cs" />
+    <Compile Include="Repeaters\IVolumeRepeater.cs" />
+    <Compile Include="Repeaters\VolumeRampRepeater.cs" />
+    <Compile Include="Repeaters\VolumeLevelRepeater.cs" />
+    <Compile Include="Utils\VolumeUtils.cs" />
     <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
     <Compile Include="VolumePoints\IVolumePoint.cs" />
@@ -123,6 +127,10 @@
     <ProjectReference Include="..\..\ICD.Connect.Settings\ICD.Connect.Settings\ICD.Connect.Settings_SimplSharp.csproj">
       <Project>{5B84EB3C-1C3A-4C4D-98C2-69F67CF51D5A}</Project>
       <Name>ICD.Connect.Settings_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Telemetry\ICD.Connect.Telemetry\ICD.Connect.Telemetry_SimplSharp.csproj">
+      <Project>{9512C0A5-F966-4AC6-9668-62C6F343B0CD}</Project>
+      <Name>ICD.Connect.Telemetry_SimplSharp</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
