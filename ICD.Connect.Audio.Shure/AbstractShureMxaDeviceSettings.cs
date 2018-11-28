@@ -49,6 +49,14 @@ namespace ICD.Connect.Audio.Shure
 			set { m_NetworkProperties.NetworkPort = value; }
 		}
 
+		/// <summary>
+		/// Clears the configured values.
+		/// </summary>
+		void INetworkProperties.Clear()
+		{
+			m_NetworkProperties.Clear();
+		}
+
 		#endregion
 
 		/// <summary>
