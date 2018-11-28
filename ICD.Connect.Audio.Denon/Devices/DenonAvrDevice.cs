@@ -18,6 +18,18 @@ namespace ICD.Connect.Audio.Denon.Devices
 	{
 		public delegate void ResponseCallback(DenonAvrDevice device, DenonSerialData response);
 
+		private static readonly ComSpec s_DefaultComSpec = new ComSpec
+		{
+			BaudRate = eComBaudRates.ComspecBaudRate9600,
+			NumberOfDataBits = eComDataBits.ComspecDataBits8,
+			ParityType = eComParityType.ComspecParityNone,
+			NumberOfStopBits = eComStopBits.ComspecStopBits1,
+			ProtocolType = eComProtocolType.ComspecProtocolRS232,
+			HardwareHandShake = eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
+			SoftwareHandshake = eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
+			ReportCtsChanges = false
+		};
+
 		/// <summary>
 		/// Raised when the class initializes.
 		/// </summary>
@@ -156,14 +168,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		[PublicAPI]
 		public static void ConfigureComPort(IComPort port)
 		{
-			port.SetComPortSpec(eComBaudRates.ComspecBaudRate9600,
-								eComDataBits.ComspecDataBits8,
-								eComParityType.ComspecParityNone,
-								eComStopBits.ComspecStopBits1,
-								eComProtocolType.ComspecProtocolRS232,
-								eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-								eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-								false);
+			port.SetComPortSpec(s_DefaultComSpec);
 		}
 
 		#endregion
