@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console;
@@ -146,6 +147,8 @@ namespace ICD.Connect.Audio.Controls
 
 		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition, string volumeString)
 		{
+			Log(eSeverity.Informational, "Volume changed: Level={0} Position={1} Name={2}", volumeRaw, volumePosition, volumeString);
+
 			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(volumeRaw, volumePosition, volumeString));
 		}
 
