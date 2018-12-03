@@ -6,8 +6,9 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Console;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Console.Mute;
+using ICD.Connect.Audio.Controls.Mute;
+using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.Denon.Devices;
 
 namespace ICD.Connect.Audio.Denon.Controls

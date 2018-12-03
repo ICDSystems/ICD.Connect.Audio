@@ -1,6 +1,6 @@
 ﻿using System;
 using ICD.Connect.API.EventArguments;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Volume;
 
 namespace ICD.Connect.Audio.EventArguments
 {

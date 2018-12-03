@@ -1,9 +1,9 @@
 ﻿using System;
 using ICD.Connect.API.Attributes;
 using ICD.Connect.Audio.EventArguments;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Volume;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Volume
 {
 	/// <summary>
 	/// IVolumeLevelDeviceControl is for devices that have more advanced volume control

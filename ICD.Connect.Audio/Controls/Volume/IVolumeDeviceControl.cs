@@ -1,6 +1,7 @@
-﻿using ICD.Connect.Devices.Controls;
+﻿using ICD.Connect.Audio.Controls.Mute;
+using ICD.Connect.Devices.Controls;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Volume
 {
 	/// <summary>
 	/// This interface just acts as a roll-up for <see cref="IVolumeRampDeviceControl"/> and <see cref="IVolumeMuteBasicDeviceControl"/>

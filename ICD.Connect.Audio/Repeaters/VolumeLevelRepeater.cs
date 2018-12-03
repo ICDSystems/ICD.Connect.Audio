@@ -1,5 +1,5 @@
 ﻿using System;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Volume;
 
 namespace ICD.Connect.Audio.Repeaters
 {

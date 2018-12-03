@@ -1,7 +1,7 @@
 ﻿using ICD.Connect.API.Attributes;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Mute;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Mute
 {
 	/// <summary>
 	/// IVolumeMuteDeviceControl is for devices that offer both toggle and direct set for mute state

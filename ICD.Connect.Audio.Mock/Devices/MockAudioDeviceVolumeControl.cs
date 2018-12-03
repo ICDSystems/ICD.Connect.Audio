@@ -3,7 +3,8 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Mute;
+using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Mock.Devices
