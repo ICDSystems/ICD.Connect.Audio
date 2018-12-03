@@ -69,6 +69,7 @@
     <Compile Include="Console\VolumeMuteDeviceControlConsole.cs" />
     <Compile Include="Console\VolumeMuteFeedbackDeviceControlConsole.cs" />
     <Compile Include="Console\VolumeLevelDeviceControlConsole.cs" />
+    <Compile Include="Controls\AbstractVolumeDeviceControl.cs" />
     <Compile Include="Controls\AbstractVolumeRampDeviceControl.cs" />
     <Compile Include="Controls\AbstractVolumePositionDeviceControl.cs" />
     <Compile Include="Controls\AbstractVolumeLevelDeviceControl.cs" />
