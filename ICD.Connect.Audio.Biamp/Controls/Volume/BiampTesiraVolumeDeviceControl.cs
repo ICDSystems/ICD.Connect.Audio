@@ -2,7 +2,8 @@
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Mute;
+using ICD.Connect.Audio.Controls.Volume;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {

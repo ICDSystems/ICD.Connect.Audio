@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Volume;
 
-namespace ICD.Connect.Audio.Console
+namespace ICD.Connect.Audio.Console.Volume
 {
-	public static class VolumeMuteDeviceControlConsole
+	public static class VolumeDeviceControlConsole
 	{
 		/// <summary>
 		/// Gets the child console nodes.
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumeMuteDeviceControl instance)
+		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumeDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
@@ -26,7 +26,7 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <param name="addRow"></param>
-		public static void BuildConsoleStatus(IVolumeMuteDeviceControl instance, AddStatusRowDelegate addRow)
+		public static void BuildConsoleStatus(IVolumeDeviceControl instance, AddStatusRowDelegate addRow)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
@@ -37,13 +37,12 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumeMuteDeviceControl instance)
+		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumeDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			yield return
-				new GenericConsoleCommand<bool>("SetVolumeMute", "Sets the current mute state.", m => instance.SetVolumeMute(m));
+			yield break;
 		}
 	}
 }

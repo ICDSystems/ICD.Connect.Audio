@@ -1,9 +1,9 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.API.Attributes;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Mute;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Mute
 {
 	/// <summary>
 	/// IVolumeMuteFeedbackDeviceControl is for devices that offer mute state control and feedback

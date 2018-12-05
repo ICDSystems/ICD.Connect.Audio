@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Mute;
 
-namespace ICD.Connect.Audio.Console
+namespace ICD.Connect.Audio.Console.Mute
 {
 	public static class VolumeMuteFeedbackDeviceControlConsole
 	{

@@ -1,7 +1,8 @@
 ﻿using ICD.Connect.API.Attributes;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Controls.Volume;
+using ICD.Connect.Audio.Proxies.Controls.Mute;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Mute
 {
 	public interface IVolumeMuteBasicDeviceControl : IVolumeDeviceControl
 	{

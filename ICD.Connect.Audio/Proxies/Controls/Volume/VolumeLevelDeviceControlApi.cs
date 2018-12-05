@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio.Proxies.Controls
+﻿namespace ICD.Connect.Audio.Proxies.Controls.Volume
 {
 	public static class VolumeLevelDeviceControlApi
 	{

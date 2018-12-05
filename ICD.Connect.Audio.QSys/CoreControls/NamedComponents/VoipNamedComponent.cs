@@ -12,7 +12,6 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 	/// </summary>
 	public sealed class VoipNamedComponent : AbstractNamedComponent
 	{
-
 		public const string CONTROL_CALL_NUMBER = "call.number";
 		public const string CONTROL_CALL_STATUS = "call.status";
 		public const string CONTROL_CALL_AUTOANSWER = "call.autoanswer";
@@ -149,7 +148,5 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 		public override string ConsoleName { get { return String.Format("VoIPComponent:{0}", Name); } }
 
 		#endregion
-
-
 	}
 }
