@@ -386,7 +386,6 @@ namespace ICD.Connect.Audio.Biamp
 			{
 				m_SubscriptionTimer.Stop();
 				m_InitializationTimer.Stop();
-				m_SerialQueue.Clear();
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
