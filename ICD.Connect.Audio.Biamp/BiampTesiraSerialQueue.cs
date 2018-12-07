@@ -23,7 +23,7 @@ namespace ICD.Connect.Audio.Biamp
 	///		Mixer4 get outputLevel
 	///		+OK "value":0.000000
 	/// 
-	///		MIxer4 subscribe outputLevel
+	///		Mixer4 subscribe outputLevel
 	///		-ERR address not found: {"deviceId":0 "classCode":0 "instanceNum":0}
 	/// 
 	///		Mixer4 subscribe outputLevel
