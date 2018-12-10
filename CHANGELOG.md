@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Moved controls into subdirectories/namespaces
  - Inserted AbstractVolumeDeviceControl into volume control heirarchy
+ - Biamp doesn't clear queue on port disconnect (queue already does itself)
 
 ## [8.2.0] - 2018-11-20
 ### Added
