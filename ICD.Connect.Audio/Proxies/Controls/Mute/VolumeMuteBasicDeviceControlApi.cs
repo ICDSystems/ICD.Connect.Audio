@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio.Proxies.Controls
+﻿namespace ICD.Connect.Audio.Proxies.Controls.Mute
 {
 	public static class VolumeMuteBasicDeviceControlApi
 	{

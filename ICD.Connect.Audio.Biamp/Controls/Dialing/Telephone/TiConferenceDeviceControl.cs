@@ -283,7 +283,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				case TiControlStatusBlock.eTiCallState.Dialing:
 					return eParticipantStatus.Dialing;
 
-				case TiControlStatusBlock.eTiCallState.RingBack:
 				case TiControlStatusBlock.eTiCallState.Ringing:
 					return eParticipantStatus.Ringing;
 
@@ -294,6 +293,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				case TiControlStatusBlock.eTiCallState.Connected:
 				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+				case TiControlStatusBlock.eTiCallState.RingBack:
 					return eParticipantStatus.Connected;
 
 				default:

@@ -1,10 +1,10 @@
 ﻿using System;
 using ICD.Common.Utils;
 using ICD.Connect.API.Attributes;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Volume;
 using ICD.Connect.Audio.Utils;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Volume
 {
 	/// <summary>
 	/// IVolumeRawLevelDeviceControl is for devices that offer raw volume feedback and not position

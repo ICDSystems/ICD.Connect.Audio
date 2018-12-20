@@ -6,7 +6,23 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Added
+ - Added microphone control interface and abstraction
+ - Added Volume Feedback Log
+ 
+### Changed
+ - Moved controls into subdirectories/namespaces
+ - Inserted AbstractVolumeDeviceControl into volume control heirarchy
+ - Biamp doesn't clear queue on port disconnect (queue already does itself)
+
+## [8.2.0] - 2018-11-20
+### Added
  - Added missing enum for Biamp Tesira VOIP prompt
+
+### Changed
+ - Fixed bad validation that was breaking Biamp Tesira feedback
+ - Fixed typo in QSys configuration parsing
+ - Improved Biamp Tesira POTS call performance
+ - Fixed potential memory leak in Biamp Tesira feedback subscription
 
 ## [8.1.0] - 2018-11-08
 ### Added

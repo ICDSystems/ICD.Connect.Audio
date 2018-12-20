@@ -1,14 +1,13 @@
 ﻿using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Console;
+using ICD.Connect.Audio.Console.Volume;
 using ICD.Connect.Audio.Repeaters;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Volume
 {
-	public abstract class AbstractVolumeRampDeviceControl<T> : AbstractDeviceControl<T>, IVolumeRampDeviceControl
+	public abstract class AbstractVolumeRampDeviceControl<T> : AbstractVolumeDeviceControl<T>, IVolumeRampDeviceControl
 		where T : IDeviceBase
 	{
 		#region Constants

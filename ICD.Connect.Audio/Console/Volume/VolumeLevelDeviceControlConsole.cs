@@ -2,18 +2,18 @@
 using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls;
+using ICD.Connect.Audio.Controls.Volume;
 
-namespace ICD.Connect.Audio.Console
+namespace ICD.Connect.Audio.Console.Volume
 {
-	public static class VolumeMuteBasicDeviceControlConsole
+	public static class VolumeLevelDeviceControlConsole
 	{
 		/// <summary>
 		/// Gets the child console nodes.
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumeMuteBasicDeviceControl instance)
+		public static IEnumerable<IConsoleNodeBase> GetConsoleNodes(IVolumeLevelDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
@@ -26,10 +26,14 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <param name="addRow"></param>
-		public static void BuildConsoleStatus(IVolumeMuteBasicDeviceControl instance, AddStatusRowDelegate addRow)
+		public static void BuildConsoleStatus(IVolumeLevelDeviceControl instance, AddStatusRowDelegate addRow)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
+
+			addRow("Volume Raw", instance.VolumeLevel);
+			addRow("Volume Raw Max Range", instance.VolumeLevelMaxRange);
+			addRow("Volume Raw Min Range", instance.VolumeLevelMinRange);
 		}
 
 		/// <summary>
@@ -37,12 +41,12 @@ namespace ICD.Connect.Audio.Console
 		/// </summary>
 		/// <param name="instance"></param>
 		/// <returns></returns>
-		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumeMuteBasicDeviceControl instance)
+		public static IEnumerable<IConsoleCommand> GetConsoleCommands(IVolumeLevelDeviceControl instance)
 		{
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			yield return new ConsoleCommand("VolumeMuteToggle", "Toggles the current mute state.", () => instance.VolumeMuteToggle());
+			yield return new GenericConsoleCommand<float>("SetVolumeRaw", "SetVolumeRaw <RAW>", r => instance.SetVolumeLevel(r));
 		}
 	}
 }

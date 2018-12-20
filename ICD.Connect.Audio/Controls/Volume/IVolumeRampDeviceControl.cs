@@ -1,7 +1,7 @@
 ﻿using ICD.Connect.API.Attributes;
-using ICD.Connect.Audio.Proxies.Controls;
+using ICD.Connect.Audio.Proxies.Controls.Volume;
 
-namespace ICD.Connect.Audio.Controls
+namespace ICD.Connect.Audio.Controls.Volume
 {
 	/// <summary>
 	/// Basic volume control for devices
