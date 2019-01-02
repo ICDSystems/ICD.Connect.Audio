@@ -4,5 +4,5 @@ using System.Reflection;
 [assembly: AssemblyCompany("ICD Systems")]
 [assembly: AssemblyProduct("ICD.Connect.Audio.Misc")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2018")]
-[assembly: AssemblyVersion("8.2.0.0")]
+[assembly: AssemblyVersion("9.0.0.0")]
 
