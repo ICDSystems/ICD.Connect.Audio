@@ -161,7 +161,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedControls
 			{
 				changeGroupId = XmlUtils.GetAttributeAsInt(xml, "changeGroup");
 			}
-			catch (FormatException e)
+			catch (FormatException)
 			{
 			}
 
