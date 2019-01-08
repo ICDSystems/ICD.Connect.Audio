@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -324,9 +325,14 @@ namespace ICD.Connect.Audio.Denon.Devices
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
-					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
+					Log(eSeverity.Error, "No serial port with id {0}", settings.Port);
+				}
 			}
 
 			SetPort(port);
