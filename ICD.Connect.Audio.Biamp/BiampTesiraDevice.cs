@@ -600,8 +600,8 @@ namespace ICD.Connect.Audio.Biamp
 
 			SetPort(null);
 
-			m_NetworkProperties.Clear();
-			m_ComSpecProperties.Clear();
+			m_NetworkProperties.ClearNetworkProperties();
+			m_ComSpecProperties.ClearComSpecProperties();
 		}
 
 		/// <summary>

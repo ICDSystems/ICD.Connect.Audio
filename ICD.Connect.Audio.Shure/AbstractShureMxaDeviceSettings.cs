@@ -52,9 +52,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <summary>
 		/// Clears the configured values.
 		/// </summary>
-		void INetworkProperties.Clear()
+		void INetworkProperties.ClearNetworkProperties()
 		{
-			m_NetworkProperties.Clear();
+			m_NetworkProperties.ClearNetworkProperties();
 		}
 
 		#endregion

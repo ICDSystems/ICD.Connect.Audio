@@ -327,7 +327,7 @@ namespace ICD.Connect.Audio.Shure
 		{
 			base.ClearSettingsFinal();
 
-			m_NetworkProperties.Clear();
+			m_NetworkProperties.ClearNetworkProperties();
 
 			m_ConnectionStateManager.SetPort(null);
 		}

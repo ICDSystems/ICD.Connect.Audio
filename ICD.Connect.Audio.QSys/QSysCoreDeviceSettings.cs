@@ -103,9 +103,9 @@ namespace ICD.Connect.Audio.QSys
 		/// <summary>
 		/// Clears the configured values.
 		/// </summary>
-		void INetworkProperties.Clear()
+		void INetworkProperties.ClearNetworkProperties()
 		{
-			m_NetworkProperties.Clear();
+			m_NetworkProperties.ClearNetworkProperties();
 		}
 
 		#endregion

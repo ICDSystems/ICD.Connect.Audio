@@ -733,7 +733,7 @@ namespace ICD.Connect.Audio.QSys
 
 			DisposeLoadedControls();
 
-			m_NetworkProperties.Clear();
+			m_NetworkProperties.ClearNetworkProperties();
 
 			SetPort(null);
 		}
