@@ -75,6 +75,12 @@ namespace ICD.Connect.Audio.Biamp
 		#region Properties
 
 		/// <summary>
+		/// Username for logging in to the device.
+		/// </summary>
+		[PublicAPI]
+		public string Username { get; set; }
+
+		/// <summary>
 		/// Device Initialized Status.
 		/// </summary>
 		[PublicAPI]
@@ -596,6 +602,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.ClearSettingsFinal();
 
 			m_Config = null;
+			Username = null;
 			DisposeLoadedControls();
 
 			SetPort(null);
@@ -613,6 +620,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.CopySettingsFinal(settings);
 
 			settings.Config = m_Config;
+			settings.Username = Username;
 			settings.Port = m_ConnectionStateManager.PortNumber;
 
 			settings.Copy(m_NetworkProperties);
@@ -630,6 +638,8 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_NetworkProperties.Copy(settings);
 			m_ComSpecProperties.Copy(settings);
+
+			Username = settings.Username;
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))

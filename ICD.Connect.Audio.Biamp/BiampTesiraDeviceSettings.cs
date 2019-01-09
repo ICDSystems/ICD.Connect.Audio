@@ -13,6 +13,7 @@ namespace ICD.Connect.Audio.Biamp
 	public sealed class BiampTesiraDeviceSettings : AbstractDeviceSettings, ISecureNetworkSettings, IComSpecSettings
 	{
 		private const string PORT_ELEMENT = "Port";
+		private const string USERNAME_ELEMENT = "Username";
 		private const string CONFIG_ELEMENT = "Config";
 
 		private const ushort DEFAULT_NETWORK_PORT = 23;
@@ -23,6 +24,7 @@ namespace ICD.Connect.Audio.Biamp
 		private readonly SecureNetworkProperties m_NetworkProperties;
 		private readonly ComSpecProperties m_ComSpecProperties;
 
+		private string m_UserName;
 		private string m_ConfigPath;
 
 		#region Properties
@@ -43,6 +45,17 @@ namespace ICD.Connect.Audio.Biamp
 				return m_ConfigPath;
 			}
 			set { m_ConfigPath = value; }
+		}
+
+		public string Username
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(m_UserName))
+					m_UserName = DEFAULT_USERNAME;
+				return m_UserName;
+			}
+			set { m_UserName = value; }
 		}
 
 		#endregion
@@ -192,6 +205,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.WriteElements(writer);
 
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
+			writer.WriteElementString(USERNAME_ELEMENT, Username);
 			writer.WriteElementString(CONFIG_ELEMENT, Config);
 
 			m_NetworkProperties.WriteElements(writer);
@@ -207,6 +221,7 @@ namespace ICD.Connect.Audio.Biamp
 			base.ParseXml(xml);
 
 			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
+			Username = XmlUtils.TryReadChildElementContentAsString(xml, USERNAME_ELEMENT);
 			Config = XmlUtils.TryReadChildElementContentAsString(xml, CONFIG_ELEMENT);
 
 			m_NetworkProperties.ParseXml(xml);
