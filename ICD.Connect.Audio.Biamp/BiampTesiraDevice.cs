@@ -23,9 +23,12 @@ using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
-using ICD.Connect.Settings.Core;
+using ICD.Connect.Protocol.Settings;
+using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Biamp
 {
@@ -66,6 +69,8 @@ namespace ICD.Connect.Audio.Biamp
 		// Used with settings
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
+		private readonly SecureNetworkProperties m_NetworkProperties;
+		private readonly ComSpecProperties m_ComSpecProperties;
 
 		#region Properties
 
@@ -106,6 +111,9 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		public BiampTesiraDevice()
 		{
+			m_NetworkProperties = new SecureNetworkProperties();
+			m_ComSpecProperties = new ComSpecProperties();
+
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
 			Controls.Add(new BiampTesiraRoutingControl(this, 0));
@@ -150,27 +158,27 @@ namespace ICD.Connect.Audio.Biamp
 			m_AttributeInterfaces.Dispose();
 		}
 
-		private void ConfigurePort(ISerialPort port)
+		public void SetPort(ISerialPort port)
 		{
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
+			m_ConnectionStateManager.SetPort(port);
+			m_SerialQueue.SetPort(port);
 		}
 
 		/// <summary>
-		/// Configures a com port for communication with the hardware.
+		/// Configures the given port for communication with the device.
 		/// </summary>
 		/// <param name="port"></param>
-		[PublicAPI]
-		public static void ConfigureComPort(IComPort port)
+		private void ConfigurePort(ISerialPort port)
 		{
-			port.SetComPortSpec(eComBaudRates.ComspecBaudRate115200,
-								eComDataBits.ComspecDataBits8,
-								eComParityType.ComspecParityNone,
-								eComStopBits.ComspecStopBits1,
-								eComProtocolType.ComspecProtocolRS232,
-								eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-								eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-								false);
+			// Com
+			if (port is IComPort)
+				(port as IComPort).ApplyDeviceConfiguration(m_ComSpecProperties);
+
+			// Network (TCP, UDP, SSH)
+			if (port is ISecureNetworkPort)
+				(port as ISecureNetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+			else if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -594,9 +602,13 @@ namespace ICD.Connect.Audio.Biamp
 			base.ClearSettingsFinal();
 
 			m_Config = null;
-			DisposeLoadedControls();
 			Username = null;
-			m_ConnectionStateManager.SetPort(null);
+			DisposeLoadedControls();
+
+			SetPort(null);
+
+			m_NetworkProperties.ClearNetworkProperties();
+			m_ComSpecProperties.ClearComSpecProperties();
 		}
 
 		/// <summary>
@@ -610,6 +622,9 @@ namespace ICD.Connect.Audio.Biamp
 			settings.Config = m_Config;
 			settings.Username = Username;
 			settings.Port = m_ConnectionStateManager.PortNumber;
+
+			settings.Copy(m_NetworkProperties);
+			settings.Copy(m_ComSpecProperties);
 		}
 
 		/// <summary>
@@ -620,6 +635,9 @@ namespace ICD.Connect.Audio.Biamp
 		protected override void ApplySettingsFinal(BiampTesiraDeviceSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
+
+			m_NetworkProperties.Copy(settings);
+			m_ComSpecProperties.Copy(settings);
 
 			Username = settings.Username;
 
@@ -641,8 +659,7 @@ namespace ICD.Connect.Audio.Biamp
 				}
 			}
 
-			m_SerialQueue.SetPort(port);
-			m_ConnectionStateManager.SetPort(port);
+			SetPort(port);
 		}
 
 		#endregion

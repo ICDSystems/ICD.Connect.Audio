@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -7,10 +8,13 @@ using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
-using ICD.Connect.Settings.Core;
+using ICD.Connect.Protocol.Settings;
+using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Denon.Devices
 {
@@ -35,6 +39,9 @@ namespace ICD.Connect.Audio.Denon.Devices
 
 		private readonly ISerialBuffer m_SerialBuffer;
 		private readonly ConnectionStateManager m_ConnectionStateManager;
+
+		private readonly NetworkProperties m_NetworkProperties;
+		private readonly ComSpecProperties m_ComSpecProperties;
 
 		private bool m_IsConnected;
 		private bool m_Initialized;
@@ -86,6 +93,9 @@ namespace ICD.Connect.Audio.Denon.Devices
 		/// </summary>
 		public DenonAvrDevice()
 		{
+			m_NetworkProperties = new NetworkProperties();
+			m_ComSpecProperties = new ComSpecProperties();
+
 			m_SerialBuffer = new DelimiterSerialBuffer(DenonSerialData.DELIMITER);
 			Subscribe(m_SerialBuffer);
 
@@ -143,27 +153,19 @@ namespace ICD.Connect.Audio.Denon.Devices
 			m_ConnectionStateManager.SetPort(port);
 		}
 
-		public void ConfigurePort(ISerialPort port)
-		{
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-		}
-
 		/// <summary>
-		/// Configures a com port for communication with the hardware.
+		/// Configures the given port for communication with the device.
 		/// </summary>
 		/// <param name="port"></param>
-		[PublicAPI]
-		public static void ConfigureComPort(IComPort port)
+		private void ConfigurePort(ISerialPort port)
 		{
-			port.SetComPortSpec(eComBaudRates.ComspecBaudRate9600,
-								eComDataBits.ComspecDataBits8,
-								eComParityType.ComspecParityNone,
-								eComStopBits.ComspecStopBits1,
-								eComProtocolType.ComspecProtocolRS232,
-								eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-								eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-								false);
+			// Com
+			if (port is IComPort)
+				(port as IComPort).ApplyDeviceConfiguration(m_ComSpecProperties);
+
+			// TCP
+			if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
 		}
 
 		#endregion
@@ -287,6 +289,9 @@ namespace ICD.Connect.Audio.Denon.Devices
 		{
 			base.ClearSettingsFinal();
 
+			m_ComSpecProperties.ClearComSpecProperties();
+			m_NetworkProperties.ClearNetworkProperties();
+
 			SetPort(null);
 		}
 
@@ -299,6 +304,9 @@ namespace ICD.Connect.Audio.Denon.Devices
 			base.CopySettingsFinal(settings);
 
 			settings.Port = m_ConnectionStateManager.PortNumber;
+
+			settings.Copy(m_ComSpecProperties);
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -310,13 +318,21 @@ namespace ICD.Connect.Audio.Denon.Devices
 		{
 			base.ApplySettingsFinal(settings, factory);
 
+			m_ComSpecProperties.Copy(settings);
+			m_NetworkProperties.Copy(settings);
+
 			ISerialPort port = null;
 
 			if (settings.Port != null)
 			{
-				port = factory.GetPortById((int)settings.Port) as ISerialPort;
-				if (port == null)
-					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+				try
+				{
+					port = factory.GetPortById((int)settings.Port) as ISerialPort;
+				}
+				catch (KeyNotFoundException)
+				{
+					Log(eSeverity.Error, "No serial port with id {0}", settings.Port);
+				}
 			}
 
 			SetPort(port);
