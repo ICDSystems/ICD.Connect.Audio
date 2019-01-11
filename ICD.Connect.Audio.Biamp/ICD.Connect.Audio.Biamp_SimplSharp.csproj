@@ -187,8 +187,8 @@
     <Compile Include="BiampTesiraRoutingControl.cs" />
     <Compile Include="BiampTesiraSerialBuffer.cs" />
     <Compile Include="BiampTesiraSerialQueue.cs" />
-    <Compile Include="Controls\Dialing\AbstractBiampTesiraDialingDeviceControl.cs" />
-    <Compile Include="Controls\Dialing\IBiampTesiraDialingDeviceControl.cs" />
+    <Compile Include="Controls\Dialing\AbstractTraditionalBiampTesiraConferenceDeviceControl.cs" />
+    <Compile Include="Controls\Dialing\IBiampTesiraConferenceDeviceControl.cs" />
     <Compile Include="Controls\IBiampTesiraDeviceControl.cs" />
     <Compile Include="Controls\Partitioning\BiampTesiraPartitionDeviceControl.cs" />
     <Compile Include="Controls\State\AbstractBiampTesiraStateDeviceControl.cs" />
@@ -197,9 +197,9 @@
     <Compile Include="Controls\State\RoomCombinerRoomStateControl.cs" />
     <Compile Include="Controls\Volume\BiampTesiraVolumeDeviceControl.cs" />
     <Compile Include="Controls\Channel.cs" />
-    <Compile Include="Controls\Dialing\Telephone\TiDialingDeviceControl.cs" />
+    <Compile Include="Controls\Dialing\Telephone\TiConferenceDeviceControl.cs" />
     <Compile Include="Controls\ControlsXmlUtils.cs" />
-    <Compile Include="Controls\Dialing\VoIP\VoIPDialingDeviceControl.cs" />
+    <Compile Include="Controls\Dialing\VoIP\VoIpConferenceDeviceControl.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TesiraTextProtocol\Codes\AbstractCode.cs" />

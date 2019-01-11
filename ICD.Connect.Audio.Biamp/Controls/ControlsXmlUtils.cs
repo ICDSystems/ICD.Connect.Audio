@@ -204,7 +204,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <param name="cache"></param>
 		/// <returns></returns>
 		[CanBeNull]
-		private static IDialingDeviceControl LazyLoadDialingControl(int id, AttributeInterfaceFactory factory,
+		private static ITraditionalConferenceDeviceControl LazyLoadDialingControl(int id, AttributeInterfaceFactory factory,
 		                                                            Dictionary<int, string> controlElements,
 		                                                            Dictionary<int, IDeviceControl> cache)
 		{
@@ -245,14 +245,14 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			switch (type.ToLower())
 			{
 				case "voip":
-					return LazyLoadControl<VoIpDialingDeviceControl, VoIpControlStatusLine>
+					return LazyLoadControl<VoIpConferenceDeviceControl, VoIpControlStatusLine>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new VoIpDialingDeviceControl(id, name, attributeInterface,
+						                                      new VoIpConferenceDeviceControl(id, name, attributeInterface,
 						                                                                   doNotDisturbControl, privacyMuteControl));
 				case "ti":
-					return LazyLoadControl<TiDialingDeviceControl, TiControlStatusBlock>
+					return LazyLoadControl<TiConferenceDeviceControl, TiControlStatusBlock>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new TiDialingDeviceControl(id, name, attributeInterface, doNotDisturbControl,
+						                                      new TiConferenceDeviceControl(id, name, attributeInterface, doNotDisturbControl,
 						                                                                 privacyMuteControl, holdControl));
 
 				default:

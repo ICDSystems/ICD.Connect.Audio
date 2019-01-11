@@ -68,7 +68,7 @@
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
-    <Compile Include="Controls\VoipComponentDialingDevice.cs" />
+    <Compile Include="Controls\VoipComponentTraditionalConferenceDevice.cs" />
     <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
     <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />

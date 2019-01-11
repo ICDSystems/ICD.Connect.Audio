@@ -233,7 +233,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 				}
 				case "VoIPComponentControl":
 				{
-					return typeof(VoipComponentDialingDevice);
+					return typeof(VoipComponentTraditionalConferenceDeviceControl);
 				}
 				default:
 				{
