@@ -45,7 +45,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.ChangeGroups
 			{
 				PollInterval = float.Parse(XmlUtils.GetAttributeAsString(xml, "pollInterval"));
 			}
-			catch (FormatException e)
+			catch (FormatException)
 			{
 			}
 		}

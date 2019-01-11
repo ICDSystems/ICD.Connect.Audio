@@ -8,15 +8,19 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
+using ICD.Connect.Settings;
 using ICD.Connect.Protocol.SerialBuffers;
-using ICD.Connect.Settings.Core;
 
 namespace ICD.Connect.Audio.Shure
 {
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()
 	{
+		private readonly SecureNetworkProperties m_NetworkProperties;
+
 		/// <summary>
 		/// Raised when the mute button is pressed/released.
 		/// </summary>
@@ -49,10 +53,12 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		protected AbstractShureMxaDevice()
 		{
+			m_NetworkProperties = new SecureNetworkProperties();
+
 			m_SerialBuffer = new ShureMxaSerialBuffer();
 			Subscribe(m_SerialBuffer);
 
-			m_ConnectionStateManager = new ConnectionStateManager(this);
+			m_ConnectionStateManager = new ConnectionStateManager(this) {ConfigurePort = ConfigurePort};
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
@@ -76,6 +82,19 @@ namespace ICD.Connect.Audio.Shure
 		}
 
 		#region Methods
+
+		/// <summary>
+		/// Configures the given port for communication with the device.
+		/// </summary>
+		/// <param name="port"></param>
+		private void ConfigurePort(ISerialPort port)
+		{
+			// Network (TCP, UDP, SSH)
+			if (port is ISecureNetworkPort)
+				(port as ISecureNetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+			else if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+		}
 
 		/// <summary>
 		/// Sets the brightness of the hardware LED.
@@ -297,6 +316,8 @@ namespace ICD.Connect.Audio.Shure
 			base.CopySettingsFinal(settings);
 
 			settings.Port = m_ConnectionStateManager.PortNumber;
+
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -305,6 +326,8 @@ namespace ICD.Connect.Audio.Shure
 		protected override void ClearSettingsFinal()
 		{
 			base.ClearSettingsFinal();
+
+			m_NetworkProperties.ClearNetworkProperties();
 
 			m_ConnectionStateManager.SetPort(null);
 		}
@@ -317,6 +340,8 @@ namespace ICD.Connect.Audio.Shure
 		protected override void ApplySettingsFinal(TSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
+
+			m_NetworkProperties.Copy(settings);
 
 			ISerialPort port = null;
 

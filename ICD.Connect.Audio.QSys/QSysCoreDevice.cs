@@ -22,10 +22,11 @@ using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
-using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.SerialBuffers;
-using ICD.Connect.Settings.Core;
+using ICD.Connect.Settings;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys
@@ -79,7 +80,8 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		private string m_ConfigPath;
 
-		private readonly IcdHashSet<IDeviceControl> m_LoadedControls; 
+		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
+		private readonly SecureNetworkProperties m_NetworkProperties;
 
 		#region Properties
 
@@ -119,6 +121,7 @@ namespace ICD.Connect.Audio.QSys
 		/// </summary>
 		public QSysCoreDevice()
 		{
+			m_NetworkProperties = new SecureNetworkProperties();
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
 			Controls.Add(new QSysCoreRoutingControl(this, 0));
@@ -161,25 +164,29 @@ namespace ICD.Connect.Audio.QSys
 			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived -= PortOnSerialDataReceived;
 			m_ConnectionStateManager.Dispose();
-
-			base.DisposeFinal(disposing);
 		}
 
 		/// <summary>
-		/// Configures a com port for communication with the hardware.
+		/// Sets the port for communicating with the device.
 		/// </summary>
 		/// <param name="port"></param>
 		[PublicAPI]
-		public static void ConfigureComPort(IComPort port)
+		public void SetPort(ISerialPort port)
 		{
-			port.SetComPortSpec(eComBaudRates.ComspecBaudRate115200,
-			                    eComDataBits.ComspecDataBits8,
-			                    eComParityType.ComspecParityNone,
-			                    eComStopBits.ComspecStopBits1,
-			                    eComProtocolType.ComspecProtocolRS232,
-			                    eComHardwareHandshakeType.ComspecHardwareHandshakeNone,
-			                    eComSoftwareHandshakeType.ComspecSoftwareHandshakeNone,
-			                    false);
+			m_ConnectionStateManager.SetPort(port);
+		}
+
+		/// <summary>
+		/// Configures the given port for communication with the device.
+		/// </summary>
+		/// <param name="port"></param>
+		private void ConfigurePort(ISerialPort port)
+		{
+			// Network (TCP, UDP, SSH)
+			if (port is ISecureNetworkPort)
+				(port as ISecureNetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
+			else if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(m_NetworkProperties);
 		}
 
 		protected override void UpdateCachedOnlineStatus()
@@ -362,31 +369,6 @@ namespace ICD.Connect.Audio.QSys
 			m_ConnectionStateManager.Send(json);
 		}
 
-		/// <summary>
-		/// Logs the exception
-		/// </summary>
-		/// <param name="severity"></param>
-		/// <param name="exception"></param>
-		/// <param name="message"></param>
-		/// <param name="args"></param>
-		public void Log(eSeverity severity, Exception exception, string message, params object[] args)
-		{
-			message = string.Format(message, args);
-			message = AddLogPrefix(message);
-
-			Logger.AddEntry(severity, exception, message);
-		}
-
-		/// <summary>
-		/// Returns the log message with a LutronQuantumNwkDevice prefix.
-		/// </summary>
-		/// <param name="log"></param>
-		/// <returns></returns>
-		private string AddLogPrefix(string log)
-		{
-			return string.Format("{0} - {1}", this, log);
-		}
-
 		#endregion
 
 		#region Private Methods
@@ -494,16 +476,6 @@ namespace ICD.Connect.Audio.QSys
 		#endregion
 
 		#region Port Callbacks
-
-		private void ConfigurePort(ISerialPort port)
-		{
-			if (port is IComPort)
-				ConfigureComPort(port as IComPort);
-		}
-
-		#endregion
-
-        #region Port Callbacks
 
 		/// <summary>
 		/// Called when we receive data from the port.
@@ -761,7 +733,9 @@ namespace ICD.Connect.Audio.QSys
 
 			DisposeLoadedControls();
 
-			m_ConnectionStateManager.SetPort(null);
+			m_NetworkProperties.ClearNetworkProperties();
+
+			SetPort(null);
 		}
 
 		/// <summary>
@@ -776,6 +750,8 @@ namespace ICD.Connect.Audio.QSys
 			settings.Password = Password;
 			settings.Config = m_ConfigPath;
 			settings.Port = m_ConnectionStateManager.PortNumber;
+
+			settings.Copy(m_NetworkProperties);
 		}
 
 		/// <summary>
@@ -790,6 +766,8 @@ namespace ICD.Connect.Audio.QSys
 			Username = settings.Username;
 			Password = settings.Password;
 			m_ConfigPath = settings.Config;
+
+			m_NetworkProperties.Copy(settings);
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
