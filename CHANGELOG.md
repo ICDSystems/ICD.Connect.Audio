@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.0.0] - 2019-01-14
+### Changed
+ - Dialing features refactored to fit new conferencing interfaces
+
 ## [10.0.0] - 2019-01-10
 ### Added
  - Added port configuration features to audio devices
