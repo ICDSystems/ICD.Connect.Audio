@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -9,7 +8,6 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Controls.State;
-using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
@@ -53,7 +51,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				m_Hold = value;
 
-				Logger.AddEntry(eSeverity.Informational, "{0} hold state set to {1}", this, m_Hold);
+				Log(eSeverity.Informational, "Hold state set to {0}", m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}

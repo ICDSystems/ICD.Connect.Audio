@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
@@ -363,7 +362,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 				if (Participant != null)
 
 				IncomingCall = null;
-				Participant = new ThinTraditionalParticipant { SourceType = eCallType.Audio }; ;
+				Participant = new ThinTraditionalParticipant { SourceType = eCallType.Audio };
 			}
 			finally
 			{
@@ -380,7 +379,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 					return;
 				
 				Participant = null;
-				IncomingCall = new ThinIncomingCall() {Direction = eCallDirection.Incoming};
+				IncomingCall = new ThinIncomingCall {Direction = eCallDirection.Incoming};
 			}
 			finally
 			{
@@ -565,7 +564,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			foreach (char c in dtmf)
 			{
-
 				string controlName;
 				switch (c)
 				{
