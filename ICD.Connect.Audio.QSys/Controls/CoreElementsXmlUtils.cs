@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
@@ -19,6 +20,21 @@ namespace ICD.Connect.Audio.QSys.Controls
 		private delegate object ImplicitControlFactory(int id, CoreElementsLoadContext context, string componentName);
 
 		private delegate object ExplicitControlFactory(int id, string friendlyName, CoreElementsLoadContext context, string xml);
+
+		private static readonly BiDictionary<Type, string> s_TypeToAttribute = new BiDictionary<Type, string>
+		{
+			// Change group
+			{typeof(ChangeGroup), "ChangeGroup"},
+
+			// Named controls
+			{typeof(NamedControl), "NamedControl"},
+			{typeof(BooleanNamedControl), "BooleanNamedContol"},
+			{typeof(VoipNamedComponent), "VoIPComponent"},
+
+			// Krang controls
+			{typeof(QSysVolumePositionControl), "NamedControlVolume"},
+			{typeof(QSysVoipTraditionalConferenceControl), "VoIPComponentControl"},
+		};
 
 		private static Dictionary<Type, ImplicitControlFactory> s_ImpicitControlFactories;
 
@@ -211,41 +227,12 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		private static Type GetTypeForText(string typeText)
 		{
-			switch (typeText)
-			{
-				case "NamedControlVolume":
-				{
-					return typeof(QSysVolumePositionControl);
-				}
-				case "ChangeGroup":
-				{
-					return typeof(ChangeGroup);
-				}
-				case "NamedControl":
-				{
-					return typeof(NamedControl);
-				}
-				case "BooleanNamedContol":
-				{
-					return typeof(BooleanNamedControl);
-				}
-				case "VoIPComponent":
-				{
-					return typeof(VoipNamedComponent);
-				}
-				case "VoIPComponentControl":
-				{
-					return typeof(QSysVoipTraditionalConferenceControl);
-				}
-				default:
-				{
-					Logger.AddEntry(eSeverity.Error, "QSys Failed to load control. No Control Matching type \"{0}\"", typeText);
-					break;
-				}
-			}
+			Type type;
+			if (s_TypeToAttribute.TryGetKey(typeText, out type))
+				return type;
 
+            Logger.AddEntry(eSeverity.Error, "QSys Failed to load control. No Control Matching type \"{0}\"", typeText);
 			return null;
 		}
 	}
-
 }
