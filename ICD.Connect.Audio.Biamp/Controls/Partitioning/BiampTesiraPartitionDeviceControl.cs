@@ -1,6 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
+﻿using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Partitioning.Controls;
 
@@ -8,8 +6,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 {
 	public sealed class BiampTesiraPartitionDeviceControl : AbstractPartitionDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl
 	{
-		public override event EventHandler<BoolEventArgs> OnOpenStatusChanged;
-
 		private readonly RoomCombinerWall m_Wall;
 		private readonly string m_Name;
 
@@ -19,8 +15,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// Gets the human readable name for this control.
 		/// </summary>
 		public override string Name { get { return m_Name; } }
-
-		public override bool IsOpen { get { return !m_Wall.WallClosed; } }
 
 		#endregion
 
@@ -37,6 +31,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 			m_Wall = wall;
 
 			Subscribe(m_Wall);
+
+			IsOpen = !m_Wall.WallClosed;
 		}
 
 		/// <summary>
@@ -45,8 +41,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
-			OnOpenStatusChanged = null;
-
 			Unsubscribe(m_Wall);
 
 			base.DisposeFinal(disposing);
@@ -99,7 +93,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// <param name="args"></param>
 		private void WallOnWallClosedChanged(object sender, BoolEventArgs args)
 		{
-			OnOpenStatusChanged.Raise(this, new BoolEventArgs(args.Data));
+			IsOpen = !m_Wall.WallClosed;
 		}
 
 		#endregion
