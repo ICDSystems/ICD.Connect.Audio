@@ -7,6 +7,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Controls.Dialing;
+using ICD.Connect.Audio.QSys.Controls.Partitioning;
 using ICD.Connect.Audio.QSys.Controls.Volume;
 using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
@@ -29,6 +30,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			// Krang controls
 			{typeof(QSysVolumePositionControl), "NamedControlVolume"},
 			{typeof(QSysVoipTraditionalConferenceControl), "VoIPComponentControl"},
+			{typeof(QSysPartitionControl), "NamedControlPartition"},
 		};
 
 		/// <summary>

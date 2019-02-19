@@ -69,6 +69,7 @@
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
     <Compile Include="Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
+    <Compile Include="Controls\Partitioning\QSysPartitionControl.cs" />
     <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
     <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
@@ -131,6 +132,10 @@
     <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_SimplSharp.csproj">
       <Project>{FD46A717-5836-4B73-ADD0-2706639DA8ED}</Project>
       <Name>ICD.Connect.Devices_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Partitioning\ICD.Connect.Partitioning\ICD.Connect.Partitioning_SimplSharp.csproj">
+      <Project>{42FB8CF0-6AE6-4C70-AFDD-DF95F07E077F}</Project>
+      <Name>ICD.Connect.Partitioning_SimplSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ICD.Connect.Protocol\ICD.Connect.Protocol.Network\ICD.Connect.Protocol.Network_SimplSharp.csproj">
       <Project>{5ED52F05-EA6C-4FC5-8AA0-9B9727F6AECD}</Project>
