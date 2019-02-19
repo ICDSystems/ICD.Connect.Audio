@@ -4,7 +4,6 @@ using System.Linq;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Controls.Dialing;
@@ -17,10 +16,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 {
 	internal static class CoreElementsXmlUtils
 	{
-		private delegate object ImplicitControlFactory(int id, CoreElementsLoadContext context, string componentName);
-
-		private delegate object ExplicitControlFactory(int id, string friendlyName, CoreElementsLoadContext context, string xml);
-
 		private static readonly BiDictionary<Type, string> s_TypeToAttribute = new BiDictionary<Type, string>
 		{
 			// Change group
@@ -35,12 +30,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 			{typeof(QSysVolumePositionControl), "NamedControlVolume"},
 			{typeof(QSysVoipTraditionalConferenceControl), "VoIPComponentControl"},
 		};
-
-		private static Dictionary<Type, ImplicitControlFactory> s_ImpicitControlFactories;
-
-		private static Dictionary<Type, ExplicitControlFactory> s_ExplicitControlFactories;
-
-		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 
 		/// <summary>
 		/// This is the method called by the core to load the controls
@@ -67,12 +56,14 @@ namespace ICD.Connect.Audio.QSys.Controls
 				int id;
 				string elementTypeString, elementNameString;
 				Type elementType;
+
 				try
 				{
 					id = XmlUtils.GetAttributeAsInt(elementXml, "id");
 					elementTypeString = XmlUtils.GetAttributeAsString(elementXml, "type");
 					elementNameString = XmlUtils.GetAttributeAsString(elementXml, "name");
-					elementType = GetTypeForText(elementTypeString);
+
+					s_TypeToAttribute.TryGetKey(elementTypeString, out elementType);
 				}
 				catch (IcdXmlException e)
 				{
@@ -87,8 +78,19 @@ namespace ICD.Connect.Audio.QSys.Controls
 					                         id);
 			}
 
+			SetupChangeGroups(loadContext, attributes);
+			SetupNamedControls(loadContext);
+			SetupNamedComponents(loadContext);
+			SetupKrangControls(loadContext);
+
+			return loadContext;
+		}
+
+		private static void SetupChangeGroups(CoreElementsLoadContext loadContext, IDictionary<string, string> attributes)
+		{
 			// Setup ChangeGroups
-			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(IChangeGroup).IsAssignableFrom(p.Value)))
+			foreach (
+				KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => p.Value.IsAssignableTo<IChangeGroup>()))
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
 
@@ -96,16 +98,15 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 				try
 				{
-					changeGroup = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IChangeGroup;
+					changeGroup =
+						ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext,
+						                               controlXml) as IChangeGroup;
 				}
 				catch (Exception e)
 				{
 					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", kvp.Key, e.Message);
 					continue;
 				}
-				
-				if (changeGroup == null)
-					continue;
 
 				loadContext.AddChangeGroup(changeGroup);
 			}
@@ -127,34 +128,34 @@ namespace ICD.Connect.Audio.QSys.Controls
 			bool autoChangeGroupEnabled = true;
 			string autoChangeGroupAttribute;
 			if (attributes.TryGetValue("DisableAutoChangeGroup", out autoChangeGroupAttribute))
-				autoChangeGroupEnabled = !(bool.Parse(autoChangeGroupAttribute));
+				autoChangeGroupEnabled = !bool.Parse(autoChangeGroupAttribute);
 
 			// Setup Auto Change Group
-			if (autoChangeGroupEnabled)
+			if (!autoChangeGroupEnabled)
+				return;
+
+			int autoChangeGroupId = loadContext.GetNextId();
+			loadContext.AddElement(autoChangeGroupId, typeof(ChangeGroup), "Auto Change Group", null);
+
+			IChangeGroup autoChangeGroup = null;
+
+			try
 			{
-				int autoChangeGroupId = loadContext.GetNextId();
-				loadContext.AddElement(autoChangeGroupId, typeof(ChangeGroup), "Auto Change Group", null);
-
-				IChangeGroup autoChangeGroup = null;
-
-				try
-				{
-					autoChangeGroup = ReflectionUtils.CreateInstance(typeof(ChangeGroup), autoChangeGroupId, loadContext, "AutoChangeGroup") as IChangeGroup;
-				}
-				catch (Exception e)
-				{
-					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", autoChangeGroupId, e.Message);
-				}
-
-				if (autoChangeGroup != null)
-				{
-					loadContext.AddChangeGroup(autoChangeGroup);
-					loadContext.AddDefaultChangeGroup(autoChangeGroupId);
-				}
+				autoChangeGroup = new ChangeGroup(autoChangeGroupId, loadContext, "AutoChangeGroup");
+			}
+			catch (Exception e)
+			{
+				loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", autoChangeGroupId, e.Message);
 			}
 
+			loadContext.AddChangeGroup(autoChangeGroup);
+			loadContext.AddDefaultChangeGroup(autoChangeGroupId);
+		}
+
+		private static void SetupNamedControls(CoreElementsLoadContext loadContext)
+		{
 			// Setup Named Controls
-			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(INamedControl).IsAssignableFrom(p.Value)))
+			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => p.Value.IsAssignableTo<INamedControl>()))
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
 
@@ -162,7 +163,9 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 				try
 				{
-					control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as INamedControl;
+					control =
+						ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext,
+						                               controlXml) as INamedControl;
 				}
 				catch (Exception e)
 				{
@@ -170,14 +173,14 @@ namespace ICD.Connect.Audio.QSys.Controls
 					continue;
 				}
 
-				if (control == null)
-					continue;
-
 				loadContext.AddNamedControl(control);
 			}
+		}
 
+		private static void SetupNamedComponents(CoreElementsLoadContext loadContext)
+		{
 			// Setup Named Components
-			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(INamedComponent).IsAssignableFrom(p.Value)))
+			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => p.Value.IsAssignableTo<INamedComponent>()))
 			{
 				string componentXml = loadContext.GetXmlForElementId(kvp.Key);
 
@@ -185,7 +188,9 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 				try
 				{
-					component = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, componentXml) as INamedComponent;
+					component =
+						ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext,
+						                               componentXml) as INamedComponent;
 				}
 				catch (Exception e)
 				{
@@ -193,14 +198,16 @@ namespace ICD.Connect.Audio.QSys.Controls
 					continue;
 				}
 
-				if (component == null)
-					continue;
-
 				loadContext.AddNamedComponent(component);
 			}
+		}
 
+		private static void SetupKrangControls(CoreElementsLoadContext loadContext)
+		{
 			// Setup Krang Controls
-			foreach (KeyValuePair<int, Type> kvp in loadContext.GetElementsTypes().Where(p => typeof(IQSysKrangControl).IsAssignableFrom(p.Value)))
+			foreach (
+				KeyValuePair<int, Type> kvp in
+					loadContext.GetElementsTypes().Where(p => typeof(IQSysKrangControl).IsAssignableFrom(p.Value)))
 			{
 				string controlXml = loadContext.GetXmlForElementId(kvp.Key);
 
@@ -208,7 +215,9 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 				try
 				{
-					control = ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext, controlXml) as IQSysKrangControl;
+					control =
+						ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext,
+						                               controlXml) as IQSysKrangControl;
 				}
 				catch (Exception e)
 				{
@@ -216,23 +225,8 @@ namespace ICD.Connect.Audio.QSys.Controls
 					continue;
 				}
 
-				if (control == null)
-					continue;
-
 				loadContext.AddKrangControl(control);
 			}
-
-			return loadContext;
-		}
-
-		private static Type GetTypeForText(string typeText)
-		{
-			Type type;
-			if (s_TypeToAttribute.TryGetKey(typeText, out type))
-				return type;
-
-            Logger.AddEntry(eSeverity.Error, "QSys Failed to load control. No Control Matching type \"{0}\"", typeText);
-			return null;
 		}
 	}
 }
