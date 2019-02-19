@@ -62,8 +62,8 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
 			// Load volume/mute controls
-			m_VolumeControl = context.LazyLoadNamedControl(volumeName, typeof(NamedControl)) as NamedControl;
-			m_MuteControl = context.LazyLoadNamedControl(muteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
+			m_VolumeControl = context.LazyLoadNamedControl<NamedControl>(volumeName);
+			m_MuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(muteName);
 
 			VolumePositionRepeater positionRepeater = VolumeRepeater as VolumePositionRepeater;
 

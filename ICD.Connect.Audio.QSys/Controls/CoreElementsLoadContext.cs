@@ -191,6 +191,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 		#region Lazy Loaders
 
 		[CanBeNull]
+		public TControl LazyLoadNamedControl<TControl>(string controlName)
+			where TControl : INamedControl
+		{
+			return (TControl)LazyLoadNamedControl(controlName, typeof(TControl));
+		}
+
+		[CanBeNull]
 		public INamedControl LazyLoadNamedControl(string controlName, Type controlType)
 		{
 			if (!typeof(INamedControl).IsAssignableFrom(controlType))
@@ -234,6 +241,13 @@ namespace ICD.Connect.Audio.QSys.Controls
 			AddNamedControl(control);
 
 			return control;
+		}
+
+		[CanBeNull]
+		public TComponent LazyLoadNamedComponent<TComponent>(string componentName)
+			where TComponent : INamedComponent
+		{
+			return (TComponent)LazyLoadNamedComponent(componentName, typeof(TComponent));
 		}
 
 		[CanBeNull]

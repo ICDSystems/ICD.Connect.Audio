@@ -142,10 +142,9 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
 
 			// Load volume/mute controls
-			m_VoipComponent = context.LazyLoadNamedComponent(voipName, typeof(VoipNamedComponent)) as VoipNamedComponent;
-			m_PrivacyMuteControl =
-				context.LazyLoadNamedControl(privacyMuteName, typeof(BooleanNamedControl)) as BooleanNamedControl;
-			m_HoldControl = context.LazyLoadNamedControl(holdName, typeof(BooleanNamedControl)) as BooleanNamedControl;
+			m_VoipComponent = context.LazyLoadNamedComponent<VoipNamedComponent>(voipName);
+			m_PrivacyMuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(privacyMuteName);
+			m_HoldControl = context.LazyLoadNamedControl<BooleanNamedControl>(holdName);
 
 			Subscribe();
 		}
