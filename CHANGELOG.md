@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - Added QSys Core partition control
+
+### Changed
+ - Significant refactoring to QSys control loading
+
 ## [11.0.0] - 2019-01-14
 ### Changed
  - Dialing features refactored to fit new conferencing interfaces
