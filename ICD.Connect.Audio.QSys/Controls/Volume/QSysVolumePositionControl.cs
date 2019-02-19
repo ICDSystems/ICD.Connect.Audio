@@ -15,6 +15,12 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 {
     public sealed class QSysVolumePositionControl : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
     {
+	    #region Events
+
+	    public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+
+	    #endregion
+
 	    private readonly string m_Name;
 		
 		[CanBeNull]
@@ -37,36 +43,7 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 
 	    #endregion
 
-		#region Events
-
-	    public event EventHandler<BoolEventArgs> OnMuteStateChanged;
-
-		#endregion
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="qSysCore"></param>
-		/// <param name="name"></param>
-		/// <param name="id"></param>
-		/// <param name="volumeControl"></param>
-		/// <param name="muteControl"></param>
-		public QSysVolumePositionControl(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl)
-			: base(qSysCore, id)
-		{
-			if (volumeControl == null)
-				throw new ArgumentNullException("volumeControl");
-
-			if (muteControl == null)
-				throw new ArgumentNullException("muteControl");
-
-			m_Name = name;
-		    m_VolumeControl = volumeControl;
-		    m_MuteControl = muteControl;
-			Subscribe();
-	    }
-
-		/// <summary>
+	    /// <summary>
 		/// Constructor used to load control from xml
 		/// </summary>
 		/// <param name="id"></param>
