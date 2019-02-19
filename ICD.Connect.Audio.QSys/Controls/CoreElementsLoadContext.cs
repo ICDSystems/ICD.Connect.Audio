@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
@@ -118,6 +119,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		#region Methods
 
 		#region Add Methods
+
 		/// <summary>
 		/// Adds a generic control
 		/// </summary>
@@ -163,7 +165,6 @@ namespace ICD.Connect.Audio.QSys.Controls
 			AddElement(namedComponent.Id, namedComponent.GetType(), namedComponent.Name, null);
 			BindNamedComponent(namedComponent);
 			m_NamedComponents.Add(namedComponent.Id, namedComponent);
-			
 		}
 
 		/// <summary>
@@ -189,6 +190,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 		#region Lazy Loaders
 
+		[CanBeNull]
 		public INamedControl LazyLoadNamedControl(string controlName, Type controlType)
 		{
 			if (!typeof(INamedControl).IsAssignableFrom(controlType))
@@ -234,6 +236,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 			return control;
 		}
 
+		[CanBeNull]
 		public INamedComponent LazyLoadNamedComponent(string componentName, Type componentType)
 		{
 			if (!typeof(INamedComponent).IsAssignableFrom(componentType))
@@ -300,21 +303,18 @@ namespace ICD.Connect.Audio.QSys.Controls
 			}
 		}
 
+		[CanBeNull]
 		public string GetNameForElementId(int id)
 		{
 			string name;
-			if (m_ElementNames.TryGetValue(id, out name))
-				return name;
-
-			return null;
+			return m_ElementNames.TryGetValue(id, out name) ? name : null;
 		}
 
+		[CanBeNull]
 		internal string GetXmlForElementId(int id)
 		{
 			string xml;
-			if (!m_ElementsXml.TryGetValue(id, out xml))
-				return null;
-			return xml;
+			return m_ElementsXml.TryGetValue(id, out xml) ? xml : null;
 		}
 
 		/// <summary>
@@ -322,12 +322,11 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
+		[CanBeNull]
 	    internal Type GetTypeForId(int id)
 	    {
 		    Type typeString;
-		    if (!m_ElementsTypes.TryGetValue(id, out typeString))
-			    return null;
-		    return typeString;
+		    return m_ElementsTypes.TryGetValue(id, out typeString) ? typeString : null;
 	    }
 
 		/// <summary>
@@ -336,15 +335,14 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// </summary>
 		/// <param name="id"></param>
 		/// <returns></returns>
+		[CanBeNull]
 		public IChangeGroup TryGetChangeGroup(int id)
 		{
 			IChangeGroup changeGroup;
-			if (m_ChangeGroups.TryGetValue(id, out changeGroup))
-				return changeGroup;
-			return null;
+			return m_ChangeGroups.TryGetValue(id, out changeGroup) ? changeGroup : null;
 		}
 
-		public List<int> GetDefaultChangeGroups()
+		public IEnumerable<int> GetDefaultChangeGroups()
 		{
 			return m_DefaultChangeGroups.ToList(m_DefaultChangeGroups.Count);
 		}
