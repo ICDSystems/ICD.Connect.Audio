@@ -15,7 +15,8 @@ using ICD.Connect.Conferencing.Participants;
 
 namespace ICD.Connect.Audio.QSys.Controls.Dialing
 {
-	public sealed class QSysVoipTraditionalConferenceControl : AbstractTraditionalConferenceDeviceControl<QSysCoreDevice>, IQSysKrangControl
+	public sealed class QSysVoipTraditionalConferenceControl : AbstractTraditionalConferenceDeviceControl<QSysCoreDevice>,
+	                                                           IQSysKrangControl
 	{
 		private const float TOLERANCE = 0.0001f;
 
@@ -35,14 +36,11 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 
 		#region Fields
 
-		[CanBeNull]
-		private readonly BooleanNamedControl m_HoldControl;
+		[CanBeNull] private readonly BooleanNamedControl m_HoldControl;
 
-		[CanBeNull]
-		private readonly BooleanNamedControl m_PrivacyMuteControl;
+		[CanBeNull] private readonly BooleanNamedControl m_PrivacyMuteControl;
 
-		[CanBeNull]
-		private readonly VoipNamedComponent m_VoipComponent;
+		[CanBeNull] private readonly VoipNamedComponent m_VoipComponent;
 
 		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
 
@@ -341,12 +339,12 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Ignored;
 				}
-				
+
 				if (callStatus == eParticipantStatus.Connected)
 				{
 					if (source.Start == null)
 						source.Start = DateTime.Now;
-					
+
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Autoanswered;
 				}
@@ -362,7 +360,7 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 					return;
 
 				IncomingCall = null;
-				Participant = new ThinTraditionalParticipant { SourceType = eCallType.Audio };
+				Participant = new ThinTraditionalParticipant {SourceType = eCallType.Audio};
 			}
 			finally
 			{
@@ -377,7 +375,7 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 			{
 				if (IncomingCall != null)
 					return;
-				
+
 				Participant = null;
 				IncomingCall = new ThinIncomingCall {Direction = eCallDirection.Incoming};
 			}
@@ -450,8 +448,8 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 				throw new
 					InvalidOperationException(
 					string.Format(
-						"VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
-						Id, Name));
+					              "VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
+					              Id, Name));
 
 			switch (control.Name)
 			{

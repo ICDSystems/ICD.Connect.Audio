@@ -13,25 +13,24 @@ using ICD.Connect.Audio.Repeaters;
 
 namespace ICD.Connect.Audio.QSys.Controls.Volume
 {
-    public sealed class QSysVolumePositionControl : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
-    {
-	    #region Events
+	public sealed class QSysVolumePositionControl : AbstractVolumePositionDeviceControl<QSysCoreDevice>,
+	                                                IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
+	{
+		#region Events
 
-	    public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
 
-	    #endregion
+		#endregion
 
-	    private readonly string m_Name;
-		
-		[CanBeNull]
-		private readonly INamedControl m_VolumeControl;
+		private readonly string m_Name;
 
-		[CanBeNull]
-		private readonly BooleanNamedControl m_MuteControl;
+		[CanBeNull] private readonly INamedControl m_VolumeControl;
+
+		[CanBeNull] private readonly BooleanNamedControl m_MuteControl;
 
 		#region Properties
 
-	    public override string Name { get { return m_Name; }  }
+		public override string Name { get { return m_Name; } }
 
 		public float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
 
@@ -41,9 +40,9 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 
 		public bool VolumeIsMuted { get { return m_MuteControl != null && m_MuteControl.ValueBool; } }
 
-	    #endregion
+		#endregion
 
-	    /// <summary>
+		/// <summary>
 		/// Constructor used to load control from xml
 		/// </summary>
 		/// <param name="id"></param>
@@ -51,8 +50,8 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-	    public QSysVolumePositionControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
-		    : base(context.QSysCore, id)
+		public QSysVolumePositionControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+			: base(context.QSysCore, id)
 		{
 			m_Name = friendlyName;
 
@@ -80,127 +79,127 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 				RepeatBetweenTime = (int)repeatBetweenTime;
 
 			Subscribe();
-	    }
+		}
 
-	    #region Methods
+		#region Methods
 
-	    public void SetVolumeRaw(float volume)
-	    {
-		    if (m_VolumeControl == null)
-		    {
-			    Log(eSeverity.Error, "Unable to set raw volume - Volume control is null");
-			    return;
-		    }
+		public void SetVolumeRaw(float volume)
+		{
+			if (m_VolumeControl == null)
+			{
+				Log(eSeverity.Error, "Unable to set raw volume - Volume control is null");
+				return;
+			}
 
-		    m_VolumeControl.SetValue(volume);
-	    }
+			m_VolumeControl.SetValue(volume);
+		}
 
-	    public override void SetVolumePosition(float position)
-	    {
+		public override void SetVolumePosition(float position)
+		{
 			if (m_VolumeControl == null)
 			{
 				Log(eSeverity.Error, "Unable to set volume position - Volume control is null");
 				return;
 			}
 
-		    m_VolumeControl.SetPosition(position);
-	    }
+			m_VolumeControl.SetPosition(position);
+		}
 
-	    public void VolumeLevelIncrement(float incrementValue)
-	    {
+		public void VolumeLevelIncrement(float incrementValue)
+		{
 			if (m_VolumeControl == null)
 			{
 				Log(eSeverity.Error, "Unable to increment volume - Volume control is null");
 				return;
 			}
 
-		    m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
-	    }
+			m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
+		}
 
-	    public void VolumeLevelDecrement(float decrementValue)
-	    {
+		public void VolumeLevelDecrement(float decrementValue)
+		{
 			if (m_VolumeControl == null)
 			{
 				Log(eSeverity.Error, "Unable to decrement volume - Volume control is null");
 				return;
 			}
 
-		    m_VolumeControl.SetValue(string.Format("-={0}", decrementValue));
-	    }
+			m_VolumeControl.SetValue(string.Format("-={0}", decrementValue));
+		}
 
-	    public void VolumeMuteToggle()
-	    {
-		    SetVolumeMute(!VolumeIsMuted);
-	    }
+		public void VolumeMuteToggle()
+		{
+			SetVolumeMute(!VolumeIsMuted);
+		}
 
-	    public void SetVolumeMute(bool mute)
-	    {
+		public void SetVolumeMute(bool mute)
+		{
 			if (m_MuteControl == null)
 			{
 				Log(eSeverity.Error, "Unable to set mute state - Mute control is null");
 				return;
 			}
 
-		    m_MuteControl.SetValue(mute);
-	    }
+			m_MuteControl.SetValue(mute);
+		}
 
-	    #endregion
+		#endregion
 
 		#region Private Methods
 
-	    private void Subscribe()
-	    {
+		private void Subscribe()
+		{
 			if (m_VolumeControl != null)
 				m_VolumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
 
 			if (m_MuteControl != null)
 				m_MuteControl.OnValueUpdated += MuteControlOnValueUpdated;
-	    }
+		}
 
-	    private void Unsubscribe()
-	    {
+		private void Unsubscribe()
+		{
 			if (m_VolumeControl != null)
 				m_VolumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
 
 			if (m_MuteControl != null)
 				m_MuteControl.OnValueUpdated -= MuteControlOnValueUpdated;
-	    }
+		}
 
-	    private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
-	    {
-		    VolumeFeedback(args.ValueRaw, args.ValuePosition, args.ValueString);
-	    }
+		private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+		{
+			VolumeFeedback(args.ValueRaw, args.ValuePosition, args.ValueString);
+		}
 
-	    private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
-	    {
-		    OnMuteStateChanged.Raise(this, new BoolEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
-	    }
+		private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+		{
+			OnMuteStateChanged.Raise(this, new BoolEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
+		}
 
-	    protected override void DisposeFinal(bool disposing)
-	    {
+		protected override void DisposeFinal(bool disposing)
+		{
 			Unsubscribe();
 
-		    base.DisposeFinal(disposing);
-	    }
+			base.DisposeFinal(disposing);
+		}
 
 		#endregion
 
 		#region Console
 
-	    public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
-	    {
-		    foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
-			    yield return node;
+		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+		{
+			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+				yield return node;
 
-		    yield return m_VolumeControl;
-		    yield return m_MuteControl;
-	    }
+			yield return m_VolumeControl;
+			yield return m_MuteControl;
+		}
 
-	    private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
-	    {
-		    return base.GetConsoleNodes();
-	    }
+		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+		{
+			return base.GetConsoleNodes();
+		}
 
-	    #endregion
+		#endregion
 	}
 }
