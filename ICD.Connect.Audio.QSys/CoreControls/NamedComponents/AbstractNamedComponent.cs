@@ -7,6 +7,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.Controls;
 using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.Rpc;
 using Newtonsoft.Json.Linq;

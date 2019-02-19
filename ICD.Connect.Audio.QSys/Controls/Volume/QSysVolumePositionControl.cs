@@ -8,13 +8,12 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
-using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Audio.Repeaters;
 
-namespace ICD.Connect.Audio.QSys.Controls
+namespace ICD.Connect.Audio.QSys.Controls.Volume
 {
-    public sealed class NamedControlsVolumeDevice : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
+    public sealed class QSysVolumePositionControl : AbstractVolumePositionDeviceControl<QSysCoreDevice>, IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
     {
 	    private readonly string m_Name;
 		
@@ -52,7 +51,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// <param name="id"></param>
 		/// <param name="volumeControl"></param>
 		/// <param name="muteControl"></param>
-		public NamedControlsVolumeDevice(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl)
+		public QSysVolumePositionControl(QSysCoreDevice qSysCore, string name, int id, INamedControl volumeControl, BooleanNamedControl muteControl)
 			: base(qSysCore, id)
 		{
 			if (volumeControl == null)
@@ -75,7 +74,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-	    public NamedControlsVolumeDevice(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+	    public QSysVolumePositionControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 		    : base(context.QSysCore, id)
 		{
 			m_Name = friendlyName;

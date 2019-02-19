@@ -6,12 +6,13 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
-using ICD.Connect.Audio.QSys.Controls;
+using ICD.Connect.Audio.QSys.Controls.Dialing;
+using ICD.Connect.Audio.QSys.Controls.Volume;
 using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 
-namespace ICD.Connect.Audio.QSys.CoreControls
+namespace ICD.Connect.Audio.QSys.Controls
 {
 	internal static class CoreElementsXmlUtils
 	{
@@ -19,9 +20,9 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 
 		private delegate object ExplicitControlFactory(int id, string friendlyName, CoreElementsLoadContext context, string xml);
 
-		private static Dictionary<Type, ImplicitControlFactory> m_ImpicitControlFactories;
+		private static Dictionary<Type, ImplicitControlFactory> s_ImpicitControlFactories;
 
-		private static Dictionary<Type, ExplicitControlFactory> m_ExplicitControlFactories;
+		private static Dictionary<Type, ExplicitControlFactory> s_ExplicitControlFactories;
 
 		private static ILoggerService Logger { get { return ServiceProvider.GetService<ILoggerService>(); } }
 
@@ -35,6 +36,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 		{
 			if (xml == null)
 				throw new ArgumentNullException("xml");
+
 			if (qSysCore == null)
 				throw new ArgumentNullException("qSysCore");
 
@@ -213,7 +215,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 			{
 				case "NamedControlVolume":
 				{
-					return typeof(NamedControlsVolumeDevice);
+					return typeof(QSysVolumePositionControl);
 				}
 				case "ChangeGroup":
 				{
@@ -233,7 +235,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 				}
 				case "VoIPComponentControl":
 				{
-					return typeof(VoipComponentTraditionalConferenceDeviceControl);
+					return typeof(QSysVoipTraditionalConferenceControl);
 				}
 				default:
 				{

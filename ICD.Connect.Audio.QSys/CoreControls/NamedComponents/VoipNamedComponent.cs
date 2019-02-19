@@ -3,6 +3,7 @@ using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Xml;
+using ICD.Connect.Audio.QSys.Controls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 
 namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents

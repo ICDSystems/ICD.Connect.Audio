@@ -68,18 +68,18 @@
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
-    <Compile Include="Controls\VoipComponentTraditionalConferenceDevice.cs" />
+    <Compile Include="Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
     <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
     <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
     <Compile Include="CoreControls\NamedComponents\VoipNamedComponent.cs" />
     <Compile Include="QSysCoreRoutingControl.cs" />
-    <Compile Include="Controls\NamedControlsVolumeDevice.cs" />
+    <Compile Include="Controls\Volume\QSysVolumePositionControl.cs" />
     <Compile Include="CoreControls\AbstractCoreControl.cs" />
     <Compile Include="CoreControls\ChangeGroups\ChangeGroup.cs" />
     <Compile Include="CoreControls\ChangeGroups\IChangeGroup.cs" />
-    <Compile Include="CoreControls\CoreElementsLoadContext.cs" />
-    <Compile Include="CoreControls\CoreElementsXmlUtils.cs" />
+    <Compile Include="Controls\CoreElementsLoadContext.cs" />
+    <Compile Include="Controls\CoreElementsXmlUtils.cs" />
     <Compile Include="CoreControls\IQSysCoreControl.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponent.cs" />
     <Compile Include="CoreControls\NamedControls\AbstractNamedControl.cs" />

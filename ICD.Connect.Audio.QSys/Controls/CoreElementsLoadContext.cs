@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
-using ICD.Connect.Audio.QSys.Controls;
 using ICD.Connect.Audio.QSys.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 
-namespace ICD.Connect.Audio.QSys.CoreControls
+namespace ICD.Connect.Audio.QSys.Controls
 {
 	/// <summary>
 	/// Context to load the core controls in

@@ -6,7 +6,6 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
-using ICD.Connect.Audio.QSys.CoreControls;
 using ICD.Connect.Audio.QSys.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.CoreControls.NamedControls;
 using ICD.Connect.Conferencing.Controls.Dialing;
@@ -14,9 +13,9 @@ using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Conferencing.Participants;
 
-namespace ICD.Connect.Audio.QSys.Controls
+namespace ICD.Connect.Audio.QSys.Controls.Dialing
 {
-	public sealed class VoipComponentTraditionalConferenceDeviceControl : AbstractTraditionalConferenceDeviceControl<QSysCoreDevice>, IQSysKrangControl
+	public sealed class QSysVoipTraditionalConferenceControl : AbstractTraditionalConferenceDeviceControl<QSysCoreDevice>, IQSysKrangControl
 	{
 		private const float TOLERANCE = 0.0001f;
 
@@ -135,7 +134,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 		/// <param name="friendlyName"></param>
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
-		public VoipComponentTraditionalConferenceDeviceControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+		public QSysVoipTraditionalConferenceControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 			: base(context.QSysCore, id)
 		{
 			m_ConferenceSourceCriticalSection = new SafeCriticalSection();
