@@ -43,9 +43,9 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 		[CanBeNull] private readonly VoipNamedComponent m_VoipComponent;
 
 		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
+		private readonly string m_Name;
 
 		private ThinTraditionalParticipant m_Participant;
-
 		private ThinIncomingCall m_IncomingCall;
 
 		#endregion
@@ -123,6 +123,11 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 		/// </summary>
 		public override eCallType Supports { get { return eCallType.Audio; } }
 
+		/// <summary>
+		/// Gets the human readable name for this control.
+		/// </summary>
+		public override string Name { get { return string.IsNullOrEmpty(m_Name) ? base.Name : m_Name; } }
+
 		#endregion
 
 		/// <summary>
@@ -135,6 +140,7 @@ namespace ICD.Connect.Audio.QSys.Controls.Dialing
 		public QSysVoipTraditionalConferenceControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 			: base(context.QSysCore, id)
 		{
+			m_Name = friendlyName;
 			m_ConferenceSourceCriticalSection = new SafeCriticalSection();
 
 			string voipName = XmlUtils.TryReadChildElementContentAsString(xml, "ControlName");

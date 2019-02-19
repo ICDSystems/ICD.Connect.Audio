@@ -30,7 +30,7 @@ namespace ICD.Connect.Audio.QSys.Controls.Volume
 
 		#region Properties
 
-		public override string Name { get { return m_Name; } }
+		public override string Name { get { return string.IsNullOrEmpty(m_Name) ? base.Name : m_Name; } }
 
 		public float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
 
