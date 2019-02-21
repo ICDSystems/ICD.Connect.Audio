@@ -149,6 +149,15 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		/// <summary>
+		/// Gets the Output Name of the switcher's outputs (ie Content, Display In)
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<string> GetSwitcherVideoOutputNames()
+		{
+			yield break;
+		}
+
+		/// <summary>
 		/// Gets the output at the given address.
 		/// </summary>
 		/// <param name="address"></param>
