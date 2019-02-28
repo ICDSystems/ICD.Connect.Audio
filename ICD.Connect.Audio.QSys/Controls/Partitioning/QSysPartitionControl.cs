@@ -10,10 +10,21 @@ namespace ICD.Connect.Audio.QSys.Controls.Partitioning
 		private readonly BooleanNamedControl m_PartitionControl;
 		private readonly string m_Name;
 
+		#region Properties
+
+		/// <summary>
+		/// Returns the mask for the type of feedback that is supported,
+		/// I.e. if we can set the open state of the partition, and if the partition
+		/// gives us feedback for the current open state.
+		/// </summary>
+		public override ePartitionFeedback SupportsFeedback { get { return ePartitionFeedback.GetSet; } }
+
 		/// <summary>
 		/// Gets the human readable name for this control.
 		/// </summary>
 		public override string Name { get { return string.IsNullOrEmpty(m_Name) ? base.Name : m_Name; } }
+
+		#endregion
 
 		/// <summary>
 		/// Constructor used to load control from xml

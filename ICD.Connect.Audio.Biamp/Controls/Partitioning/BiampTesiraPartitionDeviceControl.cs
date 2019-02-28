@@ -12,6 +12,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		#region Properties
 
 		/// <summary>
+		/// Returns the mask for the type of feedback that is supported,
+		/// I.e. if we can set the open state of the partition, and if the partition
+		/// gives us feedback for the current open state.
+		/// </summary>
+		public override ePartitionFeedback SupportsFeedback { get { return ePartitionFeedback.GetSet; } }
+
+		/// <summary>
 		/// Gets the human readable name for this control.
 		/// </summary>
 		public override string Name { get { return m_Name; } }
