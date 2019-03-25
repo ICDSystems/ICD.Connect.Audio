@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
+using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Settings;
 using ICD.Connect.Settings.Core;
 
@@ -20,6 +23,9 @@ namespace ICD.Connect.Audio.Devices
 	/// </summary>
 	public sealed class GenericAmpDevice : AbstractDevice<GenericAmpDeviceSettings>
 	{
+		public event EventHandler<FloatEventArgs> OnVolumeChanged;
+		public event EventHandler<BoolEventArgs> OnMuteChanged;
+
 		private readonly Dictionary<int, int> m_InputVolumePointIds;
 		private readonly SafeCriticalSection m_InputsSection;
 
@@ -31,13 +37,49 @@ namespace ICD.Connect.Audio.Devices
 			m_InputVolumePointIds = new Dictionary<int, int>();
 			m_InputsSection = new SafeCriticalSection();
 
-			Controls.Add(new GenericAmpRouteSwitcherControl(this, 0));
+			GenericAmpRouteSwitcherControl switcherControl = new GenericAmpRouteSwitcherControl(this, 0);
+			switcherControl.OnRouteChange += GenericAmpRouteSwitcherControlOnRouteChange;
+			Controls.Add(switcherControl);
 
 			// Needs to be added after the route control
-			Controls.Add(new GenericAmpVolumeControl(this, 1));
+			var volumeControl = new GenericAmpVolumeControl(this, 1);
+			volumeControl.OnMuteStateChanged += VolumeControlOnMuteStateChanged;
+			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
+			Controls.Add(volumeControl);
+		}
+
+		/// <summary>
+		/// Release resources.
+		/// </summary>
+		protected override void DisposeFinal(bool disposing)
+		{
+			GenericAmpRouteSwitcherControl switcherControl = new GenericAmpRouteSwitcherControl(this, 0);
+			GenericAmpVolumeControl volumeControl = new GenericAmpVolumeControl(this, 1);
+			switcherControl.OnRouteChange += GenericAmpRouteSwitcherControlOnRouteChange;
+			volumeControl.OnMuteStateChanged += VolumeControlOnMuteStateChanged;
+			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
+			base.DisposeFinal(disposing);
 		}
 
 		#region Methods
+
+		public float GetVolumeState()
+		{
+			GenericAmpVolumeControl volumeControl = Controls.GetControl<GenericAmpVolumeControl>();
+			if(volumeControl == null)
+				throw new InvalidOperationException("No volume control present on Generic Amp Device");
+
+			return volumeControl.VolumePosition;
+		}
+
+		public bool GetMuteState()
+		{
+			GenericAmpVolumeControl volumeControl = Controls.GetControl<GenericAmpVolumeControl>();
+			if (volumeControl == null)
+				throw new InvalidOperationException("No volume control present on Generic Amp Device");
+
+			return volumeControl.VolumeIsMuted;
+		}
 
 		/// <summary>
 		/// Gets the volume point for the given input address.
@@ -130,6 +172,22 @@ namespace ICD.Connect.Audio.Devices
 		protected override bool GetIsOnlineStatus()
 		{
 			return true;
+		}
+
+		private void GenericAmpRouteSwitcherControlOnRouteChange(object sender, RouteChangeEventArgs routeChangeEventArgs)
+		{
+			OnVolumeChanged.Raise(this, new FloatEventArgs(GetVolumeState()));
+			OnMuteChanged.Raise(this, new BoolEventArgs(GetMuteState()));
+		}
+
+		private void VolumeControlOnVolumeChanged(object sender, VolumeDeviceVolumeChangedEventArgs volumeDeviceVolumeChangedEventArgs)
+		{
+			OnVolumeChanged.Raise(this, new FloatEventArgs(GetVolumeState()));
+		}
+
+		private void VolumeControlOnMuteStateChanged(object sender, BoolEventArgs boolEventArgs)
+		{
+			OnMuteChanged.Raise(this, new BoolEventArgs(GetMuteState()));
 		}
 
 		#region Settings

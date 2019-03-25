@@ -1,8 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Utils;
+using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -59,6 +63,8 @@ namespace ICD.Connect.Audio.Devices
 		{
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
+			Parent.OnVolumeChanged += ParentOnVolumeChanged;
+			Parent.OnMuteChanged += ParentOnMuteChanged;
 		}
 
 		/// <summary>
@@ -71,6 +77,8 @@ namespace ICD.Connect.Audio.Devices
 			OnActiveInputsChanged = null;
 			OnSourceDetectionStateChange = null;
 			OnActiveInputsChanged = null;
+			Parent.OnVolumeChanged -= ParentOnVolumeChanged;
+			Parent.OnMuteChanged -= ParentOnMuteChanged;
 
 			base.DisposeFinal(disposing);
 
@@ -78,6 +86,39 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		#region Methods
+
+		protected override void InitializeInputPorts()
+		{
+			foreach (ConnectorInfo input in GetInputs().Where(input => input.ConnectionType.HasFlag(eConnectionType.Audio)))
+			{
+				inputPorts.Add(input, new InputPort
+				{
+					ConnectionType = input.ConnectionType,
+					InputId = string.Format("Audio Input {0}", input.Address),
+					InputIdFeedbackSupported = true,
+					InputName = GetInputName(input),
+					InputNameFeedbackSupported = GetInputName(input) != null 
+				});
+			}
+		}
+
+		protected override void InitializeOutputPorts()
+		{
+			foreach (ConnectorInfo output in GetOutputs().Where(output => output.ConnectionType.HasFlag(eConnectionType.Audio)))
+			{
+				outputPorts.Add(output, new OutputPort
+				{
+					ConnectionType = output.ConnectionType,
+					OutputId = string.Format("Audio Output {0}", output.Address),
+					OutputIdFeedbackSupport = true,
+					AudioOutputVolume = Parent.GetVolumeState(),
+					AudioOutputMuteFeedbackSupported = true,
+					AudioOutputMute = Parent.GetMuteState(),
+					AudioOutputSource = GetActiveSourceIdName(output),
+					AudioOutputSourceFeedbackSupport = true
+				});
+			}
+		}
 
 		/// <summary>
 		/// Routes the input to the given output.
@@ -105,56 +146,6 @@ namespace ICD.Connect.Audio.Devices
 				throw new NotSupportedException(string.Format("Invalid output address {0}", output));
 
 			return m_Cache.SetInputForOutput(output, null, type);
-		}
-
-		public override IEnumerable<string> GetSwitcherVideoInputIds()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Gets the Input Name of the switcher (ie Content, Display In)
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<string> GetSwitcherVideoInputNames()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Gets the Input Sync Type of the switcher's inputs (ie HDMI when HDMI Sync is detected, empty when not detected)
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<string> GetSwitcherVideoInputSyncType()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Gets the Input Resolution for the switcher's inputs (ie 1920x1080, or empty for no sync)
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<string> GetSwitcherVideoInputResolutions()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Gets the Output Ids of the switcher's outputs (ie HDMI1, VGA2)
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<string> GetSwitcherVideoOutputIds()
-		{
-			yield break;
-		}
-
-		/// <summary>
-		/// Gets the Output Name of the switcher's outputs (ie Content, Display In)
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<string> GetSwitcherVideoOutputNames()
-		{
-			yield break;
 		}
 
 		/// <summary>
@@ -294,6 +285,21 @@ namespace ICD.Connect.Audio.Devices
 				SetActiveInput(input);
 		}
 
+		private string GetInputName(ConnectorInfo info)
+		{
+			IVolumePoint vp = Parent.GetVolumePointForInput(info.Address);
+			return vp != null ? vp.Name : null;
+		}
+
+		private string GetActiveSourceIdName(ConnectorInfo info)
+		{
+			var activeInput = m_Cache.GetInputConnectorInfoForOutput(info.Address, eConnectionType.Audio);
+			return activeInput != null
+				       ? string.Format("{0} {1}", inputPorts[activeInput.Value].InputId ?? string.Empty,
+				                       inputPorts[activeInput.Value].InputName ?? string.Empty)
+					   : null;
+		}
+
 		#endregion
 
 		#region Cache Callbacks
@@ -325,6 +331,10 @@ namespace ICD.Connect.Audio.Devices
 		private void CacheOnRouteChange(object sender, RouteChangeEventArgs args)
 		{
 			OnRouteChange.Raise(this, new RouteChangeEventArgs(args));
+			KeyValuePair<ConnectorInfo, OutputPort> outputPort = outputPorts.FirstOrDefault(kvp => kvp.Key.Address == args.Output);
+			if (outputPort.Value == null)
+				return;
+			outputPort.Value.AudioOutputSource = GetActiveSourceIdName(outputPort.Key);
 		}
 
 		private void CacheOnActiveTransmissionStateChanged(object sender, TransmissionStateEventArgs args)
@@ -340,6 +350,32 @@ namespace ICD.Connect.Audio.Devices
 		private void CacheOnActiveInputsChanged(object sender, ActiveInputStateChangeEventArgs args)
 		{
 			OnActiveInputsChanged.Raise(this, new ActiveInputStateChangeEventArgs(args));
+		}
+
+		#endregion
+
+		#region Parent Callbacks
+
+		private void ParentOnMuteChanged(object sender, BoolEventArgs args)
+		{
+			// this device should always have only one output, 
+			//so firstordefault is easier than looking up an index which is always 0 anyway
+			KeyValuePair<ConnectorInfo, OutputPort> output = outputPorts.FirstOrDefault();
+			if (output.Value == null)
+				return;
+
+			output.Value.AudioOutputMute = args.Data;
+		}
+
+		private void ParentOnVolumeChanged(object sender, FloatEventArgs args)
+		{
+			// this device should always have only one output, 
+			//so firstordefault is easier than looking up an index which is always 0 anyway
+			KeyValuePair<ConnectorInfo, OutputPort> output = outputPorts.FirstOrDefault();
+			if (output.Value == null)
+				return;
+
+			output.Value.AudioOutputVolume = args.Data;
 		}
 
 		#endregion
