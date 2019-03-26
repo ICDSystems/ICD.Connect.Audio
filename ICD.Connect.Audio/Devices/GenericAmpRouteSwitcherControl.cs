@@ -87,36 +87,38 @@ namespace ICD.Connect.Audio.Devices
 
 		#region Methods
 
-		protected override void InitializeInputPorts()
+		public override IEnumerable<InputPort> GetInputPorts()
 		{
 			foreach (ConnectorInfo input in GetInputs().Where(input => input.ConnectionType.HasFlag(eConnectionType.Audio)))
 			{
-				inputPorts.Add(input, new InputPort
+				yield return new InputPort
 				{
+					Address = input.Address,
 					ConnectionType = input.ConnectionType,
 					InputId = string.Format("Audio Input {0}", input.Address),
 					InputIdFeedbackSupported = true,
 					InputName = GetInputName(input),
 					InputNameFeedbackSupported = GetInputName(input) != null 
-				});
+				};
 			}
 		}
 
-		protected override void InitializeOutputPorts()
+		public override IEnumerable<OutputPort> GetOutputPorts()
 		{
 			foreach (ConnectorInfo output in GetOutputs().Where(output => output.ConnectionType.HasFlag(eConnectionType.Audio)))
 			{
-				outputPorts.Add(output, new OutputPort
+				yield return new OutputPort
 				{
+					Address = output.Address,
 					ConnectionType = output.ConnectionType,
 					OutputId = string.Format("Audio Output {0}", output.Address),
 					OutputIdFeedbackSupport = true,
 					AudioOutputVolume = Parent.GetVolumeState(),
 					AudioOutputMuteFeedbackSupported = true,
 					AudioOutputMute = Parent.GetMuteState(),
-					AudioOutputSource = GetActiveSourceIdName(output),
+					AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
 					AudioOutputSourceFeedbackSupport = true
-				});
+				};
 			}
 		}
 
@@ -291,15 +293,6 @@ namespace ICD.Connect.Audio.Devices
 			return vp != null ? vp.Name : null;
 		}
 
-		private string GetActiveSourceIdName(ConnectorInfo info)
-		{
-			var activeInput = m_Cache.GetInputConnectorInfoForOutput(info.Address, eConnectionType.Audio);
-			return activeInput != null
-				       ? string.Format("{0} {1}", inputPorts[activeInput.Value].InputId ?? string.Empty,
-				                       inputPorts[activeInput.Value].InputName ?? string.Empty)
-					   : null;
-		}
-
 		#endregion
 
 		#region Cache Callbacks
@@ -331,10 +324,12 @@ namespace ICD.Connect.Audio.Devices
 		private void CacheOnRouteChange(object sender, RouteChangeEventArgs args)
 		{
 			OnRouteChange.Raise(this, new RouteChangeEventArgs(args));
-			KeyValuePair<ConnectorInfo, OutputPort> outputPort = outputPorts.FirstOrDefault(kvp => kvp.Key.Address == args.Output);
-			if (outputPort.Value == null)
-				return;
-			outputPort.Value.AudioOutputSource = GetActiveSourceIdName(outputPort.Key);
+			OutputPort outputPort = GetOutputPort(args.Output);
+			ConnectorInfo info = GetOutput(args.Output);
+			if (args.Type.HasFlag(eConnectionType.Video))
+				outputPort.VideoOutputSource = GetActiveSourceIdName(info, eConnectionType.Video);
+			if (args.Type.HasFlag(eConnectionType.Audio))
+				outputPort.AudioOutputSource = GetActiveSourceIdName(info, eConnectionType.Audio);
 		}
 
 		private void CacheOnActiveTransmissionStateChanged(object sender, TransmissionStateEventArgs args)
@@ -360,22 +355,16 @@ namespace ICD.Connect.Audio.Devices
 		{
 			// this device should always have only one output, 
 			//so firstordefault is easier than looking up an index which is always 0 anyway
-			KeyValuePair<ConnectorInfo, OutputPort> output = outputPorts.FirstOrDefault();
-			if (output.Value == null)
-				return;
-
-			output.Value.AudioOutputMute = args.Data;
+			OutputPort output = GetOutputPort(1);
+			output.AudioOutputMute = args.Data;
 		}
 
 		private void ParentOnVolumeChanged(object sender, FloatEventArgs args)
 		{
 			// this device should always have only one output, 
 			//so firstordefault is easier than looking up an index which is always 0 anyway
-			KeyValuePair<ConnectorInfo, OutputPort> output = outputPorts.FirstOrDefault();
-			if (output.Value == null)
-				return;
-
-			output.Value.AudioOutputVolume = args.Data;
+			OutputPort output = GetOutputPort(1);
+			output.AudioOutputVolume = args.Data;
 		}
 
 		#endregion
