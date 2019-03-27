@@ -253,13 +253,19 @@ namespace ICD.Connect.Audio.Denon.Controls
 	    {
 		    foreach (var output in GetOutputs())
 		    {
-			    yield return new OutputPort
-			    {
+				bool supportsVideo = output.ConnectionType.HasFlag(eConnectionType.Video);
+				bool supportsAudio = output.ConnectionType.HasFlag(eConnectionType.Audio);
+				yield return new OutputPort
+				{
 					Address = output.Address,
 					ConnectionType = output.ConnectionType,
 					OutputId = "Denon Output",
-					OutputIdFeedbackSupport = true
-			    };
+					OutputIdFeedbackSupport = true,
+					VideoOutputSource = supportsVideo ? GetActiveSourceIdName(output, eConnectionType.Video) : null,
+					VideoOutputSourceFeedbackSupport = supportsVideo,
+					AudioOutputSource = supportsAudio ? GetActiveSourceIdName(output, eConnectionType.Audio) : null,
+					AudioOutputSourceFeedbackSupport = supportsAudio
+				};
 		    }
 	    }
 
