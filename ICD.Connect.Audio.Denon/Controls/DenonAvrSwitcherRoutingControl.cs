@@ -227,7 +227,48 @@ namespace ICD.Connect.Audio.Denon.Controls
 			return m_Cache.GetInputConnectorInfoForOutput(output, type);
 		}
 
-		/// <summary>
+	    /// <summary>
+	    /// Returns switcher port objects to get details about the input ports on this switcher.
+	    /// </summary>
+	    /// <returns></returns>
+	    public override IEnumerable<InputPort> GetInputPorts()
+	    {
+		    foreach (ConnectorInfo input in GetInputs())
+		    {
+				yield return new InputPort
+				{
+					Address = input.Address,
+					ConnectionType = input.ConnectionType,
+					InputId = GetInputId(input),
+					InputIdFeedbackSupported = true
+				};
+		    }
+	    }
+
+	    /// <summary>
+	    /// Returns switcher port objects to get details about the output ports on this switcher.
+	    /// </summary>
+	    /// <returns></returns>
+	    public override IEnumerable<OutputPort> GetOutputPorts()
+	    {
+		    foreach (var output in GetOutputs())
+		    {
+			    yield return new OutputPort
+			    {
+					Address = output.Address,
+					ConnectionType = output.ConnectionType,
+					OutputId = "Denon Output",
+					OutputIdFeedbackSupport = true
+			    };
+		    }
+	    }
+
+	    private string GetInputId(ConnectorInfo info)
+	    {
+		    return s_InputMap.GetValue(info.Address);
+	    }
+
+	    /// <summary>
 		/// Performs the given route operation.
 		/// </summary>
 		/// <param name="info"></param>
