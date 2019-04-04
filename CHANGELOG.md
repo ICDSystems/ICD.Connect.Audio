@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [9.0.1] - 2019-04-04
+### Changed
+ - Fixed errant feedback issue with Biamp Tesira partition events
+
 ## [9.0.0] - 2019-01-02
 ### Added
  - Added microphone control interface and abstraction
