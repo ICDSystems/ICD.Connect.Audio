@@ -1,6 +1,7 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Partitioning.Controls;
 
@@ -8,10 +9,15 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 {
 	public sealed class BiampTesiraPartitionDeviceControl : AbstractPartitionDeviceControl<BiampTesiraDevice>, IBiampTesiraDeviceControl
 	{
+		/// <summary>
+		/// Raised when the partition is detected as open or closed.
+		/// </summary>
 		public override event EventHandler<BoolEventArgs> OnOpenStatusChanged;
 
 		private readonly RoomCombinerWall m_Wall;
 		private readonly string m_Name;
+
+		private bool m_IsOpen;
 
 		#region Properties
 
@@ -20,7 +26,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// </summary>
 		public override string Name { get { return m_Name; } }
 
-		public override bool IsOpen { get { return !m_Wall.WallClosed; } }
+		/// <summary>
+		/// Returns the current open state of the partition.
+		/// </summary>
+		public override bool IsOpen { get { return m_IsOpen; } }
 
 		#endregion
 
@@ -37,6 +46,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 			m_Wall = wall;
 
 			Subscribe(m_Wall);
+
+			UpdateIsOpen();
 		}
 
 		/// <summary>
@@ -99,7 +110,20 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// <param name="args"></param>
 		private void WallOnWallClosedChanged(object sender, BoolEventArgs args)
 		{
-			OnOpenStatusChanged.Raise(this, new BoolEventArgs(args.Data));
+			UpdateIsOpen();
+		}
+
+		private void UpdateIsOpen()
+		{
+			bool open = !m_Wall.WallClosed;
+			if (open == m_IsOpen)
+				return;
+
+			m_IsOpen = open;
+
+			Log(eSeverity.Informational, "IsOpen changed to {0}", m_IsOpen);
+
+			OnOpenStatusChanged.Raise(this, new BoolEventArgs(m_IsOpen));
 		}
 
 		#endregion
