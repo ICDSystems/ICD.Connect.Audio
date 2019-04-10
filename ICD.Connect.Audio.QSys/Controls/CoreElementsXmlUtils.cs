@@ -24,7 +24,7 @@ namespace ICD.Connect.Audio.QSys.Controls
 
 			// Named controls
 			{typeof(NamedControl), "NamedControl"},
-			{typeof(BooleanNamedControl), "BooleanNamedContol"},
+			{typeof(BooleanNamedControl), "BooleanNamedControl"},
 			{typeof(VoipNamedComponent), "VoIPComponent"},
 
 			// Krang controls
