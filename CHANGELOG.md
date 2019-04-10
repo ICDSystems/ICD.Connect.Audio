@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [9.0.2] - 2019-04-10
 ### Changed
  - Fixed typo that was preventing QSysCore from loading BooleanNamedControls
 
