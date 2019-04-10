@@ -26,9 +26,11 @@ using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Settings.Core;
+using ICD.Connect.Telemetry.Attributes;
 
 namespace ICD.Connect.Audio.Biamp
 {
+	[ExternalTelemetry("Biamp", typeof(BiampExternalTelemetryProvider))]
 	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>
 	{
 		// How often to re-subscribe to device events

@@ -2,6 +2,7 @@
 using ICD.Connect.API.Attributes;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.Proxies.Controls.Volume;
+using ICD.Connect.Telemetry.Attributes;
 
 namespace ICD.Connect.Audio.Controls.Volume
 {
@@ -15,6 +16,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// Raised when the volume changes.
 		/// </summary>
 		[ApiEvent(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED, VolumeLevelDeviceControlApi.HELP_EVENT_VOLUME_CHANGED)]
+		[EventTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_LEVEL_CHANGED)]
 		event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 
 		#region Properties
@@ -24,6 +26,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		[ApiProperty(VolumeLevelDeviceControlApi.PROPERTY_VOLUME_POSITION,
 			VolumeLevelDeviceControlApi.HELP_PROPERTY_VOLUME_POSITION)]
+		[DynamicPropertyTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_LEVEL, VolumeTelemetryNames.VOLUME_CONTROL_LEVEL_CHANGED)]
 		float VolumePosition { get; }
 
 		/// <summary>
@@ -43,6 +46,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <param name="position"></param>
 		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_SET_VOLUME_POSITION,
 			VolumeLevelDeviceControlApi.HELP_METHOD_SET_VOLUME_POSITION)]
+		[MethodTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_LEVEL_COMMAND)]
 		void SetVolumePosition(float position);
 
 		/// <summary>
