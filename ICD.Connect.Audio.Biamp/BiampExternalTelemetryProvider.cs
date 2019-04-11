@@ -147,7 +147,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		private DeviceService GetDeviceService()
 		{
-			return m_Parent.AttributeInterfaces.GetAttributeInterface<DeviceService>(DeviceService.INSTANCE_TAG);
+			return m_Parent.AttributeInterfaces.LazyLoadService<DeviceService>();
 		}
 
 		private void LineOnRegistrationStatusChanged(VoIpControlStatusLine sender, VoIpControlStatusLine.eRegistrationStatus status)
