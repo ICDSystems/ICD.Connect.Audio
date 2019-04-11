@@ -223,7 +223,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls
 				{
 					return typeof(NamedControl);
 				}
-				case "BooleanNamedContol":
+				case "BooleanNamedControl":
 				{
 					return typeof(BooleanNamedControl);
 				}
