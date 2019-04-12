@@ -43,6 +43,7 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 		public event EventHandler<ControlValueUpdateEventArgs> OnControlValueUpdated ;
 
 		#region Constructors
+
 		/// <summary>
 		/// Constructor for Explicitly defined component
 		/// </summary>
@@ -79,7 +80,13 @@ namespace ICD.Connect.Audio.QSys.CoreControls.NamedComponents
 			ComponentName = componentName;
 			AddVoipControls();
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
+		}
 
+		public override void DisposeFinal(bool disposing)
+		{
+			base.DisposeFinal(disposing);
+
+			UnsubscribeControls();
 		}
 
 		#endregion

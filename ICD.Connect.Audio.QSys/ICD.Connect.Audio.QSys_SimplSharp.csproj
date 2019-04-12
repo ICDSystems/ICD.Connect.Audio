@@ -67,12 +67,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
+    <Compile Include="Controls\Dialing\QSysPotsTraditionalConferenceControl.cs" />
     <Compile Include="Controls\IQSysKrangControl.cs" />
     <Compile Include="Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
     <Compile Include="Controls\Partitioning\QSysPartitionControl.cs" />
     <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
     <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
     <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
+    <Compile Include="CoreControls\NamedComponents\PotsNamedComponent.cs" />
     <Compile Include="CoreControls\NamedComponents\VoipNamedComponent.cs" />
     <Compile Include="QSysCoreRoutingControl.cs" />
     <Compile Include="Controls\Volume\QSysVolumePositionControl.cs" />
