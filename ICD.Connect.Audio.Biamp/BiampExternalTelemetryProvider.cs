@@ -5,6 +5,7 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.Services;
+using ICD.Connect.Conferencing.ConferenceSources;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Telemetry;
@@ -12,7 +13,7 @@ using ICD.Connect.Telemetry.Attributes;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	public class BiampExternalTelemetryProvider : IBiampExternalTelemetryProvider
+	public sealed class BiampExternalTelemetryProvider : IBiampExternalTelemetryProvider
 	{
 		public event EventHandler OnRequestTelemetryRebuild;
 		public event EventHandler<BoolEventArgs> OnVoipRegisteredChanged;
@@ -43,9 +44,9 @@ namespace ICD.Connect.Audio.Biamp
 				}
 				foreach (var callControl in m_Parent.Controls.OfType<IDialingDeviceControl>())
 				{
-					callControl.OnSourceAdded -= ParentOnSourceAddedOrRemoved;
-					callControl.OnSourceRemoved -= ParentOnSourceAddedOrRemoved;
-					callControl.OnSourceChanged -= ParentOnSourceAddedOrRemoved;
+					callControl.OnSourceAdded -= ParentOnSourceAddedRemovedOrChanged;
+					callControl.OnSourceRemoved -= ParentOnSourceAddedRemovedOrChanged;
+					callControl.OnSourceChanged -= ParentOnSourceAddedRemovedOrChanged;
 				}
 				GetDeviceService().OnFirmwareVersionChanged -= ParentOnFirmwareVersionChanged;
 				GetDeviceService().OnFaultStatusChanged -= ParentOnFaultStatusChanged;
@@ -61,9 +62,9 @@ namespace ICD.Connect.Audio.Biamp
 				}
 				foreach (var callControl in m_Parent.Controls.OfType<IDialingDeviceControl>())
 				{
-					callControl.OnSourceAdded += ParentOnSourceAddedOrRemoved;
-					callControl.OnSourceRemoved += ParentOnSourceAddedOrRemoved;
-					callControl.OnSourceChanged += ParentOnSourceAddedOrRemoved;
+					callControl.OnSourceAdded += ParentOnSourceAddedRemovedOrChanged;
+					callControl.OnSourceRemoved += ParentOnSourceAddedRemovedOrChanged;
+					callControl.OnSourceChanged += ParentOnSourceAddedRemovedOrChanged;
 				}
 				GetDeviceService().OnRegistrationChanged += ParentOnFirmwareVersionChanged;
 				GetDeviceService().OnFaultStatusChanged += ParentOnFaultStatusChanged;
@@ -166,9 +167,13 @@ namespace ICD.Connect.Audio.Biamp
 			FirmwareVersion = args.Data;
 		}
 
-		private void ParentOnSourceAddedOrRemoved(object sender, ConferenceSourceEventArgs conferenceSourceEventArgs)
+		private void ParentOnSourceAddedRemovedOrChanged(object sender, ConferenceSourceEventArgs conferenceSourceEventArgs)
 		{
-			AtcCallActive = m_Parent.Controls.OfType<IDialingDeviceControl>().SelectMany(c => c.GetSources()).Any();
+			AtcCallActive = m_Parent.Controls
+			                        .OfType<IDialingDeviceControl>()
+			                        .SelectMany(c => c.GetSources()
+			                                          .Where(s => s.GetIsOnline()))
+			                        .Any();
 		}
 	}
 
