@@ -135,12 +135,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
 		}
 
-		#region console
+		#region Console
 
 		/// <summary>
 		/// Gets the name of the node.
 		/// </summary>
-		public override string ConsoleName { get { return String.Format("PotsComponent:{0}", Name); } }
+		public override string ConsoleName { get { return string.Format("PotsComponent:{0}", Name); } }
 
 		#endregion
 	}

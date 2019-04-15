@@ -112,12 +112,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		#endregion
 
-		#region console
+		#region Console
 
 		/// <summary>
 		/// Gets the name of the node.
 		/// </summary>
-		public override string ConsoleName { get { return String.Format("VoIPComponent:{0}", Name); } }
+		public override string ConsoleName { get { return string.Format("VoIPComponent:{0}", Name); } }
 
 		#endregion
 	}
