@@ -64,7 +64,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 			// If we don't have a component name, bail out
 			if (String.IsNullOrEmpty(componentName))
-				throw new InvalidOperationException(String.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
+				throw new InvalidOperationException(string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
 
 			ComponentName = componentName;
 			AddPortsControls();
@@ -80,7 +80,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// <param name="componentName"></param>
 		[UsedImplicitly]
 		public PotsNamedComponent(int id, CoreElementsLoadContext context, string componentName)
-			: base(context.QSysCore, String.Format("Implicit:{0}", componentName), id)
+			: base(context.QSysCore, string.Format("Implicit:{0}", componentName), id)
 
 		{
 			/*

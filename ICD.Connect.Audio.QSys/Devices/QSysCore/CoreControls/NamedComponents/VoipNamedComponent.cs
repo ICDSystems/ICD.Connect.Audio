@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Linq;
 using ICD.Common.Properties;
-using ICD.Common.Utils.Extensions;
+using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 {
@@ -40,7 +39,36 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public const string CONTROL_CALL_DISCONNECT = "call.disconnect";
 		public const string CONTROL_CALL_DND = "call.dnd";
 
-		public event EventHandler<ControlValueUpdateEventArgs> OnControlValueUpdated ;
+		private static readonly IcdHashSet<string> s_Controls =
+			new IcdHashSet<string>
+			{
+				CONTROL_CALL_NUMBER,
+				CONTROL_CALL_STATUS,
+				CONTROL_CALL_AUTOANSWER,
+				CONTROL_CALL_CID_NAME,
+				CONTROL_CALL_CID_NUMBER,
+				CONTROL_CALL_DETAILS,
+				//CONTROL_CALL_CONNECT_TIME,
+				CONTROL_CALL_STATE,
+				CONTROL_CALL_OFFHOOK,
+				CONTROL_CALL_RING,
+				CONTROL_CALL_RINGING,
+				CONTROL_CALL_PAD_0,
+				CONTROL_CALL_PAD_1,
+				CONTROL_CALL_PAD_2,
+				CONTROL_CALL_PAD_3,
+				CONTROL_CALL_PAD_4,
+				CONTROL_CALL_PAD_5,
+				CONTROL_CALL_PAD_6,
+				CONTROL_CALL_PAD_7,
+				CONTROL_CALL_PAD_8,
+				CONTROL_CALL_PAD_9,
+				CONTROL_CALL_PAD_STAR,
+				CONTROL_CALL_PAD_POUND,
+				CONTROL_CALL_CONNECT,
+				CONTROL_CALL_DISCONNECT,
+				CONTROL_CALL_DND
+			};
 
 		#region Constructors
 
@@ -59,10 +87,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 			// If we don't have a component name, bail out
 			if (String.IsNullOrEmpty(componentName))
-				throw new InvalidOperationException(String.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
+				throw new InvalidOperationException(string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
 
 			ComponentName = componentName;
-			AddVoipControls();
+			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
 		}
 
@@ -74,79 +102,15 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// <param name="componentName"></param>
 		[UsedImplicitly]
 		public VoipNamedComponent(int id, CoreElementsLoadContext context, string componentName)
-			: base(context.QSysCore, String.Format("Implicit:{0}", componentName), id)
+			: base(context.QSysCore, string.Format("Implicit:{0}", componentName), id)
 
 		{
 			ComponentName = componentName;
-			AddVoipControls();
+			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
 		}
 
-		public override void DisposeFinal(bool disposing)
-		{
-			base.DisposeFinal(disposing);
-
-			UnsubscribeControls();
-		}
-
 		#endregion
-
-		#region Controls
-
-		private void AddVoipControls()
-		{
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_NUMBER));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_STATUS));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_AUTOANSWER));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_DND));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NAME));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_CID_NUMBER));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_DETAILS));
-			//AddControl(new NamedComponentControl(this, CONTROL_CALL_CONNECT_TIME));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_STATE));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_OFFHOOK));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_RING));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_RINGING));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_0));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_1));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_2));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_3));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_4));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_5));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_6));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_7));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_8));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_9));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_STAR));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_PAD_POUND));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_CONNECT));
-			AddControl(new NamedComponentControl(this, CONTROL_CALL_DISCONNECT));
-
-			SubscribeControls();
-		}
-
-		private void SubscribeControls()
-		{
-			foreach (INamedComponentControl control in GetControlsForSubscribe())
-			{
-				control.OnValueUpdated += ControlOnValueUpdated;
-			}
-		}
-
-		private void UnsubscribeControls()
-		{
-			foreach (INamedComponentControl control in GetControlsForSubscribe())
-			{
-				control.OnValueUpdated -= ControlOnValueUpdated;
-			}
-		}
-
-		private void ControlOnValueUpdated(object sender, ControlValueUpdateEventArgs controlValueUpdateEventArgs)
-		{
-			OnControlValueUpdated.Raise(sender, controlValueUpdateEventArgs);
-		}
-
-#endregion
 
 		#region console
 

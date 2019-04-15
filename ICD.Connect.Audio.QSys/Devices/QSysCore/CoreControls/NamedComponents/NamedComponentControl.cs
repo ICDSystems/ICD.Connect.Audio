@@ -15,6 +15,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		private readonly INamedComponent m_Component;
 
+		#region Properties
+
 		public string ValueString { get; private set; }
 
 		public float ValueRaw { get; private set; }
@@ -23,6 +25,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		public string Name { get; private set; }
 
+		#endregion
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="component"></param>
+		/// <param name="name"></param>
+		public NamedComponentControl(INamedComponent component, string name)
+		{
+			m_Component = component;
+			Name = name;
+		}
+
 		public void ParseFeedback(JToken feedback)
 		{
 			ValueRaw = (float)feedback.SelectToken("Value");
@@ -30,12 +45,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			ValuePosition = (float)feedback.SelectToken("Position");
 
 			OnValueUpdated.Raise(this, new ControlValueUpdateEventArgs(Name, ValueString, ValueRaw, ValuePosition));
-		}
-
-		public NamedComponentControl(INamedComponent component, string name)
-		{
-			m_Component = component;
-			Name = name;
 		}
 
 		#region Console
