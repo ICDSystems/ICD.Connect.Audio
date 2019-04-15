@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Linq;
 using ICD.Common.Properties;
+using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
@@ -48,6 +51,52 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public const string CONTROL_CALLER_ID_WORD_4 = "caller.ID.word.4";
 		public const string CONTROL_DO_NOT_DISTURB = "do.not.disturb";
 
+		private static readonly IcdHashSet<string> s_Controls =
+			new IcdHashSet<string>
+			{
+				CONTROL_CALL_AUTOANSWER,
+				CONTROL_CALL_AUTOANSWER_RINGS,
+				CONTROL_CALL_BACKSPACE,
+				CONTROL_CALL_CID_DATE_TIME,
+				CONTROL_CALL_CID_NAME,
+				CONTROL_CALL_CID_NUMBER,
+				CONTROL_CALL_CLEAR,
+				CONTROL_CALL_CONNECT,
+				CONTROL_CALL_CONNECT_TIME,
+				CONTROL_CALL_CALL_DETAILS,
+				CONTROL_CALL_DISCONNECT,
+				CONTROL_CALL_DND,
+				CONTROL_CALL_DTMF_RX,
+				CONTROL_CALL_DTMF_TX,
+				CONTROL_CALL_HISTORY,
+				CONTROL_CALL_NUMBER,
+				CONTROL_CALL_OFFHOOK,
+				CONTROL_CALL_PINPAD_HASH,
+				CONTROL_CALL_PINPAD_STAR,
+				CONTROL_CALL_PINPAD_0,
+				CONTROL_CALL_PINPAD_1,
+				CONTROL_CALL_PINPAD_2,
+				CONTROL_CALL_PINPAD_3,
+				CONTROL_CALL_PINPAD_4,
+				CONTROL_CALL_PINPAD_5,
+				CONTROL_CALL_PINPAD_6,
+				CONTROL_CALL_PINPAD_7,
+				CONTROL_CALL_PINPAD_8,
+				CONTROL_CALL_PINPAD_9,
+				CONTROL_CALL_RING,
+				CONTROL_CALL_RINGING,
+				CONTROL_CALL_STATE,
+				CONTROL_CALL_STATUS,
+				CONTROL_CALL_WAITING,
+				CONTROL_CALLER_ID_INDEX,
+				CONTROL_CALLER_ID_WORD_0,
+				CONTROL_CALLER_ID_WORD_1,
+				CONTROL_CALLER_ID_WORD_2,
+				CONTROL_CALLER_ID_WORD_3,
+				CONTROL_CALLER_ID_WORD_4,
+				CONTROL_DO_NOT_DISTURB,
+			};
+
 		/// <summary>
 		/// Constructor for Explicitly defined component
 		/// </summary>
@@ -59,7 +108,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public PotsNamedComponent(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 			: base(context.QSysCore, friendlyName, id)
 		{
-			/*
 			string componentName = XmlUtils.TryReadChildElementContentAsString(xml, "ComponentName");
 
 			// If we don't have a component name, bail out
@@ -67,9 +115,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 				throw new InvalidOperationException(string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
 
 			ComponentName = componentName;
-			AddPortsControls();
+			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
-			 */
 		}
 
 		/// <summary>
@@ -83,11 +130,18 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			: base(context.QSysCore, string.Format("Implicit:{0}", componentName), id)
 
 		{
-			/*
 			ComponentName = componentName;
-			AddPortsControls();
+			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
-			 */
 		}
+
+		#region console
+
+		/// <summary>
+		/// Gets the name of the node.
+		/// </summary>
+		public override string ConsoleName { get { return String.Format("PotsComponent:{0}", Name); } }
+
+		#endregion
 	}
 }
