@@ -77,6 +77,7 @@
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\NamedComponentControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\PotsNamedComponent.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\VoipNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\QSysCoreComponentsCollection.cs" />
     <Compile Include="Devices\QSysCore\QSysCoreRoutingControl.cs" />
     <Compile Include="Devices\QSysCore\Controls\Volume\QSysVolumePositionControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\AbstractCoreControl.cs" />
