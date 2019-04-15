@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
@@ -93,6 +94,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		public void AddChangeGroup(IChangeGroup changeGroup)
 		{
 			m_ChangeGroupsCriticalSection.Enter();
+
 			try
 			{
 				m_ChangeGroups.Add(changeGroup.ChangeGroupId, changeGroup);
@@ -104,40 +106,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 		}
 
-		public IChangeGroup GetChangeGroupById(int id)
-		{
-			IChangeGroup changeGroup;
-
-			m_ChangeGroupsCriticalSection.Enter();
-			try
-			{
-				if (!m_ChangeGroupsById.TryGetValue(id, out changeGroup))
-					return null;
-			}
-			finally
-			{
-				m_ChangeGroupsCriticalSection.Leave();
-			}
-
-			return changeGroup;
-		}
-
+		[CanBeNull]
 		public IChangeGroup GetChangeGroup(string changeGroupId)
 		{
-			IChangeGroup changeGroup;
-
-			m_ChangeGroupsCriticalSection.Enter();
-			try
-			{
-				if (!m_ChangeGroups.TryGetValue(changeGroupId, out changeGroup))
-					return null;
-			}
-			finally
-			{
-				m_ChangeGroupsCriticalSection.Leave();
-			}
-
-			return changeGroup;
+			return m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.GetDefault(changeGroupId));
 		}
 
 		public void AddNamedControl(IEnumerable<INamedControl> namedControls)
@@ -168,6 +140,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		public void AddNamedComponent(INamedComponent namedComponent)
 		{
 			m_NamedComponentsCriticalSection.Enter();
+
 			try
 			{
 				m_NamedComponents.Add(namedComponent.ComponentName, namedComponent);
@@ -191,23 +164,17 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public IEnumerable<IChangeGroup> GetChangeGroups()
 		{
-			List<IChangeGroup> changeGroups = null;
-			m_ChangeGroupsCriticalSection.Execute(() => changeGroups = m_ChangeGroups.Values.ToList(m_ChangeGroups.Count));
-			return changeGroups;
+			return m_ChangeGroupsCriticalSection.Execute(() => m_ChangeGroups.Values.ToArray(m_ChangeGroups.Count));
 		}
 
 		public IEnumerable<INamedControl> GetNamedControls()
 		{
-			List<INamedControl> namedControls = null;
-			m_NamedControlsCriticalSection.Execute(() => namedControls = m_NamedControls.Values.ToList(m_NamedControls.Count));
-			return namedControls;
+			return m_NamedControlsCriticalSection.Execute(() => m_NamedControls.Values.ToArray(m_NamedControls.Count));
 		}
 
 		public IEnumerable<INamedComponent> GetNamedComponents()
 		{
-			List<INamedComponent> namedComponents = null;
-			m_NamedComponentsCriticalSection.Execute(() => namedComponents = m_NamedComponents.Values.ToList(m_NamedComponents.Count));
-			return namedComponents;
+			return m_NamedComponentsCriticalSection.Execute(() => m_NamedComponents.Values.ToArray(m_NamedComponents.Count));
 		}
 
 		public void ClearLoadedControls()
