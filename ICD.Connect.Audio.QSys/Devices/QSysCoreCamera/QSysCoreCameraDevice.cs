@@ -73,20 +73,22 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 			switch (action)
 			{
 				case eCameraPanTiltAction.Left:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PAN_LEFT);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_LEFT, "1");
 					break;
 				case eCameraPanTiltAction.Right:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PAN_RIGHT);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_RIGHT, "1");
 					break;
 				case eCameraPanTiltAction.Up:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_TILT_UP);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_UP, "1");
 					break;
 				case eCameraPanTiltAction.Down:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_TILT_DOWN);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_DOWN, "1");
 					break;
 				case eCameraPanTiltAction.Stop:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PAN_CURRENT);
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_TILT_CURRENT);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_LEFT, "0");
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_RIGHT, "0");
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_UP, "0");
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_DOWN, "0");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException("action");
@@ -109,13 +111,14 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 			switch (action)
 			{
 				case eCameraZoomAction.ZoomIn:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_ZOOM_IN);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_ZOOM_IN, "1");
 					break;
 				case eCameraZoomAction.ZoomOut:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_ZOOM_OUT);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_ZOOM_OUT, "1");
 					break;
 				case eCameraZoomAction.Stop:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_ZOOM_CURRENT);
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_ZOOM_IN, "0");
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_ZOOM_OUT, "0");
 					break;
 				default:
 					throw new ArgumentOutOfRangeException("action");

@@ -32,13 +32,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public const string CONTROL_PRESET_HOME_TILT = "preset.home.tilt";
 		public const string CONTROL_PRESET_HOME_ZOOM = "preset.home.zoom";
 
-		public const string CONTROL_PRESET_PRIVATE_LOAD = "preset.public.load";
-		public const string CONTROL_PRESET_PRIVATE_LOAD_STATE = "preset.public.load.state";
-		public const string CONTROL_PRESET_PRIVATE_LOAD_TRIGGER = "preset.public.load.trigger";
-		public const string CONTROL_PRESET_PRIVATE_PAN = "preset.public.pan";
-		public const string CONTROL_PRESET_PRIVATE_SAVE_TRIGGER = "preset.public.save.trigger";
-		public const string CONTROL_PRESET_PRIVATE_TILT = "preset.public.tilt";
-		public const string CONTROL_PRESET_PRIVATE_ZOOM = "preset.public.zoom";
+		public const string CONTROL_PRESET_PRIVATE_LOAD = "preset.private.load";
+		public const string CONTROL_PRESET_PRIVATE_LOAD_STATE = "preset.private.load.state";
+		public const string CONTROL_PRESET_PRIVATE_LOAD_TRIGGER = "preset.private.load.trigger";
+		public const string CONTROL_PRESET_PRIVATE_PAN = "preset.private.pan";
+		public const string CONTROL_PRESET_PRIVATE_SAVE_TRIGGER = "preset.private.save.trigger";
+		public const string CONTROL_PRESET_PRIVATE_TILT = "preset.private.tilt";
+		public const string CONTROL_PRESET_PRIVATE_ZOOM = "preset.private.zoom";
 
 		private static readonly IcdHashSet<string> s_Controls =
 			new IcdHashSet<string>
