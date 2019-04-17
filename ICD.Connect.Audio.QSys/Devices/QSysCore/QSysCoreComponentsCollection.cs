@@ -22,6 +22,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 		private readonly QSysCoreDevice m_Parent;
 
+		private CoreElementsLoadContext m_LoadContext;
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -35,6 +37,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 			m_CollectionSection = new SafeCriticalSection();
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
+
+			m_LoadContext = new CoreElementsLoadContext(m_Parent);
 		}
 
 		/// <summary>
@@ -49,13 +53,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		{
 			ClearLoadedControls();
 
-			CoreElementsLoadContext loadContext = CoreElementsXmlUtils.GetControlsFromXml(xml, m_Parent);
+			m_LoadContext = CoreElementsXmlUtils.GetControlsFromXml(xml, m_Parent);
 
 			// Add to correct collections
-			AddChangeGroup(loadContext.GetChangeGroups());
-			AddNamedControl(loadContext.GetNamedControls());
-			AddNamedComponent(loadContext.GetNamedComponents());
-			AddKrangControl(loadContext.GetKrangControls());
+			AddChangeGroup(m_LoadContext.GetChangeGroups());
+			AddNamedControl(m_LoadContext.GetNamedControls());
+			AddNamedComponent(m_LoadContext.GetNamedComponents());
+			AddKrangControl(m_LoadContext.GetKrangControls());
 		}
 
 		public void Initialize()
@@ -207,8 +211,25 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		}
 
 		public T LazyLoadNamedComponent<T>(string componentName)
+			where T : INamedComponent
 		{
-			throw new NotImplementedException();
+			m_CollectionSection.Enter();
+
+			try
+			{
+				INamedComponent component;
+				if (!m_NamedComponents.TryGetValue(componentName, out component))
+				{
+					component = m_LoadContext.LazyLoadNamedComponent<T>(componentName);
+					AddNamedComponent(component);
+				}
+
+				return (T)component;
+			}
+			finally
+			{
+				m_CollectionSection.Leave();
+			}
 		}
 	}
 }
