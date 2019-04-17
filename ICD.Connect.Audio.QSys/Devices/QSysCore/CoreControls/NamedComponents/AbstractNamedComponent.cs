@@ -196,6 +196,16 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			}
 		}
 
+		public void SetValue(string controlName, string value)
+		{
+			GetControl(controlName).SetValue(value);
+		}
+
+		public void Trigger(string controlName)
+		{
+			GetControl(controlName).Trigger();
+		}
+
 		#endregion
 
 		#region Controls

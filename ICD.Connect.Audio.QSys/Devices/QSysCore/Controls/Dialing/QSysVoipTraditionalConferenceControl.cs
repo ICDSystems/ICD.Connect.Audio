@@ -205,8 +205,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_NUMBER).SetValue(dialContext.DialString);
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
+			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_NUMBER, dialContext.DialString);
+			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 		}
 
 		public override void SetDoNotDisturb(bool enabled)
@@ -217,7 +217,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DND).SetValue(enabled ? "1" : "0");
+			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_DND, enabled ? "1" : "0");
 		}
 
 		public override void SetAutoAnswer(bool enabled)
@@ -228,7 +228,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_AUTOANSWER).SetValue(enabled ? "1" : "0");
+			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_AUTOANSWER, enabled ? "1" : "0");
 		}
 
 		public override void SetPrivacyMute(bool enabled)
@@ -452,8 +452,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			if (control == null)
 				throw new
 					InvalidOperationException(
-					string.Format(
-					              "VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
+					string.Format("VoIP Dialing Device {0}:{1} - VoipComponentOnControlValueUpdated sender isn't an INamedComponentControl",
 					              Id, Name));
 
 			switch (control.Name)
@@ -529,7 +528,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_DISCONNECT).TriggerControl();
+			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_DISCONNECT);
 		}
 
 		private void ConferenceSourceHoldCallback(ThinTraditionalParticipant sender)
@@ -610,7 +609,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 						throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, c));
 				}
 
-				m_VoipComponent.GetControl(controlName).TriggerControl();
+				m_VoipComponent.Trigger(controlName);
 			}
 		}
 
@@ -638,7 +637,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
+			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
 			if (sender != null)
 				sender.AnswerState = eCallAnswerState.Answered;
@@ -652,7 +651,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
-			m_VoipComponent.GetControl(VoipNamedComponent.CONTROL_CALL_CONNECT).TriggerControl();
+			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
 			if (sender != null)
 				sender.AnswerState = eCallAnswerState.Ignored;

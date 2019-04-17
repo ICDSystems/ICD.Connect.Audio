@@ -15,6 +15,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		void SetValue(string value);
 		void SetPosition(float position);
-		void TriggerControl();
+		void Trigger();
 	}
 }

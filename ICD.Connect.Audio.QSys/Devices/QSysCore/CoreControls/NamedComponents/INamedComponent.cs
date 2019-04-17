@@ -26,5 +26,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		// and
 		// INamedComponent(int id, CoreElementsLoadContext context, string componentName);
 
+		void SetValue(string controlName, string value);
+
+		void Trigger(string controlName);
     }
 }

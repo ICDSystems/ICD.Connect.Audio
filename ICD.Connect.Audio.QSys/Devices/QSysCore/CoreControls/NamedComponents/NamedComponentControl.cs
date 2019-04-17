@@ -87,7 +87,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public IEnumerable<IConsoleCommand> GetConsoleCommands()
 		{
 			yield return new ConsoleCommand("Poll", "Pull The Current Value", () => PollValue());
-			//yield return new ConsoleCommand("Trigger", "Triggers the control", () => TriggerControl());
+			//yield return new ConsoleCommand("Trigger", "Triggers the control", () => Trigger());
 			//yield return new GenericConsoleCommand<string>("SetPosition", "SetPosition <Position>", p => SetPosition(float.Parse(p)));
 			yield return new GenericConsoleCommand<string>("SetValue", "SetValue <Value>", p => SetValue(p));
 		}
@@ -103,7 +103,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			throw new NotImplementedException();
 		}
 
-		public void TriggerControl()
+		public void Trigger()
 		{
 			// todo: Change to set position 1
 			SetValue("1");
