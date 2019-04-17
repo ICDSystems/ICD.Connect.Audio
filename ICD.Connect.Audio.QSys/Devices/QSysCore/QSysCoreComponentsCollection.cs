@@ -14,27 +14,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 {
 	public sealed class QSysCoreComponentsCollection : IDisposable
 	{
-		/// <summary>
-		/// Change Groups
-		/// </summary>
-		private Dictionary<string, IChangeGroup> m_ChangeGroups;
-		private Dictionary<int, IChangeGroup> m_ChangeGroupsById;
-		private readonly SafeCriticalSection m_ChangeGroupsSection;
+		private readonly Dictionary<string, IChangeGroup> m_ChangeGroups;
+		private readonly Dictionary<string, INamedControl> m_NamedControls;
+		private readonly Dictionary<string, INamedComponent> m_NamedComponents;
 
-		/// <summary>
-		/// Named Controls
-		/// </summary>
-		private Dictionary<string, INamedControl> m_NamedControls;
-		private Dictionary<int, INamedControl> m_NamedControlsById;
-		private readonly SafeCriticalSection m_NamedControlsSection;
-
-		/// <summary>
-		/// Named Components
-		/// </summary>
-		private Dictionary<string, INamedComponent> m_NamedComponents;
-		private Dictionary<int, INamedComponent> m_NamedComponentsById;
-		private readonly SafeCriticalSection m_NamedComponentsSection;
-
+		private readonly SafeCriticalSection m_CollectionSection;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 		private readonly QSysCoreDevice m_Parent;
 
@@ -45,18 +29,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		{
 			m_Parent = parent;
 
-			m_ChangeGroupsSection = new SafeCriticalSection();
 			m_ChangeGroups = new Dictionary<string, IChangeGroup>();
-			m_ChangeGroupsById = new Dictionary<int, IChangeGroup>();
-
-			m_NamedControlsSection = new SafeCriticalSection();
 			m_NamedControls = new Dictionary<string, INamedControl>();
-			m_NamedControlsById = new Dictionary<int, INamedControl>();
-
-			m_NamedComponentsSection = new SafeCriticalSection();
 			m_NamedComponents = new Dictionary<string, INamedComponent>();
-			m_NamedComponentsById = new Dictionary<int, INamedComponent>();
 
+			m_CollectionSection = new SafeCriticalSection();
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 		}
 
@@ -83,7 +60,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void Initialize()
 		{
-			m_ChangeGroupsSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
+			m_CollectionSection.Execute(() => m_ChangeGroups.ForEach(k => k.Value.Initialize()));
 		}
 
 		public void AddChangeGroup(IEnumerable<IChangeGroup> changeGroups)
@@ -93,23 +70,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void AddChangeGroup(IChangeGroup changeGroup)
 		{
-			m_ChangeGroupsSection.Enter();
-
-			try
-			{
-				m_ChangeGroups.Add(changeGroup.ChangeGroupId, changeGroup);
-				m_ChangeGroupsById.Add(changeGroup.Id, changeGroup);
-			}
-			finally
-			{
-				m_ChangeGroupsSection.Leave();
-			}
+			m_CollectionSection.Execute(() => m_ChangeGroups.Add(changeGroup.ChangeGroupId, changeGroup));
 		}
 
 		[CanBeNull]
 		public IChangeGroup GetChangeGroup(string changeGroupId)
 		{
-			return m_ChangeGroupsSection.Execute(() => m_ChangeGroups.GetDefault(changeGroupId));
+			return m_CollectionSection.Execute(() => m_ChangeGroups.GetDefault(changeGroupId));
 		}
 
 		public void AddNamedControl(IEnumerable<INamedControl> namedControls)
@@ -119,17 +86,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void AddNamedControl(INamedControl namedControl)
 		{
-			m_NamedControlsSection.Enter();
-
-			try
-			{
-				m_NamedControls.Add(namedControl.ControlName, namedControl);
-				m_NamedControlsById.Add(namedControl.Id, namedControl);
-			}
-			finally
-			{
-				m_NamedControlsSection.Leave();
-			}
+			m_CollectionSection.Execute(() => m_NamedControls.Add(namedControl.ControlName, namedControl));
 		}
 
 		public void AddNamedComponent(IEnumerable<INamedComponent> namedComponents)
@@ -139,17 +96,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void AddNamedComponent(INamedComponent namedComponent)
 		{
-			m_NamedComponentsSection.Enter();
-
-			try
-			{
-				m_NamedComponents.Add(namedComponent.ComponentName, namedComponent);
-				m_NamedComponentsById.Add(namedComponent.Id, namedComponent);
-			}
-			finally
-			{
-				m_NamedComponentsSection.Leave();
-			}
+			m_CollectionSection.Execute(() => m_NamedComponents.Add(namedComponent.ComponentName, namedComponent));
 		}
 
 		public void AddKrangControl(IEnumerable<IQSysKrangControl> krangControls)
@@ -164,23 +111,23 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public IEnumerable<IChangeGroup> GetChangeGroups()
 		{
-			return m_ChangeGroupsSection.Execute(() => m_ChangeGroups.Values.ToArray(m_ChangeGroups.Count));
+			return m_CollectionSection.Execute(() => m_ChangeGroups.Values.ToArray(m_ChangeGroups.Count));
 		}
 
 		public IEnumerable<INamedControl> GetNamedControls()
 		{
-			return m_NamedControlsSection.Execute(() => m_NamedControls.Values.ToArray(m_NamedControls.Count));
+			return m_CollectionSection.Execute(() => m_NamedControls.Values.ToArray(m_NamedControls.Count));
 		}
 
 		public IEnumerable<INamedComponent> GetNamedComponents()
 		{
-			return m_NamedComponentsSection.Execute(() => m_NamedComponents.Values.ToArray(m_NamedComponents.Count));
+			return m_CollectionSection.Execute(() => m_NamedComponents.Values.ToArray(m_NamedComponents.Count));
 		}
 
 		public void ClearLoadedControls()
 		{
 			// Clear Change Groups
-			m_ChangeGroupsSection.Enter();
+			m_CollectionSection.Enter();
 			try
 			{
 				foreach (KeyValuePair<string, IChangeGroup> kvp in m_ChangeGroups)
@@ -188,40 +135,37 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 					kvp.Value.DestroyChangeGroup();
 					kvp.Value.Dispose();
 				}
-				m_ChangeGroups = new Dictionary<string, IChangeGroup>();
-				m_ChangeGroupsById = new Dictionary<int, IChangeGroup>();
+				m_ChangeGroups.Clear();
 			}
 			finally
 			{
-				m_ChangeGroupsSection.Leave();
+				m_CollectionSection.Leave();
 			}
 
 			// Clear Named Controls
-			m_NamedControlsSection.Enter();
+			m_CollectionSection.Enter();
 			try
 			{
 				foreach (KeyValuePair<string, INamedControl> kvp in m_NamedControls)
 					kvp.Value.Dispose();
-				m_NamedControls = new Dictionary<string, INamedControl>();
-				m_NamedControlsById = new Dictionary<int, INamedControl>();
+				m_NamedControls.Clear();
 			}
 			finally
 			{
-				m_NamedControlsSection.Leave();
+				m_CollectionSection.Leave();
 			}
 
 			// Clear Named Components
-			m_NamedComponentsSection.Enter();
+			m_CollectionSection.Enter();
 			try
 			{
 				foreach (KeyValuePair<string, INamedComponent> kvp in m_NamedComponents)
 					kvp.Value.Dispose();
-				m_NamedComponents = new Dictionary<string, INamedComponent>();
-				m_NamedComponentsById = new Dictionary<int, INamedComponent>();
+				m_NamedComponents.Clear();
 			}
 			finally
 			{
-				m_NamedComponentsSection.Leave();
+				m_CollectionSection.Leave();
 			}
 
 			// Clear Controls Collection
@@ -236,7 +180,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public bool TryGetNamedComponent(string nameToken, out INamedComponent component)
 		{
-			m_NamedComponentsSection.Enter();
+			m_CollectionSection.Enter();
 
 			try
 			{
@@ -244,13 +188,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 			finally
 			{
-				m_NamedComponentsSection.Leave();
+				m_CollectionSection.Leave();
 			}
 		}
 
 		public bool TryGetNamedControl(string nameToken, out INamedControl control)
 		{
-			m_NamedControlsSection.Enter();
+			m_CollectionSection.Enter();
 
 			try
 			{
@@ -258,7 +202,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 			finally
 			{
-				m_NamedControlsSection.Leave();
+				m_CollectionSection.Leave();
 			}
 		}
 
