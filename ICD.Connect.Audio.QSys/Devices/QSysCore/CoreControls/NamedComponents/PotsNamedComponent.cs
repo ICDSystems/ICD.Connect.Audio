@@ -26,7 +26,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public const string CONTROL_CALL_HISTORY = "call.history";
 		public const string CONTROL_CALL_NUMBER = "call.number";
 		public const string CONTROL_CALL_OFFHOOK = "call.offhook";
-		public const string CONTROL_CALL_PINPAD_HASH = "call.pinpad.#";
+		public const string CONTROL_CALL_PINPAD_POUND = "call.pinpad.#";
 		public const string CONTROL_CALL_PINPAD_STAR = "call.pinpad.*";
 		public const string CONTROL_CALL_PINPAD_0 = "call.pinpad.0";
 		public const string CONTROL_CALL_PINPAD_1 = "call.pinpad.1";
@@ -71,7 +71,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 				CONTROL_CALL_HISTORY,
 				CONTROL_CALL_NUMBER,
 				CONTROL_CALL_OFFHOOK,
-				CONTROL_CALL_PINPAD_HASH,
+				CONTROL_CALL_PINPAD_POUND,
 				CONTROL_CALL_PINPAD_STAR,
 				CONTROL_CALL_PINPAD_0,
 				CONTROL_CALL_PINPAD_1,
