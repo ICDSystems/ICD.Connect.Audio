@@ -9,25 +9,37 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 {
 	public sealed class CameraNamedComponent : AbstractNamedComponent
 	{
-		private const string CONTROL_PAN_CURRENT = "pan.curr";		private const string CONTROL_PAN_LEFT = "pan.left";		private const string CONTROL_PAN_NEXT = "pan.next";		private const string CONTROL_PAN_RIGHT = "pan.right";
+		public const string CONTROL_PAN_CURRENT = "pan.curr";
+		public const string CONTROL_PAN_LEFT = "pan.left";
+		public const string CONTROL_PAN_NEXT = "pan.next";
+		public const string CONTROL_PAN_RIGHT = "pan.right";
 
-		private const string CONTROL_TILT_CURRENT = "tilt.curr";
-		private const string CONTROL_TILT_DOWN = "tilt.down";
-		private const string CONTROL_TILT_NEXT = "tilt.next";
-		private const string CONTROL_TILT_UP = "tilt.up";
+		public const string CONTROL_TILT_CURRENT = "tilt.curr";
+		public const string CONTROL_TILT_DOWN = "tilt.down";
+		public const string CONTROL_TILT_NEXT = "tilt.next";
+		public const string CONTROL_TILT_UP = "tilt.up";
 
-		private const string CONTROL_ZOOM_CURRENT = "zoom.curr";
-		private const string CONTROL_ZOOM_IN = "zoom.in";
-		private const string CONTROL_ZOOM_NEXT = "zoom.next";
-		private const string CONTROL_ZOOM_OUT = "zoom.out";		private const string CONTROL_PRESET_HOME_LOAD = "preset.home.load";		private const string CONTROL_PRESET_HOME_LOAD_STATE = "preset.home.load.state";		private const string CONTROL_PRESET_HOME_LOAD_TRIGGER = "preset.home.load.trigger";		private const string CONTROL_PRESET_HOME_PAN = "preset.home.pan";		private const string CONTROL_PRESET_HOME_SAVE_TRIGGER = "preset.home.save.trigger";		private const string CONTROL_PRESET_HOME_TILT = "preset.home.tilt";		private const string CONTROL_PRESET_HOME_ZOOM = "preset.home.zoom";
+		public const string CONTROL_ZOOM_CURRENT = "zoom.curr";
+		public const string CONTROL_ZOOM_IN = "zoom.in";
+		public const string CONTROL_ZOOM_NEXT = "zoom.next";
+		public const string CONTROL_ZOOM_OUT = "zoom.out";
 
-		private const string CONTROL_PRESET_PRIVATE_LOAD = "preset.private.load";
-		private const string CONTROL_PRESET_PRIVATE_LOAD_STATE = "preset.private.load.state";
-		private const string CONTROL_PRESET_PRIVATE_LOAD_TRIGGER = "preset.private.load.trigger";
-		private const string CONTROL_PRESET_PRIVATE_PAN = "preset.private.pan";
-		private const string CONTROL_PRESET_PRIVATE_SAVE_TRIGGER = "preset.private.save.trigger";
-		private const string CONTROL_PRESET_PRIVATE_TILT = "preset.private.tilt";
-		private const string CONTROL_PRESET_PRIVATE_ZOOM = "preset.private.zoom";
+		public const string CONTROL_PRESET_HOME_LOAD = "preset.home.load";
+		public const string CONTROL_PRESET_HOME_LOAD_STATE = "preset.home.load.state";
+		public const string CONTROL_PRESET_HOME_LOAD_TRIGGER = "preset.home.load.trigger";
+		public const string CONTROL_PRESET_HOME_PAN = "preset.home.pan";
+		public const string CONTROL_PRESET_HOME_SAVE_TRIGGER = "preset.home.save.trigger";
+		public const string CONTROL_PRESET_HOME_TILT = "preset.home.tilt";
+		public const string CONTROL_PRESET_HOME_ZOOM = "preset.home.zoom";
+
+		public const string CONTROL_PRESET_PRIVATE_LOAD = "preset.public.load";
+		public const string CONTROL_PRESET_PRIVATE_LOAD_STATE = "preset.public.load.state";
+		public const string CONTROL_PRESET_PRIVATE_LOAD_TRIGGER = "preset.public.load.trigger";
+		public const string CONTROL_PRESET_PRIVATE_PAN = "preset.public.pan";
+		public const string CONTROL_PRESET_PRIVATE_SAVE_TRIGGER = "preset.public.save.trigger";
+		public const string CONTROL_PRESET_PRIVATE_TILT = "preset.public.tilt";
+		public const string CONTROL_PRESET_PRIVATE_ZOOM = "preset.public.zoom";
+
 		private static readonly IcdHashSet<string> s_Controls =
 			new IcdHashSet<string>
 			{
@@ -74,7 +86,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 			// If we don't have a component name, bail out
 			if (String.IsNullOrEmpty(componentName))
-				throw new InvalidOperationException(string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
+				throw new InvalidOperationException(
+					string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
 
 			ComponentName = componentName;
 			AddControls(s_Controls);

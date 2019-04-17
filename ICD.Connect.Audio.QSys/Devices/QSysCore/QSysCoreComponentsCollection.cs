@@ -261,5 +261,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				m_NamedControlsSection.Leave();
 			}
 		}
+
+		public T LazyLoadNamedComponent<T>(string componentName)
+		{
+			throw new NotImplementedException();
+		}
 	}
 }

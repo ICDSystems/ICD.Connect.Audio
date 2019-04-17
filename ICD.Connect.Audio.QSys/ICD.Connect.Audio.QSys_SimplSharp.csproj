@@ -67,6 +67,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
+    <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDevice.cs" />
+    <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDeviceSettings.cs" />
     <Compile Include="Devices\QSysCore\Controls\Dialing\QSysPotsTraditionalConferenceControl.cs" />
     <Compile Include="Devices\QSysCore\Controls\IQSysKrangControl.cs" />
     <Compile Include="Devices\QSysCore\Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
