@@ -64,7 +64,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls
 		/// Release resources.
 		/// </summary>
 		/// <param name="disposing"></param>
-		public virtual void DisposeFinal(bool disposing)
+		protected virtual void DisposeFinal(bool disposing)
 		{
 		}
 

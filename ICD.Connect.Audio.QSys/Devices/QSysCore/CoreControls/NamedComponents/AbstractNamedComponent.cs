@@ -47,7 +47,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// Release resources.
 		/// </summary>
 		/// <param name="disposing"></param>
-		public override void DisposeFinal(bool disposing)
+		protected override void DisposeFinal(bool disposing)
 		{
 			OnControlValueUpdated = null;
 
