@@ -117,6 +117,7 @@
     <Compile Include="Devices\QSysCore\Rpc\IRpc.cs" />
     <Compile Include="Devices\QSysCore\Rpc\LogonRpc.cs" />
     <None Include="Properties\ControlSystem.cfg" />
+    <None Include="QRCDocumentation.pdf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ICD.Common.Utils\ICD.Common.Utils\ICD.Common.Utils_SimplSharp.csproj">
