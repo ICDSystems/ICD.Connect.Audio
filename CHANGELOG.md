@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
  - Significant QSys Core refactoring
+ - Fixed bug where QSys Core would attempt to send changegroup data before initialization
 
 ## [11.1.0] - 2019-03-27
 ### Added
