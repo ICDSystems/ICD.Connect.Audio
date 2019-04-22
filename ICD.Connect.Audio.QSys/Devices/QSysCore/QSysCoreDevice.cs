@@ -110,7 +110,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			m_SerialBuffer = new JsonSerialBuffer();
 			Subscribe(m_SerialBuffer);
 
-			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
+			m_ConnectionStateManager = new ConnectionStateManager(this) {ConfigurePort = ConfigurePort};
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
@@ -251,8 +251,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		/// </summary>
 		private void SendNoOpKeepalive()
 		{
-            if (!m_ConnectionStateManager.IsConnected)
-                return;
+			if (!m_ConnectionStateManager.IsConnected)
+				return;
 
 			SendData(new NoOpRpc());
 		}
@@ -436,31 +436,31 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		}
 
 		/// <summary>
-        /// Parses one or more Named Controls, and sets the values on the controls
-        /// </summary>
-        /// <param name="json"></param>
-	    private void ParseNamedControlGetResponse(JObject json)
-	    {
-	        JToken results = json.SelectToken("result");
-	        if (results == null || !results.HasValues)
-	            return;
+		/// Parses one or more Named Controls, and sets the values on the controls
+		/// </summary>
+		/// <param name="json"></param>
+		private void ParseNamedControlGetResponse(JObject json)
+		{
+			JToken results = json.SelectToken("result");
+			if (results == null || !results.HasValues)
+				return;
 
 			foreach (JToken result in results)
 				ParseNamedControlResponse(result);
-	    }
+		}
 
-        /// <summary>
-        /// Parses a single named control, and sets the values on the control
-        /// </summary>
-        /// <param name="result"></param>
-	    private void ParseNamedControlResponse(JToken result)
-	    {
-	        string nameToken = (string)result.SelectToken("Name");
+		/// <summary>
+		/// Parses a single named control, and sets the values on the control
+		/// </summary>
+		/// <param name="result"></param>
+		private void ParseNamedControlResponse(JToken result)
+		{
+			string nameToken = (string)result.SelectToken("Name");
 
-		    if (string.IsNullOrEmpty(nameToken))
-			    return;
+			if (string.IsNullOrEmpty(nameToken))
+				return;
 
-	        INamedControl control;
+			INamedControl control;
 			if (Components.TryGetNamedControl(nameToken, out control))
 				control.ParseFeedback(result);
 		}
