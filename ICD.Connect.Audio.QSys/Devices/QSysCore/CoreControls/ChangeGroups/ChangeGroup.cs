@@ -98,7 +98,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 				m_CriticalSection.Leave();
 			}
 
-			if (addedControls.Count == 0)
+			if (addedControls.Count == 0 || !QSysCore.Initialized)
 				return;
 
 			SendData(new ChangeGroupAddControlRpc(this, addedControls));
