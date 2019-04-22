@@ -200,6 +200,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		/// <summary>
 		/// Sends the data to the device and calls the callback asynchronously with the response.
 		/// </summary>
+		/// <param name="data"></param>
+		internal void SendData(IRpc data)
+		{
+			if (data == null)
+				throw new ArgumentNullException("data");
+
+			string json = data.Serialize();
+			SendData(json);
+		}
+
+		/// <summary>
+		/// Sends the data to the device and calls the callback asynchronously with the response.
+		/// </summary>
 		/// <param name="json"></param>
 		internal void SendData(string json)
 		{
@@ -241,7 +254,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
             if (!m_ConnectionStateManager.IsConnected)
                 return;
 
-			SendData(new NoOpRpc().Serialize());
+			SendData(new NoOpRpc());
 		}
 
 		#endregion
@@ -552,14 +565,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
 				yield return command;
 
-			yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc().Serialize()));
+			yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc()));
 			yield return
-				new ConsoleCommand("GetComponents", "Gets Components in Design",
-				                   () => SendData(new ComponentGetComponentsRpc().Serialize()));
+				new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc()));
 			yield return new ConsoleCommand("ReloadControls", "Reload controls from previous file", () => ReloadControls());
 			yield return
 				new GenericConsoleCommand<string>("LoadControls", "Load Controls from Specified File", p => LoadControls(p));
-
 		}
 
 		/// <summary>

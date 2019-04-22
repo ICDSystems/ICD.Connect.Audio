@@ -63,12 +63,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 		/// <param name="value">Value to set the control to</param>
 		public void SetValue(object value)
         {
-            SendData(new ControlSetValueRpc(this, value).Serialize());
+            SendData(new ControlSetValueRpc(this, value));
         }
 
 	    public void SetPosition(float position)
 	    {
-			SendData(new ControlSetPositionRpc(this, position).Serialize());
+			SendData(new ControlSetPositionRpc(this, position));
 		}
 
 	    /// <summary>
@@ -76,7 +76,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 		/// </summary>
 		public void PollValue()
         {
-            SendData(new ControlGetRpc(this).Serialize());
+            SendData(new ControlGetRpc(this));
         }
 
 	    public void ParseFeedback(JToken feedback)

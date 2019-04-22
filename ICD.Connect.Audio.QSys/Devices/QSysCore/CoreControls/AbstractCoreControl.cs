@@ -2,6 +2,7 @@
 using ICD.Common.Utils;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls
 {
@@ -72,7 +73,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls
 		/// Sends the given data string to the device.
 		/// </summary>
 		/// <param name="data"></param>
-		protected void SendData(string data)
+		protected void SendData(IRpc data)
 		{
 			m_Core.SendData(data);
 		}

@@ -110,7 +110,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		{
 			IEnumerable<string> controlNames = Enumerable.Empty<string>();
 			m_NamedComponentControlsCriticalSection.Execute(() => controlNames = m_NamedComponentControls.Keys.ToArray());
-			SendData(new ComponentGetRpc(ComponentName, controlNames).Serialize());
+			SendData(new ComponentGetRpc(ComponentName, controlNames));
 		}
 
 		/// <summary>

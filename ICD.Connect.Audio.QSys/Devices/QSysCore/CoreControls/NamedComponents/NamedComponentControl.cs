@@ -94,7 +94,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		public void SetValue(string value)
 		{
-			m_Component.QSysCore.SendData(new ComponentSetRpc(m_Component.ComponentName, Name, value).Serialize());
+			m_Component.QSysCore.SendData(new ComponentSetRpc(m_Component.ComponentName, Name, value));
 		}
 
 		public void SetPosition(float parse)
@@ -111,7 +111,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		private void PollValue()
 		{
-			m_Component.QSysCore.SendData(new ComponentGetRpc(m_Component.ComponentName, Name).Serialize());
+			m_Component.QSysCore.SendData(new ComponentGetRpc(m_Component.ComponentName, Name));
 		}
 
 		#endregion
