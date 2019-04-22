@@ -30,6 +30,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 			{typeof(CameraNamedComponent), "CameraComponent"},
 			{typeof(PotsNamedComponent), "PotsComponent"},
 			{typeof(VoipNamedComponent), "VoIPComponent"},
+			{typeof(SnapshotNamedComponent), "SnapshotComponent"},
 
 			// Krang controls
 			{typeof(QSysVolumePositionControl), "NamedControlVolume"},
