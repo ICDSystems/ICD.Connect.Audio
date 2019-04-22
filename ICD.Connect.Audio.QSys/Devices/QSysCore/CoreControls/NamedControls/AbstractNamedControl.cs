@@ -184,7 +184,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 		/// <param name="controlName"></param>
 		[UsedImplicitly]
 		protected AbstractNamedControl(int id, CoreElementsLoadContext loadContext, string controlName)
-		    : base(loadContext.QSysCore, String.Format("Implicit:{0}", controlName), id)
+		    : base(loadContext.QSysCore, string.Format("Implicit:{0}", controlName), id)
 		{
 			ControlName = controlName;
 			SetupInitialChangeGroups(loadContext, Enumerable.Empty<int>());

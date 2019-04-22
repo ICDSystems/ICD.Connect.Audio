@@ -8,7 +8,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 	{
 		string ChangeGroupId { get; }
 		void AddNamedControl(INamedControl control);
-		void AddNamedControl(IEnumerable<INamedControl> controls);
+		void AddNamedControls(IEnumerable<INamedControl> controls);
 		void AddNamedComponent(INamedComponent component);
 		void AddNamedComponent(INamedComponent component, IEnumerable<INamedComponentControl> controls);
 		void Initialize();

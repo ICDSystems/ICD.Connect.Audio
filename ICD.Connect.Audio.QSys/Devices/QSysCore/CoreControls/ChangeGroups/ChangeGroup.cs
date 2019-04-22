@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
@@ -15,11 +17,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 	{
 		private const float DEFAULT_POLL_INTERVAL = 0.5f;
 
-		private readonly SafeCriticalSection m_NamedControlCriticalSection;
-		private readonly List<INamedControl> m_NamedControls;
-
-		private readonly SafeCriticalSection m_NamedComponentsCriticalSection;
-		private readonly Dictionary<INamedComponent, List<INamedComponentControl>> m_NamedComponents;
+		private readonly IcdHashSet<INamedControl> m_NamedControls;
+		private readonly Dictionary<INamedComponent, IcdHashSet<INamedComponentControl>> m_NamedComponents;
+		private readonly SafeCriticalSection m_CriticalSection;
 
 		public string ChangeGroupId { get; private set; }
 
@@ -36,11 +36,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 		public ChangeGroup(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 			: base(context.QSysCore, friendlyName, id)
 		{
-			m_NamedControlCriticalSection = new SafeCriticalSection();
-			m_NamedControls = new List<INamedControl>();
-
-			m_NamedComponentsCriticalSection = new SafeCriticalSection();
-			m_NamedComponents = new Dictionary<INamedComponent, List<INamedComponentControl>>();
+			m_NamedControls = new IcdHashSet<INamedControl>();
+			m_NamedComponents = new Dictionary<INamedComponent, IcdHashSet<INamedComponentControl>>();
+			m_CriticalSection = new SafeCriticalSection();
 
 			ChangeGroupId = XmlUtils.GetAttributeAsString(xml, "changeGroupId");
 
@@ -57,13 +55,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 		/// <param name="changeGroupId"></param>
 		[UsedImplicitly]
 		public ChangeGroup(int id, CoreElementsLoadContext context, string changeGroupId)
-			: base(context.QSysCore, String.Format("Implicit Change  Group {0}", changeGroupId), id)
+			: base(context.QSysCore, string.Format("Implicit Change  Group {0}", changeGroupId), id)
 		{
-			m_NamedControlCriticalSection = new SafeCriticalSection();
-			m_NamedControls = new List<INamedControl>();
-
-			m_NamedComponentsCriticalSection = new SafeCriticalSection();
-			m_NamedComponents = new Dictionary<INamedComponent, List<INamedComponentControl>>();
+			m_NamedControls = new IcdHashSet<INamedControl>();
+			m_NamedComponents = new Dictionary<INamedComponent, IcdHashSet<INamedComponentControl>>();
+			m_CriticalSection = new SafeCriticalSection();
 
 			ChangeGroupId = changeGroupId;
 			PollInterval = DEFAULT_POLL_INTERVAL;
@@ -71,99 +67,102 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 
 		public void AddNamedControl(INamedControl control)
 		{
-			bool firstItem = false;
+			if (control == null)
+				throw new ArgumentNullException("control");
 
-			m_NamedControlCriticalSection.Enter();
-
-			try
-			{
-				if (m_NamedControls.Count == 0)
-					firstItem = true;
-
-				m_NamedControls.Add(control);
-			}
-			finally
-			{
-				m_NamedControlCriticalSection.Leave();
-			}
-
-			SendData(new ChangeGroupAddControlRpc(this, control));
-			if (firstItem)
-				SetAutoPoll();
+			AddNamedControls(control.Yield());
 		}
 
-		public void AddNamedControl(IEnumerable<INamedControl> controls)
+		public void AddNamedControls(IEnumerable<INamedControl> controls)
 		{
-			IEnumerable<INamedControl> namedControls = controls as IList<INamedControl> ?? controls.ToArray();
-			bool firstItem = false;
+			if (controls == null)
+				throw new ArgumentNullException("controls");
 
-			m_NamedControlCriticalSection.Enter();
+			IcdHashSet<INamedControl> addedControls = new IcdHashSet<INamedControl>();
+			bool firstItem;
+
+			m_CriticalSection.Enter();
 			
 			try
 			{
-				if (m_NamedControls.Count == 0)
-					firstItem = true;
+				firstItem = m_NamedControls.Count == 0;
 
-				m_NamedControls.AddRange(namedControls);
+				foreach (INamedControl control in controls)
+				{
+					if (m_NamedControls.Add(control))
+						addedControls.Add(control);
+				}
 			}
 			finally
 			{
-				m_NamedControlCriticalSection.Leave();
+				m_CriticalSection.Leave();
 			}
 
-			SendData(new ChangeGroupAddControlRpc(this, namedControls));
+			if (addedControls.Count == 0)
+				return;
+
+			SendData(new ChangeGroupAddControlRpc(this, addedControls));
+
 			if (firstItem)
 				SetAutoPoll();
 		}
 
 		public void AddNamedComponent(INamedComponent component)
 		{
+			if (component == null)
+				throw new ArgumentNullException("component");
+
 			AddNamedComponent(component, component.GetControls());
 		}
 
 		public void AddNamedComponent(INamedComponent component, IEnumerable<INamedComponentControl> controls)
 		{
-			IList<INamedComponentControl> controlsList = controls as IList<INamedComponentControl> ?? controls.ToArray();
+			if (component == null)
+				throw new ArgumentNullException("component");
 
-			m_NamedComponentsCriticalSection.Enter();
+			if (controls == null)
+				throw new ArgumentNullException("controls");
+
+			IcdHashSet<INamedComponentControl> addedControls = new IcdHashSet<INamedComponentControl>();
+
+			m_CriticalSection.Enter();
 
 			try
 			{
 				// If component isn't in dict, add it
-				List<INamedComponentControl> cache;
+				IcdHashSet<INamedComponentControl> cache;
 				if (!m_NamedComponents.TryGetValue(component, out cache))
 				{
-					cache = new List<INamedComponentControl>();
+					cache = new IcdHashSet<INamedComponentControl>();
 					m_NamedComponents.Add(component, cache);
 				}
 
 				// Add controls to component
-				cache.AddRange(controlsList);
+				foreach (INamedComponentControl control in controls)
+				{
+					if (cache.Add(control))
+						addedControls.Add(control);
+				}
 			}
 			finally
 			{
-				m_NamedComponentsCriticalSection.Leave();
+				m_CriticalSection.Leave();
 			}
 
 			// Send subscribe to Core
-			SendData(new ChangeGroupAddComponentControlRpc(this, component, controlsList));
+			if (addedControls.Count > 0 && QSysCore.Initialized)
+				SendData(new ChangeGroupAddComponentControlRpc(this, component, addedControls));
 		}
 
 		public IEnumerable<INamedControl> GetControls()
 		{
-			return m_NamedControlCriticalSection.Execute(() => m_NamedControls.ToArray());
+			return m_CriticalSection.Execute(() => m_NamedControls.ToArray());
 		}
 
-		public void SetAutoPoll()
+		private void SetAutoPoll()
 		{
-			if (PollInterval != null)
+			if (PollInterval != null && QSysCore.Initialized)
 				SendData(new ChangeGroupAutoPollRpc(this));
-		}
-
-		public void SetAutoPoll(float? pollInterval)
-		{
-			PollInterval = pollInterval;
-			SetAutoPoll();
 		}
 
 		public void Initialize()
@@ -172,8 +171,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 			SendData(new ChangeGroupAddControlRpc(this, GetControls()));
 
 			// Send Named Components
-			foreach (KeyValuePair<INamedComponent, List<INamedComponentControl>> kvp in
-				m_NamedComponentsCriticalSection.Execute(() => m_NamedComponents.ToArray()))
+			foreach (KeyValuePair<INamedComponent, IcdHashSet<INamedComponentControl>> kvp in
+				m_CriticalSection.Execute(() => m_NamedComponents.ToArray()))
 				SendData(new ChangeGroupAddComponentControlRpc(this, kvp.Key, kvp.Value));
 
 			// Setup Auto-Polling
@@ -183,7 +182,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 
 		public void DestroyChangeGroup()
 		{
-			SendData(new ChangeGroupDestroyRpc(this));
+			if (QSysCore.Initialized)
+				SendData(new ChangeGroupDestroyRpc(this));
 		}
 	}
 }
