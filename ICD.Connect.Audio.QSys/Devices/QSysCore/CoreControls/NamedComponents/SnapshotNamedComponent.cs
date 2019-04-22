@@ -42,7 +42,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			string componentName = XmlUtils.TryReadChildElementContentAsString(xml, "ComponentName");
 
 			// If we don't have a component name, bail out
-			if (String.IsNullOrEmpty(componentName))
+			if (string.IsNullOrEmpty(componentName))
 				throw new InvalidOperationException(
 					string.Format("Tried to create SnapshotNamedComponent {0}:{1} without component name", id, friendlyName));
 

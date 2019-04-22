@@ -52,7 +52,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// <summary>
 		/// Gets the name of the node.
 		/// </summary>
-		public string ConsoleName { get { return String.Format("ComponentControl:{0}", Name); } }
+		public string ConsoleName { get { return string.Format("ComponentControl:{0}", Name); } }
 
 		/// <summary>
 		/// Gets the help information for the node.

@@ -186,7 +186,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			{
 				INamedComponentControl control;
 				if (!m_NamedComponentControls.TryGetValue(controlName, out control))
-					throw new KeyNotFoundException(String.Format("NamedComponent {0} Control name {1} not found", this, controlName));
+					throw new KeyNotFoundException(string.Format("NamedComponent {0} Control name {1} not found", this, controlName));
 
 				return control;
 			}
