@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
@@ -15,9 +16,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 {
 	public sealed class QSysCoreCameraDevice : AbstractCameraDevice<QSysCoreCameraDeviceSettings>, ICameraWithPanTilt, ICameraWithZoom, ICameraWithPresets
 	{
-		private const int PRESET_HOME_ID = 1;
-		private const int PRESET_PRIVACY_ID = 2;
-
 		/// <summary>
 		/// Raised when the parent DSP changes.
 		/// </summary>
@@ -34,8 +32,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		[CanBeNull]
 		private CameraNamedComponent m_CameraComponent;
 
+		[CanBeNull]
+		private SnapshotNamedComponent m_SnapshotsComponent;
+
 		// Used with settings
 		private string m_ComponentName;
+		private string m_SnapshotsName;
 
 		/// <summary>
 		/// Constructor.
@@ -139,8 +141,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// </summary>
 		public IEnumerable<CameraPreset> GetPresets()
 		{
-			yield return new CameraPreset(PRESET_HOME_ID, "Home");
-			yield return new CameraPreset(PRESET_PRIVACY_ID, "Privacy");
+			return m_SnapshotsComponent == null
+				       ? Enumerable.Empty<CameraPreset>()
+				       : Enumerable.Range(1, m_SnapshotsComponent.SnapshotCount)
+				                   .Select(i => new CameraPreset(i, "Preset " + i));
 		}
 
 		/// <summary>
@@ -149,23 +153,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <param name="presetId">The id of the preset to position to.</param>
 		public void ActivatePreset(int presetId)
 		{
-			if (m_CameraComponent == null)
+			if (m_SnapshotsComponent == null)
 				return;
 
-			switch (presetId)
-			{
-				case PRESET_HOME_ID:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_HOME_LOAD_TRIGGER);
-					break;
-
-				case PRESET_PRIVACY_ID:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_PRIVATE_LOAD_TRIGGER);
-					break;
-
-				default:
-					Log(eSeverity.Warning, "Camera preset must be between 1 and {0}, preset was not activated.", MaxPresets);
-					return;
-			}
+			m_SnapshotsComponent.LoadSnapshot(presetId);
 		}
 
 		/// <summary>
@@ -174,23 +165,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <param name="presetId">The index to store the preset at.</param>
 		public void StorePreset(int presetId)
 		{
-			if (m_CameraComponent == null)
+			if (m_SnapshotsComponent == null)
 				return;
 
-			switch (presetId)
-			{
-				case PRESET_HOME_ID:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_HOME_SAVE_TRIGGER);
-					break;
-
-				case PRESET_PRIVACY_ID:
-					m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_PRIVATE_SAVE_TRIGGER);
-					break;
-
-				default:
-					Log(eSeverity.Warning, "Camera preset must be between 1 and {0}, preset was not stored.", MaxPresets);
-					return;
-			}
+			m_SnapshotsComponent.SaveSnapshot(presetId);
 		}
 
 		#endregion
@@ -217,8 +195,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		{
 			base.ClearSettingsFinal();
 
-			m_ComponentName = null;
-			SetDsp(null, null);
+			SetDsp(null, null, null);
 		}
 
 		/// <summary>
@@ -244,7 +221,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 				}
 			}
 
-			SetDsp(codec, settings.ComponentName);
+			SetDsp(codec, settings.ComponentName, settings.SnapshotsName);
 		}
 
 		/// <summary>
@@ -257,6 +234,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 
 			settings.DspId = m_Dsp == null ? null : (int?)m_Dsp.Id;
 			settings.ComponentName = m_ComponentName;
+			settings.SnapshotsName = m_SnapshotsName;
 		}
 
 		#endregion
@@ -264,20 +242,23 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		#region Public API
 
 		[PublicAPI]
-		public void SetDsp(QSysCoreDevice dsp, string componentName)
+		public void SetDsp(QSysCoreDevice dsp, string componentName, string snapshotsName)
 		{
-			if (dsp == m_Dsp)
-				return;
-
 			Unsubscribe(m_Dsp);
 
 			m_Dsp = dsp;
 			m_ComponentName = componentName;
+			m_SnapshotsName = snapshotsName;
 
 			m_CameraComponent =
-				m_Dsp == null
+				m_Dsp == null || m_ComponentName == null
 					? null
 					: m_Dsp.Components.LazyLoadNamedComponent<CameraNamedComponent>(m_ComponentName);
+
+			m_SnapshotsComponent =
+				m_Dsp == null || m_SnapshotsName == null
+					? null
+					: m_Dsp.Components.LazyLoadNamedComponent<SnapshotNamedComponent>(m_SnapshotsName);
 
 			Subscribe(m_Dsp);
 

@@ -11,11 +11,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 	{
 		private const string DSP_ID_ELEMENT = "Dsp";
 		private const string COMPONENT_NAME_ELEMENT = "ComponentName";
+		private const string SNAPSHOTS_NAME_ELEMENT = "SnapshotsName";
 
 		[OriginatorIdSettingsProperty(typeof(QSysCoreDevice))]
 		public int? DspId { get; set; }
 
 		public string ComponentName { get; set; }
+		public string SnapshotsName { get; set; }
 
 		/// <summary>
 		/// Writes property elements to xml.
@@ -27,6 +29,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 
 			writer.WriteElementString(DSP_ID_ELEMENT, IcdXmlConvert.ToString(DspId));
 			writer.WriteElementString(COMPONENT_NAME_ELEMENT, ComponentName);
+			writer.WriteElementString(SNAPSHOTS_NAME_ELEMENT, SnapshotsName);
 		}
 
 		/// <summary>
@@ -39,6 +42,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 
 			DspId = XmlUtils.TryReadChildElementContentAsInt(xml, DSP_ID_ELEMENT);
 			ComponentName = XmlUtils.TryReadChildElementContentAsString(xml, COMPONENT_NAME_ELEMENT);
+			SnapshotsName = XmlUtils.TryReadChildElementContentAsString(xml, SNAPSHOTS_NAME_ELEMENT);
 		}
 	}
 }
