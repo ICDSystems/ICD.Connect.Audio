@@ -34,6 +34,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 
 			// Krang controls
 			{typeof(QSysVolumePositionControl), "NamedControlVolume"},
+			{typeof(QSysPotsTraditionalConferenceControl), "PotsComponentControl"},
 			{typeof(QSysVoipTraditionalConferenceControl), "VoIPComponentControl"},
 			{typeof(QSysPartitionControl), "NamedControlPartition"},
 		};
