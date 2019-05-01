@@ -31,6 +31,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.0.3] - 2019-05-01
+### Changed
+ - Fixed bug where Biamp Tesira TX/RX would become desynchronized during initialization
+
 ## [9.0.2] - 2019-04-10
 ### Changed
  - Fixed typo that was preventing QSysCore from loading BooleanNamedControls
