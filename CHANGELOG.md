@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.2.0] - 2019-05-01
 ### Added
  - QSys Core Camera support
  - QSys Core POTS support
