@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.2.0] - 2019-05-01
+### Added
+ - QSys Core Camera support
+ - QSys Core POTS support
+ - QSys Core snapshot support
+
+### Changed
+ - Significant QSys Core refactoring
+ - Fixed bug where QSys Core would attempt to send changegroup data before initialization
+
 ## [11.1.0] - 2019-03-27
 ### Added
  - Added QSys Core partition control

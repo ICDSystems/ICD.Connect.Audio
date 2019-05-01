@@ -67,50 +67,61 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ObfuscationSettings.cs" />
-    <Compile Include="Controls\IQSysKrangControl.cs" />
-    <Compile Include="Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
-    <Compile Include="Controls\Partitioning\QSysPartitionControl.cs" />
-    <Compile Include="CoreControls\NamedComponents\AbstractNamedComponent.cs" />
-    <Compile Include="CoreControls\NamedComponents\INamedComponentControl.cs" />
-    <Compile Include="CoreControls\NamedComponents\NamedComponentControl.cs" />
-    <Compile Include="CoreControls\NamedComponents\VoipNamedComponent.cs" />
-    <Compile Include="QSysCoreRoutingControl.cs" />
-    <Compile Include="Controls\Volume\QSysVolumePositionControl.cs" />
-    <Compile Include="CoreControls\AbstractCoreControl.cs" />
-    <Compile Include="CoreControls\ChangeGroups\ChangeGroup.cs" />
-    <Compile Include="CoreControls\ChangeGroups\IChangeGroup.cs" />
-    <Compile Include="Controls\CoreElementsLoadContext.cs" />
-    <Compile Include="Controls\CoreElementsXmlUtils.cs" />
-    <Compile Include="CoreControls\IQSysCoreControl.cs" />
-    <Compile Include="CoreControls\NamedComponents\INamedComponent.cs" />
-    <Compile Include="CoreControls\NamedControls\AbstractNamedControl.cs" />
-    <Compile Include="CoreControls\NamedControls\BooleanNamedControl.cs" />
-    <Compile Include="CoreControls\NamedControls\ControlValueUpdateEventArgs.cs" />
-    <Compile Include="CoreControls\NamedControls\INamedControl.cs" />
-    <Compile Include="CoreControls\NamedControls\NamedControl.cs" />
+    <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDevice.cs" />
+    <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDeviceSettings.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Dialing\QSysPotsTraditionalConferenceControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\IQSysKrangControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Partitioning\QSysPartitionControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\AbstractNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\CameraNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\INamedComponentControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\NamedComponentControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\PotsNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\SnapshotNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\VoipNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\QSysCoreComponentsCollection.cs" />
+    <Compile Include="Devices\QSysCore\QSysCoreRoutingControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Volume\QSysVolumePositionControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\AbstractCoreControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\ChangeGroups\ChangeGroup.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\ChangeGroups\IChangeGroup.cs" />
+    <Compile Include="Devices\QSysCore\Controls\CoreElementsLoadContext.cs" />
+    <Compile Include="Devices\QSysCore\Controls\CoreElementsXmlUtils.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\IQSysCoreControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\INamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\AbstractNamedControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\BooleanNamedControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\ControlValueUpdateEventArgs.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\INamedControl.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\NamedControl.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\AbstractSnapshotRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\SnapshotLoadRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\SnapshotSaveRpc.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QSysCoreDevice.cs" />
-    <Compile Include="QSysCoreDeviceSettings.cs" />
-    <Compile Include="Rpc\AbstractControlSetRpc.cs" />
-    <Compile Include="Rpc\AbstractRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupAddComponentControlRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupAddControlRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupAutoPollRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupDestroyRpc.cs" />
-    <Compile Include="Rpc\ChangeGroupPollRpc.cs" />
-    <Compile Include="Rpc\ComponentGetComponentsRpc.cs" />
-    <Compile Include="Rpc\ComponentGetRpc.cs" />
-    <Compile Include="Rpc\ComponentSetRpc.cs" />
-    <Compile Include="Rpc\ControlGetRpc.cs" />
-    <Compile Include="Rpc\ControlSetPositionRpc.cs" />
-    <Compile Include="Rpc\ControlSetValueRpc.cs" />
-    <Compile Include="Rpc\NoOpRpc.cs" />
-    <Compile Include="Rpc\RpcUtils.cs" />
-    <Compile Include="Rpc\StatusGetRpc.cs" />
-    <Compile Include="Rpc\IRpc.cs" />
-    <Compile Include="Rpc\LogonRpc.cs" />
+    <Compile Include="Devices\QSysCore\QSysCoreDevice.cs" />
+    <Compile Include="Devices\QSysCore\QSysCoreDeviceSettings.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\AbstractControlSetRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\AbstractRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ChangeGroupAddComponentControlRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ChangeGroupAddControlRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ChangeGroupAutoPollRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ChangeGroupDestroyRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ChangeGroupPollRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ComponentGetComponentsRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ComponentGetRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ComponentSetRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ControlGetRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ControlSetPositionRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\ControlSetValueRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\NoOpRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\RpcUtils.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\StatusGetRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\IRpc.cs" />
+    <Compile Include="Devices\QSysCore\Rpc\LogonRpc.cs" />
     <None Include="Properties\ControlSystem.cfg" />
+    <None Include="QRCDocumentation.pdf" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\ICD.Common.Utils\ICD.Common.Utils\ICD.Common.Utils_SimplSharp.csproj">
@@ -124,6 +135,10 @@
     <ProjectReference Include="..\..\ICD.Connect.Calendaring\ICD.Connect.Calendaring\ICD.Connect.Calendaring_SimplSharp.csproj">
       <Project>{3C084F11-8810-4B87-970C-F97E2905ACEB}</Project>
       <Name>ICD.Connect.Calendaring_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Cameras\ICD.Connect.Cameras\ICD.Connect.Cameras_SimplSharp.csproj">
+      <Project>{B13D593D-8BBF-4E20-ABD8-47C6095E7D3E}</Project>
+      <Name>ICD.Connect.Cameras_SimplSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ICD.Connect.Conferencing\ICD.Connect.Conferencing\ICD.Connect.Conferencing_SimplSharp.csproj">
       <Project>{1CCA89DA-1F1C-4997-A94F-ABCE878BD6DE}</Project>
