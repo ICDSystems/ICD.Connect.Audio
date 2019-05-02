@@ -171,9 +171,17 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void LoadControls(string path)
 		{
+			Components.ClearLoadedControls();
+
 			m_ConfigPath = path;
 
 			string fullPath = PathUtils.GetDefaultConfigPath("QSys", path);
+
+			if (!IcdFile.Exists(fullPath))
+			{
+				Log(eSeverity.Error, "Failed to load integration config {0} - Path does not exist", fullPath);
+				return;
+			}
 
 			try
 			{
@@ -184,7 +192,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, e, "{0} - Failed to load integration config {1} - {2}", this, fullPath, e.Message);
+				Log(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 			}
 		}
 
