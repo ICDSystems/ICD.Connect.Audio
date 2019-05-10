@@ -121,7 +121,10 @@ namespace ICD.Connect.Audio.Biamp
 					ServiceProvider.GetService<ILoggerService>()
 					               .AddEntry(eSeverity.Error, e, "Failed to raise subscription feedback event - {0}", e.Message);
 				}
-				return;
+
+				// It's only unsolicited feedback if it doesn't end with +OK
+				if (!args.Data.Trim().EndsWith(Response.SUCCESS))
+					return;
 			}
 
 			// Ignore any messages that dont fit expected pattern
