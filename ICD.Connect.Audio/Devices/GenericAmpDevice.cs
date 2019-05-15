@@ -53,11 +53,18 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		protected override void DisposeFinal(bool disposing)
 		{
-			GenericAmpRouteSwitcherControl switcherControl = new GenericAmpRouteSwitcherControl(this, 0);
-			GenericAmpVolumeControl volumeControl = new GenericAmpVolumeControl(this, 1);
-			switcherControl.OnRouteChange += GenericAmpRouteSwitcherControlOnRouteChange;
-			volumeControl.OnMuteStateChanged += VolumeControlOnMuteStateChanged;
-			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
+			GenericAmpRouteSwitcherControl switcherControl = Controls.GetControl<GenericAmpRouteSwitcherControl>();
+			GenericAmpVolumeControl volumeControl = Controls.GetControl<GenericAmpVolumeControl>();
+
+			if(switcherControl!= null)
+				switcherControl.OnRouteChange -= GenericAmpRouteSwitcherControlOnRouteChange;
+
+			if (volumeControl != null)
+			{
+				volumeControl.OnMuteStateChanged -= VolumeControlOnMuteStateChanged;
+				volumeControl.OnVolumeChanged -= VolumeControlOnVolumeChanged;
+			}
+
 			base.DisposeFinal(disposing);
 		}
 
