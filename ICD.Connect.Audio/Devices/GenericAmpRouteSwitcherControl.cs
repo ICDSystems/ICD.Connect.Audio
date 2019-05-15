@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.Utils;
-using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
@@ -87,39 +85,52 @@ namespace ICD.Connect.Audio.Devices
 
 		#region Methods
 
+		private List<InputPort> m_InputPorts;
+		private List<OutputPort> m_OutputPorts; 
+
 		public override IEnumerable<InputPort> GetInputPorts()
 		{
-			foreach (ConnectorInfo input in GetInputs().Where(input => input.ConnectionType.HasFlag(eConnectionType.Audio)))
+			if (m_InputPorts == null)
 			{
-				yield return new InputPort
-				{
-					Address = input.Address,
-					ConnectionType = input.ConnectionType,
-					InputId = string.Format("Audio Input {0}", input.Address),
-					InputIdFeedbackSupported = true,
-					InputName = GetInputName(input),
-					InputNameFeedbackSupported = GetInputName(input) != null 
-				};
+				m_InputPorts = GetInputs().Where(input => input.ConnectionType.HasFlag(eConnectionType.Audio))
+				                          .Select(input =>
+				                                  new InputPort
+				                                  {
+					                                  Address = input.Address,
+					                                  ConnectionType = input.ConnectionType,
+					                                  InputId = string.Format("Audio Input {0}", input.Address),
+					                                  InputIdFeedbackSupported = true,
+					                                  InputName = GetInputName(input),
+					                                  InputNameFeedbackSupported = GetInputName(input) != null
+				                                  })
+				                          .ToList();
 			}
+
+			return m_InputPorts;
 		}
 
 		public override IEnumerable<OutputPort> GetOutputPorts()
 		{
-			foreach (ConnectorInfo output in GetOutputs().Where(output => output.ConnectionType.HasFlag(eConnectionType.Audio)))
+			if (m_OutputPorts == null)
 			{
-				yield return new OutputPort
-				{
-					Address = output.Address,
-					ConnectionType = output.ConnectionType,
-					OutputId = string.Format("Audio Output {0}", output.Address),
-					OutputIdFeedbackSupport = true,
-					AudioOutputVolume = Parent.GetVolumeState(),
-					AudioOutputMuteFeedbackSupported = true,
-					AudioOutputMute = Parent.GetMuteState(),
-					AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
-					AudioOutputSourceFeedbackSupport = true
-				};
+				m_OutputPorts = GetOutputs().Where(output => output.ConnectionType.HasFlag(eConnectionType.Audio))
+				                            .Select(output =>
+				                                    new OutputPort
+				                                    {
+					                                    Address = output.Address,
+					                                    ConnectionType = output.ConnectionType,
+					                                    OutputId = string.Format("Audio Output {0}", output.Address),
+					                                    OutputIdFeedbackSupport = true,
+					                                    AudioOutputVolume = Parent.GetVolumeState(),
+					                                    AudioOutputMuteFeedbackSupported = true,
+					                                    AudioOutputMute = Parent.GetMuteState(),
+					                                    AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
+					                                    AudioOutputSourceFeedbackSupport = true
+				                                    })
+				                            .ToList();
 			}
+
+			return m_OutputPorts;
 		}
 
 		/// <summary>
