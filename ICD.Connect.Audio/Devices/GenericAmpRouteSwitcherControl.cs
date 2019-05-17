@@ -85,52 +85,33 @@ namespace ICD.Connect.Audio.Devices
 
 		#region Methods
 
-		private List<InputPort> m_InputPorts;
-		private List<OutputPort> m_OutputPorts; 
-
-		public override IEnumerable<InputPort> GetInputPorts()
+		protected override InputPort CreateInputPort(ConnectorInfo input)
 		{
-			if (m_InputPorts == null)
+			return new InputPort
 			{
-				m_InputPorts = GetInputs().Where(input => input.ConnectionType.HasFlag(eConnectionType.Audio))
-				                          .Select(input =>
-				                                  new InputPort
-				                                  {
-					                                  Address = input.Address,
-					                                  ConnectionType = input.ConnectionType,
-					                                  InputId = string.Format("Audio Input {0}", input.Address),
-					                                  InputIdFeedbackSupported = true,
-					                                  InputName = GetInputName(input),
-					                                  InputNameFeedbackSupported = GetInputName(input) != null
-				                                  })
-				                          .ToList();
-			}
-
-			return m_InputPorts;
+				Address = input.Address,
+				ConnectionType = input.ConnectionType,
+				InputId = string.Format("Audio Input {0}", input.Address),
+				InputIdFeedbackSupported = true,
+				InputName = GetInputName(input),
+				InputNameFeedbackSupported = GetInputName(input) != null
+			};
 		}
 
-		public override IEnumerable<OutputPort> GetOutputPorts()
+		protected override OutputPort CreateOutputPort(ConnectorInfo output)
 		{
-			if (m_OutputPorts == null)
+			return new OutputPort
 			{
-				m_OutputPorts = GetOutputs().Where(output => output.ConnectionType.HasFlag(eConnectionType.Audio))
-				                            .Select(output =>
-				                                    new OutputPort
-				                                    {
-					                                    Address = output.Address,
-					                                    ConnectionType = output.ConnectionType,
-					                                    OutputId = string.Format("Audio Output {0}", output.Address),
-					                                    OutputIdFeedbackSupport = true,
-					                                    AudioOutputVolume = Parent.GetVolumeState(),
-					                                    AudioOutputMuteFeedbackSupported = true,
-					                                    AudioOutputMute = Parent.GetMuteState(),
-					                                    AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
-					                                    AudioOutputSourceFeedbackSupport = true
-				                                    })
-				                            .ToList();
-			}
-
-			return m_OutputPorts;
+				Address = output.Address,
+				ConnectionType = output.ConnectionType,
+				OutputId = string.Format("Audio Output {0}", output.Address),
+				OutputIdFeedbackSupport = true,
+				AudioOutputVolume = Parent.GetVolumeState(),
+				AudioOutputMuteFeedbackSupported = true,
+				AudioOutputMute = Parent.GetMuteState(),
+				AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
+				AudioOutputSourceFeedbackSupport = true
+			};
 		}
 
 		/// <summary>

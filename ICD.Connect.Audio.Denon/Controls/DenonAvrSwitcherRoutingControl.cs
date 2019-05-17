@@ -227,46 +227,33 @@ namespace ICD.Connect.Audio.Denon.Controls
 			return m_Cache.GetInputConnectorInfoForOutput(output, type);
 		}
 
-	    /// <summary>
-	    /// Returns switcher port objects to get details about the input ports on this switcher.
-	    /// </summary>
-	    /// <returns></returns>
-	    public override IEnumerable<InputPort> GetInputPorts()
+	    protected override InputPort CreateInputPort(ConnectorInfo input)
 	    {
-		    foreach (ConnectorInfo input in GetInputs())
+		    return new InputPort
 		    {
-				yield return new InputPort
-				{
-					Address = input.Address,
-					ConnectionType = input.ConnectionType,
-					InputId = GetInputId(input),
-					InputIdFeedbackSupported = true
-				};
-		    }
+			    Address = input.Address,
+			    ConnectionType = input.ConnectionType,
+			    InputId = GetInputId(input),
+			    InputIdFeedbackSupported = true
+		    };
 	    }
 
-	    /// <summary>
-	    /// Returns switcher port objects to get details about the output ports on this switcher.
-	    /// </summary>
-	    /// <returns></returns>
-	    public override IEnumerable<OutputPort> GetOutputPorts()
+
+	    protected override OutputPort CreateOutputPort(ConnectorInfo output)
 	    {
-		    foreach (var output in GetOutputs())
+		    bool supportsVideo = output.ConnectionType.HasFlag(eConnectionType.Video);
+		    bool supportsAudio = output.ConnectionType.HasFlag(eConnectionType.Audio);
+		    return new OutputPort
 		    {
-				bool supportsVideo = output.ConnectionType.HasFlag(eConnectionType.Video);
-				bool supportsAudio = output.ConnectionType.HasFlag(eConnectionType.Audio);
-				yield return new OutputPort
-				{
-					Address = output.Address,
-					ConnectionType = output.ConnectionType,
-					OutputId = "Denon Output",
-					OutputIdFeedbackSupport = true,
-					VideoOutputSource = supportsVideo ? GetActiveSourceIdName(output, eConnectionType.Video) : null,
-					VideoOutputSourceFeedbackSupport = supportsVideo,
-					AudioOutputSource = supportsAudio ? GetActiveSourceIdName(output, eConnectionType.Audio) : null,
-					AudioOutputSourceFeedbackSupport = supportsAudio
-				};
-		    }
+			    Address = output.Address,
+			    ConnectionType = output.ConnectionType,
+			    OutputId = "Denon Output",
+			    OutputIdFeedbackSupport = true,
+			    VideoOutputSource = supportsVideo ? GetActiveSourceIdName(output, eConnectionType.Video) : null,
+			    VideoOutputSourceFeedbackSupport = supportsVideo,
+			    AudioOutputSource = supportsAudio ? GetActiveSourceIdName(output, eConnectionType.Audio) : null,
+			    AudioOutputSourceFeedbackSupport = supportsAudio
+		    };
 	    }
 
 	    private string GetInputId(ConnectorInfo info)
