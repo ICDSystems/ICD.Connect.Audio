@@ -76,6 +76,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 	    private string m_SubnetMask;
 	    private string m_MacAddress;
 	    private string m_Registration;
+		private string m_FirmwareVersion;
 
 		[PublicAPI]
 		public event EventHandler<StringEventArgs> OnHostnameChanged;
@@ -90,7 +91,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		public event EventHandler<BoolEventArgs> OnTelnetDisabledChanged;
 
 		[PublicAPI]
-		public event EventHandler<StringEventArgs> OnVersionChanged;
+		public event EventHandler<StringEventArgs> OnFirmwareVersionChanged;
 
 	    [PublicAPI]
 	    public event EventHandler<StringEventArgs> OnFaultStatusChanged;
@@ -287,7 +288,17 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 	    }
 
 		[PublicAPI]
-		public string Version { get; private set; }
+		public string FirmwareVersion 
+		{ 
+			get { return m_FirmwareVersion; }
+			private set
+			{
+				if (value == m_FirmwareVersion)
+					return;
+				m_FirmwareVersion = value;
+				OnFirmwareVersionChanged.Raise(this, new StringEventArgs(m_FirmwareVersion));
+			} 
+		}
 
 		#endregion
 
@@ -313,7 +324,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			OnMdnsEnabledChanged = null;
 			OnSerialNumberChanged = null;
 			OnTelnetDisabledChanged = null;
-			OnVersionChanged = null;
+			OnFirmwareVersionChanged = null;
 			OnFaultStatusChanged = null;
 			OnDefaultGatewayChanged = null;
 			OnLinkStatusChanged = null;
@@ -553,7 +564,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 		private void FirmwareVersionFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			Value innerValue = value.GetValue<Value>("value");
-			Version = innerValue.StringValue;
+			FirmwareVersion = innerValue.StringValue;
 		}
 
 		private void KnownRedundantDeviceStatesFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -586,7 +597,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.Services
 			addRow("MDNS Enabled", MdnsEnabled);
 			addRow("Serial Number", SerialNumber);
 			addRow("Telnet Disabled", TelnetDisabled);
-			addRow("Version", Version);
+			addRow("Firmware Version", FirmwareVersion);
 		}
 
 		/// <summary>

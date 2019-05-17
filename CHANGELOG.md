@@ -34,6 +34,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.1.0] - 2019-05-15
+### Added
+ - Added telemetry features to switcher devices
+ - Added telemetry features to Biamp
+
 ## [9.0.3] - 2019-05-01
 ### Changed
  - Fixed bug where Biamp Tesira TX/RX would become desynchronized during initialization

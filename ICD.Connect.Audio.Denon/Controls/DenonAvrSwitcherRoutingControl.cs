@@ -227,7 +227,41 @@ namespace ICD.Connect.Audio.Denon.Controls
 			return m_Cache.GetInputConnectorInfoForOutput(output, type);
 		}
 
-		/// <summary>
+	    protected override InputPort CreateInputPort(ConnectorInfo input)
+	    {
+		    return new InputPort
+		    {
+			    Address = input.Address,
+			    ConnectionType = input.ConnectionType,
+			    InputId = GetInputId(input),
+			    InputIdFeedbackSupported = true
+		    };
+	    }
+
+
+	    protected override OutputPort CreateOutputPort(ConnectorInfo output)
+	    {
+		    bool supportsVideo = output.ConnectionType.HasFlag(eConnectionType.Video);
+		    bool supportsAudio = output.ConnectionType.HasFlag(eConnectionType.Audio);
+		    return new OutputPort
+		    {
+			    Address = output.Address,
+			    ConnectionType = output.ConnectionType,
+			    OutputId = "Denon Output",
+			    OutputIdFeedbackSupport = true,
+			    VideoOutputSource = supportsVideo ? GetActiveSourceIdName(output, eConnectionType.Video) : null,
+			    VideoOutputSourceFeedbackSupport = supportsVideo,
+			    AudioOutputSource = supportsAudio ? GetActiveSourceIdName(output, eConnectionType.Audio) : null,
+			    AudioOutputSourceFeedbackSupport = supportsAudio
+		    };
+	    }
+
+	    private string GetInputId(ConnectorInfo info)
+	    {
+		    return s_InputMap.GetValue(info.Address);
+	    }
+
+	    /// <summary>
 		/// Performs the given route operation.
 		/// </summary>
 		/// <param name="info"></param>
