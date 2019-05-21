@@ -29,7 +29,6 @@ using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.Settings;
 using ICD.Connect.Settings;
-using ICD.Connect.Settings.Core;
 using ICD.Connect.Telemetry.Attributes;
 
 namespace ICD.Connect.Audio.Biamp
