@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -59,6 +61,8 @@ namespace ICD.Connect.Audio.Devices
 		{
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
+			Parent.OnVolumeChanged += ParentOnVolumeChanged;
+			Parent.OnMuteChanged += ParentOnMuteChanged;
 		}
 
 		/// <summary>
@@ -71,6 +75,8 @@ namespace ICD.Connect.Audio.Devices
 			OnActiveInputsChanged = null;
 			OnSourceDetectionStateChange = null;
 			OnActiveInputsChanged = null;
+			Parent.OnVolumeChanged -= ParentOnVolumeChanged;
+			Parent.OnMuteChanged -= ParentOnMuteChanged;
 
 			base.DisposeFinal(disposing);
 
@@ -78,6 +84,35 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		#region Methods
+
+		protected override InputPort CreateInputPort(ConnectorInfo input)
+		{
+			return new InputPort
+			{
+				Address = input.Address,
+				ConnectionType = input.ConnectionType,
+				InputId = string.Format("Audio Input {0}", input.Address),
+				InputIdFeedbackSupported = true,
+				InputName = GetInputName(input),
+				InputNameFeedbackSupported = GetInputName(input) != null
+			};
+		}
+
+		protected override OutputPort CreateOutputPort(ConnectorInfo output)
+		{
+			return new OutputPort
+			{
+				Address = output.Address,
+				ConnectionType = output.ConnectionType,
+				OutputId = string.Format("Audio Output {0}", output.Address),
+				OutputIdFeedbackSupport = true,
+				AudioOutputVolume = Parent.GetVolumeState(),
+				AudioOutputMuteFeedbackSupported = true,
+				AudioOutputMute = Parent.GetMuteState(),
+				AudioOutputSource = GetActiveSourceIdName(output, eConnectionType.Audio),
+				AudioOutputSourceFeedbackSupport = true
+			};
+		}
 
 		/// <summary>
 		/// Routes the input to the given output.
@@ -244,6 +279,12 @@ namespace ICD.Connect.Audio.Devices
 				SetActiveInput(input);
 		}
 
+		private string GetInputName(ConnectorInfo info)
+		{
+			IVolumePoint vp = Parent.GetVolumePointForInput(info.Address);
+			return vp != null ? vp.Name : null;
+		}
+
 		#endregion
 
 		#region Cache Callbacks
@@ -275,6 +316,12 @@ namespace ICD.Connect.Audio.Devices
 		private void CacheOnRouteChange(object sender, RouteChangeEventArgs args)
 		{
 			OnRouteChange.Raise(this, new RouteChangeEventArgs(args));
+			OutputPort outputPort = GetOutputPort(args.Output);
+			ConnectorInfo info = GetOutput(args.Output);
+			if (args.Type.HasFlag(eConnectionType.Video))
+				outputPort.VideoOutputSource = GetActiveSourceIdName(info, eConnectionType.Video);
+			if (args.Type.HasFlag(eConnectionType.Audio))
+				outputPort.AudioOutputSource = GetActiveSourceIdName(info, eConnectionType.Audio);
 		}
 
 		private void CacheOnActiveTransmissionStateChanged(object sender, TransmissionStateEventArgs args)
@@ -290,6 +337,26 @@ namespace ICD.Connect.Audio.Devices
 		private void CacheOnActiveInputsChanged(object sender, ActiveInputStateChangeEventArgs args)
 		{
 			OnActiveInputsChanged.Raise(this, new ActiveInputStateChangeEventArgs(args));
+		}
+
+		#endregion
+
+		#region Parent Callbacks
+
+		private void ParentOnMuteChanged(object sender, BoolEventArgs args)
+		{
+			// this device should always have only one output, 
+			//so firstordefault is easier than looking up an index which is always 0 anyway
+			OutputPort output = GetOutputPort(1);
+			output.AudioOutputMute = args.Data;
+		}
+
+		private void ParentOnVolumeChanged(object sender, FloatEventArgs args)
+		{
+			// this device should always have only one output, 
+			//so firstordefault is easier than looking up an index which is always 0 anyway
+			OutputPort output = GetOutputPort(1);
+			output.AudioOutputVolume = args.Data;
 		}
 
 		#endregion

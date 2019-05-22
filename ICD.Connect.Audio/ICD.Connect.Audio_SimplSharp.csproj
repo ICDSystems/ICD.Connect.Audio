@@ -79,6 +79,7 @@
     <Compile Include="Controls\Volume\IVolumeDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumeRampDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumePositionDeviceControl.cs" />
+    <Compile Include="DspTelemetryNames.cs" />
     <Compile Include="Proxies\Controls\Microphone\MicrophoneDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\Mute\VolumeMuteBasicDeviceControlApi.cs" />
     <Compile Include="Controls\Mute\IVolumeMuteBasicDeviceControl.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="VolumePoints\IVolumePointSettings.cs" />
     <Compile Include="VolumePoints\VolumePoint.cs" />
     <Compile Include="VolumePoints\VolumePointSettings.cs" />
+    <Compile Include="VolumeTelemetryNames.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>
