@@ -80,6 +80,7 @@
     <Compile Include="Controls\Volume\IVolumeRampDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumePositionDeviceControl.cs" />
     <Compile Include="DspTelemetryNames.cs" />
+    <Compile Include="EventArguments\MuteDeviceMuteStateChangedApiEventArgs.cs" />
     <Compile Include="Proxies\Controls\Microphone\MicrophoneDeviceControlApi.cs" />
     <Compile Include="Proxies\Controls\Mute\VolumeMuteBasicDeviceControlApi.cs" />
     <Compile Include="Controls\Mute\IVolumeMuteBasicDeviceControl.cs" />

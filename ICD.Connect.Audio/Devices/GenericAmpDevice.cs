@@ -193,7 +193,7 @@ namespace ICD.Connect.Audio.Devices
 			OnVolumeChanged.Raise(this, new FloatEventArgs(GetVolumeState()));
 		}
 
-		private void VolumeControlOnMuteStateChanged(object sender, BoolEventArgs boolEventArgs)
+		private void VolumeControlOnMuteStateChanged(object sender, MuteDeviceMuteStateChangedApiEventArgs boolEventArgs)
 		{
 			OnMuteChanged.Raise(this, new BoolEventArgs(GetMuteState()));
 		}

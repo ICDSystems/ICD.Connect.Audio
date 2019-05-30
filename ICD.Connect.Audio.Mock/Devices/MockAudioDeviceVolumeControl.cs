@@ -5,6 +5,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Mock.Devices
@@ -17,7 +18,7 @@ namespace ICD.Connect.Audio.Mock.Devices
 		/// <summary>
 		/// Raised when the mute state changes.
 		/// </summary>
-		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
 
 		#region Properties
 
@@ -36,7 +37,7 @@ namespace ICD.Connect.Audio.Mock.Devices
 
 				Log(eSeverity.Informational, "VolumeIsMuted changed to {0}", m_VolumeIsMuted);
 
-				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_VolumeIsMuted));
+				OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(m_VolumeIsMuted));
 			}
 		}
 

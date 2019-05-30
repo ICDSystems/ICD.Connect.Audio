@@ -38,5 +38,9 @@ namespace ICD.Connect.Audio.EventArguments
 			       })
 		{
 		}
+
+		public VolumeDeviceVolumeChangedEventArgs(VolumeChangeState state):base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED,state)
+		{			
+		}
 	}
 }

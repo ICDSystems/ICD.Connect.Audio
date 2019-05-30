@@ -1,6 +1,6 @@
 ﻿using System;
-using ICD.Common.Utils.EventArguments;
 using ICD.Connect.API.Attributes;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.Proxies.Controls.Mute;
 using ICD.Connect.Telemetry.Attributes;
 
@@ -17,7 +17,7 @@ namespace ICD.Connect.Audio.Controls.Mute
 		[ApiEvent(VolumeMuteFeedbackDeviceControlApi.EVENT_MUTE_STATE_CHANGED,
 			VolumeMuteFeedbackDeviceControlApi.HELP_EVENT_MUTE_STATE_CHANGED)]
 		[EventTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_MUTE_CHANGED)]
-		event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
 
 		#region Properties
 
