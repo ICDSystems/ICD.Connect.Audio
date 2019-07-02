@@ -37,13 +37,13 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <summary>
 		/// Powers on the device.
 		/// </summary>
-		public override void PowerOn()
+		protected override void PowerOnFinal()
 		{
 			DenonSerialData data = DenonSerialData.Command(POWER_ON);
 			Parent.SendData(data);
 		}
 
-		public override void PowerOff()
+		protected override void PowerOffFinal()
 		{
 			DenonSerialData data = DenonSerialData.Command(POWER_OFF);
 			Parent.SendData(data);
