@@ -44,6 +44,9 @@ namespace ICD.Connect.Audio.Console.Mute
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
+			yield return new ConsoleCommand("MuteOn", "Turns on the mute", () => instance.SetVolumeMute(true));
+			yield return new ConsoleCommand("MuteOff", "Turns off the mute", () => instance.SetVolumeMute(false));
+			
 			yield break;
 		}
 	}
