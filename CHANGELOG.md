@@ -6,8 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.3.0] - 2019-07-10
+### Added
+ - Biamp Tesira and QSys Core implement partition SupportsFeedback properties
+
+## [11.2.1] - 2019-07-10
 ### Changed
  - QSys Core fails more gracefully when the config path does not exist
+ - Fixed a bug where Biamp Tesira VoIP was not properly handling incoming calls
 
 ## [11.2.0] - 2019-05-01
 ### Added

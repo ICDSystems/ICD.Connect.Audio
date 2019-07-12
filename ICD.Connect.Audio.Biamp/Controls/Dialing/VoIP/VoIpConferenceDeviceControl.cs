@@ -172,13 +172,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				switch (status)
 				{
 					case eParticipantStatus.Dialing:
+					case eParticipantStatus.Ringing:
 						if (call == null && VoIpCallStateToDirection(state) == eCallDirection.Incoming)
 							CreateIncomingCall(index);
 						else if (source == null)
 							CreateSource(index);
 						break;
 
-					case eParticipantStatus.Ringing:
 					case eParticipantStatus.Connecting:
 					case eParticipantStatus.Connected:
 					case eParticipantStatus.OnHold:
