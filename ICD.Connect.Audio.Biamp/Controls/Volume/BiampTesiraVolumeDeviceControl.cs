@@ -3,6 +3,7 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Controls.Volume;
+using ICD.Connect.Audio.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {
@@ -40,7 +41,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		#region Events
 
-		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
 
 		#endregion
 
@@ -130,7 +131,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		private void VolumeInterfaceOnMuteChanged(object sender, BoolEventArgs args)
 		{
-			OnMuteStateChanged.Raise(this, args);
+			OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(args.Data));
 		}
 
 		private void VolumeInterfaceOnLevelChanged(object sender, FloatEventArgs args)

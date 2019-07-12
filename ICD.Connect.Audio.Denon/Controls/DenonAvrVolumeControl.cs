@@ -10,6 +10,7 @@ using ICD.Connect.Audio.Console.Mute;
 using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.Denon.Devices;
+using ICD.Connect.Audio.EventArguments;
 
 namespace ICD.Connect.Audio.Denon.Controls
 {
@@ -30,7 +31,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// <summary>
 		/// Raised when the mute state changes.
 		/// </summary>
-		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
 
 		private bool m_VolumeIsMuted;
 		private float m_VolumeLevel;
@@ -64,7 +65,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 				Log(eSeverity.Informational, "Mute set to {0}", m_VolumeIsMuted);
 
-				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_VolumeIsMuted));
+				OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(m_VolumeIsMuted));
 			}
 		}
 

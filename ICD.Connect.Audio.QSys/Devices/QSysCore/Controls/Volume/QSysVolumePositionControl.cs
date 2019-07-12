@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using ICD.Common.Properties;
-using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
+using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.Repeaters;
 
@@ -18,7 +18,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 	{
 		#region Events
 
-		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
+		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
 
 		#endregion
 
@@ -172,7 +172,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 		private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
 		{
-			OnMuteStateChanged.Raise(this, new BoolEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
+			OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
 		}
 
 		protected override void DisposeFinal(bool disposing)
