@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.2.0] - 2019-07-16
+### Changed
+ - Better handling of persistent connector info for telemetry
+ - PowerOn/PowerOff methods changed to support new pre-on/off callbacks
+
 ## [9.1.0] - 2019-05-15
 ### Added
  - Added telemetry features to switcher devices
