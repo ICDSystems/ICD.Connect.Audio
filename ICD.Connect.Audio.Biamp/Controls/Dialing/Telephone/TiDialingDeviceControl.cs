@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -28,6 +29,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 
 		private readonly TiControlStatusBlock m_TiControl;
+
+		[CanBeNull]
 		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
 
 		private bool m_Hold;
@@ -531,7 +534,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			if (holdControl == null)
 				return;
 
-			m_HoldControl.OnStateChanged += HoldControlOnStateChanged;
+			holdControl.OnStateChanged += HoldControlOnStateChanged;
 		}
 
 		/// <summary>
@@ -543,7 +546,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			if (holdControl == null)
 				return;
 
-			m_HoldControl.OnStateChanged -= HoldControlOnStateChanged;
+			holdControl.OnStateChanged -= HoldControlOnStateChanged;
 		}
 
 		/// <summary>
