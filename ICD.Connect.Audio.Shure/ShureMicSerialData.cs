@@ -6,7 +6,7 @@ namespace ICD.Connect.Audio.Shure
 {
 	public sealed class ShureMicSerialData : ISerialData
 	{
-		private const string REGEX = @"< (?'type'GET|SET|REP) ((?'channel'[\d]) )?(?'command'[\S]+) (?'value'[\S]+) >";
+		private const string REGEX = @"< (?'type'GET|SET|REP) ((?'channel'[\d]) )?(?'command'[\S]+) (?'value'.+) >";
 		private const string SAMPLE_REGEX = @"< (?'type'SAMPLE) (?'value'([\d]{3} )+)>";
 
 		public const string GET = "GET";

@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
+using ICD.Connect.API.Commands;
 
 namespace ICD.Connect.Audio.Shure
 {
@@ -64,6 +66,26 @@ namespace ICD.Connect.Audio.Shure
 				Command = "LED_STATUS",
 				Value = "OF OF"
 			};
+
+			Send(command.Serialize());
+		}
+
+		#endregion
+
+		#region Console
+
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (var command in GetBaseConsoleCommands())
+				yield return command;
+			
+			yield return new GenericConsoleCommand<eLedColor>("SetLedColor", "SetLedColor <Red, Green, Yellow>", e => SetLedColor(e));
+			yield return new ConsoleCommand("SetLedOff", "SetLedOff", () => SetLedOff());
+		}
+
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
 		}
 
 		#endregion
