@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - Added Shure MXWAPT4 support
+
 ## [9.2.0] - 2019-07-16
 ### Changed
  - Better handling of persistent connector info for telemetry

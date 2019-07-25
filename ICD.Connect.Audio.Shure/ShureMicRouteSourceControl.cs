@@ -11,7 +11,7 @@ using ICD.Connect.Routing.RoutingGraphs;
 
 namespace ICD.Connect.Audio.Shure
 {
-	public sealed class ShureMxaRouteSourceControl : AbstractRouteSourceControl<IShureMxaDevice>
+	public sealed class ShureMicRouteSourceControl : AbstractRouteSourceControl<IShureMicDevice>
 	{
 		/// <summary>
 		/// Raised when the device starts/stops actively transmitting on an output.
@@ -33,7 +33,7 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public ShureMxaRouteSourceControl(IShureMxaDevice parent, int id)
+		public ShureMicRouteSourceControl(IShureMicDevice parent, int id)
 			: base(parent, id)
 		{
 		}
