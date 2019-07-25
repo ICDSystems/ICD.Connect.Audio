@@ -8,7 +8,7 @@ using ICD.Connect.Protocol.SerialBuffers;
 
 namespace ICD.Connect.Audio.Shure
 {
-	public sealed class ShureMxaSerialBuffer : ISerialBuffer
+	public sealed class ShureMicSerialBuffer : ISerialBuffer
 	{
 		public event EventHandler<StringEventArgs> OnCompletedSerial;
 
@@ -29,7 +29,7 @@ namespace ICD.Connect.Audio.Shure
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public ShureMxaSerialBuffer()
+		public ShureMicSerialBuffer()
 		{
 			m_RxData = new StringBuilder();
 			m_Queue = new Queue<string>();
