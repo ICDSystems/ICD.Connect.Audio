@@ -38,9 +38,9 @@ namespace ICD.Connect.Audio.Shure
 					break;
 			}
 
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Channel = channel,
 				Command = "LED_STATUS",
 				Value = leds
@@ -57,9 +57,9 @@ namespace ICD.Connect.Audio.Shure
 
 		private void SetLedOff(int channel)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Channel = channel,
 				Command = "LED_STATUS",
 				Value = "OF OF"

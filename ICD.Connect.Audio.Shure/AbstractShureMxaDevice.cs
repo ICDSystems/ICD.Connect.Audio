@@ -25,9 +25,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="brightness"></param>
 		public void SetLedBrightness(eLedBrightness brightness)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Command = "LED_BRIGHTNESS",
 				Value = ((int)brightness).ToString()
 			};
@@ -41,9 +41,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedMuteColor(eLedColor color)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Command = "LED_COLOR_MUTED",
 				Value = color.ToString().ToUpper()
 			};
@@ -57,9 +57,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="color"></param>
 		public void SetLedUnmuteColor(eLedColor color)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Command = "LED_COLOR_UNMUTED",
 				Value = color.ToString().ToUpper()
 			};
@@ -73,9 +73,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="milliseconds"></param>
 		public void TurnMeteringOn(uint milliseconds)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Command = "METER_RATE",
 				Value = milliseconds.ToString()
 			};
@@ -118,9 +118,9 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="on"></param>
 		public void SetLedFlash(bool on)
 		{
-			ShureMxaSerialData command = new ShureMxaSerialData
+			ShureMicSerialData command = new ShureMicSerialData
 			{
-				Type = ShureMxaSerialData.SET,
+				Type = ShureMicSerialData.SET,
 				Command = "FLASH",
 				Value = on ? "ON" : "OFF"
 			};

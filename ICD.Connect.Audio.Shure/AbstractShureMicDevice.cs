@@ -165,11 +165,11 @@ namespace ICD.Connect.Audio.Shure
 		/// <param name="stringEventArgs"></param>
 		private void SerialBufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
-			ShureMxaSerialData response = ShureMxaSerialData.Deserialize(stringEventArgs.Data);
+			ShureMicSerialData response = ShureMicSerialData.Deserialize(stringEventArgs.Data);
 
 			switch (response.Type)
 			{
-				case ShureMxaSerialData.REP:
+				case ShureMicSerialData.REP:
 
 					switch (response.Command)
 					{
