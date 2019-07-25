@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Crestron.SimplSharp;
-using ICD.Connect.Settings.Attributes;
+﻿using ICD.Connect.Settings.Attributes;
 
 namespace ICD.Connect.Audio.Shure
 {
