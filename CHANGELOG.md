@@ -14,6 +14,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Better handling of persistent connector info for telemetry
  - PowerOn/PowerOff methods changed to support new pre-on/off callbacks
 
+## [9.1.1] - 2019-07-26
+### Changed
+ - Fixed null reference issues when a Biamp TI control is instantiated without a hold control
+
 ## [9.1.0] - 2019-05-15
 ### Added
  - Added telemetry features to switcher devices
