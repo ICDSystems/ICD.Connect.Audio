@@ -1,4 +1,5 @@
-﻿using ICD.Common.Utils.EventArguments;
+﻿using ICD.Common.Properties;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Controls.State;
@@ -11,7 +12,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 	                                                                IBiampTesiraConferenceDeviceControl
 	{
 		private readonly string m_Name;
+
+		[CanBeNull]
 		private readonly IBiampTesiraStateDeviceControl m_DoNotDisturbControl;
+		
+		[CanBeNull]
 		private readonly IBiampTesiraStateDeviceControl m_PrivacyMuteControl;
 
 		#region Properties
