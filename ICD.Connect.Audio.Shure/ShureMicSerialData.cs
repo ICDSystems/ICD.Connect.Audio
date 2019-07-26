@@ -4,9 +4,9 @@ using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Shure
 {
-	public sealed class ShureMxaSerialData : ISerialData
+	public sealed class ShureMicSerialData : ISerialData
 	{
-		private const string REGEX = @"< (?'type'GET|SET|REP) ((?'channel'[\d]) )?(?'command'[\S]+) (?'value'[\S]+) >";
+		private const string REGEX = @"< (?'type'GET|SET|REP) ((?'channel'[\d]) )?(?'command'[\S]+) (?'value'.+) >";
 		private const string SAMPLE_REGEX = @"< (?'type'SAMPLE) (?'value'([\d]{3} )+)>";
 
 		public const string GET = "GET";
@@ -40,7 +40,7 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		public static ShureMxaSerialData Deserialize(string data)
+		public static ShureMicSerialData Deserialize(string data)
 		{
 			Match match = Regex.Match(data, REGEX);
 			if (!match.Success)
@@ -48,7 +48,7 @@ namespace ICD.Connect.Audio.Shure
 
 			string channel = match.Groups["channel"].Value;
 
-			return new ShureMxaSerialData
+			return new ShureMicSerialData
 			{
 				Type = match.Groups["type"].Value,
 				Channel = string.IsNullOrEmpty(channel) ? (int?)null : int.Parse(channel),
@@ -62,13 +62,13 @@ namespace ICD.Connect.Audio.Shure
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		public static ShureMxaSerialData DeserializeSample(string data)
+		public static ShureMicSerialData DeserializeSample(string data)
 		{
 			Match match = Regex.Match(data, SAMPLE_REGEX);
 			if (!match.Success)
 				throw new FormatException();
 
-				return new ShureMxaSerialData
+				return new ShureMicSerialData
 				{
 					Type = match.Groups["type"].Value,
 					SampleValues = match.Groups["value"].Value.Trim().Split()
