@@ -4,11 +4,6 @@
 	{
 		Red,
 		Green,
-		Blue,
-		Pink,
-		Purple,
-		Yellow,
-		Orange,
-		White
+		Yellow
 	}
 }
