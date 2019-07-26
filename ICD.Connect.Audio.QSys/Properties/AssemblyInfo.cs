@@ -4,4 +4,4 @@ using System.Reflection;
 [assembly: AssemblyCompany("ICD Systems")]
 [assembly: AssemblyProduct("ICD.Connect.Audio.QSys")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2019")]
-[assembly: AssemblyVersion("9.2.0.0")]
+[assembly: AssemblyVersion("9.3.0.0")]
