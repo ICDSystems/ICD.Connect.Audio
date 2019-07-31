@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [9.3.1] - 2019-07-31
+### Changed
+ - Re-added White LED enum to Shure mics
+ - Biamp Tesira POTS privacy mute and do-not-disturb controls are optional
+
 ## [9.3.0] - 2019-07-26
 ### Added
  - Added Shure MXWAPT4 support
