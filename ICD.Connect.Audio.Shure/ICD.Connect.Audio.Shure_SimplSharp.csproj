@@ -74,6 +74,8 @@
     <Compile Include="AbstractShureMicDeviceSettings.cs" />
     <Compile Include="AbstractShureMxaDevice.cs" />
     <Compile Include="AbstractShureMxaDeviceSettings.cs" />
+    <Compile Include="AbstractShureMxwAptDevice.cs" />
+    <Compile Include="AbstractShureMxwAptDeviceSettings.cs" />
     <Compile Include="IShureMicDevice.cs" />
     <Compile Include="IShureMxaDevice.cs" />
     <Compile Include="KrangPlugin.cs" />
@@ -89,8 +91,12 @@
     <Compile Include="ShureMicRouteSourceControl.cs" />
     <Compile Include="ShureMicSerialBuffer.cs" />
     <Compile Include="ShureMicSerialData.cs" />
+    <Compile Include="ShureMxwApt2Device.cs" />
+    <Compile Include="ShureMxwApt2DeviceSettings.cs" />
     <Compile Include="ShureMxwApt4Device.cs" />
     <Compile Include="ShureMxwApt4DeviceSettings.cs" />
+    <Compile Include="ShureMxwApt8Device.cs" />
+    <Compile Include="ShureMxwApt8DeviceSettings.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>
