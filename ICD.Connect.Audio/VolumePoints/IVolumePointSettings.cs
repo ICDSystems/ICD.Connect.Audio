@@ -1,11 +1,8 @@
-﻿using ICD.Connect.Settings;
+﻿using ICD.Connect.Devices.Points;
 
 namespace ICD.Connect.Audio.VolumePoints
 {
-	public interface IVolumePointSettings : ISettings
+	public interface IVolumePointSettings : IPointSettings
 	{
-		int DeviceId { get; set; }
-
-		int ControlId { get; set; }
 	}
 }

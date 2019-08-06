@@ -1,17 +1,8 @@
-﻿using ICD.Connect.Settings.Originators;
+﻿using ICD.Connect.Devices.Points;
 
 namespace ICD.Connect.Audio.VolumePoints
 {
-	public interface IVolumePoint : IOriginator
+	public interface IVolumePoint : IPoint
 	{
-		/// <summary>
-		/// Device id
-		/// </summary>
-		int DeviceId { get; set; }
-
-		/// <summary>
-		/// Control id.
-		/// </summary>
-		int ControlId { get; set; }
 	}
 }
