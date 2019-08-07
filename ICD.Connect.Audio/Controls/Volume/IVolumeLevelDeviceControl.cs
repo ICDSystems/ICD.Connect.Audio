@@ -45,14 +45,14 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Increments the volume once.
 		/// </summary>
-		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_VOLUME_LEVEL_INCREMENT,
+		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_VOLUME_LEVEL_INCREMENT_STEP,
 			VolumeLevelDeviceControlApi.HELP_METHOD_VOLUME_LEVEL_INCREMENT)]
 		void VolumeLevelIncrement(float incrementValue);
 
 		/// <summary>
 		/// Decrements the volume once.
 		/// </summary>
-		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_VOLUME_LEVEL_DECREMENT,
+		[ApiMethod(VolumeLevelDeviceControlApi.METHOD_VOLUME_LEVEL_DECREMENT_STEP,
 			VolumeLevelDeviceControlApi.HELP_METHOD_VOLUME_LEVEL_DECREMENT)]
 		void VolumeLevelDecrement(float decrementValue);
 	}

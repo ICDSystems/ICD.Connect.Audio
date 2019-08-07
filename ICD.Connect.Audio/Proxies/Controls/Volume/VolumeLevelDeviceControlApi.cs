@@ -12,8 +12,8 @@
 
 		public const string METHOD_SET_VOLUME_LEVEL = "SetVolumeRaw";
 		public const string METHOD_SET_VOLUME_POSITION = "SetVolumePosition";
-		public const string METHOD_VOLUME_LEVEL_INCREMENT = "VolumeLevelIncrement";
-		public const string METHOD_VOLUME_LEVEL_DECREMENT = "VolumeLevelDecrement";
+		public const string METHOD_VOLUME_LEVEL_INCREMENT_STEP = "VolumeLevelIncrementStep";
+		public const string METHOD_VOLUME_LEVEL_DECREMENT_STEP = "VolumeLevelDecrementStep";
 		public const string METHOD_VOLUME_LEVEL_RAMP_POSITION_UP = "VolumeLevelRamppPositionUp";
 		public const string METHOD_VOLUME_LEVEL_RAMP_POSITION_DOWN = "VolumeLevelRampPositionDown";
 
