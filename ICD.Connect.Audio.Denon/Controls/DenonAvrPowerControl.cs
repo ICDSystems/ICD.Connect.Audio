@@ -70,11 +70,11 @@ namespace ICD.Connect.Audio.Denon.Controls
 			switch (response.GetCommand())
 			{
 				case POWER_ON:
-					IsPowered = true;
+					PowerState = ePowerState.PowerOn;
 					break;
 
 				case POWER_OFF:
-					IsPowered = false;
+					PowerState = ePowerState.PowerOff;
 					break;
 			}
 		}
