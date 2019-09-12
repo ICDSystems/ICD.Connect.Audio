@@ -5,7 +5,7 @@ using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.ClockAudio
+namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 {
 	[KrangSettings("ClockAudioTs001", typeof(ClockAudioTs001Device))]
 	public sealed class ClockAudioTs001DeviceSettings : AbstractDeviceSettings

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICD.Common.Utils.EventArguments;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
@@ -14,7 +14,7 @@ using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.ClockAudio
+namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 {
 	public sealed class ClockAudioTs001Device : AbstractDevice<ClockAudioTs001DeviceSettings>
 	{
