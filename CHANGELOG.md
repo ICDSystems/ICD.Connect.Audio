@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - Added ClockAudio CCRM4000 device
+
 ## [11.4.0] - 2019-08-15
 ### Added
  - Add Shure MXWAPT2 and MXWAPT8 devices
