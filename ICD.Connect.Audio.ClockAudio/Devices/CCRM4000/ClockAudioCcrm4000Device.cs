@@ -53,6 +53,8 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.CCRM4000
 		public ClockAudioCcrm4000Device()
 		{
 			m_ResetTimer = SafeTimer.Stopped(OpenAllRelays);
+
+			Controls.Add(new ClockAudioCcrm4000RoutSourceControl(this, 0));
 		}
 
 		#region Methods
