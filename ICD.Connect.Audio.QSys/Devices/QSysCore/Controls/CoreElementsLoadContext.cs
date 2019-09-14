@@ -300,7 +300,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		#endregion
 
 		/// <summary>
-		/// Gets the next avaliable ID from the list
+		/// Gets the next available ID from the list
 		/// </summary>
 		/// <returns></returns>
 	    internal int GetNextId()
