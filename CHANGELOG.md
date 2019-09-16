@@ -5,11 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-### Changed
- - Implementing new PowerState for Denon receiver
 
+## [11.5.0] - 2019-09-16
 ### Added
  - Added ClockAudio CCRM4000 device
+
+### Changed
+ - Implementing new PowerState for Denon receiver
+ - API changes to audio controls
 
 ## [11.4.0] - 2019-08-15
 ### Added
