@@ -75,9 +75,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		private readonly Dictionary<int, IQSysKrangControl> m_KrangControls;
 
 		/// <summary>
-		/// Next Avaliable ID to try for a control
+		/// Next Available ID to try for a control
 		/// </summary>
-	    private int m_NextAvaliableId;
+	    private int m_NextAvailableId;
 
 		/// <summary>
 		/// Default change groups for controls to subscribe to
@@ -100,7 +100,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		public CoreElementsLoadContext(QSysCoreDevice qSysCore)
 	    {
 		    QSysCore = qSysCore;
-			m_NextAvaliableId = NEXT_ID_START;
+			m_NextAvailableId = NEXT_ID_START;
 			m_ElementsTypes = new Dictionary<int, Type>();
 			m_ElementNames = new Dictionary<int, string>();
 			m_ElementsXml = new Dictionary<int, string>();
@@ -305,12 +305,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// <returns></returns>
 	    internal int GetNextId()
 		{
-			int checkValue = m_NextAvaliableId;
+			int checkValue = m_NextAvailableId;
 			while (true)
 			{
 				if (!m_ElementsTypes.ContainsKey(checkValue))
 				{
-					m_NextAvaliableId = checkValue + 1;
+					m_NextAvailableId = checkValue + 1;
 					return checkValue;
 				}
 				checkValue++;
