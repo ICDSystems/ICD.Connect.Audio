@@ -25,7 +25,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		#region Fields
 
 	    /// <summary>
-	    /// Contorls ID to Control Type
+	    /// Controls ID to Control Type
 	    /// </summary>
 	    private readonly Dictionary<int, Type> m_ElementsTypes;
 
@@ -230,12 +230,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 			}
 			catch (InvalidOperationException e)
 			{
-				QSysCore.Log(eSeverity.Error, e, "Exception instatiating Implicit Control Name: {0}, Type:{1} - Constructor Not Found.", controlName, controlType);
+				QSysCore.Log(eSeverity.Error, e, "Exception Instantiating Implicit Control Name:{0}, Type:{1} - Constructor Not Found.", controlName, controlType);
 			}
 
 			if (control == null)
 			{
-				QSysCore.Log(eSeverity.Error, "Error Instatiating Implicit Control Name:{0}, Type{1}", controlName, controlType);
+				QSysCore.Log(eSeverity.Error, "Error Instantiating Implicit Control Name:{0}, Type:{1}", controlName, controlType);
 				return null;
 			}
 			AddNamedControl(control);
@@ -288,7 +288,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 
 			if (component == null)
 			{
-				QSysCore.Log(eSeverity.Error, "Error Instatiating Implicit Component Name:{0}, Type{1}", componentName, componentType);
+				QSysCore.Log(eSeverity.Error, "Error Instantiating Implicit Component Name:{0}, Type:{1}", componentName, componentType);
 				return null;
 			}
 
