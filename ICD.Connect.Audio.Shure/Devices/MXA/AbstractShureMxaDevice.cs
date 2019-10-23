@@ -2,7 +2,7 @@
 using ICD.Common.Utils;
 using ICD.Connect.API.Commands;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Devices.MXA
 {
 	public abstract class AbstractShureMxaDevice<TSettings> : AbstractShureMicDevice<TSettings>, IShureMxaDevice
 		where TSettings : AbstractShureMxaDeviceSettings, new()

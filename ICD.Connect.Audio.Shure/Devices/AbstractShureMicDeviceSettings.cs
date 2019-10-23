@@ -3,7 +3,7 @@ using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Devices
 {
 	public abstract class AbstractShureMicDeviceSettings : AbstractDeviceSettings
 	{

@@ -1,8 +1,8 @@
-﻿using ICD.Connect.API.Commands;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using ICD.Connect.API.Commands;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Devices.MXW
 {
 	public abstract class AbstractShureMxwAptDevice<TSettings> : AbstractShureMicDevice<TSettings>, IShureMicDevice
 		where TSettings : AbstractShureMxwAptDeviceSettings, new()

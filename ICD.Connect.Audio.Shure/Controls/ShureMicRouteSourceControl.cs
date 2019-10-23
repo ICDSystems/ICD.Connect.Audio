@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.Audio.Shure.Devices;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Routing.RoutingGraphs;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Controls
 {
 	public sealed class ShureMicRouteSourceControl : AbstractRouteSourceControl<IShureMicDevice>
 	{

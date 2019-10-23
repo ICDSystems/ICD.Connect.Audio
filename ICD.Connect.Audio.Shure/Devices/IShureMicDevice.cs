@@ -2,7 +2,7 @@
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Devices;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Devices
 {
 	public interface IShureMicDevice : IDevice
 	{

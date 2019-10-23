@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio.Shure
+﻿namespace ICD.Connect.Audio.Shure.Devices
 {
 	public enum eLedBrightness
 	{

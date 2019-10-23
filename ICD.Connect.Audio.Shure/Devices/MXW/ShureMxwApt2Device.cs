@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio.Shure
+﻿namespace ICD.Connect.Audio.Shure.Devices.MXW
 {
 	public sealed class ShureMxwApt2Device : AbstractShureMxwAptDevice<ShureMxwApt2DeviceSettings>
 	{

@@ -4,6 +4,7 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Audio.Shure.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
@@ -11,7 +12,7 @@ using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.Shure
+namespace ICD.Connect.Audio.Shure.Devices
 {
 	public abstract class AbstractShureMicDevice<TSettings> : AbstractDevice<TSettings>, IShureMicDevice
 		where TSettings : AbstractShureMicDeviceSettings, new()
