@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.Xml;
+﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
@@ -31,11 +30,6 @@ namespace ICD.Connect.Audio.Misc
 
 		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? VoltageInputPort { get; set; }
-
-		/// <summary>
-		/// Gets the type of the originator for this settings instance.
-		/// </summary>
-		public override Type OriginatorType { get { return typeof(BiColorMicButtonDevice); } }
 
 		/// <summary>
 		/// Writes property elements to xml.
