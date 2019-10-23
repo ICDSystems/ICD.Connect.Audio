@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - Added driver for Shure Mx396
+
+### Changed
+ - Moved Shure microphone devices into subdirectories
+
 ## [11.5.1] - 2019-10-25
 ### Changed
  - AbstractVolumePoint inherits from new AbstractPoint type

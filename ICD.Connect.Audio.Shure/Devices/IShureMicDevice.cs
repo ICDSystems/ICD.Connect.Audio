@@ -6,7 +6,6 @@ namespace ICD.Connect.Audio.Shure.Devices
 {
 	public interface IShureMicDevice : IDevice
 	{
-
 		/// <summary>
 		/// Raised when the mute button is pressed/released.
 		/// </summary>

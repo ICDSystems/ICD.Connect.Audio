@@ -78,6 +78,8 @@
     <Compile Include="Devices\MXW\AbstractShureMxwAptDeviceSettings.cs" />
     <Compile Include="Devices\IShureMicDevice.cs" />
     <Compile Include="Devices\MXA\IShureMxaDevice.cs" />
+    <Compile Include="Devices\MX\ShureMx396Device.cs" />
+    <Compile Include="Devices\MX\ShureMx396DeviceSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Devices\eLedBrightness.cs" />
     <Compile Include="Devices\eLedColor.cs" />

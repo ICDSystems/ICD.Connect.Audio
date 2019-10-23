@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
-using ICD.Connect.Audio.Shure.Devices;
+using ICD.Connect.Devices;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -12,7 +12,7 @@ using ICD.Connect.Routing.RoutingGraphs;
 
 namespace ICD.Connect.Audio.Shure.Controls
 {
-	public sealed class ShureMicRouteSourceControl : AbstractRouteSourceControl<IShureMicDevice>
+	public sealed class ShureMicRouteSourceControl : AbstractRouteSourceControl<IDeviceBase>
 	{
 		/// <summary>
 		/// Raised when the device starts/stops actively transmitting on an output.
@@ -34,7 +34,7 @@ namespace ICD.Connect.Audio.Shure.Controls
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public ShureMicRouteSourceControl(IShureMicDevice parent, int id)
+		public ShureMicRouteSourceControl(IDeviceBase parent, int id)
 			: base(parent, id)
 		{
 		}
