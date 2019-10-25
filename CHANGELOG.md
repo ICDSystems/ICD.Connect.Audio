@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.5.1] - 2019-10-25
+### Changed
+ - AbstractVolumePoint inherits from new AbstractPoint type
+
 ## [11.5.0] - 2019-09-16
 ### Added
  - Added ClockAudio CCRM4000 device
