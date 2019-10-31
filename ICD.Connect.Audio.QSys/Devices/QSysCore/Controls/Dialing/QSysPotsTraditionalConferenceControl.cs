@@ -365,7 +365,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				IncomingCall = null;
-				Participant = new ThinTraditionalParticipant {SourceType = eCallType.Audio};
+				Participant = new ThinTraditionalParticipant {CallType = eCallType.Audio};
 			}
 			finally
 			{

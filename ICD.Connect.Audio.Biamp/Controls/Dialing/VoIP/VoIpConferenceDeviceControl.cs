@@ -283,7 +283,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 				RemoveSource(index);
 
-				source = new ThinTraditionalParticipant {SourceType = eCallType.Audio};
+				source = new ThinTraditionalParticipant {CallType = eCallType.Audio};
 
 				Subscribe(source);
 

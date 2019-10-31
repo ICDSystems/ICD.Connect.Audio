@@ -403,7 +403,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinTraditionalParticipant { SourceType = eCallType.Audio };
+				m_ActiveSource = new ThinTraditionalParticipant { CallType = eCallType.Audio };
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties
