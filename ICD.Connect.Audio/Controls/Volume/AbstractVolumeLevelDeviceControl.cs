@@ -37,6 +37,26 @@ namespace ICD.Connect.Audio.Controls.Volume
 			}
 		}
 
+		public override long RepeatBeforeTime
+		{
+			get { return m_Repeater.BeforeRepeat; }
+			set
+			{
+				base.RepeatBeforeTime = value;
+				m_Repeater.BeforeRepeat = value;
+			}
+		}
+
+		public override long RepeatBetweenTime
+		{
+			get { return m_Repeater.BetweenRepeat; }
+			set
+			{
+				base.RepeatBetweenTime = value;
+				m_Repeater.BetweenRepeat = value;
+			}
+		}
+
 		#region Properties
 
 		/// <summary>
