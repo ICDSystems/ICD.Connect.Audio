@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Volume;
@@ -25,6 +26,29 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 		private float? m_VolumeRawMax;
 		private float? m_VolumeRawMin;
+
+		private float m_IncrementValue;
+
+		public float IncrementValue
+		{
+			get { return m_IncrementValue; }
+			set
+			{
+				if (Math.Abs(m_IncrementValue - value) < FLOAT_COMPARE_TOLERANCE)
+					return;
+
+				if (!(m_IncrementValue > 0))
+				{
+					Log(eSeverity.Warning, "Increment value must be >0 - IncrementValue:{0}", value);
+					return;
+				}
+
+				m_IncrementValue = value;
+
+				m_Repeater.InitialIncrement = m_IncrementValue;
+				m_Repeater.RepeatIncrement = m_IncrementValue;
+			}
+		}
 
 		#region Properties
 
@@ -119,8 +143,9 @@ namespace ICD.Connect.Audio.Controls.Volume
 		protected AbstractVolumeLevelDeviceControl(T parent, int id)
 			: base(parent, id)
 		{
-			m_Repeater = new VolumeLevelRepeater(DEFAULT_INCREMENT_VALUE,
-			                                     DEFAULT_INCREMENT_VALUE,
+			m_IncrementValue = DEFAULT_INCREMENT_VALUE;
+			m_Repeater = new VolumeLevelRepeater(IncrementValue,
+			                                     IncrementValue,
 			                                     DEFAULT_REPEAT_BEFORE_TIME,
 			                                     DEFAULT_REPEAT_BETWEEN_TIME);
 			m_Repeater.SetControl(this);
@@ -150,7 +175,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeIncrement()
 		{
-			VolumeLevelIncrement(DEFAULT_INCREMENT_VALUE);
+			VolumeLevelIncrement(IncrementValue);
 		}
 
 		/// <summary>
@@ -159,7 +184,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeDecrement()
 		{
-			VolumeLevelDecrement(DEFAULT_INCREMENT_VALUE);
+			VolumeLevelDecrement(IncrementValue);
 		}
 
 		/// <summary>
