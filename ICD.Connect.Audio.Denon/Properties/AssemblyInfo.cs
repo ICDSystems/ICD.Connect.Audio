@@ -4,4 +4,4 @@ using System.Reflection;
 [assembly: AssemblyCompany("ICD Systems")]
 [assembly: AssemblyProduct("ICD.Connect.Audio.Denon")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2019")]
-[assembly: AssemblyVersion("9.3.1.0")]
+[assembly: AssemblyVersion("9.4.0.0")]
