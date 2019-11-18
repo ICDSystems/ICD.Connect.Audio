@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.6.0] - 2019-11-18
 ### Added
  - Added driver for Shure Mx396
 
