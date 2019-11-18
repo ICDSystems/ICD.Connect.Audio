@@ -39,7 +39,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Time from the press to the repeat
 		/// </summary>
-		public long RepeatBeforeTime
+		public virtual long RepeatBeforeTime
 		{
 			get { return VolumeRepeater.BeforeRepeat; }
 			set { VolumeRepeater.BeforeRepeat = value; }
@@ -48,7 +48,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Time between repeats
 		/// </summary>
-		public long RepeatBetweenTime
+		public virtual long RepeatBetweenTime
 		{
 			get { return VolumeRepeater.BetweenRepeat; }
 			set { VolumeRepeater.BetweenRepeat = value; }
