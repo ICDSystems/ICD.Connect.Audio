@@ -56,6 +56,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.4.0] - 2019-11-18
+### Added
+ - Ability to modify increment value for AbstractVolumeLevelDeviceControl
+
+### Changed
+ - Fixed RepeatBeforeTime and RepeatBetweenTime for AbstractVolumeLevelDeviceControl to affect proper repeater
+
 ## [9.3.1] - 2019-07-31
 ### Changed
  - Re-added White LED enum to Shure mics
