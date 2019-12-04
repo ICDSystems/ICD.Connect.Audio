@@ -30,7 +30,6 @@
 
   <ItemGroup>
     <Compile Remove="ObfuscationSettings.cs" />
-    <Compile Remove="Properties\AssemblyInfo.cs" />
   </ItemGroup>
 
   <ItemGroup>
