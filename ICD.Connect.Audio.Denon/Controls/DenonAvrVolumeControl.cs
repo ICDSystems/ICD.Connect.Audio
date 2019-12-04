@@ -40,13 +40,13 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		/// <summary>
 		/// Absolute Minimum the raw volume can be
-		/// Used as a last resort for position caculation
+		/// Used as a last resort for percent caculation
 		/// </summary>
 		protected override float VolumeRawMinAbsolute { get { return VOLUME_MIN; } }
 
 		/// <summary>
 		/// Absolute Maximum the raw volume can be
-		/// Used as a last resport for position caculation
+		/// Used as a last resport for percent caculation
 		/// </summary>
 		protected override float VolumeRawMaxAbsolute { get { return VOLUME_MAX; } }
 

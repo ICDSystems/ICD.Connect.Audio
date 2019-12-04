@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Volume;
@@ -9,7 +8,7 @@ using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Controls.Volume
 {
-	public abstract class AbstractVolumeLevelDeviceControl<T> : AbstractVolumePositionDeviceControl<T>, IVolumeLevelDeviceControl
+	public abstract class AbstractVolumeLevelDeviceControl<T> : AbstractVolumePercentDeviceControl<T>, IVolumeLevelDeviceControl
 		where T : IDeviceBase
 	{
 		/// <summary>
@@ -24,8 +23,8 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 		private readonly VolumeLevelRepeater m_Repeater;
 
-		private float? m_VolumeRawMax;
-		private float? m_VolumeRawMin;
+		private float? m_VolumeLevelMax;
+		private float? m_VolumeLevelMin;
 
 		public float IncrementValue
 		{
@@ -70,32 +69,32 @@ namespace ICD.Connect.Audio.Controls.Volume
 		public abstract float VolumeLevel { get; }
 
 		/// <summary>
-		/// Maximum value for the raw volume level
-		/// This could be the maximum permitted by the device/control, or a safety max
-		/// </summary>
-		public virtual float? VolumeRawMax
-		{
-			get { return m_VolumeRawMax; }
-			set
-			{
-				m_VolumeRawMax = value;
-
-				if (m_VolumeRawMax != null)
-					ClampLevel();
-			}
-		}
-
-		/// <summary>
 		/// Minimum value for the raw volume level
 		/// This could be the minimum permitted by the device/control, or a safety min
 		/// </summary>
 		public virtual float? VolumeRawMin
 		{
-			get { return m_VolumeRawMin; }
+			get { return m_VolumeLevelMin; }
 			set
 			{
-				m_VolumeRawMin = value;
-				if (m_VolumeRawMin != null)
+				m_VolumeLevelMin = value;
+				if (m_VolumeLevelMin != null)
+					ClampLevel();
+			}
+		}
+
+		/// <summary>
+		/// Maximum value for the raw volume level
+		/// This could be the maximum permitted by the device/control, or a safety max
+		/// </summary>
+		public virtual float? VolumeRawMax
+		{
+			get { return m_VolumeLevelMax; }
+			set
+			{
+				m_VolumeLevelMax = value;
+
+				if (m_VolumeLevelMax != null)
 					ClampLevel();
 			}
 		}
@@ -104,7 +103,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeLevelMinRange
+		public float VolumeLevelMin
 		{
 			get { return VolumeRawMin == null ? VolumeRawMinAbsolute : Math.Max(VolumeRawMinAbsolute, (float)VolumeRawMin); }
 		}
@@ -113,15 +112,15 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeLevelMaxRange
+		public float VolumeLevelMax
 		{
 			get { return VolumeRawMax == null ? VolumeRawMaxAbsolute : Math.Min(VolumeRawMaxAbsolute, (float)VolumeRawMax); }
 		}
 
 		/// <summary>
-		/// Gets the position of the volume in the specified range
+		/// Gets the percentage of the volume in the specified range
 		/// </summary>
-		public override float VolumePosition { get { return this.ConvertLevelToPosition(VolumeLevel); } }
+		public override float VolumePercent { get { return this.ConvertLevelToPercent(VolumeLevel); } }
 
 		/// <summary>
 		/// Gets the volume repeater for this instance.
@@ -130,13 +129,13 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 		/// <summary>
 		/// Absolute Minimum the raw volume can be
-		/// Used as a last resort for position caculation
+		/// Used as a last resort for percent caculation
 		/// </summary>
 		protected abstract float VolumeRawMinAbsolute { get; }
 
 		/// <summary>
 		/// Absolute Maximum the raw volume can be
-		/// Used as a last resport for position caculation
+		/// Used as a last resport for percent caculation
 		/// </summary>
 		protected abstract float VolumeRawMaxAbsolute { get; }
 
@@ -166,12 +165,12 @@ namespace ICD.Connect.Audio.Controls.Volume
 		public abstract void SetVolumeLevel(float volume);
 
 		/// <summary>
-		/// Sets the volume position in the specified range
+		/// Sets the volume percent in the specified range
 		/// </summary>
-		/// <param name="position"></param>
-		public override void SetVolumePosition(float position)
+		/// <param name="percent"></param>
+		public override void SetVolumePercent(float percent)
 		{
-			float level = this.ConvertPositionToLevel(position);
+			float level = this.ConvertPercentToLevel(percent);
 			SetVolumeLevel(level);
 		}
 
@@ -181,7 +180,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeIncrement()
 		{
-			VolumeLevelIncrement(IncrementValue);
+			this.VolumeLevelIncrement(IncrementValue);
 		}
 
 		/// <summary>
@@ -190,25 +189,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeDecrement()
 		{
-			VolumeLevelDecrement(IncrementValue);
-		}
-
-		/// <summary>
-		/// Increments the volume once.
-		/// </summary>
-		public virtual void VolumeLevelIncrement(float incrementValue)
-		{
-			float newRaw = this.ClampToVolumeLevel(VolumeLevel + incrementValue);
-			SetVolumeLevel(newRaw);
-		}
-
-		/// <summary>
-		/// Decrements the volume once.
-		/// </summary>
-		public virtual void VolumeLevelDecrement(float decrementValue)
-		{
-			float newRaw = this.ClampToVolumeLevel(VolumeLevel - decrementValue);
-			SetVolumeLevel(newRaw);
+			this.VolumeLevelDecrement(IncrementValue);
 		}
 
 		#endregion
@@ -222,9 +203,9 @@ namespace ICD.Connect.Audio.Controls.Volume
 				SetVolumeLevel(clampValue);
 		}
 
-		protected virtual void VolumeFeedback(float volumeRaw)
+		protected virtual void VolumeFeedback(float volumeLevel)
 		{
-			VolumeFeedback(volumeRaw, this.ConvertLevelToPosition(volumeRaw));
+			VolumeFeedback(volumeLevel, this.ConvertLevelToPercent(volumeLevel));
 		}
 
 		protected virtual string ConvertLevelToString(float level)

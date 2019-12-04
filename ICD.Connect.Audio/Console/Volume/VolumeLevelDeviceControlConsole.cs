@@ -32,8 +32,8 @@ namespace ICD.Connect.Audio.Console.Volume
 				throw new ArgumentNullException("instance");
 
 			addRow("Volume Raw", instance.VolumeLevel);
-			addRow("Volume Raw Max Range", instance.VolumeLevelMaxRange);
-			addRow("Volume Raw Min Range", instance.VolumeLevelMinRange);
+			addRow("Volume Raw Max Range", instance.VolumeLevelMax);
+			addRow("Volume Raw Min Range", instance.VolumeLevelMin);
 		}
 
 		/// <summary>

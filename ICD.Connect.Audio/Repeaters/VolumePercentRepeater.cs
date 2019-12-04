@@ -8,22 +8,22 @@ namespace ICD.Connect.Audio.Repeaters
 	/// VolumeRepeater allows for a virtual "button" to be held, raising a callback for
 	/// every repeat interval.
 	/// </summary>
-	public sealed class VolumePositionRepeater : AbstactVolumeRepeater
+	public sealed class VolumePercentRepeater : AbstactVolumeRepeater
 	{
-		private IVolumePositionDeviceControl m_Control;
+		private IVolumePercentDeviceControl m_Control;
 
 		/// <summary>
-		/// Gets/sets the initial position volume increment amount.
+		/// Gets/sets the initial percent volume increment amount.
 		/// </summary>
 		public float InitialIncrement { get; set; }
 
 		/// <summary>
-		/// Gets/sets the subsequent position volume increment amounts.
+		/// Gets/sets the subsequent percent volume increment amounts.
 		/// </summary>
 		public float RepeatIncrement { get; set; }
 
-		private bool m_PositionHold;
-		private float m_PositionDelta;
+		private bool m_PercentHold;
+		private float m_PercentDelta;
 		private bool m_StartHolding;
 
 		#region Constructor
@@ -35,7 +35,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <param name="repeatIncrement">The increment for every subsequent repeat</param>
 		/// <param name="beforeRepeat">The delay before the second increment</param>
 		/// <param name="betweenRepeat">The delay between each subsequent repeat</param>
-		public VolumePositionRepeater(float initialIncrement, float repeatIncrement, long beforeRepeat, long betweenRepeat)
+		public VolumePercentRepeater(float initialIncrement, float repeatIncrement, long beforeRepeat, long betweenRepeat)
 			: base(beforeRepeat, betweenRepeat)
 		{
 			InitialIncrement = initialIncrement;
@@ -45,7 +45,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <summary>
 		/// Destructor.
 		/// </summary>
-		~VolumePositionRepeater()
+		~VolumePercentRepeater()
 		{
 			Dispose();
 		}
@@ -58,32 +58,32 @@ namespace ICD.Connect.Audio.Repeaters
 		/// Sets the control.
 		/// </summary>
 		/// <param name="control"></param>
-		public void SetControl(IVolumePositionDeviceControl control)
+		public void SetControl(IVolumePercentDeviceControl control)
 		{
 			m_Control = control;
 		}
 
 		/// <summary>
-		/// Begin ramping the volume position in increments of the given size.
+		/// Begin ramping the volume percent in increments of the given size.
 		/// </summary>
 		/// <param name="increment"></param>
-		public void VolumeUpHoldPosition(float increment)
+		public void VolumeUpHoldPercent(float increment)
 		{
-			m_PositionHold = true;
-			m_PositionDelta = increment;
+			m_PercentHold = true;
+			m_PercentDelta = increment;
 			m_StartHolding = true;
 
 			VolumeHold(true);
 		}
 
 		/// <summary>
-		/// Begin ramping the volume position in decrements of the given size.
+		/// Begin ramping the volume percent in decrements of the given size.
 		/// </summary>
 		/// <param name="decrement"></param>
-		public void VolumeDownHoldPosition(float decrement)
+		public void VolumeDownHoldPercent(float decrement)
 		{
-			m_PositionHold = true;
-			m_PositionDelta = decrement;
+			m_PercentHold = true;
+			m_PercentDelta = decrement;
 			m_StartHolding = true;
 
 			VolumeHold(false);
@@ -96,8 +96,8 @@ namespace ICD.Connect.Audio.Repeaters
 		{
 			if (!m_StartHolding)
 			{
-				m_PositionHold = false;
-				m_PositionDelta = 0.0f;
+				m_PercentHold = false;
+				m_PercentDelta = 0.0f;
 			}
 
 			m_StartHolding = false;
@@ -114,12 +114,12 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeInitial()
 		{
-			if (m_PositionHold)
-				IncrementPosition(m_PositionDelta);
+			if (m_PercentHold)
+				IncrementPercent(m_PercentDelta);
 			else if (InitialIncrement > 0.0f)
-				IncrementPosition(InitialIncrement);
+				IncrementPercent(InitialIncrement);
 			else
-				IncrementPosition();
+				IncrementPercent();
 		}
 
 		/// <summary>
@@ -127,12 +127,12 @@ namespace ICD.Connect.Audio.Repeaters
 		/// </summary>
 		protected override void IncrementVolumeSubsequent()
 		{
-			if (m_PositionHold)
-				IncrementPosition(m_PositionDelta);
+			if (m_PercentHold)
+				IncrementPercent(m_PercentDelta);
 			else if (RepeatIncrement > 0.0f)
-				IncrementPosition(RepeatIncrement);
+				IncrementPercent(RepeatIncrement);
 			else
-				IncrementPosition();
+				IncrementPercent();
 		}
 
 		/// <summary>
@@ -140,22 +140,22 @@ namespace ICD.Connect.Audio.Repeaters
 		/// Applies Up/Down offset based on Up property value.
 		/// </summary>
 		/// <param name="increment"></param>
-		private void IncrementPosition(float increment)
+		private void IncrementPercent(float increment)
 		{
 			if (m_Control == null)
 				throw new InvalidOperationException("Can't increment volume without control set");
 
 			float delta = Up ? increment : -1 * increment;
-			float newPosition = MathUtils.Clamp(m_Control.VolumePosition + delta, 0.0f, 1.0f);
+			float newPercent = MathUtils.Clamp(m_Control.VolumePercent + delta, 0.0f, 1.0f);
 
-			m_Control.SetVolumePosition(newPosition);
+			m_Control.SetVolumePercent(newPercent);
 		}
 
 		/// <summary>
 		/// Adjusts the device volume using the default Increment/Decremnet methods.
 		/// Determines Increment/Decrement bad on Up property value.
 		/// </summary>
-		private void IncrementPosition()
+		private void IncrementPercent()
 		{
 			if (m_Control == null)
 				throw new InvalidOperationException("Can't increment volume without control set");

@@ -77,7 +77,7 @@ namespace ICD.Connect.Audio.Devices
 			if(volumeControl == null)
 				throw new InvalidOperationException("No volume control present on Generic Amp Device");
 
-			return volumeControl.VolumePosition;
+			return volumeControl.VolumePercent;
 		}
 
 		public bool GetMuteState()

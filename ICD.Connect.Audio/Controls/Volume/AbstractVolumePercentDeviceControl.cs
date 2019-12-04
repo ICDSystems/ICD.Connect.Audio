@@ -12,7 +12,7 @@ using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Controls.Volume
 {
-	public abstract class AbstractVolumePositionDeviceControl<T> : AbstractVolumeRampDeviceControl<T>, IVolumePositionDeviceControl
+	public abstract class AbstractVolumePercentDeviceControl<T> : AbstractVolumeRampDeviceControl<T>, IVolumePercentDeviceControl
 		where T : IDeviceBase
 	{
 		/// <summary>
@@ -25,19 +25,19 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public virtual event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
 
-		private readonly VolumePositionRepeater m_Repeater;
+		private readonly VolumePercentRepeater m_Repeater;
 
 		#region Properties
 
 		/// <summary>
-		/// Gets the current volume positon, 0 - 1
+		/// Gets the current volume percent, 0 - 1
 		/// </summary>
-		public abstract float VolumePosition { get; }
+		public abstract float VolumePercent { get; }
 
 		/// <summary>
 		/// Gets the current volume, in string representation
 		/// </summary>
-		public virtual string VolumeString { get { return ConvertPositionToString(VolumePosition); } }
+		public virtual string VolumeString { get { return string.Format("{0:n2}%", VolumePercent * 100.0f); } }
 
 		/// <summary>
 		/// Gets the volume repeater for this instance.
@@ -51,40 +51,40 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		/// <param name="parent">Device this control belongs to</param>
 		/// <param name="id">Id of this control in the device</param>
-		protected AbstractVolumePositionDeviceControl(T parent, int id)
+		protected AbstractVolumePercentDeviceControl(T parent, int id)
 			: base(parent, id)
 		{
-			m_Repeater = new VolumePositionRepeater(DEFAULT_INCREMENT_VALUE,
-			                                        DEFAULT_INCREMENT_VALUE,
-			                                        DEFAULT_REPEAT_BEFORE_TIME,
-			                                        DEFAULT_REPEAT_BETWEEN_TIME);
+			m_Repeater = new VolumePercentRepeater(DEFAULT_INCREMENT_VALUE,
+			                                       DEFAULT_INCREMENT_VALUE,
+			                                       DEFAULT_REPEAT_BEFORE_TIME,
+			                                       DEFAULT_REPEAT_BETWEEN_TIME);
 			m_Repeater.SetControl(this);
 		}
 
 		#region Methods
 
 		/// <summary>
-		/// Sets the volume position, from 0-1
+		/// Sets the volume percent, from 0-1
 		/// </summary>
-		/// <param name="position"></param>
-		public abstract void SetVolumePosition(float position);
+		/// <param name="percent"></param>
+		public abstract void SetVolumePercent(float percent);
 
 		/// <summary>
-		/// Starts raising the volume in steps of the given position, and continues until RampStop is called.
+		/// Starts raising the volume in steps of the given percent, and continues until RampStop is called.
 		/// </summary>
 		/// <param name="increment"></param>
-		public void VolumePositionRampUp(float increment)
+		public void VolumePercentRampUp(float increment)
 		{
-			m_Repeater.VolumeUpHoldPosition(increment);
+			m_Repeater.VolumeUpHoldPercent(increment);
 		}
 
 		/// <summary>
-		/// Starts lowering the volume in steps of the given position, and continues until RampStop is called.
+		/// Starts lowering the volume in steps of the given percent, and continues until RampStop is called.
 		/// </summary>
 		/// <param name="decrement"></param>
-		public void VolumePositionRampDown(float decrement)
+		public void VolumePercentRampDown(float decrement)
 		{
-			m_Repeater.VolumeDownHoldPosition(decrement);
+			m_Repeater.VolumeDownHoldPercent(decrement);
 		}
 
 		/// <summary>
@@ -92,7 +92,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeIncrement()
 		{
-			VolumePositionIncrement(DEFAULT_INCREMENT_VALUE);
+			VolumePercentIncrement(DEFAULT_INCREMENT_VALUE);
 		}
 
 		/// <summary>
@@ -100,25 +100,23 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public override void VolumeDecrement()
 		{
-			VolumePositionDecrement(DEFAULT_INCREMENT_VALUE);
+			VolumePercentDecrement(DEFAULT_INCREMENT_VALUE);
 		}
 
 		/// <summary>
 		/// Increments the volume once.
 		/// </summary>
-		public virtual void VolumePositionIncrement(float incrementValue)
+		private void VolumePercentIncrement(float incrementValue)
 		{
-			float newPosition = MathUtils.Clamp(VolumePosition + incrementValue, 0.0f, 1.0f);
-			SetVolumePosition(newPosition);
+			SetVolumePercent(VolumePercent + incrementValue);
 		}
 
 		/// <summary>
 		/// Decrements the volume once.
 		/// </summary>
-		public virtual void VolumePositionDecrement(float decrementValue)
+		private void VolumePercentDecrement(float decrementValue)
 		{
-			float newPosition = MathUtils.Clamp(VolumePosition - decrementValue, 0.0f, 1.0f);
-			SetVolumePosition(newPosition);
+			SetVolumePercent(VolumePercent - decrementValue);
 		}
 
 		/// <summary>
@@ -135,21 +133,16 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 		#region Private/Protected Methods
 
-		protected virtual string ConvertPositionToString(float position)
+		protected void VolumeFeedback(float level, float percent)
 		{
-			return string.Format("{0}%", (int)position);
+			VolumeFeedback(level, percent, VolumeString);
 		}
 
-		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition)
+		protected void VolumeFeedback(float level, float percent, string volumeString)
 		{
-			VolumeFeedback(volumeRaw, volumePosition, VolumeString);
-		}
+			Log(eSeverity.Informational, "Volume changed: Level={0} Percent={1} Name={2}", level, percent, volumeString);
 
-		protected virtual void VolumeFeedback(float volumeRaw, float volumePosition, string volumeString)
-		{
-			Log(eSeverity.Informational, "Volume changed: Level={0} Position={1} Name={2}", volumeRaw, volumePosition, volumeString);
-
-			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(volumeRaw, volumePosition, volumeString));
+			OnVolumeChanged.Raise(this, new VolumeDeviceVolumeChangedEventArgs(level, percent, volumeString));
 		}
 
 		#endregion
@@ -165,7 +158,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
 
-			foreach (IConsoleNodeBase node in VolumePositionDeviceControlConsole.GetConsoleNodes(this))
+			foreach (IConsoleNodeBase node in VolumePercentDeviceControlConsole.GetConsoleNodes(this))
 				yield return node;
 		}
 
@@ -186,7 +179,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		{
 			base.BuildConsoleStatus(addRow);
 
-			VolumePositionDeviceControlConsole.BuildConsoleStatus(this, addRow);
+			VolumePercentDeviceControlConsole.BuildConsoleStatus(this, addRow);
 		}
 
 		/// <summary>
@@ -198,7 +191,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
 				yield return command;
 
-			foreach (IConsoleCommand command in VolumePositionDeviceControlConsole.GetConsoleCommands(this))
+			foreach (IConsoleCommand command in VolumePercentDeviceControlConsole.GetConsoleCommands(this))
 				yield return command;
 		}
 

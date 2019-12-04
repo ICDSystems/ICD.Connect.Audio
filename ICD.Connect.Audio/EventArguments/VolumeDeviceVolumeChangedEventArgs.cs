@@ -7,18 +7,18 @@ namespace ICD.Connect.Audio.EventArguments
 	[Serializable]
 	public sealed class VolumeChangeState
 	{
-		public float VolumeRaw { get; set; }
+		public float VolumeLevel { get; set; }
 
-		public float VolumePosition { get; set; }
+		public float VolumePercent { get; set; }
 
 		public string VolumeString { get; set; }
 	}
 
 	public sealed class VolumeDeviceVolumeChangedEventArgs : AbstractGenericApiEventArgs<VolumeChangeState>
 	{
-		public float VolumeRaw { get { return Data.VolumeRaw; } }
+		public float VolumeLevel { get { return Data.VolumeLevel; } }
 
-		public float VolumePosition { get { return Data.VolumePosition; } }
+		public float VolumePercent { get { return Data.VolumePercent; } }
 
 		public string VolumeString { get { return Data.VolumeString; } }
 
@@ -26,20 +26,25 @@ namespace ICD.Connect.Audio.EventArguments
 		/// Constructor.
 		/// </summary>
 		/// <param name="volumeRaw"></param>
-		/// <param name="volumePosition"></param>
+		/// <param name="volumePercent"></param>
 		/// <param name="volumeString"></param>
-		public VolumeDeviceVolumeChangedEventArgs(float volumeRaw, float volumePosition, string volumeString)
+		public VolumeDeviceVolumeChangedEventArgs(float volumeRaw, float volumePercent, string volumeString)
 			: base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED,
 			       new VolumeChangeState
 			       {
-				       VolumeRaw = volumeRaw,
-				       VolumePosition = volumePosition,
+				       VolumeLevel = volumeRaw,
+				       VolumePercent = volumePercent,
 				       VolumeString = volumeString
 			       })
 		{
 		}
 
-		public VolumeDeviceVolumeChangedEventArgs(VolumeChangeState state):base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED,state)
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="state"></param>
+		public VolumeDeviceVolumeChangedEventArgs(VolumeChangeState state)
+			: base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED, state)
 		{			
 		}
 	}

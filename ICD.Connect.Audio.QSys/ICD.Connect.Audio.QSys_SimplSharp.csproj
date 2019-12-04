@@ -82,7 +82,7 @@
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\VoipNamedComponent.cs" />
     <Compile Include="Devices\QSysCore\QSysCoreComponentsCollection.cs" />
     <Compile Include="Devices\QSysCore\QSysCoreRoutingControl.cs" />
-    <Compile Include="Devices\QSysCore\Controls\Volume\QSysVolumePositionControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Volume\QSysVolumePercentControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\AbstractCoreControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\ChangeGroups\ChangeGroup.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\ChangeGroups\IChangeGroup.cs" />

@@ -13,7 +13,7 @@ using ICD.Connect.Audio.Repeaters;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 {
-	public sealed class QSysVolumePositionControl : AbstractVolumePositionDeviceControl<QSysCoreDevice>,
+	public sealed class QSysVolumePercentControl : AbstractVolumePercentDeviceControl<QSysCoreDevice>,
 	                                                IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
 	{
 		#region Events
@@ -34,7 +34,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 		public float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
 
-		public override float VolumePosition { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition; } }
+		public override float VolumePercent { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition; } }
 
 		public override string VolumeString { get { return m_VolumeControl == null ? null : m_VolumeControl.ValueString; } }
 
@@ -50,7 +50,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-		public QSysVolumePositionControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
+		public QSysVolumePercentControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
 			: base(context.QSysCore, id)
 		{
 			m_Name = friendlyName;
@@ -65,12 +65,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 			m_VolumeControl = context.LazyLoadNamedControl<NamedControl>(volumeName);
 			m_MuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(muteName);
 
-			VolumePositionRepeater positionRepeater = VolumeRepeater as VolumePositionRepeater;
+			VolumePercentRepeater percentRepeater = VolumeRepeater as VolumePercentRepeater;
 
-			if (incrementValue != null && positionRepeater != null)
+			if (incrementValue != null && percentRepeater != null)
 			{
-				positionRepeater.InitialIncrement = (float)incrementValue;
-				positionRepeater.RepeatIncrement = (float)incrementValue;
+				percentRepeater.InitialIncrement = (float)incrementValue;
+				percentRepeater.RepeatIncrement = (float)incrementValue;
 			}
 
 			if (repeatBeforeTime != null)
@@ -94,7 +94,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 			m_VolumeControl.SetValue(volume);
 		}
 
-		public override void SetVolumePosition(float position)
+		public override void SetVolumePercent(float percent)
 		{
 			if (m_VolumeControl == null)
 			{
@@ -102,7 +102,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 				return;
 			}
 
-			m_VolumeControl.SetPosition(position);
+			m_VolumeControl.SetPosition(percent);
 		}
 
 		public void VolumeLevelIncrement(float incrementValue)

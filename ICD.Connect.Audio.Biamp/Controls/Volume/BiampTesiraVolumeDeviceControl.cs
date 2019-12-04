@@ -96,23 +96,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 			SetVolumeMute(!VolumeIsMuted);
 		}
 
-		/// <summary>
-		/// Increments the raw volume by the given unit
-		/// </summary>
-		/// <param name="incrementValue"></param>
-		public override void VolumeLevelIncrement(float incrementValue)
-		{
-			m_VolumeInterface.IncrementLevel(incrementValue);
-		}
-
-		/// <summary>
-		/// Decrements the raw volume once.
-		/// </summary>
-		public override void VolumeLevelDecrement(float decrementValue)
-		{
-			m_VolumeInterface.DecrementLevel(decrementValue);
-		}
-
 		#endregion
 
 		#region Volume Interface Callbacks

@@ -1,6 +1,5 @@
 ﻿using System;
 using ICD.Common.Properties;
-using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
@@ -53,24 +52,24 @@ namespace ICD.Connect.Audio.Devices
 		/// <summary>
 		/// Gets the current volume positon, 0 - 1
 		/// </summary>
-		public float VolumePosition { get { return ActiveControlAction<IVolumePositionDeviceControl, float>(c => c.VolumePosition); } }
+		public float VolumePercent { get { return ActiveControlAction<IVolumePercentDeviceControl, float>(c => c.VolumePercent); } }
 
 		/// <summary>
 		/// Gets the current volume, in string representation
 		/// </summary>
-		public string VolumeString { get { return ActiveControlAction<IVolumePositionDeviceControl, string>(c => c.VolumeString); } }
+		public string VolumeString { get { return ActiveControlAction<IVolumePercentDeviceControl, string>(c => c.VolumeString); } }
 
 		/// <summary>
 		/// VolumeRawMaxRange is the best max volume we have for the control
 		/// either the Max from the control or the absolute max for the control
 		/// </summary>
-		public float VolumeLevelMaxRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMaxRange); } }
+		public float VolumeLevelMax { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMax); } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		public float VolumeLevelMinRange { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMinRange); } }
+		public float VolumeLevelMin { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMin); } }
 
 		/// <summary>
 		/// Gets the muted state.
@@ -112,7 +111,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeIncrement()
 		{
-			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumeIncrement());
+			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumeIncrement());
 		}
 
 		/// <summary>
@@ -121,7 +120,7 @@ namespace ICD.Connect.Audio.Devices
 		/// </summary>
 		public void VolumeDecrement()
 		{
-			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumeDecrement());
+			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumeDecrement());
 		}
 
 		/// <summary>
@@ -160,46 +159,30 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		/// <summary>
-		/// Sets the volume position, from 0-1
+		/// Sets the volume percent, from 0-1
 		/// </summary>
-		/// <param name="position"></param>
-		public void SetVolumePosition(float position)
+		/// <param name="percent"></param>
+		public void SetVolumePercent(float percent)
 		{
-			ActiveControlAction<IVolumePositionDeviceControl>(c => c.SetVolumePosition(position));
+			ActiveControlAction<IVolumePercentDeviceControl>(c => c.SetVolumePercent(percent));
 		}
 
 		/// <summary>
-		/// Increments the volume once.
-		/// </summary>
-		public void VolumeLevelIncrement(float incrementValue)
-		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(incrementValue));
-		}
-
-		/// <summary>
-		/// Decrements the volume once.
-		/// </summary>
-		public void VolumeLevelDecrement(float decrementValue)
-		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.VolumeLevelIncrement(decrementValue));
-		}
-
-		/// <summary>
-		/// Starts raising the volume in steps of the given position, and continues until RampStop is called.
+		/// Starts raising the volume in steps of the given percent, and continues until RampStop is called.
 		/// </summary>
 		/// <param name="increment"></param>
-		public void VolumePositionRampUp(float increment)
+		public void VolumePercentRampUp(float increment)
 		{
-			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumePositionRampUp(increment));
+			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumePercentRampUp(increment));
 		}
 
 		/// <summary>
-		/// Starts lowering the volume in steps of the given position, and continues until RampStop is called.
+		/// Starts lowering the volume in steps of the given percent, and continues until RampStop is called.
 		/// </summary>
 		/// <param name="decrement"></param>
-		public void VolumePositionRampDown(float decrement)
+		public void VolumePercentRampDown(float decrement)
 		{
-			ActiveControlAction<IVolumePositionDeviceControl>(c => c.VolumePositionRampDown(decrement));
+			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumePercentRampDown(decrement));
 		}
 
 		/// <summary>
