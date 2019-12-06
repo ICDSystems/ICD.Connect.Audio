@@ -1,20 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services.Logging;
-using ICD.Connect.API.Commands;
-using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Console.Mute;
-using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.Denon.Devices;
-using ICD.Connect.Audio.EventArguments;
 
 namespace ICD.Connect.Audio.Denon.Controls
 {
-    public sealed class DenonAvrVolumeControl : AbstractVolumeLevelDeviceControl<DenonAvrDevice>, IVolumeMuteFeedbackDeviceControl
+    public sealed class DenonAvrVolumeControl : AbstractVolumeDeviceControl<DenonAvrDevice>
 	{
 		private const string MASTER_VOLUME = "MV";
 		private const string MASTER_VOLUME_UP = MASTER_VOLUME + "UP";
@@ -28,51 +20,33 @@ namespace ICD.Connect.Audio.Denon.Controls
 		private const int VOLUME_MIN = 0;
 		private const int VOLUME_MAX = 98;
 
-		/// <summary>
-		/// Raised when the mute state changes.
-		/// </summary>
-		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
-
-		private bool m_VolumeIsMuted;
-		private float m_VolumeLevel;
-
 		#region Properties
 
-		/// <summary>
-		/// Absolute Minimum the raw volume can be
-		/// Used as a last resort for percent caculation
-		/// </summary>
-		protected override float VolumeRawMinAbsolute { get { return VOLUME_MIN; } }
+	    /// <summary>
+	    /// Returns the features that are supported by this volume control.
+	    /// </summary>
+	    public override eVolumeFeatures SupportedVolumeFeatures
+	    {
+		    get
+		    {
+			    return eVolumeFeatures.Mute |
+			           eVolumeFeatures.MuteAssignment |
+			           eVolumeFeatures.MuteFeedback |
+			           eVolumeFeatures.Volume |
+			           eVolumeFeatures.VolumeAssignment |
+			           eVolumeFeatures.VolumeFeedback;
+		    }
+	    }
 
-		/// <summary>
-		/// Absolute Maximum the raw volume can be
-		/// Used as a last resport for percent caculation
-		/// </summary>
-		protected override float VolumeRawMaxAbsolute { get { return VOLUME_MAX; } }
+	    /// <summary>
+	    /// Gets the minimum supported volume level.
+	    /// </summary>
+		public override float VolumeLevelMin { get { return VOLUME_MIN; } }
 
-		/// <summary>
-		/// Gets the muted state.
-		/// </summary>
-		public bool VolumeIsMuted
-		{
-			get { return m_VolumeIsMuted; }
-			private set
-			{
-				if (value == m_VolumeIsMuted)
-					return;
-
-				m_VolumeIsMuted = value;
-
-				Log(eSeverity.Informational, "Mute set to {0}", m_VolumeIsMuted);
-
-				OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(m_VolumeIsMuted));
-			}
-		}
-
-		/// <summary>
-		/// Gets the current volume, in the parent device's format
-		/// </summary>
-		public override float VolumeLevel { get { return m_VolumeLevel; } }
+	    /// <summary>
+	    /// Gets the maximum supported volume level.
+	    /// </summary>
+		public override float VolumeLevelMax { get { return VOLUME_MAX; } }
 
 		#endregion
 
@@ -100,7 +74,15 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Methods
 
-		/// <summary>
+	    /// <summary>
+	    /// Toggles the current mute state.
+	    /// </summary>
+	    public override void ToggleIsMuted()
+	    {
+			SetIsMuted(!IsMuted);
+	    }
+
+	    /// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
@@ -110,25 +92,56 @@ namespace ICD.Connect.Audio.Denon.Controls
 			Parent.SendData(data);
 		}
 
-		/// <summary>
+	    /// <summary>
+	    /// Raises the volume one time
+	    /// Amount of the change varies between implementations - typically "1" raw unit
+	    /// </summary>
+	    public override void VolumeIncrement()
+	    {
+			DenonSerialData data = DenonSerialData.Command(MASTER_VOLUME_UP);
+			Parent.SendData(data);
+	    }
+
+	    /// <summary>
+	    /// Lowers the volume one time
+	    /// Amount of the change varies between implementations - typically "1" raw unit
+	    /// </summary>
+	    public override void VolumeDecrement()
+	    {
+			DenonSerialData data = DenonSerialData.Command(MASTER_VOLUME_DOWN);
+			Parent.SendData(data);
+	    }
+
+	    /// <summary>
+	    /// Starts ramping the volume, and continues until stop is called or the timeout is reached.
+	    /// If already ramping the current timeout is updated to the new timeout duration.
+	    /// </summary>
+	    /// <param name="increment">Increments the volume if true, otherwise decrements.</param>
+	    /// <param name="timeout"></param>
+	    public override void VolumeRamp(bool increment, long timeout)
+	    {
+		    throw new NotSupportedException();
+	    }
+
+	    /// <summary>
+	    /// Stops any current ramp up/down in progress.
+	    /// </summary>
+	    public override void VolumeRampStop()
+	    {
+		    throw new NotSupportedException();
+	    }
+
+	    /// <summary>
 		/// Sets the mute state.
 		/// </summary>
 		/// <param name="mute"></param>
-		public void SetVolumeMute(bool mute)
+		public override void SetIsMuted(bool mute)
 		{
 			DenonSerialData data = DenonSerialData.Command(mute ? MUTE_ON : MUTE_OFF);
 			Parent.SendData(data);
 		}
 
-		/// <summary>
-		/// Toggles the current mute state.
-		/// </summary>
-		public void VolumeMuteToggle()
-		{
-			SetVolumeMute(!VolumeIsMuted);
-		}
-
-		#endregion
+	    #endregion
 
 		#region Private Methods
 
@@ -155,7 +168,7 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// </summary>
 		/// <param name="data"></param>
 		/// <returns></returns>
-		private float GetVolumeFromResponse(string data)
+		private static float GetVolumeFromResponse(string data)
 		{
 			if (data == null)
 				throw new ArgumentNullException("data");
@@ -171,132 +184,49 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Parent Callbacks
 
-		private void Subscribe(DenonAvrDevice parent)
+		protected override void Subscribe(DenonAvrDevice parent)
 		{
-			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
-			parent.OnDataReceived += ParentOnOnDataReceived;
+			base.Subscribe(parent);
+
+			parent.OnInitializedChanged += ParentOnInitializedChanged;
+			parent.OnDataReceived += ParentOnDataReceived;
 		}
 
-		private void Unsubscribe(DenonAvrDevice parent)
+		protected override void Unsubscribe(DenonAvrDevice parent)
 		{
-			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
-			parent.OnDataReceived -= ParentOnOnDataReceived;
+			base.Unsubscribe(parent);
+
+			parent.OnInitializedChanged -= ParentOnInitializedChanged;
+			parent.OnDataReceived -= ParentOnDataReceived;
 		}
 
-		private void ParentOnOnDataReceived(DenonAvrDevice device, DenonSerialData response)
+		private void ParentOnDataReceived(DenonAvrDevice device, DenonSerialData response)
 		{
 			string data = response.GetCommand();
 
 			switch (data)
 			{
 				case MUTE_ON:
-					VolumeIsMuted = true;
-					return;
+					IsMuted = true;
+					break;
 
 				case MUTE_OFF:
-					VolumeIsMuted = false;
-					return;
-			}
+					IsMuted = false;
+					break;
 
-			if (data == MASTER_VOLUME)
-			{
-				float volume = GetVolumeFromResponse(response.GetValue());
-				UpdateVolumeLevel(volume);
-			}
+				case MASTER_VOLUME:
+					VolumeLevel = GetVolumeFromResponse(response.GetValue());
+					break;
+			}	
 		}
 
-		private void UpdateVolumeLevel(float volume)
-		{
-			if (Math.Abs(volume - m_VolumeLevel) < 0.001f)
-				return;
-
-			m_VolumeLevel = volume;
-
-			Log(eSeverity.Informational, "Volume level set to {0}", StringUtils.NiceName(m_VolumeLevel));
-
-			VolumeFeedback(m_VolumeLevel);
-		}
-
-		private void ParentOnOnInitializedChanged(object sender, BoolEventArgs args)
+		private void ParentOnInitializedChanged(object sender, BoolEventArgs args)
 		{
 			if (!args.Data)
 				return;
 
 			Parent.SendData(DenonSerialData.Request(MASTER_VOLUME));
 			Parent.SendData(DenonSerialData.Request(MUTE));
-		}
-
-		#endregion
-
-		#region Console
-
-		/// <summary>
-		/// Gets the child console nodes.
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
-		{
-			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
-				yield return node;
-
-			foreach (IConsoleNodeBase node in VolumeMuteBasicDeviceControlConsole.GetConsoleNodes(this))
-				yield return node;
-
-			foreach (IConsoleNodeBase node in VolumeMuteDeviceControlConsole.GetConsoleNodes(this))
-				yield return node;
-
-			foreach (IConsoleNodeBase node in VolumeMuteFeedbackDeviceControlConsole.GetConsoleNodes(this))
-				yield return node;
-		}
-
-		/// <summary>
-		/// Wrokaround for "unverifiable code" warning.
-		/// </summary>
-		/// <returns></returns>
-		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
-		{
-			return base.GetConsoleNodes();
-		}
-
-		/// <summary>
-		/// Calls the delegate for each console status item.
-		/// </summary>
-		/// <param name="addRow"></param>
-		public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
-		{
-			base.BuildConsoleStatus(addRow);
-
-			VolumeMuteBasicDeviceControlConsole.BuildConsoleStatus(this, addRow);
-			VolumeMuteDeviceControlConsole.BuildConsoleStatus(this, addRow);
-			VolumeMuteFeedbackDeviceControlConsole.BuildConsoleStatus(this, addRow);
-		}
-
-		/// <summary>
-		/// Gets the child console commands.
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
-		{
-			foreach (IConsoleCommand command in GetBaseConsoleCommands())
-				yield return command;
-
-			foreach (IConsoleCommand command in VolumeMuteBasicDeviceControlConsole.GetConsoleCommands(this))
-				yield return command;
-
-			foreach (IConsoleCommand command in VolumeMuteDeviceControlConsole.GetConsoleCommands(this))
-				yield return command;
-
-			foreach (IConsoleCommand command in VolumeMuteFeedbackDeviceControlConsole.GetConsoleCommands(this))
-				yield return command;
-		}
-
-		/// <summary>
-		/// Workaround for "unverifiable code" warning.
-		/// </summary>
-		/// <returns></returns>
-		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
-		{
-			return base.GetConsoleCommands();
 		}
 
 		#endregion

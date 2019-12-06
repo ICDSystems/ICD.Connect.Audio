@@ -6,7 +6,7 @@ namespace ICD.Connect.Audio.Repeaters
 	/// VolumeRepeater allows for a virtual "button" to be held, raising a callback for
 	/// every repeat interval.
 	/// </summary>
-	public abstract class AbstactVolumeRepeater : IVolumeRepeater
+	public abstract class AbstactVolumeRepeater
 	{
 		private readonly SafeTimer m_RepeatTimer;
 

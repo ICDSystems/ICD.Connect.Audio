@@ -8,9 +8,11 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
+using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Settings;
 using ICD.Connect.Settings.Cores;
@@ -30,6 +32,9 @@ namespace ICD.Connect.Audio.Devices
 		private readonly Dictionary<int, int> m_InputVolumePointIds;
 		private readonly SafeCriticalSection m_InputsSection;
 
+		[NotNull]
+		public IRouteSwitcherControl Switcher { get { return Controls.GetControl<IRouteSwitcherControl>(0); } }
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>
@@ -44,7 +49,7 @@ namespace ICD.Connect.Audio.Devices
 
 			// Needs to be added after the route control
 			var volumeControl = new GenericAmpVolumeControl(this, 1);
-			volumeControl.OnMuteStateChanged += VolumeControlOnMuteStateChanged;
+			volumeControl.OnIsMutedChanged += VolumeControlOnIsMutedChanged;
 			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
 			Controls.Add(volumeControl);
 		}
@@ -62,7 +67,7 @@ namespace ICD.Connect.Audio.Devices
 
 			if (volumeControl != null)
 			{
-				volumeControl.OnMuteStateChanged -= VolumeControlOnMuteStateChanged;
+				volumeControl.OnIsMutedChanged -= VolumeControlOnIsMutedChanged;
 				volumeControl.OnVolumeChanged -= VolumeControlOnVolumeChanged;
 			}
 
@@ -77,7 +82,7 @@ namespace ICD.Connect.Audio.Devices
 			if(volumeControl == null)
 				throw new InvalidOperationException("No volume control present on Generic Amp Device");
 
-			return volumeControl.VolumePercent;
+			return volumeControl.GetVolumePercent();
 		}
 
 		public bool GetMuteState()
@@ -86,7 +91,7 @@ namespace ICD.Connect.Audio.Devices
 			if (volumeControl == null)
 				throw new InvalidOperationException("No volume control present on Generic Amp Device");
 
-			return volumeControl.VolumeIsMuted;
+			return volumeControl.IsMuted;
 		}
 
 		/// <summary>
@@ -157,8 +162,7 @@ namespace ICD.Connect.Audio.Devices
 				{
 					if (m_InputVolumePointIds.ContainsKey(item.Key))
 					{
-						Logger.AddEntry(eSeverity.Error, "{0} unable to add volume point id for duplicate input {1}", this,
-										item.Key);
+						Log(eSeverity.Error, "{0} unable to add volume point id for duplicate input {1}", this, item.Key);
 						continue;
 					}
 
@@ -188,12 +192,12 @@ namespace ICD.Connect.Audio.Devices
 			OnMuteChanged.Raise(this, new BoolEventArgs(GetMuteState()));
 		}
 
-		private void VolumeControlOnVolumeChanged(object sender, VolumeDeviceVolumeChangedEventArgs volumeDeviceVolumeChangedEventArgs)
+		private void VolumeControlOnVolumeChanged(object sender, VolumeControlVolumeChangedApiEventArgs volumeControlVolumeChangedApiEventArgs)
 		{
 			OnVolumeChanged.Raise(this, new FloatEventArgs(GetVolumeState()));
 		}
 
-		private void VolumeControlOnMuteStateChanged(object sender, MuteDeviceMuteStateChangedApiEventArgs boolEventArgs)
+		private void VolumeControlOnIsMutedChanged(object sender, VolumeControlIsMutedChangedApiEventArgs boolEventArgs)
 		{
 			OnMuteChanged.Raise(this, new BoolEventArgs(GetMuteState()));
 		}

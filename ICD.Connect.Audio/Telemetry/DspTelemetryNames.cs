@@ -1,4 +1,4 @@
-﻿namespace ICD.Connect.Audio
+﻿namespace ICD.Connect.Audio.Telemetry
 {
 	public static class DspTelemetryNames
 	{

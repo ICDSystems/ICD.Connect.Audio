@@ -1,13 +1,11 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 using ICD.Connect.Audio.Controls.Volume;
-using ICD.Connect.Audio.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {
-	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeLevelDeviceControl<BiampTesiraDevice>, IBiampTesiraVolumeDeviceControl
+	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeDeviceControl<BiampTesiraDevice>, IBiampTesiraVolumeDeviceControl
 	{
 		private readonly string m_Name;
 		private readonly IVolumeAttributeInterface m_VolumeInterface;
@@ -19,29 +17,31 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override string Name { get { return m_Name; } }
 
-		protected override float VolumeRawMinAbsolute { get { return BiampTesiraDevice.TESIRA_LEVEL_MINIMUM; } }
-
-		protected override float VolumeRawMaxAbsolute {  get { return BiampTesiraDevice.TESIRA_LEVEL_MAXIMUM; } }
+		/// <summary>
+		/// Returns the features that are supported by this volume control.
+		/// </summary>
+		public override eVolumeFeatures SupportedVolumeFeatures
+		{
+			get
+			{
+				return eVolumeFeatures.Mute |
+					   eVolumeFeatures.MuteAssignment |
+					   eVolumeFeatures.MuteFeedback |
+					   eVolumeFeatures.Volume |
+					   eVolumeFeatures.VolumeAssignment |
+					   eVolumeFeatures.VolumeFeedback;
+			}
+		}
 
 		/// <summary>
-		/// The min volume.
+		/// Gets the minimum supported volume level.
 		/// </summary>
-		public override float? VolumeRawMin { get { return m_VolumeInterface.MinLevel; } }
+		public override float VolumeLevelMin { get { return Math.Max(BiampTesiraDevice.TESIRA_LEVEL_MINIMUM, m_VolumeInterface.MinLevel); } }
 
 		/// <summary>
-		/// The max volume.
+		/// Gets the maximum supported volume level.
 		/// </summary>
-		public override float? VolumeRawMax { get { return m_VolumeInterface.MaxLevel; } }
-
-		public override float VolumeLevel { get { return m_VolumeInterface.Level; } }
-
-		public bool VolumeIsMuted {  get { return m_VolumeInterface.Mute; } }
-
-		#endregion
-
-		#region Events
-
-		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
+		public override float VolumeLevelMax { get { return Math.Min(BiampTesiraDevice.TESIRA_LEVEL_MAXIMUM, m_VolumeInterface.MaxLevel); } }
 
 		#endregion
 
@@ -74,6 +74,23 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		#region Methods
 
 		/// <summary>
+		/// Sets the mute state.
+		/// </summary>
+		/// <param name="mute"></param>
+		public override void SetIsMuted(bool mute)
+		{
+			m_VolumeInterface.SetMute(mute);
+		}
+
+		/// <summary>
+		/// Toggles the current mute state.
+		/// </summary>
+		public override void ToggleIsMuted()
+		{
+			m_VolumeInterface.SetMute(!m_VolumeInterface.Mute);
+		}
+
+		/// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
 		/// <param name="volume"></param>
@@ -83,17 +100,40 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		}
 
 		/// <summary>
-		/// Sets the mute state.
+		/// Raises the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		/// <param name="mute"></param>
-		public void SetVolumeMute(bool mute)
+		public override void VolumeIncrement()
 		{
-			m_VolumeInterface.SetMute(mute);
+			m_VolumeInterface.IncrementLevel();
 		}
 
-		public void VolumeMuteToggle()
+		/// <summary>
+		/// Lowers the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
+		/// </summary>
+		public override void VolumeDecrement()
 		{
-			SetVolumeMute(!VolumeIsMuted);
+			m_VolumeInterface.DecrementLevel();
+		}
+
+		/// <summary>
+		/// Starts ramping the volume, and continues until stop is called or the timeout is reached.
+		/// If already ramping the current timeout is updated to the new timeout duration.
+		/// </summary>
+		/// <param name="increment">Increments the volume if true, otherwise decrements.</param>
+		/// <param name="timeout"></param>
+		public override void VolumeRamp(bool increment, long timeout)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Stops any current ramp up/down in progress.
+		/// </summary>
+		public override void VolumeRampStop()
+		{
+			throw new NotSupportedException();
 		}
 
 		#endregion
@@ -114,12 +154,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		private void VolumeInterfaceOnMuteChanged(object sender, BoolEventArgs args)
 		{
-			OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(args.Data));
+			IsMuted = m_VolumeInterface.Mute;
 		}
 
 		private void VolumeInterfaceOnLevelChanged(object sender, FloatEventArgs args)
 		{
-			VolumeFeedback(args.Data);
+			VolumeLevel = m_VolumeInterface.Level;
 		}
 
 		#endregion

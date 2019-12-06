@@ -14,7 +14,7 @@ namespace ICD.Connect.Audio.EventArguments
 		public string VolumeString { get; set; }
 	}
 
-	public sealed class VolumeDeviceVolumeChangedEventArgs : AbstractGenericApiEventArgs<VolumeChangeState>
+	public sealed class VolumeControlVolumeChangedApiEventArgs : AbstractGenericApiEventArgs<VolumeChangeState>
 	{
 		public float VolumeLevel { get { return Data.VolumeLevel; } }
 
@@ -28,8 +28,8 @@ namespace ICD.Connect.Audio.EventArguments
 		/// <param name="volumeRaw"></param>
 		/// <param name="volumePercent"></param>
 		/// <param name="volumeString"></param>
-		public VolumeDeviceVolumeChangedEventArgs(float volumeRaw, float volumePercent, string volumeString)
-			: base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED,
+		public VolumeControlVolumeChangedApiEventArgs(float volumeRaw, float volumePercent, string volumeString)
+			: base(VolumeDeviceControlApi.EVENT_VOLUME_CHANGED,
 			       new VolumeChangeState
 			       {
 				       VolumeLevel = volumeRaw,
@@ -43,8 +43,8 @@ namespace ICD.Connect.Audio.EventArguments
 		/// Constructor.
 		/// </summary>
 		/// <param name="state"></param>
-		public VolumeDeviceVolumeChangedEventArgs(VolumeChangeState state)
-			: base(VolumeLevelDeviceControlApi.EVENT_VOLUME_CHANGED, state)
+		public VolumeControlVolumeChangedApiEventArgs(VolumeChangeState state)
+			: base(VolumeDeviceControlApi.EVENT_VOLUME_CHANGED, state)
 		{			
 		}
 	}

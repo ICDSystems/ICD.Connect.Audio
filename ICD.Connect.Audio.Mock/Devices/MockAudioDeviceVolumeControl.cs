@@ -1,62 +1,41 @@
 ﻿using System;
 using ICD.Common.Utils;
-using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services.Logging;
-using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
-using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Mock.Devices
 {
-	public sealed class MockAudioDeviceVolumeControl : AbstractVolumeLevelDeviceControl<IDeviceBase>, IVolumeMuteFeedbackDeviceControl
+	public sealed class MockAudioDeviceVolumeControl : AbstractVolumeDeviceControl<IDeviceBase>
 	{
-		private bool m_VolumeIsMuted;
-		private float m_VolumeLevel;
-
-		/// <summary>
-		/// Raised when the mute state changes.
-		/// </summary>
-		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
-
 		#region Properties
 
 		/// <summary>
-		/// Gets the muted state.
+		/// Returns the features that are supported by this volume control.
 		/// </summary>
-		public bool VolumeIsMuted
+		public override eVolumeFeatures SupportedVolumeFeatures
 		{
-			get { return m_VolumeIsMuted; }
-			set
+			get
 			{
-				if (value == m_VolumeIsMuted)
-					return;
-				
-				m_VolumeIsMuted = value;
-
-				Log(eSeverity.Informational, "VolumeIsMuted changed to {0}", m_VolumeIsMuted);
-
-				OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(m_VolumeIsMuted));
+				return eVolumeFeatures.Mute |
+				       eVolumeFeatures.MuteAssignment |
+				       eVolumeFeatures.MuteFeedback |
+				       eVolumeFeatures.Volume |
+				       eVolumeFeatures.VolumeAssignment |
+				       eVolumeFeatures.VolumeFeedback;
 			}
 		}
-
-		/// <summary>
-		/// Gets the current volume, in the parent device's format
-		/// </summary>
-		public override float VolumeLevel { get { return m_VolumeLevel; } }
-
-		/// <summary>
-		/// VolumeRawMaxRange is the best max volume we have for the control
-		/// either the Max from the control or the absolute max for the control
-		/// </summary>
-		protected override float VolumeRawMaxAbsolute { get { return 100; } }
 
 		/// <summary>
 		/// VolumeRawMinRange is the best min volume we have for the control
 		/// either the Min from the control or the absolute min for the control
 		/// </summary>
-		protected override float VolumeRawMinAbsolute { get { return 0; } }
+		public override float VolumeLevelMin { get { return 0; } }
+
+		/// <summary>
+		/// VolumeRawMaxRange is the best max volume we have for the control
+		/// either the Max from the control or the absolute max for the control
+		/// </summary>
+		public override float VolumeLevelMax { get { return 100; } }
 
 		#endregion
 
@@ -70,34 +49,23 @@ namespace ICD.Connect.Audio.Mock.Devices
 		{
 		}
 
-		/// <summary>
-		/// Override to release resources.
-		/// </summary>
-		/// <param name="disposing"></param>
-		protected override void DisposeFinal(bool disposing)
-		{
-			OnMuteStateChanged = null;
-
-			base.DisposeFinal(disposing);
-		}
-
 		#region Methods
-
-		/// <summary>
-		/// Toggles the current mute state.
-		/// </summary>
-		public void VolumeMuteToggle()
-		{
-			VolumeIsMuted = !VolumeIsMuted;
-		}
 
 		/// <summary>
 		/// Sets the mute state.
 		/// </summary>
 		/// <param name="mute"></param>
-		public void SetVolumeMute(bool mute)
+		public override void SetIsMuted(bool mute)
 		{
-			VolumeIsMuted = mute;
+			IsMuted = mute;
+		}
+
+		/// <summary>
+		/// Toggles the current mute state.
+		/// </summary>
+		public override void ToggleIsMuted()
+		{
+			IsMuted = !IsMuted;
 		}
 
 		/// <summary>
@@ -106,16 +74,44 @@ namespace ICD.Connect.Audio.Mock.Devices
 		/// <param name="volume"></param>
 		public override void SetVolumeLevel(float volume)
 		{
-			volume = MathUtils.Clamp(volume, VolumeRawMinAbsolute, VolumeRawMaxAbsolute);
+			VolumeLevel = MathUtils.Clamp(volume, VolumeLevelMin, VolumeLevelMax);
+		}
 
-			if (Math.Abs(volume - m_VolumeLevel) < 0.0001f)
-				return;
+		/// <summary>
+		/// Raises the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
+		/// </summary>
+		public override void VolumeIncrement()
+		{
+			SetVolumeLevel(VolumeLevel + 1);
+		}
 
-			m_VolumeLevel = volume;
+		/// <summary>
+		/// Lowers the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
+		/// </summary>
+		public override void VolumeDecrement()
+		{
+			SetVolumeLevel(VolumeLevel - 1);
+		}
 
-			Log(eSeverity.Informational, "VolumeRaw changed to {0}", m_VolumeLevel);
+		/// <summary>
+		/// Starts ramping the volume, and continues until stop is called or the timeout is reached.
+		/// If already ramping the current timeout is updated to the new timeout duration.
+		/// </summary>
+		/// <param name="increment">Increments the volume if true, otherwise decrements.</param>
+		/// <param name="timeout"></param>
+		public override void VolumeRamp(bool increment, long timeout)
+		{
+			throw new NotSupportedException();
+		}
 
-			VolumeFeedback(m_VolumeLevel);
+		/// <summary>
+		/// Stops any current ramp up/down in progress.
+		/// </summary>
+		public override void VolumeRampStop()
+		{
+			throw new NotSupportedException();
 		}
 
 		#endregion

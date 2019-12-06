@@ -64,30 +64,15 @@
   <ItemGroup>
     <Compile Include="Console\Microphone\MicrophoneDeviceControlConsole.cs" />
     <Compile Include="Console\Volume\VolumeDeviceControlConsole.cs" />
-    <Compile Include="Console\Volume\VolumeRampDeviceControlConsole.cs" />
-    <Compile Include="Console\Volume\VolumePercentDeviceControlConsole.cs" />
-    <Compile Include="Console\Mute\VolumeMuteBasicDeviceControlConsole.cs" />
-    <Compile Include="Console\Mute\VolumeMuteDeviceControlConsole.cs" />
-    <Compile Include="Console\Mute\VolumeMuteFeedbackDeviceControlConsole.cs" />
-    <Compile Include="Console\Volume\VolumeLevelDeviceControlConsole.cs" />
     <Compile Include="Controls\Microphone\AbstractMicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\AbstractVolumeDeviceControl.cs" />
-    <Compile Include="Controls\Volume\AbstractVolumeRampDeviceControl.cs" />
-    <Compile Include="Controls\Volume\AbstractVolumePercentDeviceControl.cs" />
-    <Compile Include="Controls\Volume\AbstractVolumeLevelDeviceControl.cs" />
     <Compile Include="Controls\Microphone\IMicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumeDeviceControl.cs" />
-    <Compile Include="Controls\Volume\IVolumeRampDeviceControl.cs" />
-    <Compile Include="Controls\Volume\IVolumePercentDeviceControl.cs" />
-    <Compile Include="DspTelemetryNames.cs" />
-    <Compile Include="EventArguments\MuteDeviceMuteStateChangedApiEventArgs.cs" />
+    <Compile Include="Proxies\Controls\Volume\ProxyVolumeDeviceControl.cs" />
+    <Compile Include="Telemetry\DspTelemetryNames.cs" />
+    <Compile Include="EventArguments\VolumeControlIsMutedChangedApiEventArgs.cs" />
     <Compile Include="Proxies\Controls\Microphone\MicrophoneDeviceControlApi.cs" />
-    <Compile Include="Proxies\Controls\Mute\VolumeMuteBasicDeviceControlApi.cs" />
-    <Compile Include="Controls\Mute\IVolumeMuteBasicDeviceControl.cs" />
-    <Compile Include="Controls\Mute\IVolumeMuteDeviceControl.cs" />
-    <Compile Include="Controls\Mute\IVolumeMuteFeedbackDeviceControl.cs" />
-    <Compile Include="Controls\Volume\IVolumeLevelDeviceControl.cs" />
-    <Compile Include="EventArguments\VolumeDeviceVolumeChangedEventArgs.cs" />
+    <Compile Include="EventArguments\VolumeControlVolumeChangedApiEventArgs.cs" />
     <Compile Include="Devices\GenericAmpDevice.cs" />
     <Compile Include="Devices\GenericAmpDeviceSettings.cs" />
     <Compile Include="Devices\GenericAmpRouteSwitcherControl.cs" />
@@ -95,10 +80,7 @@
     <Compile Include="KrangPlugin.cs" />
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Proxies\Controls\Volume\VolumeRampDeviceControlApi.cs" />
-    <Compile Include="Proxies\Controls\Volume\VolumeLevelDeviceControlApi.cs" />
-    <Compile Include="Proxies\Controls\Mute\VolumeMuteDeviceControlApi.cs" />
-    <Compile Include="Proxies\Controls\Mute\VolumeMuteFeedbackDeviceControlApi.cs" />
+    <Compile Include="Proxies\Controls\Volume\VolumeDeviceControlApi.cs" />
     <Compile Include="Repeaters\AbstactVolumeRepeater.cs" />
     <Compile Include="Repeaters\VolumePercentRepeater.cs" />
     <Compile Include="Repeaters\IVolumeRepeater.cs" />
@@ -110,7 +92,7 @@
     <Compile Include="VolumePoints\IVolumePointSettings.cs" />
     <Compile Include="VolumePoints\VolumePoint.cs" />
     <Compile Include="VolumePoints\VolumePointSettings.cs" />
-    <Compile Include="VolumeTelemetryNames.cs" />
+    <Compile Include="Telemetry\VolumeTelemetryNames.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>

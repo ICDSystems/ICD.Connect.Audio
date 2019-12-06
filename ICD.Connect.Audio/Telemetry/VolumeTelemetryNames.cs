@@ -1,9 +1,9 @@
-namespace ICD.Connect.Audio
+namespace ICD.Connect.Audio.Telemetry
 {
 	public static class VolumeTelemetryNames
 	{
-		public const string VOLUME_CONTROL_MUTE = "Volume Control Mute";
-		public const string VOLUME_CONTROL_MUTE_CHANGED = "Volume Control Mute Changed";
+		public const string VOLUME_CONTROL_IS_MUTED = "Volume Control Mute";
+		public const string VOLUME_CONTROL_IS_MUTED_CHANGED = "Volume Control Mute Changed";
 		public const string VOLUME_CONTROL_MUTE_COMMAND = "Volume Control Mute Command";
 
 		public const string VOLUME_CONTROL_PERCENT = "Volume Control Percent";

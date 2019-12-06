@@ -2,14 +2,11 @@
 using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
-using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
-using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.Points;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -20,61 +17,35 @@ using ICD.Connect.Settings.Cores;
 
 namespace ICD.Connect.Audio.Devices
 {
-	public sealed class GenericAmpVolumeControl : AbstractDeviceControl<GenericAmpDevice>, IVolumeLevelDeviceControl,
-	                                              IVolumeMuteFeedbackDeviceControl
+	public sealed class GenericAmpVolumeControl : AbstractVolumeDeviceControl<GenericAmpDevice>
 	{
-		#region Events
-
-		/// <summary>
-		/// Raised when the raw volume changes.
-		/// </summary>
-		public event EventHandler<VolumeDeviceVolumeChangedEventArgs> OnVolumeChanged;
-
-		/// <summary>
-		/// Raised when the mute state changes.
-		/// </summary>
-		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
-
-		#endregion
-
-		private GenericAmpRouteSwitcherControl m_Switcher;
-
-		private int? m_ActiveDeviceId;
-		private int? m_ActiveControlId;
+		[CanBeNull]
+		private IVolumeDeviceControl m_ActiveControl;
 
 		#region Properties
 
 		/// <summary>
-		/// Gets the current volume, in the parent device's format
+		/// Returns the features that are supported by this volume control.
 		/// </summary>
-		public float VolumeLevel { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevel); } }
+		public override eVolumeFeatures SupportedVolumeFeatures
+		{
+			get { return m_ActiveControl == null ? eVolumeFeatures.None : m_ActiveControl.SupportedVolumeFeatures; }
+		}
 
 		/// <summary>
-		/// Gets the current volume positon, 0 - 1
+		/// Gets the minimum supported volume level.
 		/// </summary>
-		public float VolumePercent { get { return ActiveControlAction<IVolumePercentDeviceControl, float>(c => c.VolumePercent); } }
+		public override float VolumeLevelMin { get { return m_ActiveControl == null ? 0 : m_ActiveControl.VolumeLevelMin; } }
 
 		/// <summary>
-		/// Gets the current volume, in string representation
+		/// Gets the maximum supported volume level.
 		/// </summary>
-		public string VolumeString { get { return ActiveControlAction<IVolumePercentDeviceControl, string>(c => c.VolumeString); } }
+		public override float VolumeLevelMax { get { return m_ActiveControl == null ? 0 : m_ActiveControl.VolumeLevelMax; } }
 
 		/// <summary>
-		/// VolumeRawMaxRange is the best max volume we have for the control
-		/// either the Max from the control or the absolute max for the control
+		/// Gets the current volume, in string representation (e.g. percentage, decibels).
 		/// </summary>
-		public float VolumeLevelMax { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMax); } }
-
-		/// <summary>
-		/// VolumeRawMinRange is the best min volume we have for the control
-		/// either the Min from the control or the absolute min for the control
-		/// </summary>
-		public float VolumeLevelMin { get { return ActiveControlAction<IVolumeLevelDeviceControl, float>(c => c.VolumeLevelMin); } }
-
-		/// <summary>
-		/// Gets the muted state.
-		/// </summary>
-		public bool VolumeIsMuted { get { return ActiveControlAction<IVolumeMuteFeedbackDeviceControl, bool>(c => c.VolumeIsMuted); } }
+		public override string VolumeString { get { return m_ActiveControl == null ? base.VolumeString : m_ActiveControl.VolumeString; } }
 
 		#endregion
 
@@ -89,196 +60,181 @@ namespace ICD.Connect.Audio.Devices
 			Subscribe(parent);
 		}
 
+		#region Methods
+
 		/// <summary>
-		/// Override to release resources.
+		/// Sets the mute state.
 		/// </summary>
-		/// <param name="disposing"></param>
-		protected override void DisposeFinal(bool disposing)
+		/// <param name="mute"></param>
+		public override void SetIsMuted(bool mute)
 		{
-			OnVolumeChanged = null;
-			OnMuteStateChanged = null;
-
-			Unsubscribe(Parent);
-
-			base.DisposeFinal(disposing);
+			ExecuteCallbackForActiveControl(c => c.SetIsMuted(mute), eVolumeFeatures.MuteAssignment);
 		}
 
-		#region Methods
+		/// <summary>
+		/// Toggles the current mute state.
+		/// </summary>
+		public override void ToggleIsMuted()
+		{
+			ExecuteCallbackForActiveControl(c => c.ToggleIsMuted(), eVolumeFeatures.Mute);
+		}
+
+		/// <summary>
+		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// </summary>
+		/// <param name="level"></param>
+		public override void SetVolumeLevel(float level)
+		{
+			ExecuteCallbackForActiveControl(c => c.SetVolumeLevel(level), eVolumeFeatures.VolumeAssignment);
+		}
 
 		/// <summary>
 		/// Raises the volume one time
 		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public void VolumeIncrement()
+		public override void VolumeIncrement()
 		{
-			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumeIncrement());
+			ExecuteCallbackForActiveControl(c => c.VolumeIncrement(), eVolumeFeatures.Volume);
 		}
 
 		/// <summary>
 		/// Lowers the volume one time
 		/// Amount of the change varies between implementations - typically "1" raw unit
 		/// </summary>
-		public void VolumeDecrement()
+		public override void VolumeDecrement()
 		{
-			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumeDecrement());
+			ExecuteCallbackForActiveControl(c => c.VolumeDecrement(), eVolumeFeatures.Volume);
 		}
 
 		/// <summary>
-		/// Starts raising the volume, and continues until RampStop is called.
-		/// <see cref="VolumeRampStop"/> must be called after
+		/// Starts ramping the volume, and continues until stop is called or the timeout is reached.
+		/// If already ramping the current timeout is updated to the new timeout duration.
 		/// </summary>
-		public void VolumeRampUp()
+		/// <param name="increment">Increments the volume if true, otherwise decrements.</param>
+		/// <param name="timeout"></param>
+		public override void VolumeRamp(bool increment, long timeout)
 		{
-			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampUp());
-		}
-
-		/// <summary>
-		/// Starts lowering the volume, and continues until RampStop is called.
-		/// <see cref="VolumeRampStop"/> must be called after
-		/// </summary>
-		public void VolumeRampDown()
-		{
-			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampDown());
+			ExecuteCallbackForActiveControl(c => c.VolumeRamp(increment, timeout), eVolumeFeatures.VolumeRamp);
 		}
 
 		/// <summary>
 		/// Stops any current ramp up/down in progress.
 		/// </summary>
-		public void VolumeRampStop()
+		public override void VolumeRampStop()
 		{
-			ActiveControlAction<IVolumeRampDeviceControl>(c => c.VolumeRampStop());
-		}
-
-		/// <summary>
-		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
-		/// </summary>
-		/// <param name="volume"></param>
-		public void SetVolumeLevel(float volume)
-		{
-			ActiveControlAction<IVolumeLevelDeviceControl>(c => c.SetVolumeLevel(volume));
-		}
-
-		/// <summary>
-		/// Sets the volume percent, from 0-1
-		/// </summary>
-		/// <param name="percent"></param>
-		public void SetVolumePercent(float percent)
-		{
-			ActiveControlAction<IVolumePercentDeviceControl>(c => c.SetVolumePercent(percent));
-		}
-
-		/// <summary>
-		/// Starts raising the volume in steps of the given percent, and continues until RampStop is called.
-		/// </summary>
-		/// <param name="increment"></param>
-		public void VolumePercentRampUp(float increment)
-		{
-			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumePercentRampUp(increment));
-		}
-
-		/// <summary>
-		/// Starts lowering the volume in steps of the given percent, and continues until RampStop is called.
-		/// </summary>
-		/// <param name="decrement"></param>
-		public void VolumePercentRampDown(float decrement)
-		{
-			ActiveControlAction<IVolumePercentDeviceControl>(c => c.VolumePercentRampDown(decrement));
-		}
-
-		/// <summary>
-		/// Toggles the current mute state.
-		/// </summary>
-		public void VolumeMuteToggle()
-		{
-			ActiveControlAction<IVolumeMuteBasicDeviceControl>(c => c.VolumeMuteToggle());
-		}
-
-		/// <summary>
-		/// Sets the mute state.
-		/// </summary>
-		/// <param name="mute"></param>
-		public void SetVolumeMute(bool mute)
-		{
-			ActiveControlAction<IVolumeMuteDeviceControl>(c => c.SetVolumeMute(mute));
+			ExecuteCallbackForActiveControl(c => c.VolumeRampStop(), eVolumeFeatures.VolumeRamp);
 		}
 
 		#endregion
 
+		/// <summary>
+		/// Override to release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected override void DisposeFinal(bool disposing)
+		{
+			Unsubscribe(Parent);
+
+			base.DisposeFinal(disposing);
+		}
+
 		#region Private Methods
 
 		/// <summary>
-		/// Helper method for performing an action for the given control type on the current active device.
-		/// Returns default result if there is no active device or the control is null.
+		/// Sets the currently wrapped volume control.
 		/// </summary>
-		/// <typeparam name="TControl"></typeparam>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		private void ActiveControlAction<TControl>(Action<TControl> callback)
-			where TControl : class, IVolumeDeviceControl
+		/// <param name="volumeControl"></param>
+		private void SetActiveControl(IVolumeDeviceControl volumeControl)
 		{
-			if (callback == null)
-				throw new ArgumentNullException("callback");
-
-			TControl control = GetActiveControl<TControl>();
-
-			if (control != null)
-				callback(control);
-		}
-
-		/// <summary>
-		/// Helper method for performing an action for the given control type on the current active device.
-		/// Returns default result if there is no active device or the control is null.
-		/// </summary>
-		/// <typeparam name="TControl"></typeparam>
-		/// <typeparam name="TResult"></typeparam>
-		/// <param name="callback"></param>
-		/// <returns></returns>
-		private TResult ActiveControlAction<TControl, TResult>(Func<TControl, TResult> callback)
-			where TControl : class, IVolumeDeviceControl
-		{
-			if (callback == null)
-				throw new ArgumentNullException("callback");
-
-			TResult output = default(TResult);
-			ActiveControlAction<TControl>(c => output = callback(c));
-			return output;
-		}
-
-		/// <summary>
-		/// Gets the current active volume control of the given type.
-		/// </summary>
-		/// <typeparam name="TControl"></typeparam>
-		/// <returns></returns>
-		[CanBeNull]
-		private TControl GetActiveControl<TControl>()
-			where TControl : class, IVolumeDeviceControl
-		{
-			if (!m_ActiveDeviceId.HasValue)
-				return default(TControl);
-
-			IDeviceBase device =
-				ServiceProvider.GetService<ICore>()
-				               .Originators
-				               .GetChild<IDeviceBase>(m_ActiveDeviceId.Value);
-
-			int controlId = m_ActiveControlId ?? 0;
-			return device.Controls.GetControl<TControl>(controlId);
-		}
-
-		private void SetActiveControl(int? device, int? control)
-		{
-			if (device == m_ActiveDeviceId && control == m_ActiveControlId)
+			if (volumeControl == m_ActiveControl)
 				return;
 
 			// Mute the old active device
-			SetVolumeMute(true);
+			if (SupportedVolumeFeatures.HasFlag(eVolumeFeatures.MuteAssignment))
+				SetIsMuted(true);
 
-			m_ActiveDeviceId = device;
-			m_ActiveControlId = control;
+			Unsubscribe(m_ActiveControl);
+			m_ActiveControl = volumeControl;
+			Subscribe(m_ActiveControl);
 
 			// Unmute the next active device
-			// TODO - Track the selected mute state to maintain between switching
-			SetVolumeMute(false);
+			if (SupportedVolumeFeatures.HasFlag(eVolumeFeatures.MuteAssignment))
+				SetIsMuted(false);
+
+			UpdateState();
+		}
+
+		/// <summary>
+		/// Validates the feature is supported before running the callback.
+		/// </summary>
+		/// <param name="callback"></param>
+		/// <param name="features"></param>
+		private void ExecuteCallbackForActiveControl(Action<IVolumeDeviceControl> callback, eVolumeFeatures features)
+		{
+			eVolumeFeatures unsupported = features.ExcludeFlags(SupportedVolumeFeatures);
+			if (unsupported != eVolumeFeatures.None)
+				throw new NotSupportedException(string.Format("{0} is unsupported", unsupported));
+
+			callback(m_ActiveControl);
+		}
+
+		/// <summary>
+		/// Updates the state of this control to match the wrapped volume control.
+		/// </summary>
+		private void UpdateState()
+		{
+			VolumeLevel = m_ActiveControl == null ? 0 : m_ActiveControl.VolumeLevel;
+			IsMuted = m_ActiveControl != null && m_ActiveControl.IsMuted;
+		}
+
+		#endregion
+
+		#region Volume Control Callbacks
+
+		/// <summary>
+		/// Subscribe to the volume device control callbacks.
+		/// </summary>
+		/// <param name="activeControl"></param>
+		private void Subscribe(IVolumeDeviceControl activeControl)
+		{
+			if (activeControl == null)
+				return;
+
+			activeControl.OnIsMutedChanged += ActiveControlOnIsMutedChanged;
+			activeControl.OnVolumeChanged += ActiveControlOnVolumeChanged;
+		}
+
+		/// <summary>
+		/// Unsubscribe from the volume device control callbacks.
+		/// </summary>
+		/// <param name="activeControl"></param>
+		private void Unsubscribe(IVolumeDeviceControl activeControl)
+		{
+			if (activeControl == null)
+				return;
+
+			activeControl.OnIsMutedChanged -= ActiveControlOnIsMutedChanged;
+			activeControl.OnVolumeChanged -= ActiveControlOnVolumeChanged;
+		}
+
+		/// <summary>
+		/// Called when the wrapped volume control changes volume.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="eventArgs"></param>
+		private void ActiveControlOnVolumeChanged(object sender, VolumeControlVolumeChangedApiEventArgs eventArgs)
+		{
+			UpdateState();
+		}
+
+		/// <summary>
+		/// Called when the wrapped mute control changes mute state.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="eventArgs"></param>
+		private void ActiveControlOnIsMutedChanged(object sender, VolumeControlIsMutedChangedApiEventArgs eventArgs)
+		{
+			UpdateState();
 		}
 
 		#endregion
@@ -289,25 +245,22 @@ namespace ICD.Connect.Audio.Devices
 		/// Subscribe to the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		private void Subscribe(GenericAmpDevice parent)
+		protected override void Subscribe(GenericAmpDevice parent)
 		{
-			m_Switcher = parent.Controls.GetControl<GenericAmpRouteSwitcherControl>();
-			if (m_Switcher == null)
-				throw new InvalidOperationException("Could not find switcher control on parent device.");
+			base.Subscribe(parent);
 
-			m_Switcher.OnActiveInputsChanged += SwitcherOnActiveInputsChanged;
+			parent.Switcher.OnActiveInputsChanged += SwitcherOnActiveInputsChanged;
 		}
 
 		/// <summary>
 		/// Unsubscribe from the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		private void Unsubscribe(GenericAmpDevice parent)
+		protected override void Unsubscribe(GenericAmpDevice parent)
 		{
-			if (m_Switcher == null)
-				return;
+			base.Subscribe(parent);
 
-			m_Switcher.OnActiveInputsChanged -= SwitcherOnActiveInputsChanged;
+			parent.Switcher.OnActiveInputsChanged -= SwitcherOnActiveInputsChanged;
 		}
 
 		/// <summary>
@@ -317,54 +270,34 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="eventArgs"></param>
 		private void SwitcherOnActiveInputsChanged(object sender, ActiveInputStateChangeEventArgs eventArgs)
 		{
-			int? deviceId;
-			int? controlId;
-
-			GetRoutedDeviceAndControl(out deviceId, out controlId);
-
-			if (deviceId == Parent.Id)
-			{
-				deviceId = null;
-				controlId = null;
-
-				Logger.AddEntry(eSeverity.Warning, "{0} - Attempted to control own volume recursively", this);
-			}
-
-			SetActiveControl(deviceId, controlId);
+			IVolumeDeviceControl volumeControl = GetRoutedVolumeControl();
+			SetActiveControl(volumeControl);
 		}
 
-		private void GetRoutedDeviceAndControl(out int? device, out int? control)
+		private IVolumeDeviceControl GetRoutedVolumeControl()
 		{
-			device = null;
-			control = null;
-
 			// This should never be null
 			GenericAmpRouteSwitcherControl inputSelectControl = Parent.Controls.GetControl<GenericAmpRouteSwitcherControl>();
 			if (inputSelectControl == null)
-				return;
+				return null;
 
 			// If the active input is null then there is no active volume control
 			int? activeInput = inputSelectControl.GetActiveInput(eConnectionType.Audio);
 			if (!activeInput.HasValue)
-				return;
+				return null;
 			
 			// Is there a volume point associated with this input?
 			IVolumePoint volumePoint = Parent.GetVolumePointForInput(activeInput.Value);
 			if (volumePoint != null)
-			{
-				device = volumePoint.DeviceId;
-				control = volumePoint.ControlId;
-				return;
-			}
+				return volumePoint.GetControl<IVolumeDeviceControl>();
 
 			// Walk the routing graph backwards to find the closest routed volume control
 			IVolumeDeviceControl volumeControl = GetRoutedVolumeDeviceControl(inputSelectControl, activeInput.Value);
-			device = volumeControl == null ? (int?)null : volumeControl.Parent.Id;
-			control = volumeControl == null ? (int?)null : volumeControl.Id;
+			return volumeControl == this ? null : volumeControl;
 		}
 
 		[CanBeNull]
-		private IVolumeDeviceControl GetRoutedVolumeDeviceControl(IRouteDestinationControl destination, int input)
+		private static IVolumeDeviceControl GetRoutedVolumeDeviceControl(IRouteDestinationControl destination, int input)
 		{
 			if (destination == null)
 				throw new ArgumentNullException("destination");
@@ -413,7 +346,7 @@ namespace ICD.Connect.Audio.Devices
 		{
 			base.BuildConsoleStatus(addRow);
 
-			addRow("Active Volume Control", GetActiveControl<IVolumeDeviceControl>());
+			addRow("Active Volume Control", m_ActiveControl);
 		}
 
 		#endregion

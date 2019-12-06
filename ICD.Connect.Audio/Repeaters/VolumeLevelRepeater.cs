@@ -9,7 +9,7 @@ namespace ICD.Connect.Audio.Repeaters
 	/// </summary>
 	public sealed class VolumeLevelRepeater : AbstactVolumeRepeater
 	{
-		private IVolumeLevelDeviceControl m_Control;
+		private IVolumeDeviceControl m_Control;
 
 		/// <summary>
 		/// Gets/sets the initial raw volume increment amount.
@@ -57,7 +57,7 @@ namespace ICD.Connect.Audio.Repeaters
 		/// Sets the control.
 		/// </summary>
 		/// <param name="control"></param>
-		public void SetControl(IVolumeLevelDeviceControl control)
+		public void SetControl(IVolumeDeviceControl control)
 		{
 			m_Control = control;
 		}

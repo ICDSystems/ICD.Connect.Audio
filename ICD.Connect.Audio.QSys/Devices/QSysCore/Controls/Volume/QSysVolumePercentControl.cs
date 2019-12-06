@@ -1,27 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using ICD.Common.Properties;
-using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls.Mute;
 using ICD.Connect.Audio.Controls.Volume;
-using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
-using ICD.Connect.Audio.Repeaters;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 {
-	public sealed class QSysVolumePercentControl : AbstractVolumePercentDeviceControl<QSysCoreDevice>,
-	                                                IVolumeMuteFeedbackDeviceControl, IQSysKrangControl
+	public sealed class QSysVolumePercentControl : AbstractVolumeDeviceControl<QSysCoreDevice>, IQSysKrangControl
 	{
-		#region Events
-
-		public event EventHandler<MuteDeviceMuteStateChangedApiEventArgs> OnMuteStateChanged;
-
-		#endregion
-
 		private readonly string m_Name;
 
 		[CanBeNull] private readonly INamedControl m_VolumeControl;
@@ -32,13 +20,47 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 		public override string Name { get { return string.IsNullOrEmpty(m_Name) ? base.Name : m_Name; } }
 
-		public float VolumeRaw { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw; } }
+		/// <summary>
+		/// Returns the features that are supported by this volume control.
+		/// </summary>
+		public override eVolumeFeatures SupportedVolumeFeatures
+		{
+			get
+			{
+				eVolumeFeatures output = eVolumeFeatures.None;
 
-		public override float VolumePercent { get { return m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition; } }
+				if (m_MuteControl != null)
+				{
+					output |= eVolumeFeatures.Mute;
+					output |= eVolumeFeatures.MuteAssignment;
+					output |= eVolumeFeatures.MuteFeedback;
+				}
 
-		public override string VolumeString { get { return m_VolumeControl == null ? null : m_VolumeControl.ValueString; } }
+				if (m_VolumeControl != null)
+				{
+					output |= eVolumeFeatures.Volume;
+					output |= eVolumeFeatures.VolumeAssignment;
+					output |= eVolumeFeatures.VolumeFeedback;
+				}
 
-		public bool VolumeIsMuted { get { return m_MuteControl != null && m_MuteControl.ValueBool; } }
+				return output;
+			}
+		}
+
+		/// <summary>
+		/// Gets the minimum supported volume level.
+		/// </summary>
+		public override float VolumeLevelMin { get { return 0; } }
+
+		/// <summary>
+		/// Gets the maximum supported volume level.
+		/// </summary>
+		public override float VolumeLevelMax { get { return 1; } }
+
+		/// <summary>
+		/// Gets the current volume, in string representation (e.g. percentage, decibels).
+		/// </summary>
+		public override string VolumeString { get { return m_VolumeControl == null ? base.VolumeString : m_VolumeControl.ValueString; } }
 
 		#endregion
 
@@ -57,129 +79,148 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 			string volumeName = XmlUtils.TryReadChildElementContentAsString(xml, "VolumeControlName");
 			string muteName = XmlUtils.TryReadChildElementContentAsString(xml, "MuteControlName");
-			float? incrementValue = XmlUtils.TryReadChildElementContentAsFloat(xml, "IncrementValue");
-			int? repeatBeforeTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBeforeTime");
-			int? repeatBetweenTime = XmlUtils.TryReadChildElementContentAsInt(xml, "RepeatBetweenTime");
 
 			// Load volume/mute controls
 			m_VolumeControl = context.LazyLoadNamedControl<NamedControl>(volumeName);
+			Subscribe(m_VolumeControl);
+
 			m_MuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(muteName);
-
-			VolumePercentRepeater percentRepeater = VolumeRepeater as VolumePercentRepeater;
-
-			if (incrementValue != null && percentRepeater != null)
-			{
-				percentRepeater.InitialIncrement = (float)incrementValue;
-				percentRepeater.RepeatIncrement = (float)incrementValue;
-			}
-
-			if (repeatBeforeTime != null)
-				RepeatBeforeTime = (int)repeatBeforeTime;
-			if (repeatBetweenTime != null)
-				RepeatBetweenTime = (int)repeatBetweenTime;
-
-			Subscribe();
-		}
-
-		#region Methods
-
-		public void SetVolumeRaw(float volume)
-		{
-			if (m_VolumeControl == null)
-			{
-				Log(eSeverity.Error, "Unable to set raw volume - Volume control is null");
-				return;
-			}
-
-			m_VolumeControl.SetValue(volume);
-		}
-
-		public override void SetVolumePercent(float percent)
-		{
-			if (m_VolumeControl == null)
-			{
-				Log(eSeverity.Error, "Unable to set volume position - Volume control is null");
-				return;
-			}
-
-			m_VolumeControl.SetPosition(percent);
-		}
-
-		public void VolumeLevelIncrement(float incrementValue)
-		{
-			if (m_VolumeControl == null)
-			{
-				Log(eSeverity.Error, "Unable to increment volume - Volume control is null");
-				return;
-			}
-
-			m_VolumeControl.SetValue(string.Format("+={0}", incrementValue));
-		}
-
-		public void VolumeLevelDecrement(float decrementValue)
-		{
-			if (m_VolumeControl == null)
-			{
-				Log(eSeverity.Error, "Unable to decrement volume - Volume control is null");
-				return;
-			}
-
-			m_VolumeControl.SetValue(string.Format("-={0}", decrementValue));
-		}
-
-		public void VolumeMuteToggle()
-		{
-			SetVolumeMute(!VolumeIsMuted);
-		}
-
-		public void SetVolumeMute(bool mute)
-		{
-			if (m_MuteControl == null)
-			{
-				Log(eSeverity.Error, "Unable to set mute state - Mute control is null");
-				return;
-			}
-
-			m_MuteControl.SetValue(mute);
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		private void Subscribe()
-		{
-			if (m_VolumeControl != null)
-				m_VolumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
-
-			if (m_MuteControl != null)
-				m_MuteControl.OnValueUpdated += MuteControlOnValueUpdated;
-		}
-
-		private void Unsubscribe()
-		{
-			if (m_VolumeControl != null)
-				m_VolumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
-
-			if (m_MuteControl != null)
-				m_MuteControl.OnValueUpdated -= MuteControlOnValueUpdated;
-		}
-
-		private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
-		{
-			VolumeFeedback(args.ValueRaw, args.ValuePosition, args.ValueString);
-		}
-
-		private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
-		{
-			OnMuteStateChanged.Raise(this, new MuteDeviceMuteStateChangedApiEventArgs(BooleanNamedControl.GetValueAsBool(args.ValueRaw)));
+			Subscribe(m_MuteControl);
 		}
 
 		protected override void DisposeFinal(bool disposing)
 		{
-			Unsubscribe();
+			Unsubscribe(m_VolumeControl);
+			Unsubscribe(m_MuteControl);
 
 			base.DisposeFinal(disposing);
+		}
+
+		#region Methods
+
+		/// <summary>
+		/// Sets the mute state.
+		/// </summary>
+		/// <param name="mute"></param>
+		public override void SetIsMuted(bool mute)
+		{
+			if (m_MuteControl == null)
+				throw new NotSupportedException("Unable to set mute state - Mute control is null");
+
+			m_MuteControl.SetValue(mute);
+		}
+
+		/// <summary>
+		/// Toggles the current mute state.
+		/// </summary>
+		public override void ToggleIsMuted()
+		{
+			SetIsMuted(!IsMuted);
+		}
+
+		/// <summary>
+		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// </summary>
+		/// <param name="level"></param>
+		public override void SetVolumeLevel(float level)
+		{
+			if (m_VolumeControl == null)
+				throw new NotSupportedException("Unable to set raw volume - Volume control is null");
+
+			m_VolumeControl.SetValue(level);
+		}
+
+		/// <summary>
+		/// Raises the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
+		/// </summary>
+		public override void VolumeIncrement()
+		{
+			if (m_VolumeControl == null)
+				throw new NotSupportedException("Unable to increment volume - Volume control is null");
+
+			m_VolumeControl.SetValue(string.Format("+={0}", 0.01f));
+		}
+
+		/// <summary>
+		/// Lowers the volume one time
+		/// Amount of the change varies between implementations - typically "1" raw unit
+		/// </summary>
+		public override void VolumeDecrement()
+		{
+			if (m_VolumeControl == null)
+				throw new NotSupportedException("Unable to decrement volume - Volume control is null");
+
+			m_VolumeControl.SetValue(string.Format("-={0}", 0.01f));
+		}
+
+		/// <summary>
+		/// Starts ramping the volume, and continues until stop is called or the timeout is reached.
+		/// If already ramping the current timeout is updated to the new timeout duration.
+		/// </summary>
+		/// <param name="increment">Increments the volume if true, otherwise decrements.</param>
+		/// <param name="timeout"></param>
+		public override void VolumeRamp(bool increment, long timeout)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Stops any current ramp up/down in progress.
+		/// </summary>
+		public override void VolumeRampStop()
+		{
+			throw new NotSupportedException();
+		}
+
+		#endregion
+
+		#region Volume Control Callbacks
+
+		private void Subscribe(INamedControl volumeControl)
+		{
+			if (volumeControl == null)
+				return;
+
+			volumeControl.OnValueUpdated += VolumeControlOnValueUpdated;
+		}
+
+		private void Unsubscribe(INamedControl volumeControl)
+		{
+			if (volumeControl == null)
+				return;
+
+			volumeControl.OnValueUpdated -= VolumeControlOnValueUpdated;
+		}
+
+		private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+		{
+			VolumeLevel = m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw;
+		}
+
+		#endregion
+
+		#region Mute Control Callbacks
+
+		private void Subscribe(BooleanNamedControl muteControl)
+		{
+			if (muteControl == null)
+				return;
+
+			muteControl.OnValueUpdated += MuteControlOnValueUpdated;
+		}
+
+		private void Unsubscribe(BooleanNamedControl muteControl)
+		{
+			if (muteControl == null)
+				return;
+
+			muteControl.OnValueUpdated -= MuteControlOnValueUpdated;
+		}
+
+		private void MuteControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
+		{
+			IsMuted = BooleanNamedControl.GetValueAsBool(args.ValueRaw);
 		}
 
 		#endregion
