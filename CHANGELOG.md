@@ -56,6 +56,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.4.1] - 2019-12-06
+### Added
+ - Handling for "INVALID VoIPRegStatus" state to Biamp Tesira Voip RegistrationState
+
 ## [9.4.0] - 2019-11-18
 ### Added
  - Ability to modify increment value for AbstractVolumeLevelDeviceControl
