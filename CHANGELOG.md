@@ -5,6 +5,8 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [11.6.1] - 2019-12-09
 ### Changed
  - Changed QSys Configuration of NamedControls to use elements instead of attributes, to match DAV generated config
  - Changed QSys Configuration of ChangeGroups to use elements instead of attributes, for consistency
