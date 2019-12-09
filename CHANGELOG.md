@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.6.1] - 2019-12-09
+### Changed
+ - Changed QSys Configuration of NamedControls to use elements instead of attributes, to match DAV generated config
+ - Changed QSys Configuration of ChangeGroups to use elements instead of attributes, for consistency
+
 ## [11.6.0] - 2019-11-18
 ### Added
  - Added driver for Shure Mx396
