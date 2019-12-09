@@ -153,18 +153,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 			if (loadContext == null)
 				throw new ArgumentNullException("loadContext");
 
-			string controlName = XmlUtils.GetAttributeAsString(xml, "controlName");
+			string controlName = XmlUtils.ReadChildElementContentAsString(xml, "ControlName");
 
 			ControlName = controlName;
 
-			int? changeGroupId = null;
-			try
-			{
-				changeGroupId = XmlUtils.GetAttributeAsInt(xml, "changeGroup");
-			}
-			catch (FormatException)
-			{
-			}
+			int? changeGroupId = XmlUtils.TryReadChildElementContentAsInt(xml, "ChangeGroup");
 
 			IEnumerable<int> controlChangeGroups = changeGroupId == null ? Enumerable.Empty<int>() : ((int)changeGroupId).Yield();
 

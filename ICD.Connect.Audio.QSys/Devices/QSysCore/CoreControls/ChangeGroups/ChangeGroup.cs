@@ -40,11 +40,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 			m_NamedComponents = new Dictionary<INamedComponent, IcdHashSet<INamedComponentControl>>();
 			m_CriticalSection = new SafeCriticalSection();
 
-			ChangeGroupId = XmlUtils.GetAttributeAsString(xml, "changeGroupId");
+			ChangeGroupId = XmlUtils.ReadChildElementContentAsString(xml, "ChangeGroupId");
 
-			float pollInterval;
-			if (StringUtils.TryParse(XmlUtils.GetAttributeAsString(xml, "pollInterval"), out pollInterval))
-				PollInterval = pollInterval;
+			float? pollInterval = XmlUtils.TryReadChildElementContentAsFloat(xml, "PollInterval");
+			if (pollInterval.HasValue)
+				PollInterval = pollInterval.Value;
 		}
 
 		/// <summary>
