@@ -67,6 +67,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Fixed RepeatBeforeTime and RepeatBetweenTime for AbstractVolumeLevelDeviceControl to affect proper repeater
 
+## [9.3.2] - 2019-12-12
+### Added
+ - Added handling of Tesira VoIP Invalid registration state
+
 ## [9.3.1] - 2019-07-31
 ### Changed
  - Re-added White LED enum to Shure mics
