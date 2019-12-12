@@ -32,7 +32,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
         public enum eRegistrationStatus
         {
             VoipRegistered,
-            VoipUnregister
+            VoipUnregister,
+			Invalid
         }
 
 		private static readonly Dictionary<string, eAutoAnswerRingCount> s_AutoAnswerRingCountSerials =
@@ -55,7 +56,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 	        new Dictionary<string, eRegistrationStatus>(StringComparer.OrdinalIgnoreCase)
 	        {
 	            {"VOIP_REGISTERED", eRegistrationStatus.VoipRegistered},
-	            {"VOIP_UNREGISTER", eRegistrationStatus.VoipUnregister}
+	            {"VOIP_UNREGISTER", eRegistrationStatus.VoipUnregister},
+				{"INVALID VoIPRegStatus", eRegistrationStatus.Invalid}
 	        };
 
 		private const string DTMF_SERVICE = "dtmf";
