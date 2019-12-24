@@ -23,7 +23,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private readonly VoIpControlStatusLine m_Line;
 
 		private readonly Dictionary<int, ThinTraditionalParticipant> m_AppearanceSources;
-		private readonly Dictionary<int, ThinIncomingCall> m_AppearanceIncomingCalls; 
+		private readonly Dictionary<int, IIncomingCall> m_AppearanceIncomingCalls; 
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 		private string m_LastDialedNumber;
 
@@ -41,7 +41,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			: base(id, name, line.Device, doNotDisturbControl, privacyMuteControl)
 		{
 			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
-			m_AppearanceIncomingCalls = new Dictionary<int, ThinIncomingCall>();
+			m_AppearanceIncomingCalls = new Dictionary<int, IIncomingCall>();
 			m_AppearanceSourcesSection = new SafeCriticalSection();
 
 			m_Line = line;
@@ -162,7 +162,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					UpdateSource(source, callAppearance);
 				}
 
-				ThinIncomingCall call = GetIncomingCall(index);
+				IIncomingCall call = GetIncomingCall(index);
 				if (call != null)
 				{
 					VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
@@ -277,7 +277,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				ThinIncomingCall call = GetIncomingCall(index);
+				IIncomingCall call = GetIncomingCall(index);
 				if (call != null)
 					RemoveIncomingCall(index);
 
@@ -331,7 +331,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// </summary>
 		/// <param name="call"></param>
 		/// <param name="callAppearance"></param>
-		private void UpdateIncomingCall(ThinIncomingCall call, VoIpControlStatusCallAppearance callAppearance)
+		private void UpdateIncomingCall(IIncomingCall call, VoIpControlStatusCallAppearance callAppearance)
 		{
 			if (call == null || callAppearance == null)
 				return;
@@ -372,7 +372,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		}
 
 		[CanBeNull]
-		private ThinIncomingCall GetIncomingCall(int index)
+		private IIncomingCall GetIncomingCall(int index)
 		{
 			return m_AppearanceSourcesSection.Execute(() => m_AppearanceIncomingCalls.GetDefault(index));
 		}
@@ -384,7 +384,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <returns></returns>
 		private void CreateIncomingCall(int index)
 		{
-			ThinIncomingCall call;
+			TraditionalIncomingCall call;
 
 			m_AppearanceSourcesSection.Enter();
 
@@ -396,7 +396,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				if (source != null)
 					RemoveSource(index);
 
-				call = new ThinIncomingCall();
+				call = new TraditionalIncomingCall(eCallType.Audio);
 
 				Subscribe(call);
 
@@ -423,7 +423,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			try
 			{
-				ThinIncomingCall call;
+				IIncomingCall call;
 				if (!m_AppearanceIncomingCalls.TryGetValue(index, out call))
 					return;
 
@@ -599,33 +599,41 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 		#region Incoming Call Callbacks
 
-		private void Subscribe(ThinIncomingCall call)
+		private void Subscribe(IIncomingCall call)
 		{
-			call.AnswerCallback += AnswerCallback;
-			call.RejectCallback += RejectCallback;
+			TraditionalIncomingCall castCall = call as TraditionalIncomingCall;
+			if(castCall == null)
+				return;
+
+			castCall.AnswerCallback += AnswerCallback;
+			castCall.RejectCallback += RejectCallback;
 		}
 
-		private void Unsubscribe(ThinIncomingCall call)
+		private void Unsubscribe(IIncomingCall call)
 		{
-			call.AnswerCallback = null;
-			call.RejectCallback = null;
+			TraditionalIncomingCall castCall = call as TraditionalIncomingCall;
+			if (castCall == null)
+				return;
+
+			castCall.AnswerCallback = null;
+			castCall.RejectCallback = null;
 		}
 
-		private void AnswerCallback(ThinIncomingCall sender)
+		private void AnswerCallback(IIncomingCall sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Answer();
 		}
 
-		private void RejectCallback(ThinIncomingCall sender)
+		private void RejectCallback(IIncomingCall sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
-		private bool TryGetCallAppearance(ThinIncomingCall source, out int index)
+		private bool TryGetCallAppearance(IIncomingCall source, out int index)
 		{
 			m_AppearanceSourcesSection.Enter();
 
@@ -719,7 +727,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			if (source != null)
 				UpdateSource(source, callAppearance);
 
-			ThinIncomingCall call = GetIncomingCall(callAppearance.Index);
+			IIncomingCall call = GetIncomingCall(callAppearance.Index);
 			if (call != null)
 				UpdateIncomingCall(call, callAppearance);
 		}
@@ -734,7 +742,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			if(source != null)
 				UpdateSource(source, callAppearance);
 
-			ThinIncomingCall call = GetIncomingCall(callAppearance.Index);
+			IIncomingCall call = GetIncomingCall(callAppearance.Index);
 			if (call != null)
 				UpdateIncomingCall(call, callAppearance);
 		}

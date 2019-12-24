@@ -37,7 +37,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private readonly SafeCriticalSection m_ActiveSourceSection;
 		private string m_LastDialedNumber;
 
-		private ThinIncomingCall m_IncomingCall;
+		private TraditionalIncomingCall m_IncomingCall;
 
 		#region Properties
 
@@ -209,7 +209,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
-		private void UpdateIncomingCall(ThinIncomingCall call)
+		private void UpdateIncomingCall(TraditionalIncomingCall call)
 		{
 			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
 				call.Name = m_TiControl.CallerName;
@@ -509,7 +509,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				ClearCurrentIncomingCall();
 
-				m_IncomingCall = new ThinIncomingCall();
+				m_IncomingCall = new TraditionalIncomingCall(eCallType.Audio);
 				Subscribe(m_IncomingCall);
 				UpdateIncomingCall(m_IncomingCall);
 
@@ -544,24 +544,24 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			}
 		}
 
-		private void Subscribe(ThinIncomingCall call)
+		private void Subscribe(TraditionalIncomingCall call)
 		{
 			call.AnswerCallback += AnswerCallback;
 			call.RejectCallback += RejectCallback;
 		}
 
-		private void Unsubscribe(ThinIncomingCall call)
+		private void Unsubscribe(TraditionalIncomingCall call)
 		{
 			call.AnswerCallback = null;
 			call.RejectCallback = null;
 		}
 
-		private void AnswerCallback(ThinIncomingCall sender)
+		private void AnswerCallback(IIncomingCall sender)
 		{
 			m_TiControl.Answer();
 		}
 
-		private void RejectCallback(ThinIncomingCall sender)
+		private void RejectCallback(IIncomingCall sender)
 		{
 			// Rejects the incoming call.
 			SetHold(true);
