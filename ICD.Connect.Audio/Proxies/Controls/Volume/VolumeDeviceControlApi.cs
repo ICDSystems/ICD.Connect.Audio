@@ -18,13 +18,12 @@
 		public const string METHOD_VOLUME_INCREMENT = "VolumeLevelIncrement";
 		public const string METHOD_VOLUME_DECREMENT = "VolumeLevelDecrement";
 		public const string METHOD_VOLUME_RAMP = "VolumeRamp";
-		public const string METHOD_VOLUME_RAMP_LEVEL = "VolumeRampLevel";
 		public const string METHOD_VOLUME_RAMP_STOP = "VolumeRampStop";
 
 		public const string HELP_EVENT_VOLUME_CHANGED = "Raised when the volume changes.";
 		public const string HELP_EVENT_IS_MUTED_CHANGED = "Raised when the mute state changes.";
 
-		public const string HELP_PROPERTY_SUPPORTS_VOLUME_FEATURES = "Returns true if the control will raise feedback for the current mute state.";
+		public const string HELP_PROPERTY_SUPPORTED_VOLUME_FEATURES = "Returns true if the control will raise feedback for the current mute state.";
 		public const string HELP_PROPERTY_VOLUME_LEVEL = "Gets the current volume, in the parent device's format.";
 		public const string HELP_PROPERTY_VOLUME_STRING = "Gets the current volume, in string representation.";
 		public const string HELP_PROPERTY_VOLUME_LEVEL_MAX = "Maximum value for the volume level.";
@@ -34,7 +33,6 @@
 		public const string HELP_METHOD_VOLUME_INCREMENT = "Raises the volume one time.";
 		public const string HELP_METHOD_VOLUME_DECREMENT = "Lowers the volume one time.";
 		public const string HELP_METHOD_VOLUME_RAMP = "Starts raising the volume, and continues until stop is called.";
-		public const string HELP_METHOD_VOLUME_RAMP_LEVEL = "Starts raising the volume, and continues until stop is called.";
 		public const string HELP_METHOD_VOLUME_RAMP_STOP = "Stops any current ramp in progress.";
 		public const string HELP_METHOD_SET_VOLUME_LEVEL = "Sets the volume level. This will be clamped to the min/max.";
 		public const string HELP_METHOD_SET_IS_MUTED = "Sets the mute state.";

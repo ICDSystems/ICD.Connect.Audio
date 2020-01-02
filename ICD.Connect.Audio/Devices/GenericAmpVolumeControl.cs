@@ -289,7 +289,7 @@ namespace ICD.Connect.Audio.Devices
 			// Is there a volume point associated with this input?
 			IVolumePoint volumePoint = Parent.GetVolumePointForInput(activeInput.Value);
 			if (volumePoint != null)
-				return volumePoint.GetControl<IVolumeDeviceControl>();
+				return volumePoint.Control;
 
 			// Walk the routing graph backwards to find the closest routed volume control
 			IVolumeDeviceControl volumeControl = GetRoutedVolumeDeviceControl(inputSelectControl, activeInput.Value);

@@ -82,7 +82,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Returns the features that are supported by this volume control.
 		/// </summary>
-		[ApiProperty(VolumeDeviceControlApi.PROPERTY_SUPPORTED_VOLUME_FEATURES, VolumeDeviceControlApi.HELP_PROPERTY_SUPPORTS_VOLUME_FEATURES)]
+		[ApiProperty(VolumeDeviceControlApi.PROPERTY_SUPPORTED_VOLUME_FEATURES, VolumeDeviceControlApi.HELP_PROPERTY_SUPPORTED_VOLUME_FEATURES)]
 		eVolumeFeatures SupportedVolumeFeatures { get; }
 
 		#endregion

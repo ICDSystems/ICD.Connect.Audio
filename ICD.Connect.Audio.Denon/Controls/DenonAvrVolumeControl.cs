@@ -85,10 +85,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 	    /// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
-		/// <param name="volume"></param>
-		public override void SetVolumeLevel(float volume)
+		/// <param name="level"></param>
+		public override void SetVolumeLevel(float level)
 		{
-			DenonSerialData data = GetVolumeCommand(volume);
+			DenonSerialData data = GetVolumeCommand(level);
 			Parent.SendData(data);
 		}
 

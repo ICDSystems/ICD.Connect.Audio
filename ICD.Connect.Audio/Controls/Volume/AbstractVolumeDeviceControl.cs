@@ -6,6 +6,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Volume;
 using ICD.Connect.Audio.EventArguments;
+using ICD.Connect.Audio.Utils;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 
@@ -69,7 +70,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 				m_VolumeLevel = value;
 
-				Log(eSeverity.Informational, "Volume changed: Level={0} Percent={1} Name={2}",
+				Log(eSeverity.Informational, "Volume changed: Level={0:F2} Percent={1:P2} Name={2}",
 				    m_VolumeLevel, this.GetVolumePercent(), VolumeString);
 
 				OnVolumeChanged.Raise(this,
@@ -91,7 +92,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Gets the current volume, in string representation (e.g. percentage, decibels).
 		/// </summary>
-		public virtual string VolumeString { get { return string.Format("{0:n2}%", this.GetVolumePercent() * 100.0f); } }
+		public virtual string VolumeString { get { return VolumeUtils.ToString(this.GetVolumePercent(), eVolumeRepresentation.Percent); } }
 
 		#endregion
 
@@ -179,7 +180,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		}
 
 		/// <summary>
-		/// Wrokaround for "unverifiable code" warning.
+		/// Workaround for "unverifiable code" warning.
 		/// </summary>
 		/// <returns></returns>
 		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()

@@ -81,13 +81,12 @@
     <None Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxies\Controls\Volume\VolumeDeviceControlApi.cs" />
-    <Compile Include="Repeaters\AbstactVolumeRepeater.cs" />
-    <Compile Include="Repeaters\VolumePercentRepeater.cs" />
-    <Compile Include="Repeaters\IVolumeRepeater.cs" />
-    <Compile Include="Repeaters\VolumeRampRepeater.cs" />
-    <Compile Include="Repeaters\VolumeLevelRepeater.cs" />
+    <Compile Include="Repeaters\VolumeRepeater.cs" />
+    <Compile Include="Utils\VolumePointHelper.cs" />
+    <Compile Include="Utils\VolumeUtils.cs" />
     <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
+    <Compile Include="eVolumeRepresentation.cs" />
     <Compile Include="VolumePoints\IVolumePoint.cs" />
     <Compile Include="VolumePoints\IVolumePointSettings.cs" />
     <Compile Include="VolumePoints\VolumePoint.cs" />

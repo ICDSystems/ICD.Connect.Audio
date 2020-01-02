@@ -71,10 +71,10 @@ namespace ICD.Connect.Audio.Mock.Devices
 		/// <summary>
 		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
 		/// </summary>
-		/// <param name="volume"></param>
-		public override void SetVolumeLevel(float volume)
+		/// <param name="level"></param>
+		public override void SetVolumeLevel(float level)
 		{
-			VolumeLevel = MathUtils.Clamp(volume, VolumeLevelMin, VolumeLevelMax);
+			VolumeLevel = MathUtils.Clamp(level, VolumeLevelMin, VolumeLevelMax);
 		}
 
 		/// <summary>
