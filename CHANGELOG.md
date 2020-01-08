@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+ - Complete rewrite of existing volume controls
+ - Simplification of volume ramping for percent vs level
+ - Volume ramping configuration moved into volume points (step size, interval, safety range)
+
 ## [11.6.1] - 2019-12-09
 ### Changed
  - Changed QSys Configuration of NamedControls to use elements instead of attributes, to match DAV generated config
