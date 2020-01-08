@@ -22,6 +22,11 @@ namespace ICD.Connect.Audio.Repeaters
 		private bool m_Up;
 		private DateTime m_Timeout;
 
+		/// <summary>
+		/// Tracking the last set level/percentage to mitigate any rounding errors.
+		/// </summary>
+		private float? m_LastValue;
+
 		#region Constructor
 
 		/// <summary>
@@ -85,6 +90,7 @@ namespace ICD.Connect.Audio.Repeaters
 
 			m_VolumePoint = volumePoint;
 			m_Up = up;
+			m_LastValue = null;
 
 			InitialRamp();
 
@@ -154,6 +160,7 @@ namespace ICD.Connect.Audio.Repeaters
 			{
 				m_RepeatTimer.Stop();
 				m_VolumePoint = null;
+				m_LastValue = null;
 			}
 			finally
 			{
@@ -250,25 +257,25 @@ namespace ICD.Connect.Audio.Repeaters
 				switch (m_VolumePoint.VolumeRepresentation)
 				{
 					case eVolumeRepresentation.Level:
-						float level = volumeControl.VolumeLevel + stepSize;
+						m_LastValue = (m_LastValue ?? volumeControl.VolumeLevel) + stepSize;
 
-						if (min.HasValue && level < min)
-							level = min.Value;
-						if (max.HasValue && level > max)
-							level = max.Value;
+						if (min.HasValue && m_LastValue < min)
+							m_LastValue = min.Value;
+						if (max.HasValue && m_LastValue > max)
+							m_LastValue = max.Value;
 
-						volumeControl.SetVolumeLevel(level);
+						volumeControl.SetVolumeLevel(m_LastValue.Value);
 						break;
 
 					case eVolumeRepresentation.Percent:
-						float percent = volumeControl.GetVolumePercent() + stepSize;
+						m_LastValue = (m_LastValue ?? volumeControl.GetVolumePercent()) + stepSize;
 
-						if (min.HasValue && percent < min)
-							percent = min.Value;
-						if (max.HasValue && percent > max)
-							percent = max.Value;
+						if (min.HasValue && m_LastValue < min)
+							m_LastValue = min.Value;
+						if (max.HasValue && m_LastValue > max)
+							m_LastValue = max.Value;
 
-						volumeControl.SetVolumePercent(percent);
+						volumeControl.SetVolumePercent(m_LastValue.Value);
 						break;
 
 					default:
