@@ -27,15 +27,37 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// </summary>
 		public event EventHandler<VolumeControlVolumeChangedApiEventArgs> OnVolumeChanged;
 
+		/// <summary>
+		/// Raised when the supported volume features change.
+		/// </summary>
+		public event EventHandler<VolumeControlSupportedVolumeFeaturesChangedApiEventArgs> OnSupportedVolumeFeaturesChanged;
+
 		private bool m_IsMuted;
 		private float m_VolumeLevel;
+		private eVolumeFeatures m_SupportedVolumeFeatures;
 
 		#region Properties
 
 		/// <summary>
 		/// Returns the features that are supported by this volume control.
 		/// </summary>
-		public abstract eVolumeFeatures SupportedVolumeFeatures { get; }
+		public eVolumeFeatures SupportedVolumeFeatures
+		{
+			get { return m_SupportedVolumeFeatures; }
+			protected set
+			{
+				if (value == m_SupportedVolumeFeatures)
+					return;
+
+				m_SupportedVolumeFeatures = value;
+
+				Log(eSeverity.Informational, "Supported volume features changed to {0}", m_IsMuted);
+
+				OnSupportedVolumeFeaturesChanged.Raise(this,
+				                                       new VolumeControlSupportedVolumeFeaturesChangedApiEventArgs(
+					                                       m_SupportedVolumeFeatures));
+			}
+		}
 
 		/// <summary>
 		/// Gets the muted state.
@@ -160,6 +182,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		{
 			OnIsMutedChanged = null;
 			OnVolumeChanged = null;
+			OnSupportedVolumeFeaturesChanged = null;
 
 			base.DisposeFinal(disposing);
 		}

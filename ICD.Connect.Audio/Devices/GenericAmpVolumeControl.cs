@@ -6,7 +6,6 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
-using ICD.Connect.Devices.Points;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -23,14 +22,6 @@ namespace ICD.Connect.Audio.Devices
 		private IVolumeDeviceControl m_ActiveControl;
 
 		#region Properties
-
-		/// <summary>
-		/// Returns the features that are supported by this volume control.
-		/// </summary>
-		public override eVolumeFeatures SupportedVolumeFeatures
-		{
-			get { return m_ActiveControl == null ? eVolumeFeatures.None : m_ActiveControl.SupportedVolumeFeatures; }
-		}
 
 		/// <summary>
 		/// Gets the minimum supported volume level.
@@ -185,6 +176,7 @@ namespace ICD.Connect.Audio.Devices
 		{
 			VolumeLevel = m_ActiveControl == null ? 0 : m_ActiveControl.VolumeLevel;
 			IsMuted = m_ActiveControl != null && m_ActiveControl.IsMuted;
+			SupportedVolumeFeatures = m_ActiveControl == null ? eVolumeFeatures.None : m_ActiveControl.SupportedVolumeFeatures;
 		}
 
 		#endregion
@@ -202,6 +194,7 @@ namespace ICD.Connect.Audio.Devices
 
 			activeControl.OnIsMutedChanged += ActiveControlOnIsMutedChanged;
 			activeControl.OnVolumeChanged += ActiveControlOnVolumeChanged;
+			activeControl.OnSupportedVolumeFeaturesChanged += ActiveControlOnSupportedVolumeFeaturesChanged;
 		}
 
 		/// <summary>
@@ -215,6 +208,7 @@ namespace ICD.Connect.Audio.Devices
 
 			activeControl.OnIsMutedChanged -= ActiveControlOnIsMutedChanged;
 			activeControl.OnVolumeChanged -= ActiveControlOnVolumeChanged;
+			activeControl.OnSupportedVolumeFeaturesChanged -= ActiveControlOnSupportedVolumeFeaturesChanged;
 		}
 
 		/// <summary>
@@ -233,6 +227,18 @@ namespace ICD.Connect.Audio.Devices
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
 		private void ActiveControlOnIsMutedChanged(object sender, VolumeControlIsMutedChangedApiEventArgs eventArgs)
+		{
+			UpdateState();
+		}
+
+		/// <summary>
+		/// Called when the wrapped volume control changes supported features.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="eventArgs"></param>
+		private void ActiveControlOnSupportedVolumeFeaturesChanged(object sender,
+		                                                           VolumeControlSupportedVolumeFeaturesChangedApiEventArgs
+			                                                           eventArgs)
 		{
 			UpdateState();
 		}

@@ -18,22 +18,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		public override string Name { get { return m_Name; } }
 
 		/// <summary>
-		/// Returns the features that are supported by this volume control.
-		/// </summary>
-		public override eVolumeFeatures SupportedVolumeFeatures
-		{
-			get
-			{
-				return eVolumeFeatures.Mute |
-					   eVolumeFeatures.MuteAssignment |
-					   eVolumeFeatures.MuteFeedback |
-					   eVolumeFeatures.Volume |
-					   eVolumeFeatures.VolumeAssignment |
-					   eVolumeFeatures.VolumeFeedback;
-			}
-		}
-
-		/// <summary>
 		/// Gets the minimum supported volume level.
 		/// </summary>
 		public override float VolumeLevelMin { get { return Math.Max(BiampTesiraDevice.TESIRA_LEVEL_MINIMUM, m_VolumeInterface.MinLevel); } }
@@ -56,6 +40,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		{
 			m_Name = name;
 			m_VolumeInterface = volumeInterface;
+
+			SupportedVolumeFeatures = eVolumeFeatures.Mute |
+			                          eVolumeFeatures.MuteAssignment |
+			                          eVolumeFeatures.MuteFeedback |
+			                          eVolumeFeatures.Volume |
+			                          eVolumeFeatures.VolumeAssignment |
+			                          eVolumeFeatures.VolumeFeedback;
 
 			Subscribe(m_VolumeInterface);
 		}

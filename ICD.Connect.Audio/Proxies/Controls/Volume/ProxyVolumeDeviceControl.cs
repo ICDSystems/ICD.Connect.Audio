@@ -29,8 +29,14 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 		/// </summary>
 		public event EventHandler<VolumeControlVolumeChangedApiEventArgs> OnVolumeChanged;
 
+		/// <summary>
+		/// Raised when the supported volume features change.
+		/// </summary>
+		public event EventHandler<VolumeControlSupportedVolumeFeaturesChangedApiEventArgs> OnSupportedVolumeFeaturesChanged;
+
 		private bool m_IsMuted;
 		private float m_VolumeLevel;
+		private eVolumeFeatures m_SupportedVolumeFeatures;
 
 		#region Properties
 
@@ -42,7 +48,21 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 		/// <summary>
 		/// Returns the features that are supported by this volume control.
 		/// </summary>
-		public eVolumeFeatures SupportedVolumeFeatures { get; private set; }
+		public eVolumeFeatures SupportedVolumeFeatures
+		{
+			get { return m_SupportedVolumeFeatures; }
+			private set
+			{
+				if (value == m_SupportedVolumeFeatures)
+					return;
+
+				m_SupportedVolumeFeatures = value;
+
+				OnSupportedVolumeFeaturesChanged.Raise(this,
+				                                       new VolumeControlSupportedVolumeFeaturesChangedApiEventArgs(
+					                                       m_SupportedVolumeFeatures));
+			}
+		}
 
 		/// <summary>
 		/// Gets the muted state.
@@ -185,6 +205,7 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 			ApiCommandBuilder.UpdateCommand(command)
 			                 .SubscribeEvent(VolumeDeviceControlApi.EVENT_VOLUME_CHANGED)
 							 .SubscribeEvent(VolumeDeviceControlApi.EVENT_IS_MUTED_CHANGED)
+							 .SubscribeEvent(VolumeDeviceControlApi.EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED)
 							 .GetProperty(VolumeDeviceControlApi.PROPERTY_SUPPORTED_VOLUME_FEATURES)
 							 .GetProperty(VolumeDeviceControlApi.PROPERTY_VOLUME_LEVEL_MAX)
 							 .GetProperty(VolumeDeviceControlApi.PROPERTY_VOLUME_LEVEL_MIN)
@@ -211,7 +232,9 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 				case VolumeDeviceControlApi.EVENT_IS_MUTED_CHANGED:
 					IsMuted = result.GetValue<bool>();
 					break;
-
+				case VolumeDeviceControlApi.EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED:
+					SupportedVolumeFeatures = result.GetValue<eVolumeFeatures>();
+					break;
 			}
 		}
 

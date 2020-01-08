@@ -68,6 +68,7 @@
     <Compile Include="Controls\Volume\AbstractVolumeDeviceControl.cs" />
     <Compile Include="Controls\Microphone\IMicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumeDeviceControl.cs" />
+    <Compile Include="EventArguments\VolumeControlSupportedVolumeFeaturesChangedApiEventArgs.cs" />
     <Compile Include="Proxies\Controls\Volume\ProxyVolumeDeviceControl.cs" />
     <Compile Include="Telemetry\DspTelemetryNames.cs" />
     <Compile Include="EventArguments\VolumeControlIsMutedChangedApiEventArgs.cs" />

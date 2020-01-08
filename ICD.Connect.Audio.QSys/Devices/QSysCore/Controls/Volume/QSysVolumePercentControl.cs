@@ -21,33 +21,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 		public override string Name { get { return string.IsNullOrEmpty(m_Name) ? base.Name : m_Name; } }
 
 		/// <summary>
-		/// Returns the features that are supported by this volume control.
-		/// </summary>
-		public override eVolumeFeatures SupportedVolumeFeatures
-		{
-			get
-			{
-				eVolumeFeatures output = eVolumeFeatures.None;
-
-				if (m_MuteControl != null)
-				{
-					output |= eVolumeFeatures.Mute;
-					output |= eVolumeFeatures.MuteAssignment;
-					output |= eVolumeFeatures.MuteFeedback;
-				}
-
-				if (m_VolumeControl != null)
-				{
-					output |= eVolumeFeatures.Volume;
-					output |= eVolumeFeatures.VolumeAssignment;
-					output |= eVolumeFeatures.VolumeFeedback;
-				}
-
-				return output;
-			}
-		}
-
-		/// <summary>
 		/// Gets the minimum supported volume level.
 		/// </summary>
 		public override float VolumeLevelMin { get { return 0; } }
@@ -82,9 +55,23 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 			// Load volume/mute controls
 			m_VolumeControl = context.LazyLoadNamedControl<NamedControl>(volumeName);
-			Subscribe(m_VolumeControl);
-
 			m_MuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(muteName);
+
+			// Supported features
+			if (m_MuteControl != null)
+			{
+				SupportedVolumeFeatures |= eVolumeFeatures.Mute |
+				                           eVolumeFeatures.MuteAssignment |
+				                           eVolumeFeatures.MuteFeedback;
+			}
+			if (m_VolumeControl != null)
+			{
+				SupportedVolumeFeatures |= eVolumeFeatures.Volume |
+				                           eVolumeFeatures.VolumeAssignment |
+				                           eVolumeFeatures.VolumeFeedback;
+			}
+
+			Subscribe(m_VolumeControl);
 			Subscribe(m_MuteControl);
 		}
 

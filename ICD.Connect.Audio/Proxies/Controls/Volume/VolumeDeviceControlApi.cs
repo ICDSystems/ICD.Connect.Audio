@@ -4,6 +4,7 @@
 	{
 		public const string EVENT_VOLUME_CHANGED = "OnVolumeChanged";
 		public const string EVENT_IS_MUTED_CHANGED = "OnIsMutedChanged";
+		public const string EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED = "OnSupportedVolumeFeaturesChanged";
 
 		public const string PROPERTY_SUPPORTED_VOLUME_FEATURES = "SupportedVolumeFeatures";
 		public const string PROPERTY_IS_MUTED = "IsMuted";
@@ -22,6 +23,7 @@
 
 		public const string HELP_EVENT_VOLUME_CHANGED = "Raised when the volume changes.";
 		public const string HELP_EVENT_IS_MUTED_CHANGED = "Raised when the mute state changes.";
+		public const string HELP_EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED = "Raised when the supported volume features change.";
 
 		public const string HELP_PROPERTY_SUPPORTED_VOLUME_FEATURES = "Returns true if the control will raise feedback for the current mute state.";
 		public const string HELP_PROPERTY_VOLUME_LEVEL = "Gets the current volume, in the parent device's format.";

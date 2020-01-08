@@ -75,6 +75,12 @@ namespace ICD.Connect.Audio.Controls.Volume
 		[EventTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_VOLUME_CHANGED)]
 		event EventHandler<VolumeControlVolumeChangedApiEventArgs> OnVolumeChanged;
 
+		/// <summary>
+		/// Raised when the supported volume features change.
+		/// </summary>
+		[ApiEvent(VolumeDeviceControlApi.EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED, VolumeDeviceControlApi.HELP_EVENT_SUPPORTED_VOLUME_FEATURES_CHANGED)]
+		event EventHandler<VolumeControlSupportedVolumeFeaturesChangedApiEventArgs> OnSupportedVolumeFeaturesChanged; 
+
 		#endregion
 
 		#region Support
