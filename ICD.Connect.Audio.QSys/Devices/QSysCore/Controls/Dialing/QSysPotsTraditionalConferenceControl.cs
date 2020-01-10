@@ -629,7 +629,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			call.RejectCallback = null;
 		}
 
-		private void IncomingCallAnswerCallback(ThinIncomingCall sender)
+		private void IncomingCallAnswerCallback(IIncomingCall sender)
 		{
 			if (m_PotsComponent == null)
 			{
@@ -643,7 +643,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				sender.AnswerState = eCallAnswerState.Answered;
 		}
 
-		private void IncomingCallRejectCallback(ThinIncomingCall sender)
+		private void IncomingCallRejectCallback(IIncomingCall sender)
 		{
 			if (m_PotsComponent == null)
 			{
