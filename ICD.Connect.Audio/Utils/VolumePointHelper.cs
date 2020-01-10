@@ -165,6 +165,18 @@ namespace ICD.Connect.Audio.Utils
 		}
 
 		/// <summary>
+		/// Sets the volume percent of the current volume control.
+		/// Does nothing if the current volume control is null or does not support volume assignment.
+		/// </summary>
+		/// <param name="percent"></param>
+		/// <returns></returns>
+		public void SetVolumePercent(float percent)
+		{
+			if (VolumeControl != null && SupportedVolumeFeatures.HasFlag(eVolumeFeatures.VolumeAssignment))
+				VolumeControl.SetVolumePercent(percent);
+		}
+
+		/// <summary>
 		/// Toggles the mute state of the current volume control.
 		/// Does nothing if the current volume control is null or does not support mute toggle.
 		/// </summary>
@@ -172,6 +184,17 @@ namespace ICD.Connect.Audio.Utils
 		{
 			if (VolumeControl != null && SupportedVolumeFeatures.HasFlag(eVolumeFeatures.Mute))
 				VolumeControl.ToggleIsMuted();
+		}
+
+		/// <summary>
+		/// Sets the mute state of the current volume control.
+		/// Does nothing if the current volume control is null or does not support mute assignment.
+		/// </summary>
+		/// <param name="mute"></param>
+		public void SetIsMuted(bool mute)
+		{
+			if (VolumeControl != null && SupportedVolumeFeatures.HasFlag(eVolumeFeatures.MuteAssignment))
+				VolumeControl.SetIsMuted(mute);
 		}
 
 		#endregion
