@@ -114,7 +114,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 			if (m_VolumeControl == null)
 				throw new NotSupportedException("Unable to set raw volume - Volume control is null");
 
-			m_VolumeControl.SetValue(level);
+			m_VolumeControl.SetPosition(level);
 		}
 
 		/// <summary>
@@ -182,7 +182,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 
 		private void VolumeControlOnValueUpdated(object sender, ControlValueUpdateEventArgs args)
 		{
-			VolumeLevel = m_VolumeControl == null ? 0 : m_VolumeControl.ValueRaw;
+			VolumeLevel = m_VolumeControl == null ? 0 : m_VolumeControl.ValuePosition;
 		}
 
 		#endregion
