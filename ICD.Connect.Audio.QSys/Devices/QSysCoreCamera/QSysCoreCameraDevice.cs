@@ -134,7 +134,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <summary>
 		/// Gets the maximum number of presets this camera can support.
 		/// </summary>
-		public int MaxPresets { get { return 2; } }
+		public int MaxPresets { get { return m_SnapshotsComponent == null ? 0 : m_SnapshotsComponent.SnapshotCount; } }
 
 		/// <summary>
 		/// Gets the stored camera presets.
