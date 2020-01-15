@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using ICD.Common.Utils.EventArguments;
-using ICD.Common.Properties;
+﻿using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
+using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
 using ICD.Common.Utils.Services.Logging;
@@ -23,16 +19,38 @@ using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Ports.Tcp;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
+using ICD.Connect.Protocol.SerialQueues;
+using ICD.Connect.Protocol.Settings;
+using ICD.Connect.Settings;
 using ICD.Connect.Settings.Core;
 using ICD.Connect.Telemetry.Attributes;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace ICD.Connect.Audio.Biamp
 {
 	[ExternalTelemetry("Biamp", typeof(BiampExternalTelemetryProvider))]
 	public sealed class BiampTesiraDevice : AbstractDevice<BiampTesiraDeviceSettings>
 	{
+		/// <summary>
+		/// Controls how long the biamp should wait between sending commands to avoid overloading the device
+		/// </summary>
+		[PublicAPI]
+		public const long COMMAND_DELAY_MS = 150;
+
+		/// <summary>
+		/// Controls how long the biamp should wait before considering a command to have timed out
+		/// </summary>
+		[PublicAPI]
+		public const long TIMEOUT_MS = 20 * 1000;
+
 		// How often to re-subscribe to device events
 		private const long SUBSCRIPTION_INTERVAL_MILLISECONDS = 10 * 60 * 1000;
 
@@ -57,17 +75,18 @@ namespace ICD.Connect.Audio.Biamp
 		private readonly SafeTimer m_SubscriptionTimer;
 		private readonly SafeTimer m_InitializationTimer;
 
-		private readonly BiampTesiraSerialQueue m_SerialQueue;
+		private readonly SerialQueue m_SerialQueue;
+		private readonly BiampTesiraSerialBuffer m_SerialBuffer;
 
 		private readonly ConnectionStateManager m_ConnectionStateManager;
 
 		private bool m_Initialized;
 
-		private readonly AttributeInterfaceFactory m_AttributeInterfaces;
-
 		// Used with settings
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
+
+		private ISerialPort m_Port;
 
 		#region Properties
 
@@ -87,7 +106,9 @@ namespace ICD.Connect.Audio.Biamp
 			private set
 			{
 				if (value == m_Initialized)
+				{
 					return;
+				}
 
 				m_Initialized = value;
 
@@ -99,7 +120,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// Provides features for lazy loading attribute interface blocks and services.
 		/// </summary>
 		[PublicAPI]
-		public AttributeInterfaceFactory AttributeInterfaces { get { return m_AttributeInterfaces; } }
+		public AttributeInterfaceFactory AttributeInterfaces { get; private set; }
 
 		#endregion
 
@@ -118,16 +139,23 @@ namespace ICD.Connect.Audio.Biamp
 			m_SubscriptionTimer = SafeTimer.Stopped(SubscriptionTimerCallback);
 			m_InitializationTimer = SafeTimer.Stopped(Initialize);
 
-			m_SerialQueue = new BiampTesiraSerialQueue
+			m_SerialQueue = new SerialQueue
 			{
-				Timeout = 20 * 1000
+				Timeout = TIMEOUT_MS,
+				CommandDelayTime = COMMAND_DELAY_MS
 			};
-			m_SerialQueue.SetBuffer(new BiampTesiraSerialBuffer());
+
+			m_SerialBuffer = new BiampTesiraSerialBuffer();
+
+			Subscribe(m_SerialBuffer);
+
+			m_SerialQueue.SetBuffer(m_SerialBuffer);
+
 			Subscribe(m_SerialQueue);
 
-			m_AttributeInterfaces = new AttributeInterfaceFactory(this);
-			
-			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
+			AttributeInterfaces = new AttributeInterfaceFactory(this);
+
+			m_ConnectionStateManager = new ConnectionStateManager(this) { ConfigurePort = ConfigurePort };
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 		}
@@ -142,6 +170,7 @@ namespace ICD.Connect.Audio.Biamp
 			OnInitializedChanged = null;
 
 			Unsubscribe(m_SerialQueue);
+			Unsubscribe(m_SerialBuffer);
 
 			m_ConnectionStateManager.OnConnectedStateChanged -= PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
@@ -149,13 +178,17 @@ namespace ICD.Connect.Audio.Biamp
 
 			base.DisposeFinal(disposing);
 
-			m_AttributeInterfaces.Dispose();
+			AttributeInterfaces.Dispose();
 		}
 
 		private void ConfigurePort(ISerialPort port)
 		{
 			if (port is IComPort)
 				ConfigureComPort(port as IComPort);
+
+			m_Port = port;
+			m_ConnectionStateManager.SetPort(port);
+			m_SerialQueue.SetPort(port);
 		}
 
 		/// <summary>
@@ -208,7 +241,7 @@ namespace ICD.Connect.Audio.Biamp
 			DisposeLoadedControls();
 
 			// Load and add the new controls
-			foreach (IDeviceControl control in ControlsXmlUtils.GetControlsFromXml(xml, m_AttributeInterfaces))
+			foreach (IDeviceControl control in ControlsXmlUtils.GetControlsFromXml(xml, AttributeInterfaces))
 			{
 				Controls.Add(control);
 				m_LoadedControls.Add(control);
@@ -244,13 +277,15 @@ namespace ICD.Connect.Audio.Biamp
 				}
 
 				if (!infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+				{
 					infos.Add(info);
+				}
 			}
 			finally
 			{
 				m_SubscriptionCallbacksSection.Leave();
 			}
-			
+
 			SendData(callback, code);
 		}
 
@@ -272,18 +307,26 @@ namespace ICD.Connect.Audio.Biamp
 			{
 				IcdHashSet<SubscriptionCallbackInfo> infos;
 				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
 					return;
+				}
 
 				SubscriptionCallbackInfo remove = infos.FirstOrDefault(s => s.Callback == callback && s.Code.CompareEquality(code));
 				if (remove == null)
+				{
 					return;
+				}
 
 				infos.Remove(remove);
 
 				if (infos.Count == 0)
+				{
 					m_SubscriptionCallbacks.Remove(key);
+				}
 				else
+				{
 					return;
+				}
 			}
 			finally
 			{
@@ -292,7 +335,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			// Don't bother trying to unsubscribe from the device if we aren't connected.
 			if (!m_ConnectionStateManager.IsConnected)
+			{
 				return;
+			}
 
 			SendData(callback, code);
 		}
@@ -303,13 +348,17 @@ namespace ICD.Connect.Audio.Biamp
 		private void SubscriptionTimerCallback()
 		{
 			if (!m_ConnectionStateManager.IsConnected)
+			{
 				return;
+			}
 
 			SubscriptionCallbackInfo[] subscriptions =
 				m_SubscriptionCallbacksSection.Execute(() => m_SubscriptionCallbacks.SelectMany(kvp => kvp.Value).ToArray());
 
 			foreach (SubscriptionCallbackInfo subscription in subscriptions)
+			{
 				SendData(subscription.Callback, subscription.Code);
+			}
 		}
 
 		#endregion
@@ -412,10 +461,9 @@ namespace ICD.Connect.Audio.Biamp
 		/// Subscribes to the queue events.
 		/// </summary>
 		/// <param name="queue"></param>
-		private void Subscribe(BiampTesiraSerialQueue queue)
+		private void Subscribe(SerialQueue queue)
 		{
 			queue.OnSerialResponse += QueueOnSerialResponse;
-			queue.OnSubscriptionFeedback += QueueOnSubscriptionFeedback;
 			queue.OnTimeout += QueueOnTimeout;
 		}
 
@@ -423,10 +471,9 @@ namespace ICD.Connect.Audio.Biamp
 		/// Unsubscribes from the queue events.
 		/// </summary>
 		/// <param name="queue"></param>
-		private void Unsubscribe(BiampTesiraSerialQueue queue)
+		private void Unsubscribe(SerialQueue queue)
 		{
 			queue.OnSerialResponse -= QueueOnSerialResponse;
-			queue.OnSubscriptionFeedback -= QueueOnSubscriptionFeedback;
 			queue.OnTimeout -= QueueOnTimeout;
 		}
 
@@ -434,13 +481,39 @@ namespace ICD.Connect.Audio.Biamp
 		/// Called when we receive a response from the device.
 		/// </summary>
 		/// <param name="sender"></param>
-		/// <param name="eventArgs"></param>
-		private void QueueOnSerialResponse(object sender, SerialResponseEventArgs eventArgs)
+		/// <param name="args"></param>
+		private void QueueOnSerialResponse(object sender, SerialResponseEventArgs args)
+		{
+			// Handle subscription feedback separately
+			if (args.Response.StartsWith(Response.FEEDBACK))
+			{
+				HandleSubscriptionFeedback(args.Response);
+
+				// It's only unsolicited feedback if it doesn't end with +OK
+				if (!args.Response.Trim().EndsWith(Response.SUCCESS))
+					return;
+			}
+
+			// Ignore any messages that don't fit expected pattern
+			if (args.Response.StartsWith(Response.CANNOT_DELIVER) ||
+			    args.Response.StartsWith(Response.ERROR) ||
+			    args.Response.StartsWith(Response.GENERAL_FAILURE) ||
+			    args.Response.StartsWith(Response.SUCCESS))
+			{
+				HandleFeedback(args.Data as CodeCallbackPair, args.Response);
+			}
+		}
+
+		/// <summary>
+		/// Called when we receive non-subscription feedback from the device
+		/// </summary>
+		/// <param name="pair"></param>
+		/// <param name="feedback"></param>
+		private void HandleFeedback(CodeCallbackPair pair, string feedback)
 		{
 			try
 			{
-				CodeCallbackPair pair = eventArgs.Data as CodeCallbackPair;
-				Response response = Deserialize(eventArgs.Response);
+				Response response = Deserialize(feedback);
 
 				switch (response.ResponseType)
 				{
@@ -449,42 +522,47 @@ namespace ICD.Connect.Audio.Biamp
 					case Response.eResponseType.GeneralFailure:
 
 						// This is a good thing!
-						if (eventArgs.Response.Contains("ALREADY_SUBSCRIBED"))
+						if (feedback.Contains("ALREADY_SUBSCRIBED"))
+						{
 							return;
+						}
 
 						if (pair == null)
 						{
-							Log(eSeverity.Error, eventArgs.Response);
+							Log(eSeverity.Error, feedback);
 						}
 						else
 						{
 							string tX = pair.Code.Serialize().TrimEnd(TtpUtils.CR, TtpUtils.LF);
-							Log(eSeverity.Error, "{0} - {1}", tX, eventArgs.Response);
+							Log(eSeverity.Error, "{0} - {1}", tX, feedback);
 						}
 						return;
 				}
 
 				// Don't bother handling responses with no associated values, e.g. "+OK"
 				if (response.Values.Count == 0)
+				{
 					return;
+				}
 
 				if (pair != null && pair.Callback != null)
-					SafeExecuteCallback(pair.Callback, eventArgs.Data, response, eventArgs.Response);
+				{
+					SafeExecuteCallback(pair.Callback, pair, response, feedback);
+				}
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to parse {0} - {1}", eventArgs.Data, e.Message);
+				Log(eSeverity.Error, "Failed to parse {0} - {1}", pair, e.Message);
 			}
 		}
 
 		/// <summary>
 		/// Called when we receive subscription feedback from the device.
 		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="eventArgs"></param>
-		private void QueueOnSubscriptionFeedback(object sender, StringEventArgs eventArgs)
+		/// <param name="feedback"></param>
+		private void HandleSubscriptionFeedback(string feedback)
 		{
-			Response response = Deserialize(eventArgs.Data);
+			Response response = Deserialize(feedback);
 			string key = response.PublishToken;
 			SubscriptionCallback[] callbacks;
 
@@ -492,12 +570,14 @@ namespace ICD.Connect.Audio.Biamp
 
 			try
 			{
-				IcdHashSet<SubscriptionCallbackInfo> subscriptions;
-				if (!m_SubscriptionCallbacks.TryGetValue(key, out subscriptions))
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
 					return;
+				}
 
-				callbacks = subscriptions.Select(s => s.Callback)
-				                         .ToArray(subscriptions.Count);
+				callbacks = infos.Select(s => s.Callback)
+										 .ToArray(infos.Count);
 			}
 			finally
 			{
@@ -505,7 +585,9 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			foreach (SubscriptionCallback callback in callbacks)
-				SafeExecuteCallback(callback, response, eventArgs.Data);
+			{
+				SafeExecuteCallback(callback, response, feedback);
+			}
 		}
 
 		/// <summary>
@@ -533,8 +615,8 @@ namespace ICD.Connect.Audio.Biamp
 			catch (Exception e)
 			{
 				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}{2}{3}",
-				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message,
-				    IcdEnvironment.NewLine, e.StackTrace);
+					StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message,
+					IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
@@ -546,7 +628,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="response"></param>
 		/// <param name="responseString"></param>
 		private void SafeExecuteCallback(SubscriptionCallback callback, ISerialData request, Response response,
-		                                 string responseString)
+										 string responseString)
 		{
 			try
 			{
@@ -555,9 +637,9 @@ namespace ICD.Connect.Audio.Biamp
 			catch (Exception e)
 			{
 				Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}{3}{4}",
-				    StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
-				    StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
-				    e.Message, IcdEnvironment.NewLine, e.StackTrace);
+					StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
+					StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
+					e.Message, IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
@@ -582,6 +664,40 @@ namespace ICD.Connect.Audio.Biamp
 				string message = string.Format("Failed to parse \"{0}\" - {1}", feedback, e.Message);
 				throw new FormatException(message, e);
 			}
+		}
+
+		#endregion
+
+		#region Serial Buffer Callbacks
+
+		private void Subscribe(BiampTesiraSerialBuffer buffer)
+		{
+			if (buffer == null)
+			{
+				return;
+			}
+
+			buffer.OnSerialTelnetHeader += BufferOnOnSerialTelnetHeader;
+		}
+
+		private void Unsubscribe(BiampTesiraSerialBuffer buffer)
+		{
+			if (buffer == null)
+			{
+				return;
+			}
+
+			buffer.OnSerialTelnetHeader -= BufferOnOnSerialTelnetHeader;
+		}
+
+		private void BufferOnOnSerialTelnetHeader(object sender, StringEventArgs args)
+		{
+			if (m_Port == null)
+			{
+				return;
+			}
+
+			m_Port.Send(TelnetControl.Reject(args.Data));
 		}
 
 		#endregion
@@ -627,7 +743,9 @@ namespace ICD.Connect.Audio.Biamp
 
 			// Load the config
 			if (!string.IsNullOrEmpty(settings.Config))
+			{
 				LoadControls(settings.Config);
+			}
 
 			ISerialPort port = null;
 
@@ -671,11 +789,13 @@ namespace ICD.Connect.Audio.Biamp
 		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
 		{
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+			{
 				yield return command;
+			}
 
 			yield return new GenericConsoleCommand<string>("LoadControls", "LoadControls <PATH>", p => LoadControls(p));
 			yield return new ConsoleCommand("ReloadControls", "Reloads the controls from the most recent path",
-			                                () => LoadControls(m_Config));
+											() => LoadControls(m_Config));
 			yield return new ConsoleCommand("Resubscribe", "Resends subscription commands to the device", () => SubscriptionTimerCallback());
 		}
 
@@ -689,26 +809,28 @@ namespace ICD.Connect.Audio.Biamp
 		}
 
 		/// <summary>
-	    /// Gets the child console nodes.
-	    /// </summary>
-	    /// <returns></returns>
-	    public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
-	    {
-	        foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
-	            yield return node;
+		/// Gets the child console nodes.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+		{
+			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+			{
+				yield return node;
+			}
 
-	        yield return ConsoleNodeGroup.IndexNodeMap("Attributes", AttributeInterfaces.GetAttributeInterfaces());
-	    }
+			yield return ConsoleNodeGroup.IndexNodeMap("Attributes", AttributeInterfaces.GetAttributeInterfaces());
+		}
 
 		/// <summary>
 		/// Workaround for "unverifiable code" warning.
 		/// </summary>
 		/// <returns></returns>
-	    private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
-	    {
-	        return base.GetConsoleNodes();
-	    }
+		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+		{
+			return base.GetConsoleNodes();
+		}
 
-	    #endregion
+		#endregion
 	}
 }
