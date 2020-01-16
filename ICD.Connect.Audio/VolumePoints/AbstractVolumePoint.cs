@@ -58,6 +58,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public long VolumeRampInitialInterval { get; set; }
 
+		/// <summary>
+		/// Determines when this control is used contextually.
+		/// </summary>
+		public eVolumeType VolumeType { get; set; }
+
 		#endregion
 
 		/// <summary>
@@ -212,6 +217,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			settings.VolumeRampInitialStepSize = VolumeRampInitialStepSize;
 			settings.VolumeRampInterval = VolumeRampInterval;
 			settings.VolumeRampInitialInterval = VolumeRampInitialInterval;
+			settings.VolumeType = VolumeType;
 		}
 
 		/// <summary>
@@ -229,6 +235,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
+			VolumeType = default(eVolumeType);
 		}
 
 		/// <summary>
@@ -248,6 +255,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialStepSize = settings.VolumeRampInitialStepSize;
 			VolumeRampInterval = settings.VolumeRampInterval;
 			VolumeRampInitialInterval = settings.VolumeRampInitialInterval;
+			VolumeType = settings.VolumeType;
 		}
 
 		#endregion

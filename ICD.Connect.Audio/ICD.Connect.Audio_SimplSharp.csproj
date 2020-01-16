@@ -93,6 +93,7 @@
     <Compile Include="VolumePoints\VolumePoint.cs" />
     <Compile Include="VolumePoints\VolumePointSettings.cs" />
     <Compile Include="Telemetry\VolumeTelemetryNames.cs" />
+    <Compile Include="VolumePoints\eVolumeType.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>

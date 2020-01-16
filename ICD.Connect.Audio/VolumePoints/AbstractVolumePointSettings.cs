@@ -20,6 +20,7 @@ namespace ICD.Connect.Audio.VolumePoints
 		private const string ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE = "VolumeRampInitialStepSize";
 		private const string ELEMENT_VOLUME_RAMP_INTERVAL = "VolumeRampInterval";
 		private const string ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL = "VolumeRampInitialInterval";
+		private const string ELEMENT_VOLUME_TYPE = "VolumeType";
 
 		#region Properties
 
@@ -63,6 +64,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public long VolumeRampInitialInterval { get; set; }
 
+		/// <summary>
+		/// Gets/sets the context for this volume point.
+		/// </summary>
+		public eVolumeType VolumeType { get; set; }
+
 		#endregion
 
 		#region Serialization
@@ -85,6 +91,7 @@ namespace ICD.Connect.Audio.VolumePoints
 
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INTERVAL, IcdXmlConvert.ToString(VolumeRampInterval));
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL, IcdXmlConvert.ToString(VolumeRampInitialInterval));
+			writer.WriteElementString(ELEMENT_VOLUME_TYPE, IcdXmlConvert.ToString(VolumeType));
 		}
 
 		/// <summary>
@@ -107,6 +114,7 @@ namespace ICD.Connect.Audio.VolumePoints
 
 			VolumeRampInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
+			VolumeType = XmlUtils.TryReadChildElementContentAsEnum<eVolumeType>(xml, ELEMENT_VOLUME_TYPE, true) ?? eVolumeType.Program;
 		}
 
 		#endregion

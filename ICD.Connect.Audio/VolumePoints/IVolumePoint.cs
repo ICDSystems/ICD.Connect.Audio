@@ -54,6 +54,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		long VolumeRampInitialInterval { get; set; }
 
+		/// <summary>
+		/// Determines when this control is used contextually.
+		/// </summary>
+		eVolumeType VolumeType { get; set; }
+
 		#endregion
 	}
 }

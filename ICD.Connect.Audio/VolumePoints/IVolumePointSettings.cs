@@ -43,5 +43,10 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// Gets/sets the number of milliseconds between the first and second ramp step.
 		/// </summary>
 		long VolumeRampInitialInterval { get; set; }
+
+		/// <summary>
+		/// Gets/sets the context for the volume point.
+		/// </summary>
+		eVolumeType VolumeType { get; set; }
 	}
 }
