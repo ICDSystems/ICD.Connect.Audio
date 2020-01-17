@@ -82,8 +82,6 @@ namespace ICD.Connect.Audio.Biamp
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 
-		private ISerialPort m_Port;
-
 		#region Properties
 
 		/// <summary>
@@ -181,8 +179,6 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (port is IComPort)
 				ConfigureComPort(port as IComPort);
-
-			m_Port = port;
 		}
 
 		/// <summary>
@@ -686,12 +682,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		private void BufferOnOnSerialTelnetHeader(object sender, StringEventArgs args)
 		{
-			if (m_Port == null)
-			{
-				return;
-			}
-
-			m_Port.Send(TelnetControl.Reject(args.Data));
+			m_ConnectionStateManager.Send(TelnetControl.Reject(args.Data));
 		}
 
 		#endregion
