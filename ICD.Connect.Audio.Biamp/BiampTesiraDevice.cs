@@ -58,6 +58,12 @@ namespace ICD.Connect.Audio.Biamp
 
 		internal const float TESIRA_LEVEL_MAXIMUM = 20f;
 
+		internal const int PRIORITY_SERVICE = 16;
+		internal const int PRIORITY_SET = 32;
+		internal const int PRIORITY_SUBSCRIBE_INITIAL = 64;
+		internal const int PRIORITY_GET = 128;
+		internal const int PRIORITY_SUBSCRIBE_PERODIC = 256;
+
 		public delegate void SubscriptionCallback(BiampTesiraDevice sender, ControlValue value);
 
 		/// <summary>
@@ -276,7 +282,7 @@ namespace ICD.Connect.Audio.Biamp
 				m_SubscriptionCallbacksSection.Leave();
 			}
 
-			SendData(callback, code);
+			SendData(callback, code, PRIORITY_SUBSCRIBE_INITIAL);
 		}
 
 		/// <summary>
@@ -329,7 +335,7 @@ namespace ICD.Connect.Audio.Biamp
 				return;
 			}
 
-			SendData(callback, code);
+			SendData(callback, code, PRIORITY_SUBSCRIBE_INITIAL);
 		}
 
 		/// <summary>
@@ -347,7 +353,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			foreach (SubscriptionCallbackInfo subscription in subscriptions)
 			{
-				SendData(subscription.Callback, subscription.Code);
+				SendData(subscription.Callback, subscription.Code, PRIORITY_SUBSCRIBE_PERODIC);
 			}
 		}
 
@@ -365,14 +371,37 @@ namespace ICD.Connect.Audio.Biamp
 		}
 
 		/// <summary>
-		/// Sends the data to the device and calls the callback asynchronously with the response.
+		/// Sends the data to the device, queued at the specified priority
+		/// </summary>
+		/// <param name="data"></param>
+		/// <param name="priority"></param>
+		internal void SendData(ICode data, int priority)
+		{
+			SendData(null, data, priority);
+		}
+
+		/// <summary>
+		/// Sends the data to the device, queued at the lowest priority,
+		/// and calls the callback asynchronously with the response.
 		/// </summary>
 		/// <param name="callback"></param>
 		/// <param name="data"></param>
 		internal void SendData(SubscriptionCallback callback, ICode data)
 		{
+			SendData(callback, data, int.MaxValue);
+		}
+
+		/// <summary>
+		/// Sends the data to the device, queued at the specified priority,
+		/// and calls the callback asynchronously with the response.
+		/// </summary>
+		/// <param name="callback"></param>
+		/// <param name="data"></param>
+		/// <param name="priority"></param>
+		internal void SendData(SubscriptionCallback callback, ICode data, int priority)
+		{
 			CodeCallbackPair pair = new CodeCallbackPair(data, callback);
-			m_SerialQueue.Enqueue(pair, (a, b) => a.Code.CompareEquality(b.Code));
+			m_SerialQueue.EnqueuePriority(pair, (a, b) => a.Code.CompareEquality(b.Code),priority);
 		}
 
 		#endregion
