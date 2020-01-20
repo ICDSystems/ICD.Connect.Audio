@@ -12,6 +12,7 @@ using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
+using ICD.Connect.Conferencing.IncomingCalls;
 using ICD.Connect.Conferencing.Participants;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
@@ -175,13 +176,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				status = eParticipantStatus.OnHold;
 
 			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
-				source.Name = m_TiControl.CallerName;
+				source.SetName(m_TiControl.CallerName);
 
 			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
-				source.Number = m_TiControl.CallerNumber;
+				source.SetNumber(m_TiControl.CallerNumber);
 
-			source.Status = status;
-			source.Name = source.Name ?? source.Number;
+			source.SetStatus(status);
+			source.SetName(source.Name ?? source.Number);
 
 			if (source.Direction != eCallDirection.Incoming)
 			{
@@ -189,22 +190,22 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 					string.IsNullOrEmpty(source.Name) &&
 					!string.IsNullOrEmpty(m_LastDialedNumber))
 				{
-					source.Number = m_LastDialedNumber;
-					source.Name = m_LastDialedNumber;
+					source.SetNumber(m_LastDialedNumber);
+					source.SetName(m_LastDialedNumber);
 					m_LastDialedNumber = null;
 				}
 
-				source.Direction = eCallDirection.Outgoing;
+				source.SetDirection(eCallDirection.Outgoing);
 			}
 
 			// Start/End
 			switch (status)
 			{
 				case eParticipantStatus.Connected:
-					source.Start = source.Start ?? IcdEnvironment.GetLocalTime();
+					source.SetStart(source.Start ?? IcdEnvironment.GetLocalTime());
 					break;
 				case eParticipantStatus.Disconnected:
-					source.End = source.End ?? IcdEnvironment.GetLocalTime();
+					source.SetEnd(source.End ?? IcdEnvironment.GetLocalTime());
 					break;
 			}
 		}
@@ -403,7 +404,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinTraditionalParticipant { CallType = eCallType.Audio };
+				m_ActiveSource = new ThinTraditionalParticipant();
+				m_ActiveSource.SetCallType(eCallType.Audio);
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties

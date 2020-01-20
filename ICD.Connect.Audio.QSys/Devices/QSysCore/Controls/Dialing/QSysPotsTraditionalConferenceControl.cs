@@ -11,6 +11,7 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
+using ICD.Connect.Conferencing.IncomingCalls;
 using ICD.Connect.Conferencing.Participants;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
@@ -262,7 +263,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (m_IncomingCall != null)
 					m_IncomingCall.Number = args.ValueString;
 				if (m_Participant != null)
-					m_Participant.Number = args.ValueString;
+					m_Participant.SetNumber(args.ValueString);
 			}
 			finally
 			{
@@ -281,7 +282,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (m_IncomingCall != null)
 					m_IncomingCall.Name = args.ValueString;
 				if (m_Participant != null)
-					m_Participant.Name = args.ValueString;
+					m_Participant.SetName(args.ValueString);
 			}
 			finally
 			{
@@ -306,8 +307,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			{
 				if (source != null)
 				{
-					source.Status = callStatus;
-					source.End = DateTime.Now;
+					source.SetStatus(callStatus);
+					source.SetEnd(DateTime.Now);
 				}
 				Participant = null;
 				IncomingCall = null;
@@ -332,14 +333,14 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					source = Participant;
 				}
 
-				source.Status = callStatus;
+				source.SetStatus(callStatus);
 
 				if (callStatus == eParticipantStatus.Dialing)
 				{
-					source.Direction = eCallDirection.Outgoing;
+					source.SetDirection(eCallDirection.Outgoing);
 					string number = GetNumberFromDialingStatus(args.ValueString);
 					if (!string.IsNullOrEmpty(number))
-						source.Number = number;
+						source.SetNumber(number);
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Ignored;
@@ -348,7 +349,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (callStatus == eParticipantStatus.Connected)
 				{
 					if (source.Start == null)
-						source.Start = DateTime.Now;
+						source.SetStart(DateTime.Now);
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Autoanswered;
@@ -365,7 +366,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				IncomingCall = null;
-				Participant = new ThinTraditionalParticipant {CallType = eCallType.Audio};
+				Participant = new ThinTraditionalParticipant();
+				Participant.SetCallType(eCallType.Audio);
 			}
 			finally
 			{
@@ -489,9 +491,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 
 			if (source.Status == eParticipantStatus.Connected && onHold)
-				source.Status = eParticipantStatus.OnHold;
+				source.SetStatus(eParticipantStatus.OnHold);
 			else if (source.Status == eParticipantStatus.OnHold && !onHold)
-				source.Status = eParticipantStatus.Connected;
+				source.SetStatus(eParticipantStatus.Connected);
 		}
 
 		#endregion
