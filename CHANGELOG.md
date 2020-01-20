@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+ - Abstract Traditional Participant property setters are now protected so we set them via methods instead of by changing the property.
  - Complete rewrite of existing volume controls
  - Simplification of volume ramping for percent vs level
  - Volume ramping configuration moved into volume points (step size, interval, safety range)
