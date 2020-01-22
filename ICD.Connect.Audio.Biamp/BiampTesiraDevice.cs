@@ -181,10 +181,6 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (port is IComPort)
 				ConfigureComPort(port as IComPort);
-
-			m_Port = port;
-			m_ConnectionStateManager.SetPort(port);
-			m_SerialQueue.SetPort(port);
 		}
 
 		/// <summary>
