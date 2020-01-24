@@ -88,6 +88,8 @@ namespace ICD.Connect.Audio.Biamp
 		private string m_Config;
 		private readonly IcdHashSet<IDeviceControl> m_LoadedControls;
 
+		private bool m_ReadyToTransmit;
+
 		#region Properties
 
 		/// <summary>
@@ -422,7 +424,16 @@ namespace ICD.Connect.Audio.Biamp
 		/// </summary>
 		private void Initialize()
 		{
-			Initialized = true;
+			if (m_ReadyToTransmit)
+			{
+				IcdConsole.PrintLine(eConsoleColor.Magenta, "Begin Initialization");
+				Initialized = true;
+			}
+			else
+			{
+				IcdConsole.PrintLine(eConsoleColor.Magenta, "Initialization Delayed, Welcome Message not Received");
+				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
+			}
 		}
 
 		private void DisposeLoadedControls()
@@ -456,6 +467,7 @@ namespace ICD.Connect.Audio.Biamp
 			{
 				m_SubscriptionTimer.Stop();
 				m_InitializationTimer.Stop();
+				m_ReadyToTransmit = false;
 
 				Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
@@ -697,6 +709,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			buffer.OnSerialTelnetHeader += BufferOnOnSerialTelnetHeader;
+			buffer.OnWelcomeMessageReceived += BufferOnOnWelcomeMessageReceived;
 		}
 
 		private void Unsubscribe(BiampTesiraSerialBuffer buffer)
@@ -707,11 +720,18 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			buffer.OnSerialTelnetHeader -= BufferOnOnSerialTelnetHeader;
+			buffer.OnWelcomeMessageReceived -= BufferOnOnWelcomeMessageReceived;
 		}
 
 		private void BufferOnOnSerialTelnetHeader(object sender, StringEventArgs args)
 		{
 			m_ConnectionStateManager.Send(TelnetControl.Reject(args.Data));
+		}
+
+		private void BufferOnOnWelcomeMessageReceived(object sender, EventArgs e)
+		{
+			IcdConsole.PrintLine(eConsoleColor.Magenta, "Welcome Message Received");
+			m_ReadyToTransmit = true;
 		}
 
 		#endregion
