@@ -10,9 +10,6 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.VolumePoints
 {
-	/// <summary>
-	/// Used by the metlife room to better manage volume controls.
-	/// </summary>
 	public abstract class AbstractVolumePoint<TSettings> : AbstractPoint<TSettings, IVolumeDeviceControl>, IVolumePoint
 		where TSettings : IVolumePointSettings, new()
 	{
@@ -278,6 +275,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			addRow("Volume Ramp Initial Step Size", VolumeUtils.ToString(VolumeRampInitialStepSize, VolumeRepresentation));
 			addRow("Volume Ramp Interval", VolumeRampInterval + "ms");
 			addRow("Volume Ramp Initial Interval", VolumeRampInitialInterval + "ms");
+			addRow("Volume Type", VolumeType);
 		}
 
 		#endregion
