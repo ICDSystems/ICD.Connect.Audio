@@ -181,6 +181,8 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (port is IComPort)
 				ConfigureComPort(port as IComPort);
+
+			m_Port = port;
 		}
 
 		/// <summary>
