@@ -1,45 +1,50 @@
-﻿namespace ICD.Connect.Audio.VolumePoints
+﻿using System;
+
+namespace ICD.Connect.Audio.VolumePoints
 {
+	[Flags]
 	public enum eVolumeType
 	{
+		None = 0,
+
 		/// <summary>
 		/// Room audio.
 		/// </summary>
-		Room,
+		Room = 1,
 
 		/// <summary>
 		/// Source audio.
 		/// </summary>
-		Program,
-
-		/// <summary>
-		/// Video Conference audio.
-		/// </summary>
-		Vtc,
+		Program = 2,
 
 		/// <summary>
 		/// Audio Conference audio.
 		/// </summary>
-		Atc,
+		Atc = 4,
+
+		/// <summary>
+		/// Video Conference audio.
+		/// </summary>
+		Vtc = 8,
 
 		/// <summary>
 		/// Speech reinforcement.
 		/// </summary>
-		Sr,
+		Sr = 16,
 
 		/// <summary>
 		/// Background music.
 		/// </summary>
-		Bgm,
+		Bgm = 32,
 
 		/// <summary>
 		/// Microphone audio.
 		/// </summary>
-		Mic,
+		Mic = 64,
 
 		/// <summary>
 		/// Audio with no attached logic.
 		/// </summary>
-		Generic
+		Generic = 128
 	}
 }
