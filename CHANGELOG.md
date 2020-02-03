@@ -5,6 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - IBiColorRelayMicButton as an interface for all bicolor mic buttons
+ - BiColorRelayMicButtonDevice to support microphones using relays instead of I/O ports
+ 
+### Changed
+ - Refactored BiColorMicButtonDevice to an abstract supporting multiple mic button devices
 
 ## [9.4.1] - 2019-12-06
 ### Added
