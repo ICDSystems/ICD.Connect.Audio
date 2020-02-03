@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ICD.Common.Properties;
-using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
@@ -11,19 +9,15 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Ports;
+using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Core;
 
-namespace ICD.Connect.Audio.Misc
+namespace ICD.Connect.Audio.Misc.BiColorMicButton
 {
-	public sealed class BiColorMicButtonDevice : AbstractDevice<BiColorMicButtonDeviceSettings>
+	public abstract class AbstractBiColorMicButtonDevice<TPortType,TSettings> : AbstractDevice<TSettings>, IBiColorMicButton where TPortType : class, IPort where TSettings : IBiColorMicButtonDeviceSettings, new()
 	{
-		private const int BUTTON_INDEX = 0;
-		private const int POWER_INDEX = 1;
-		private const int RED_LED_INDEX = 2;
-		private const int GREEN_LED_INDEX = 3;
-		private const int VOLTAGE_INDEX = 4;
-
 		/// <summary>
 		/// Raised when the microphone button is pressed.
 		/// </summary>
@@ -54,8 +48,11 @@ namespace ICD.Connect.Audio.Misc
 		[PublicAPI]
 		public event EventHandler<UShortEventArgs> OnVoltageChanged; 
 
-		private readonly IIoPort[] m_Ports;
-		private readonly SafeCriticalSection m_PortsSection;
+		private IDigitalInputPort m_PortButton;
+		private IIoPort m_PortVoltage;
+		private TPortType m_PortPower;
+		private TPortType m_PortRedLed;
+		private TPortType m_PortGreenLed;
 
 		private ushort m_Voltage;
 		private bool m_ButtonPressed;
@@ -64,6 +61,94 @@ namespace ICD.Connect.Audio.Misc
 		private bool m_GreenLedEnabled;
 
 		#region Properties
+
+		public IDigitalInputPort PortButton
+		{
+			get { return m_PortButton; }
+			private set
+			{
+				if (m_PortButton == value)
+					return;
+
+				UnsubscribePortButton(m_PortButton);
+				m_PortButton = value;
+				SubscribePortButton(m_PortButton);
+				ConfigurePortButton(m_PortButton);
+				ButtonPressed = m_PortButton.State;
+
+				UpdateCachedOnlineStatus();
+			}
+		}
+
+		public IIoPort PortVoltage
+		{
+			get { return m_PortVoltage; }
+			private set
+			{
+				if (m_PortVoltage == value)
+					return;
+
+				UnsubscribePortVoltage(m_PortVoltage);
+				m_PortVoltage = value;
+				SubscribePortVoltage(m_PortVoltage);
+				ConfigurePortVoltage(m_PortVoltage);
+				Voltage = m_PortVoltage.AnalogIn;
+
+				UpdateCachedOnlineStatus();
+			}
+		}
+
+		public TPortType PortPower
+		{
+			get { return m_PortPower; }
+			protected set
+			{
+				if (m_PortPower == value)
+					return;
+
+				UnsubscribePortPower(m_PortPower);
+				m_PortPower = value;
+				SubscribePortPower(m_PortPower);
+				ConfigurePortPower(m_PortPower);
+				UpdatePowerState();
+
+				UpdateCachedOnlineStatus();
+			}
+		}
+
+		public TPortType PortRedLed
+		{
+			get { return m_PortRedLed; }
+			protected set
+			{
+				if (m_PortRedLed == value)
+					return;
+
+				UnsubscribePortRedLed(m_PortRedLed);
+				m_PortRedLed = value;
+				SubscribePortRedLed(m_PortRedLed);
+				ConfigurePortRedLed(m_PortRedLed);
+				UpdateRedLedState();
+
+				UpdateCachedOnlineStatus();
+			}
+		}
+
+		public TPortType PortGreenLed
+		{
+			get { return m_PortGreenLed; }
+			protected set
+			{
+				if (m_PortGreenLed == value)
+					return;
+
+				UnsubscribePortGreenLed(m_PortGreenLed);
+				m_PortGreenLed = value;
+				SubscribePortGreenLed(m_PortGreenLed);
+				ConfigurePortGreenLed(m_PortGreenLed);
+				UpdateGreenLedState();
+			}
+		}
 
 		/// <summary>
 		/// Gets the voltage reported by the microphone hardware.
@@ -112,7 +197,7 @@ namespace ICD.Connect.Audio.Misc
 		public bool PowerEnabled
 		{
 			get { return m_PowerEnabled; }
-			private set
+			protected set
 			{
 				if (value == m_PowerEnabled)
 					return;
@@ -132,7 +217,7 @@ namespace ICD.Connect.Audio.Misc
 		public bool RedLedEnabled
 		{
 			get { return m_RedLedEnabled; }
-			private set
+			protected set
 			{
 				if (value == m_RedLedEnabled)
 					return;
@@ -152,7 +237,7 @@ namespace ICD.Connect.Audio.Misc
 		public bool GreenLedEnabled
 		{
 			get { return m_GreenLedEnabled; }
-			private set
+			protected set
 			{
 				if (value == m_GreenLedEnabled)
 					return;
@@ -168,15 +253,6 @@ namespace ICD.Connect.Audio.Misc
 		#endregion
 
 		/// <summary>
-		/// Constructor.
-		/// </summary>
-		public BiColorMicButtonDevice()
-		{
-			m_Ports = new IIoPort[5];
-			m_PortsSection = new SafeCriticalSection();
-		}
-
-		/// <summary>
 		/// Release resources.
 		/// </summary>
 		protected override void DisposeFinal(bool disposing)
@@ -189,89 +265,35 @@ namespace ICD.Connect.Audio.Misc
 
 			base.DisposeFinal(disposing);
 
-			SetPorts(null, null, null, null, null);
+			PortButton = null;
+			PortVoltage = null;
+			PortPower = null;
+			PortRedLed = null;
+			PortGreenLed = null;
 		}
 
 		#region Methods
-
-		/// <summary>
-		/// Sets the ports used for communication with the microphone hardware.
-		/// </summary>
-		/// <param name="buttonInput"></param>
-		/// <param name="powerOutput"></param>
-		/// <param name="redLedOutput"></param>
-		/// <param name="greenLedOutput"></param>
-		/// <param name="voltageInput"></param>
-		[PublicAPI]
-		public void SetPorts(IIoPort buttonInput, IIoPort powerOutput, IIoPort redLedOutput, IIoPort greenLedOutput, IIoPort voltageInput)
-		{
-			m_PortsSection.Enter();
-
-			try
-			{
-				foreach (IIoPort port in m_Ports)
-					Unsubscribe(port);
-
-				m_Ports[BUTTON_INDEX] = buttonInput;
-				m_Ports[POWER_INDEX] = powerOutput;
-				m_Ports[RED_LED_INDEX] = redLedOutput;
-				m_Ports[GREEN_LED_INDEX] = greenLedOutput;
-				m_Ports[VOLTAGE_INDEX] = voltageInput;
-
-				foreach (IIoPort port in m_Ports)
-					Subscribe(port);
-
-				UpdatePortConfigurations();
-
-				ButtonPressed = buttonInput != null && buttonInput.DigitalIn;
-				Voltage = voltageInput == null ? (ushort)0 : voltageInput.AnalogIn;
-				PowerEnabled = powerOutput != null && powerOutput.DigitalOut;
-				RedLedEnabled = redLedOutput != null && redLedOutput.DigitalOut;
-				GreenLedEnabled = greenLedOutput != null && greenLedOutput.DigitalOut;
-			}
-			finally
-			{
-				m_PortsSection.Leave();
-
-				UpdateCachedOnlineStatus();
-			}
-		}
 
 		/// <summary>
 		/// Turns on/off the controller power.
 		/// </summary>
 		/// <param name="enabled"></param>
 		[PublicAPI]
-		public void SetPowerEnabled(bool enabled)
-		{
-			IIoPort port = m_PortsSection.Execute(() => m_Ports[POWER_INDEX]);
-			if (port != null)
-				port.SetDigitalOut(enabled);
-		}
+		public abstract void SetPowerEnabled(bool enabled);
 
 		/// <summary>
 		/// Turns on/off the ring of red LEDs.
 		/// </summary>
 		/// <param name="enabled"></param>
 		[PublicAPI]
-		public void SetRedLedEnabled(bool enabled)
-		{
-			IIoPort port = m_PortsSection.Execute(() => m_Ports[RED_LED_INDEX]);
-			if (port != null)
-				port.SetDigitalOut(enabled);
-		}
+		public abstract void SetRedLedEnabled(bool enabled);
 
 		/// <summary>
 		/// Turns on/off the ring of green LEDs.
 		/// </summary>
 		/// <param name="enabled"></param>
 		[PublicAPI]
-		public void SetGreenLedEnabled(bool enabled)
-		{
-			IIoPort port = m_PortsSection.Execute(() => m_Ports[GREEN_LED_INDEX]);
-			if (port != null)
-				port.SetDigitalOut(enabled);
-		}
+		public abstract void SetGreenLedEnabled(bool enabled);
 
 		#endregion
 
@@ -283,87 +305,131 @@ namespace ICD.Connect.Audio.Misc
 		/// <returns></returns>
 		protected override bool GetIsOnlineStatus()
 		{
-			// Can be called before constructor
-			if (m_PortsSection == null || m_Ports == null)
+			// If no ports are defined, we're offline
+			if (PortButton == null && PortVoltage == null && PortPower == null && PortRedLed == null && PortGreenLed == null)
 				return false;
 
-			m_PortsSection.Enter();
+			bool online = true;
 
-			try
-			{
-				// Returns true if there is at least one port and all available ports are online.
-				return m_Ports.Where(p => p != null).AnyAndAll(p => p.IsOnline);
-			}
-			finally
-			{
-				m_PortsSection.Leave();
-			}
-		}
+			if (PortButton != null)
+				online &= PortButton.IsOnline;
+			if (PortVoltage != null)
+				online &= PortVoltage.IsOnline;
+			if (PortPower != null)
+				online &= PortPower.IsOnline;
+			if (PortRedLed != null)
+				online &= PortRedLed.IsOnline;
+			if (PortGreenLed != null)
+				online &= PortGreenLed.IsOnline;
 
-		/// <summary>
-		/// Forces the ports to have the correct configurations to communicate properly with the microphone.
-		/// </summary>
-		private void UpdatePortConfigurations()
-		{
-			m_PortsSection.Enter();
 
-			try
-			{
-				if (m_Ports[BUTTON_INDEX] != null)
-					m_Ports[BUTTON_INDEX].SetConfiguration(eIoPortConfiguration.DigitalIn);
-
-				if (m_Ports[POWER_INDEX] != null)
-					m_Ports[POWER_INDEX].SetConfiguration(eIoPortConfiguration.DigitalOut);
-
-				if (m_Ports[RED_LED_INDEX] != null)
-					m_Ports[RED_LED_INDEX].SetConfiguration(eIoPortConfiguration.DigitalOut);
-
-				if (m_Ports[GREEN_LED_INDEX] != null)
-					m_Ports[GREEN_LED_INDEX].SetConfiguration(eIoPortConfiguration.DigitalOut);
-
-				if (m_Ports[VOLTAGE_INDEX] != null)
-					m_Ports[VOLTAGE_INDEX].SetConfiguration(eIoPortConfiguration.AnalogIn);
-			}
-			finally
-			{
-				m_PortsSection.Leave();
-			}
+			return online;
 		}
 
 		#endregion
 
 		#region Port Callbacks
 
-		/// <summary>
-		/// Subscribe to the port events.
-		/// </summary>
-		/// <param name="port"></param>
-		private void Subscribe(IIoPort port)
+		protected void Subscribe(IPort port)
 		{
 			if (port == null)
 				return;
 
 			port.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
-			port.OnAnalogInChanged += PortOnAnalogInChanged;
-			port.OnDigitalInChanged += PortOnDigitalInChanged;
-			port.OnDigitalOutChanged += PortOnDigitalOutChanged;
-			port.OnConfigurationChanged += PortOnConfigurationChanged;
+		}
+
+		protected void Unsubscribe(IPort port)
+		{
+			if (port == null)
+				return;
+
+			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
+		}
+
+		#region Port Button
+
+		private void SubscribePortButton(IDigitalInputPort port)
+		{
+			if (port == null)
+				return;
+
+			Subscribe(port);
+
+			port.OnStateChanged += ButtonPortOnStateChanged;
+
+			IIoPort ioPort = port as IIoPort;
+			if (ioPort != null)
+				ioPort.OnConfigurationChanged += ButtonPortOnConfigurationChanged;
+		}
+
+		private void UnsubscribePortButton(IDigitalInputPort port)
+		{
+			if (port == null)
+				return;
+
+			Unsubscribe(port);
+
+			port.OnStateChanged -= ButtonPortOnStateChanged;
+
+			IIoPort ioPort = port as IIoPort;
+			if (ioPort != null)
+				ioPort.OnConfigurationChanged -= ButtonPortOnConfigurationChanged;
+		}
+
+		private void ButtonPortOnConfigurationChanged(IIoPort port, eIoPortConfiguration configuration)
+		{
+			ConfigurePortButton(port);
+		}
+
+		private void ConfigurePortButton(IDigitalInputPort port)
+		{
+			IIoPort ioPort = port as IIoPort;
+
+			if (ioPort != null)
+				ConfigurePortButton(ioPort);
+		}
+
+		private void ConfigurePortButton(IIoPort port)
+		{
+			if (port == null)
+				return;
+
+			if (port.Configuration != eIoPortConfiguration.DigitalIn)
+				port.SetConfiguration(eIoPortConfiguration.DigitalIn);
+		}
+
+		#endregion
+
+		#region Port Voltage
+
+		/// <summary>
+		/// Subscribe to the port events.
+		/// </summary>
+		/// <param name="port"></param>
+		private void SubscribePortVoltage(IIoPort port)
+		{
+			if (port == null)
+				return;
+
+			Subscribe(port);
+
+			port.OnAnalogInChanged += VoltagePortOnAnalogInChanged;
+			port.OnConfigurationChanged += VoltagePortOnConfigurationChanged;
 		}
 
 		/// <summary>
 		/// Unsubscribe from the port events.
 		/// </summary>
 		/// <param name="port"></param>
-		private void Unsubscribe(IIoPort port)
+		private void UnsubscribePortVoltage(IIoPort port)
 		{
 			if (port == null)
 				return;
 
-			port.OnIsOnlineStateChanged -= PortOnIsOnlineStateChanged;
-			port.OnAnalogInChanged -= PortOnAnalogInChanged;
-			port.OnDigitalInChanged -= PortOnDigitalInChanged;
-			port.OnDigitalOutChanged += PortOnDigitalOutChanged;
-			port.OnConfigurationChanged -= PortOnConfigurationChanged;
+			Unsubscribe(port);
+
+			port.OnAnalogInChanged -= VoltagePortOnAnalogInChanged;
+			port.OnConfigurationChanged -= VoltagePortOnConfigurationChanged;
 		}
 
 		/// <summary>
@@ -371,10 +437,48 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="port"></param>
 		/// <param name="configuration"></param>
-		private void PortOnConfigurationChanged(IIoPort port, eIoPortConfiguration configuration)
+		private void VoltagePortOnConfigurationChanged(IIoPort port, eIoPortConfiguration configuration)
 		{
-			UpdatePortConfigurations();
+			ConfigurePortVoltage(port);
 		}
+
+		private void ConfigurePortVoltage(IIoPort port)
+		{
+			if (port == null)
+				return;
+
+			if (port.Configuration != eIoPortConfiguration.AnalogIn)
+				port.SetConfiguration(eIoPortConfiguration.AnalogIn);
+		}
+
+		#endregion
+
+		#region Port Power
+
+		protected abstract void SubscribePortPower(TPortType port);
+		protected abstract void UnsubscribePortPower(TPortType port);
+		protected abstract void ConfigurePortPower(TPortType port);
+		protected abstract void UpdatePowerState();
+
+		#endregion
+
+		#region Port RedLed
+
+		protected abstract void SubscribePortRedLed(TPortType port);
+		protected abstract void UnsubscribePortRedLed(TPortType port);
+		protected abstract void ConfigurePortRedLed(TPortType port);
+		protected abstract void UpdateRedLedState();
+
+		#endregion
+
+#region Port GreenLed
+
+		protected abstract void SubscribePortGreenLed(TPortType port);
+		protected abstract void UnsubscribePortGreenLed(TPortType port);
+		protected abstract void ConfigurePortGreenLed(TPortType port);
+		protected abstract void UpdateGreenLedState();
+
+#endregion
 
 		/// <summary>
 		/// Called when we get an online state change from one of the ports.
@@ -391,30 +495,10 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnDigitalInChanged(object sender, BoolEventArgs args)
+		private void ButtonPortOnStateChanged(object sender, BoolEventArgs args)
 		{
-			if (sender != null && sender == m_PortsSection.Execute(() => m_Ports[BUTTON_INDEX]))
+			if (sender != null && sender == m_PortButton)
 				ButtonPressed = args.Data;
-		}
-
-		/// <summary>
-		/// Called when the digital out signal for a port changes.
-		/// </summary>
-		/// <param name="sender"></param>
-		/// <param name="args"></param>
-		private void PortOnDigitalOutChanged(object sender, BoolEventArgs args)
-		{
-			if (sender == null)
-				return;
-
-			if (sender == m_PortsSection.Execute(() => m_Ports[POWER_INDEX]))
-				PowerEnabled = args.Data;
-
-			if (sender == m_PortsSection.Execute(() => m_Ports[RED_LED_INDEX]))
-				RedLedEnabled = args.Data;
-
-			if (sender == m_PortsSection.Execute(() => m_Ports[GREEN_LED_INDEX]))
-				GreenLedEnabled = args.Data;
 		}
 
 		/// <summary>
@@ -422,9 +506,9 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="args"></param>
-		private void PortOnAnalogInChanged(object sender, UShortEventArgs args)
+		private void VoltagePortOnAnalogInChanged(object sender, UShortEventArgs args)
 		{
-			if (sender != null && sender == m_PortsSection.Execute(() => m_Ports[VOLTAGE_INDEX]))
+			if (sender != null && sender == m_PortVoltage)
 				Voltage = args.Data;
 		}
 
@@ -436,24 +520,12 @@ namespace ICD.Connect.Audio.Misc
 		/// Override to apply properties to the settings instance.
 		/// </summary>
 		/// <param name="settings"></param>
-		protected override void CopySettingsFinal(BiColorMicButtonDeviceSettings settings)
+		protected override void CopySettingsFinal(TSettings settings)
 		{
 			base.CopySettingsFinal(settings);
 
-			m_PortsSection.Enter();
-
-			try
-			{
-				settings.ButtonInputPort = m_Ports[BUTTON_INDEX] == null ? (int?)null : m_Ports[BUTTON_INDEX].Id;
-				settings.VoltageInputPort = m_Ports[VOLTAGE_INDEX] == null ? (int?)null : m_Ports[VOLTAGE_INDEX].Id;
-				settings.PowerOutputPort = m_Ports[POWER_INDEX] == null ? (int?)null : m_Ports[POWER_INDEX].Id;
-				settings.RedLedOutputPort = m_Ports[RED_LED_INDEX] == null ? (int?)null : m_Ports[RED_LED_INDEX].Id;
-				settings.GreenLedOutputPort = m_Ports[GREEN_LED_INDEX] == null ? (int?)null : m_Ports[GREEN_LED_INDEX].Id;
-			}
-			finally
-			{
-				m_PortsSection.Leave();
-			}
+				settings.ButtonInputPort = m_PortButton == null ? (int?)null : m_PortButton.Id;
+				settings.VoltageInputPort = m_PortVoltage == null ? (int?)null : m_PortVoltage.Id;
 		}
 
 		/// <summary>
@@ -463,7 +535,11 @@ namespace ICD.Connect.Audio.Misc
 		{
 			base.ClearSettingsFinal();
 
-			SetPorts(null, null, null, null, null);
+			PortButton = null;
+			PortVoltage = null;
+			PortPower = null;
+			PortRedLed = null;
+			PortGreenLed = null;
 		}
 
 		/// <summary>
@@ -471,27 +547,22 @@ namespace ICD.Connect.Audio.Misc
 		/// </summary>
 		/// <param name="settings"></param>
 		/// <param name="factory"></param>
-		protected override void ApplySettingsFinal(BiColorMicButtonDeviceSettings settings, IDeviceFactory factory)
+		protected override void ApplySettingsFinal(TSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
 
-			IIoPort buttonInputPort = GetPortFromSettings(factory, settings.ButtonInputPort);
-			IIoPort voltageInputPort = GetPortFromSettings(factory, settings.VoltageInputPort);
-			IIoPort powerOutputPort = GetPortFromSettings(factory, settings.PowerOutputPort);
-			IIoPort redLedOutputPort = GetPortFromSettings(factory, settings.RedLedOutputPort);
-			IIoPort greenLedOutputPort = GetPortFromSettings(factory, settings.GreenLedOutputPort);
-
-			SetPorts(buttonInputPort, powerOutputPort, redLedOutputPort, greenLedOutputPort, voltageInputPort);
+			PortButton = GetPortFromSettings<IDigitalInputPort>(factory, settings.ButtonInputPort);
+			PortVoltage = GetPortFromSettings<IIoPort>(factory, settings.VoltageInputPort);
 		}
 
-		private IIoPort GetPortFromSettings(IDeviceFactory factory, int? portId)
+		protected T GetPortFromSettings<T>(IDeviceFactory factory, int? portId) where T : class, IPort
 		{
 			if (portId == null)
 				return null;
 
-			IIoPort port = factory.GetPortById((int)portId) as IIoPort;
+			T port = factory.GetPortById((int)portId) as T;
 			if (port == null)
-				Log(eSeverity.Error, "No IO Port with id {0}", portId);
+				Log(eSeverity.Error, "No {1} Port with id {0}", portId,typeof(T));
 
 			return port;
 		}
