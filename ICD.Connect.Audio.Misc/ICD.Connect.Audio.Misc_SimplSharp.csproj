@@ -66,6 +66,8 @@
     <Compile Include="BiColorMicButton\AbstractBiColorMicButtonDeviceSettings.cs" />
     <Compile Include="BiColorMicButton\BiColorMicButtonDevice.cs" />
     <Compile Include="BiColorMicButton\BiColorMicButtonDeviceSettings.cs" />
+    <Compile Include="BiColorMicButton\BiColorRelayMicButtonDevice.cs" />
+    <Compile Include="BiColorMicButton\BiColorRelayMicButtonDeviceSettings.cs" />
     <Compile Include="BiColorMicButton\IBiColorMicButton.cs" />
     <Compile Include="BiColorMicButton\IBiColorMicButtonDeviceSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
