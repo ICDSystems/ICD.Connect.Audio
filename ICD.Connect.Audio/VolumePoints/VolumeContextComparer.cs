@@ -20,11 +20,14 @@ namespace ICD.Connect.Audio.VolumePoints
 		{
 			foreach (eVolumeType flag in EnumUtils.GetFlagsExceptNone(m_Context))
 			{
-				if (x.VolumeType.HasFlag(flag))
+				bool xHasFlag = x.VolumeType.HasFlag(flag);
+				bool yHasFlag = y.VolumeType.HasFlag(flag);
+
+				if (xHasFlag && !yHasFlag)
 					return 1;
 
-				if (y.VolumeType.HasFlag(flag))
-					return 1;
+				if (yHasFlag)
+					return -1;
 			}
 
 			return 0;
