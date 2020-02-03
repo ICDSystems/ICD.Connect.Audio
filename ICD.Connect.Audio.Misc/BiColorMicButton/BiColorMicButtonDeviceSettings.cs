@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Utils.Xml;
+﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
@@ -21,11 +20,6 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 		[OriginatorIdSettingsProperty(typeof(IIoPort))]
 		public int? GreenLedOutputPort { get; set; }
-
-		/// <summary>
-		/// Gets the type of the originator for this settings instance.
-		/// </summary>
-		public override Type OriginatorType { get { return typeof(BiColorMicButtonDevice); } }
 
 		/// <summary>
 		/// Writes property elements to xml.
