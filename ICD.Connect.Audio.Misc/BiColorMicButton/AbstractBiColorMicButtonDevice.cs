@@ -457,8 +457,8 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 		protected abstract void SubscribePortPower(TPortType port);
 		protected abstract void UnsubscribePortPower(TPortType port);
-		protected abstract void ConfigurePortPower(TPortType port);
 		protected abstract void UpdatePowerState();
+		protected virtual void ConfigurePortPower(TPortType port){}
 
 		#endregion
 
@@ -466,8 +466,8 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 		protected abstract void SubscribePortRedLed(TPortType port);
 		protected abstract void UnsubscribePortRedLed(TPortType port);
-		protected abstract void ConfigurePortRedLed(TPortType port);
 		protected abstract void UpdateRedLedState();
+		protected virtual void ConfigurePortRedLed(TPortType port){}
 
 		#endregion
 
@@ -475,10 +475,10 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 		protected abstract void SubscribePortGreenLed(TPortType port);
 		protected abstract void UnsubscribePortGreenLed(TPortType port);
-		protected abstract void ConfigurePortGreenLed(TPortType port);
 		protected abstract void UpdateGreenLedState();
+		protected virtual void ConfigurePortGreenLed(TPortType port){}
 
-#endregion
+		#endregion
 
 		/// <summary>
 		/// Called when we get an online state change from one of the ports.
