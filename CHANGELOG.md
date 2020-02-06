@@ -44,6 +44,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.5.0] - 2020-02-05
+### Added
+ - IBiColorRelayMicButton as an interface for all bicolor mic buttons
+ - BiColorRelayMicButtonDevice to support microphones using relays instead of I/O ports
+ 
+### Changed
+ - Refactored BiColorMicButtonDevice to an abstract supporting multiple mic button devices
+
 ## [9.4.1] - 2019-12-06
 ### Added
  - Handling for "INVALID VoIPRegStatus" state to Biamp Tesira Voip RegistrationState
