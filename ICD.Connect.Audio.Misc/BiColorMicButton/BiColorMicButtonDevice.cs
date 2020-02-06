@@ -1,7 +1,7 @@
 ﻿using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Protocol.Ports.IoPort;
-using ICD.Connect.Settings.Core;
+using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Misc.BiColorMicButton
 {
