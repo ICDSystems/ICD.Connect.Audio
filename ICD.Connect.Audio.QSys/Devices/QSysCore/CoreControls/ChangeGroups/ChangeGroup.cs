@@ -6,6 +6,8 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Xml;
+using ICD.Connect.API.Commands;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
@@ -189,6 +191,86 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups
 		{
 			if (PollInterval != null && QSysCore.Initialized)
 				SendData(new ChangeGroupAutoPollRpc(this));
+		}
+
+		#endregion
+
+		#region Console
+
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+
+			yield return new ConsoleCommand("PrintComponentControls", "Prints a table of the named controls for each named component", () => PrintComponentControls());
+		}
+
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		public IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
+		}
+
+		/// <summary>
+		/// Gets the child console nodes.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+		{
+			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+				yield return node;
+
+			yield return ConsoleNodeGroup.IndexNodeMap("NamedControls", m_NamedControls.OrderBy(n => n.Name));
+			yield return ConsoleNodeGroup.IndexNodeMap("NamedComponents", m_NamedComponents.Keys.OrderBy(n => n.Name));
+		}
+
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+		{
+			return base.GetConsoleNodes();
+		}
+
+		private string PrintComponentControls()
+		{
+			TableBuilder builder = new TableBuilder("Named Component", "Named Component Controls");
+
+			m_CriticalSection.Enter();
+
+			try
+			{
+				bool first = true;
+
+				foreach (KeyValuePair<INamedComponent, IcdHashSet<INamedComponentControl>> kvp in m_NamedComponents.OrderBy(kvp => kvp.Key.Name))
+				{
+					if (!first)
+						builder.AddSeparator();
+					first = false;
+
+					string name = kvp.Key.Name;
+
+					foreach (INamedComponentControl value in kvp.Value.OrderBy(v => v.Name))
+					{
+						builder.AddRow(name, value.Name);
+						name = null;
+					}
+				}
+			}
+			finally
+			{
+				m_CriticalSection.Leave();
+			}
+
+			return builder.ToString();
 		}
 
 		#endregion
