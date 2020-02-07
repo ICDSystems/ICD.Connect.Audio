@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Collections;
@@ -107,6 +108,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			ComponentName = componentName;
 			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
+		}
+
+		protected override IEnumerable<INamedComponentControl> GetControlsForSubscribe()
+		{
+			yield break;
 		}
 
 		#region Console

@@ -120,6 +120,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		#endregion
 
+		protected override IEnumerable<INamedComponentControl> GetControlsForSubscribe()
+		{
+			yield break;
+		}
+
 		#region Console
 
 		/// <summary>

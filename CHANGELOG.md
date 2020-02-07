@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Fixed a Null Reference related to VoIP/POTS calls on QSys Core
  - Fixed a bug where reloading QSys Core controls would not properly unload old controls
+ - Fixed a bug where QSys Core POTS named components were not reporting state changes
 
 ## [11.6.1] - 2019-12-09
 ### Changed
