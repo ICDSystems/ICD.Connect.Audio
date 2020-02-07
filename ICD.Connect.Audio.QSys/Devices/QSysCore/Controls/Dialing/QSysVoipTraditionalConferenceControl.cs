@@ -500,7 +500,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		private void Subscribe(ThinTraditionalParticipant traditionalParticipant)
 		{
-			if (m_Participant == null)
+			if (traditionalParticipant == null)
 				return;
 
 			traditionalParticipant.HangupCallback += ConferenceSourceHangupCallback;
@@ -617,14 +617,20 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		#region Incoming Call Callbacks
 
-		private void Subscribe(ThinIncomingCall call)
+		private void Subscribe([CanBeNull] ThinIncomingCall call)
 		{
+			if (call == null)
+				return;
+
 			call.AnswerCallback += IncomingCallAnswerCallback;
 			call.RejectCallback += IncomingCallRejectCallback;
 		}
 
-		private void Unsubscribe(ThinIncomingCall call)
+		private void Unsubscribe([CanBeNull] ThinIncomingCall call)
 		{
+			if (call == null)
+				return;
+
 			call.AnswerCallback = null;
 			call.RejectCallback = null;
 		}
@@ -639,8 +645,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
-			if (sender != null)
-				sender.AnswerState = eCallAnswerState.Answered;
+			sender.AnswerState = eCallAnswerState.Answered;
 		}
 
 		private void IncomingCallRejectCallback(ThinIncomingCall sender)
@@ -653,8 +658,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
-			if (sender != null)
-				sender.AnswerState = eCallAnswerState.Ignored;
+			sender.AnswerState = eCallAnswerState.Ignored;
 		}
 
 		#endregion
