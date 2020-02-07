@@ -205,6 +205,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Dialing {0}", dialContext.DialString);
+
 			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_NUMBER, dialContext.DialString);
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 		}
@@ -217,6 +219,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Setting Do Not Disturb to {0}", enabled);
 			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_DND, enabled ? "1" : "0");
 		}
 
@@ -228,6 +231,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Setting Auto Answer to {0}", enabled);
 			m_VoipComponent.SetValue(VoipNamedComponent.CONTROL_CALL_AUTOANSWER, enabled ? "1" : "0");
 		}
 
@@ -239,6 +243,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Setting Privacy Mute to {0}", enabled);
 			m_PrivacyMuteControl.SetValue(enabled);
 		}
 
@@ -296,7 +301,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		private void ParseCallStatus(ControlValueUpdateEventArgs args)
 		{
-			Parent.Log(eSeverity.Debug, "Call Status: {0}", args.ValueString);
+			Log(eSeverity.Debug, "Call Status: {0}", args.ValueString);
 			eParticipantStatus callStatus = QSysStatusToConferenceSourceStatus(args.ValueString);
 
 			var incomingCall = IncomingCall;
@@ -524,10 +529,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		{
 			if (m_VoipComponent == null)
 			{
-				Log(eSeverity.Error, "Unable to handup - VoIP control is null");
+				Log(eSeverity.Error, "Unable to hangup - VoIP control is null");
 				return;
 			}
 
+			Log(eSeverity.Debug, "Hanging up participant {0}", sender.Number);
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_DISCONNECT);
 		}
 
@@ -540,6 +546,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			}
 
 			//todo: Verify call is in a state to hold?
+			Log(eSeverity.Debug, "Holding participant {0}", sender.Number);
 			m_HoldControl.SetValue(true);
 		}
 
@@ -551,6 +558,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Resuming participant {0}", sender.Number);
 			m_HoldControl.SetValue(false);
 		}
 
@@ -609,6 +617,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 						throw new ArgumentException(string.Format("VoIP Dialing Device {0} - DTMF code {1} not supported", this, c));
 				}
 
+				Log(eSeverity.Debug, "Sending DTMF {0}", c);
 				m_VoipComponent.Trigger(controlName);
 			}
 		}
@@ -643,6 +652,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Answering incoming call {0}", sender.Number);
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
 			sender.AnswerState = eCallAnswerState.Answered;
@@ -656,6 +666,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				return;
 			}
 
+			Log(eSeverity.Debug, "Rejecting incoming call {0}", sender.Number);
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_CONNECT);
 
 			sender.AnswerState = eCallAnswerState.Ignored;
