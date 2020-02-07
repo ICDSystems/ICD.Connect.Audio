@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.6.2] - 2020-02-07
 ### Added
  - Additional QSys Core logging for POTS and VoIP calls
  - Added console features for examining the contents of a QSys Core ChangeGroup
