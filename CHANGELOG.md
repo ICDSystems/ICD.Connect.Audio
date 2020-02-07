@@ -6,6 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - Additional QSys Core logging for POTS and VoIP calls
+ - Added console features for examining the contents of a QSys Core ChangeGroup
+
+### Changed
+ - Fixed a Null Reference related to VoIP/POTS calls on QSys Core
+
 ## [11.6.1] - 2019-12-09
 ### Changed
  - Changed QSys Configuration of NamedControls to use elements instead of attributes, to match DAV generated config
