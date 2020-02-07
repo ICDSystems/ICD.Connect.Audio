@@ -110,7 +110,17 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		public void AddKrangControl(IQSysKrangControl krangControl)
 		{
-			m_Parent.Controls.Add(krangControl);
+			m_CollectionSection.Enter();
+
+			try
+			{
+				m_Parent.Controls.Add(krangControl);
+				m_LoadedControls.Add(krangControl);
+			}
+			finally
+			{
+				m_CollectionSection.Leave();
+			}
 		}
 
 		public IEnumerable<IChangeGroup> GetChangeGroups()
@@ -175,8 +185,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			// Clear Controls Collection
 			foreach (IDeviceControl control in m_LoadedControls)
 			{
-				control.Dispose();
 				m_Parent.Controls.Remove(control.Id);
+				control.Dispose();
 			}
 
 			m_LoadedControls.Clear();
