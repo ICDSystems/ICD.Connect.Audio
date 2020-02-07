@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Collections;
@@ -97,6 +98,16 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 				CONTROL_DO_NOT_DISTURB,
 			};
 
+		private static readonly IcdHashSet<string> s_FeedbackControls =
+			new IcdHashSet<string>
+			{
+				CONTROL_CALL_AUTOANSWER,
+				CONTROL_CALL_CID_NAME,
+				CONTROL_CALL_CID_NUMBER,
+				CONTROL_CALL_DND,
+				CONTROL_CALL_STATUS,
+			};
+
 		/// <summary>
 		/// Constructor for Explicitly defined component
 		/// </summary>
@@ -133,6 +144,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			ComponentName = componentName;
 			AddControls(s_Controls);
 			SetupInitialChangeGroups(context, Enumerable.Empty<int>());
+		}
+
+		protected override IEnumerable<INamedComponentControl> GetControlsForSubscribe()
+		{
+			return GetControls().Where(c => s_FeedbackControls.Contains(c.Name));
 		}
 
 		#region Console
