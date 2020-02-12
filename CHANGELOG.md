@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Added
- - Added volume type enum to IVolumePoint and implementations
+ - Added context enum to IVolumePoint and implementations
+ - Added mute type enum to IVolumePoint and implementations
 
 ### Changed
  - Abstract Traditional Participant property setters are now protected so we set them via methods instead of by changing the property.

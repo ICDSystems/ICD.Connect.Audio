@@ -55,9 +55,14 @@ namespace ICD.Connect.Audio.VolumePoints
 		long VolumeRampInitialInterval { get; set; }
 
 		/// <summary>
-		/// Determines when this control is used contextually.
+		/// Determines the contextual availability of this volume point.
 		/// </summary>
-		eVolumeType VolumeType { get; set; }
+		eVolumePointContext Context { get; set; }
+
+		/// <summary>
+		/// Determines what muting this volume point will do (mute audio output, mute microphones, etc).
+		/// </summary>
+		eMuteType MuteType { get; set; }
 
 		#endregion
 	}

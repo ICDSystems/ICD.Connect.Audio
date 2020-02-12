@@ -9,19 +9,19 @@ namespace ICD.Connect.Audio.VolumePoints
 	/// </summary>
 	public sealed class VolumeContextComparer : IComparer<IVolumePoint>
 	{
-		private readonly eVolumeType m_Context;
+		private readonly eVolumePointContext m_Context;
 
-		public VolumeContextComparer(eVolumeType context)
+		public VolumeContextComparer(eVolumePointContext context)
 		{
 			m_Context = context;
 		}
 
 		public int Compare(IVolumePoint x, IVolumePoint y)
 		{
-			foreach (eVolumeType flag in EnumUtils.GetFlagsExceptNone(m_Context))
+			foreach (eVolumePointContext flag in EnumUtils.GetFlagsExceptNone(m_Context))
 			{
-				bool xHasFlag = x.VolumeType.HasFlag(flag);
-				bool yHasFlag = y.VolumeType.HasFlag(flag);
+				bool xHasFlag = x.Context.HasFlag(flag);
+				bool yHasFlag = y.Context.HasFlag(flag);
 
 				if (xHasFlag && !yHasFlag)
 					return 1;

@@ -58,7 +58,12 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// <summary>
 		/// Determines when this control is used contextually.
 		/// </summary>
-		public eVolumeType VolumeType { get; set; }
+		public eVolumePointContext Context { get; set; }
+
+		/// <summary>
+		/// Determines what muting this volume point will do (mute audio output, mute microphones, etc).
+		/// </summary>
+		public eMuteType MuteType { get; set; }
 
 		#endregion
 
@@ -68,9 +73,6 @@ namespace ICD.Connect.Audio.VolumePoints
 		protected AbstractVolumePoint()
 		{
 			VolumeRepresentation = eVolumeRepresentation.Percent;
-			VolumeSafetyMin = null;
-			VolumeSafetyMax = null;
-			VolumeDefault = null;
 			VolumeRampStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
 			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
@@ -214,7 +216,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			settings.VolumeRampInitialStepSize = VolumeRampInitialStepSize;
 			settings.VolumeRampInterval = VolumeRampInterval;
 			settings.VolumeRampInitialInterval = VolumeRampInitialInterval;
-			settings.VolumeType = VolumeType;
+			settings.Context = Context;
+			settings.MuteType = MuteType;
 		}
 
 		/// <summary>
@@ -232,7 +235,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
-			VolumeType = default(eVolumeType);
+			Context = default(eVolumePointContext);
+			MuteType = default(eMuteType);
 		}
 
 		/// <summary>
@@ -252,7 +256,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialStepSize = settings.VolumeRampInitialStepSize;
 			VolumeRampInterval = settings.VolumeRampInterval;
 			VolumeRampInitialInterval = settings.VolumeRampInitialInterval;
-			VolumeType = settings.VolumeType;
+			Context = settings.Context;
+			MuteType = settings.MuteType;
 		}
 
 		#endregion
@@ -275,7 +280,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			addRow("Volume Ramp Initial Step Size", VolumeUtils.ToString(VolumeRampInitialStepSize, VolumeRepresentation));
 			addRow("Volume Ramp Interval", VolumeRampInterval + "ms");
 			addRow("Volume Ramp Initial Interval", VolumeRampInitialInterval + "ms");
-			addRow("Volume Type", VolumeType);
+			addRow("Context", Context);
+			addRow("Mute Type", MuteType);
 		}
 
 		#endregion

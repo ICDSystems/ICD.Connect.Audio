@@ -88,13 +88,14 @@
     <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
     <Compile Include="eVolumeRepresentation.cs" />
+    <Compile Include="VolumePoints\eMuteType.cs" />
     <Compile Include="VolumePoints\IVolumePoint.cs" />
     <Compile Include="VolumePoints\IVolumePointSettings.cs" />
     <Compile Include="VolumePoints\VolumeContextComparer.cs" />
     <Compile Include="VolumePoints\VolumePoint.cs" />
     <Compile Include="VolumePoints\VolumePointSettings.cs" />
     <Compile Include="Telemetry\VolumeTelemetryNames.cs" />
-    <Compile Include="VolumePoints\eVolumeType.cs" />
+    <Compile Include="VolumePoints\eVolumePointContext.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>

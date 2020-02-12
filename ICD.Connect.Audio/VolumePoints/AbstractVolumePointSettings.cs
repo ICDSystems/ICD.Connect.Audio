@@ -13,14 +13,19 @@ namespace ICD.Connect.Audio.VolumePoints
 		public const long DEFAULT_STEP_INTERVAL = 250;
 
 		private const string ELEMENT_VOLUME_RANGE_MODE = "VolumeRepresentation";
+
 		private const string ELEMENT_VOLUME_SAFETY_MIN = "VolumeSafetyMin";
 		private const string ELEMENT_VOLUME_SAFETY_MAX = "VolumeSafetyMax";
 		private const string ELEMENT_VOLUME_DEFAULT = "VolumeDefault";
+
 		private const string ELEMENT_VOLUME_RAMP_STEP_SIZE = "VolumeRampStepSize";
 		private const string ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE = "VolumeRampInitialStepSize";
 		private const string ELEMENT_VOLUME_RAMP_INTERVAL = "VolumeRampInterval";
 		private const string ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL = "VolumeRampInitialInterval";
+
 		private const string ELEMENT_VOLUME_TYPE = "VolumeType";
+		private const string ELEMENT_CONTEXT = "Context";
+		private const string ELEMENT_MUTE_TYPE = "MuteType";
 
 		#region Properties
 
@@ -65,9 +70,14 @@ namespace ICD.Connect.Audio.VolumePoints
 		public long VolumeRampInitialInterval { get; set; }
 
 		/// <summary>
-		/// Gets/sets the context for this volume point.
+		/// Determines the contextual availability of this volume point.
 		/// </summary>
-		public eVolumeType VolumeType { get; set; }
+		public eVolumePointContext Context { get; set; }
+
+		/// <summary>
+		/// Determines what muting this volume point will do (mute audio output, mute microphones, etc).
+		/// </summary>
+		public eMuteType MuteType { get; set; }
 
 		#endregion
 
@@ -91,7 +101,8 @@ namespace ICD.Connect.Audio.VolumePoints
 
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INTERVAL, IcdXmlConvert.ToString(VolumeRampInterval));
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL, IcdXmlConvert.ToString(VolumeRampInitialInterval));
-			writer.WriteElementString(ELEMENT_VOLUME_TYPE, IcdXmlConvert.ToString(VolumeType));
+			writer.WriteElementString(ELEMENT_CONTEXT, IcdXmlConvert.ToString(Context));
+			writer.WriteElementString(ELEMENT_MUTE_TYPE, IcdXmlConvert.ToString(MuteType));
 		}
 
 		/// <summary>
@@ -114,7 +125,13 @@ namespace ICD.Connect.Audio.VolumePoints
 
 			VolumeRampInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
-			VolumeType = XmlUtils.TryReadChildElementContentAsEnum<eVolumeType>(xml, ELEMENT_VOLUME_TYPE, true) ?? eVolumeType.Room;
+
+			// Backwards compatability for "VolumeType" element.
+			Context = XmlUtils.TryReadChildElementContentAsEnum<eVolumePointContext>(xml, ELEMENT_CONTEXT, true) ??
+			          XmlUtils.TryReadChildElementContentAsEnum<eVolumePointContext>(xml, ELEMENT_VOLUME_TYPE, true) ??
+			          eVolumePointContext.Room;
+
+			MuteType = XmlUtils.TryReadChildElementContentAsEnum<eMuteType>(xml, ELEMENT_MUTE_TYPE, true) ?? eMuteType.RoomAudio;
 		}
 
 		#endregion

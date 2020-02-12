@@ -3,7 +3,7 @@
 namespace ICD.Connect.Audio.VolumePoints
 {
 	[Flags]
-	public enum eVolumeType
+	public enum eVolumePointContext
 	{
 		None = 0,
 
