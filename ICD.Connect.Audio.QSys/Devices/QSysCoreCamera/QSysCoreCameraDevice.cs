@@ -14,17 +14,12 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 {
-	public sealed class QSysCoreCameraDevice : AbstractCameraDevice<QSysCoreCameraDeviceSettings>, ICameraWithPanTilt, ICameraWithZoom, ICameraWithPresets
+	public sealed class QSysCoreCameraDevice : AbstractCameraDevice<QSysCoreCameraDeviceSettings>
 	{
 		/// <summary>
 		/// Raised when the parent DSP changes.
 		/// </summary>
 		public event EventHandler OnDspChanged;
-
-		/// <summary>
-		/// Raised when the presets are changed.
-		/// </summary>
-		public event EventHandler OnPresetsChanged;
 
 		[CanBeNull]
 		private QSysCoreDevice m_Dsp;
@@ -44,10 +39,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// </summary>
 		public QSysCoreCameraDevice()
 		{
+			SupportedCameraFeatures = eCameraFeatures.PanTiltZoom | eCameraFeatures.Presets;
+
 			Controls.Add(new GenericCameraRouteSourceControl<QSysCoreCameraDevice>(this, 0));
-			Controls.Add(new PanTiltControl<QSysCoreCameraDevice>(this, 1));
-			Controls.Add(new ZoomControl<QSysCoreCameraDevice>(this, 2));
-			Controls.Add(new PresetControl<QSysCoreCameraDevice>(this, 3));
+			Controls.Add(new CameraDeviceControl(this, 1));
 		}
 
 		/// <summary>
@@ -56,39 +51,53 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnDspChanged = null;
-			OnPresetsChanged = null;
 
 			base.DisposeFinal(disposing);
 		}
 
-		#region ICameraWithPanTilt
-
 		/// <summary>
-		/// Starts rotating the camera with the given action.
+		/// Begins panning the camera
 		/// </summary>
 		/// <param name="action"></param>
-		public void PanTilt(eCameraPanTiltAction action)
+		public override void Pan(eCameraPanAction action)
 		{
 			if (m_CameraComponent == null)
 				return;
 
 			switch (action)
 			{
-				case eCameraPanTiltAction.Left:
+				case eCameraPanAction.Left:
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_LEFT, "1");
 					break;
-				case eCameraPanTiltAction.Right:
+				case eCameraPanAction.Right:
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_RIGHT, "1");
 					break;
-				case eCameraPanTiltAction.Up:
-					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_UP, "1");
-					break;
-				case eCameraPanTiltAction.Down:
-					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_DOWN, "1");
-					break;
-				case eCameraPanTiltAction.Stop:
+				case eCameraPanAction.Stop:
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_LEFT, "0");
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_PAN_RIGHT, "0");
+					break;
+				default:
+					throw new ArgumentOutOfRangeException("action");
+			}
+		}
+
+		/// <summary>
+		/// Begin tilting the camera.
+		/// </summary>
+		public override void Tilt(eCameraTiltAction action)
+		{
+			if (m_CameraComponent == null)
+				return;
+
+			switch (action)
+			{
+				case eCameraTiltAction.Up:
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_UP, "1");
+					break;
+				case eCameraTiltAction.Down:
+					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_DOWN, "1");
+					break;
+				case eCameraTiltAction.Stop:
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_UP, "0");
 					m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TILT_DOWN, "0");
 					break;
@@ -97,15 +106,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 			}
 		}
 
-		#endregion
-
 		#region ICameraWithZoom
 
 		/// <summary>
 		/// Starts zooming the camera with the given action.
 		/// </summary>
 		/// <param name="action"></param>
-		public void Zoom(eCameraZoomAction action)
+		public override void Zoom(eCameraZoomAction action)
 		{
 			if (m_CameraComponent == null)
 				return;
@@ -134,12 +141,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <summary>
 		/// Gets the maximum number of presets this camera can support.
 		/// </summary>
-		public int MaxPresets { get { return m_SnapshotsComponent == null ? 0 : m_SnapshotsComponent.SnapshotCount; } }
+		public override int MaxPresets { get { return m_SnapshotsComponent == null ? 0 : m_SnapshotsComponent.SnapshotCount; } }
 
 		/// <summary>
 		/// Gets the stored camera presets.
 		/// </summary>
-		public IEnumerable<CameraPreset> GetPresets()
+		public override IEnumerable<CameraPreset> GetPresets()
 		{
 			return m_SnapshotsComponent == null
 				       ? Enumerable.Empty<CameraPreset>()
@@ -151,7 +158,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// Tells the camera to change its position to the given preset.
 		/// </summary>
 		/// <param name="presetId">The id of the preset to position to.</param>
-		public void ActivatePreset(int presetId)
+		public override void ActivatePreset(int presetId)
 		{
 			if (m_SnapshotsComponent == null)
 				return;
@@ -163,12 +170,29 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// Stores the cameras current position in the given preset index.
 		/// </summary>
 		/// <param name="presetId">The index to store the preset at.</param>
-		public void StorePreset(int presetId)
+		public override void StorePreset(int presetId)
 		{
 			if (m_SnapshotsComponent == null)
 				return;
 
 			m_SnapshotsComponent.SaveSnapshot(presetId);
+		}
+
+		/// <summary>
+		/// Sets if the camera mute state should be active
+		/// </summary>
+		/// <param name="enable"></param>
+		public override void MuteCamera(bool enable)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <summary>
+		/// Resets camera to its predefined home position
+		/// </summary>
+		public override void SendCameraHome()
+		{
+			throw new NotSupportedException();
 		}
 
 		#endregion
