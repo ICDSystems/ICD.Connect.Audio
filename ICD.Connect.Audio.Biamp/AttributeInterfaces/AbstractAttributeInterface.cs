@@ -155,23 +155,23 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 				// One-off command can be sent to the device as-is
 				case AttributeCode.eCommand.Get:
 					code = AttributeCode.Get(m_InstanceTag, attribute, indices);
-					m_Device.SendData(callback, code);
+					m_Device.SendData(callback, code, BiampTesiraDevice.PRIORITY_GET);
 					break;
 				case AttributeCode.eCommand.Set:
 					code = AttributeCode.Set(m_InstanceTag, attribute, value, indices);
-					m_Device.SendData(callback, code);
+					m_Device.SendData(callback, code, BiampTesiraDevice.PRIORITY_SET);
 					break;
 				case AttributeCode.eCommand.Increment:
 					code = AttributeCode.Increment(m_InstanceTag, attribute, value, indices);
-					m_Device.SendData(callback, code);
+					m_Device.SendData(callback, code, BiampTesiraDevice.PRIORITY_SET);
 					break;
 				case AttributeCode.eCommand.Decrement:
 					code = AttributeCode.Decrement(m_InstanceTag, attribute, value, indices);
-					m_Device.SendData(callback, code);
+					m_Device.SendData(callback, code, BiampTesiraDevice.PRIORITY_SET);
 					break;
 				case AttributeCode.eCommand.Toggle:
 					code = AttributeCode.Toggle(m_InstanceTag, attribute, indices);
-					m_Device.SendData(callback, code);
+					m_Device.SendData(callback, code, BiampTesiraDevice.PRIORITY_SET);
 					break;
 
 				// Subscriptions are registered with the device for later lookup
@@ -208,7 +208,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		protected void RequestService(string service, IValue value, params int[] indices)
 		{
 			ServiceCode code = new ServiceCode(m_InstanceTag, service, value, indices.Cast<object>().ToArray());
-			m_Device.SendData(code);
+			m_Device.SendData(code, BiampTesiraDevice.PRIORITY_SERVICE);
 		}
 
 		#endregion
