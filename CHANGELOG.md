@@ -44,6 +44,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.5.1] - 2020-02-14
+### Changed
+ - Improvements to Biamp Serial Queue
+
 ## [9.5.0] - 2020-02-05
 ### Added
  - IBiColorRelayMicButton as an interface for all bicolor mic buttons
