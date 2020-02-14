@@ -5,7 +5,7 @@ using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.Mock.Ports;
-
+using ICD.Connect.Protocol.SerialQueues;
 using NUnit.Framework;
 
 namespace ICD.Connect.Audio.Biamp.Tests
@@ -28,7 +28,11 @@ namespace ICD.Connect.Audio.Biamp.Tests
 		public void RateLimitTest()
 		{
 			ILoggerService logger = ServiceProvider.GetService<ILoggerService>();
-			BiampTesiraSerialQueue serialQueue = new BiampTesiraSerialQueue();
+			SerialQueue serialQueue = new SerialQueue()
+			{
+				CommandDelayTime = BiampTesiraDevice.COMMAND_DELAY_MS,
+				Timeout = BiampTesiraDevice.TIMEOUT_MS
+			};
 			MockSerialPort serialPort = new MockSerialPort();
 			serialQueue.SetPort(serialPort);
 			BiampTesiraSerialBuffer buffer = new BiampTesiraSerialBuffer();
@@ -77,14 +81,18 @@ namespace ICD.Connect.Audio.Biamp.Tests
 		}
 
 		/// <summary>
-		/// Tests to make sure that after recieving no response, the queue waits to transmit until the command times out.
+		/// Tests to make sure that after receiving no response, the queue waits to transmit until the command times out.
 		/// </summary>
 		[Test]
 		public void TimeoutTest()
 		{
 			ILoggerService logger = ServiceProvider.GetService<ILoggerService>();
 			IcdStopwatch stopwatch = new IcdStopwatch();
-			BiampTesiraSerialQueue serialQueue = new BiampTesiraSerialQueue();
+			SerialQueue serialQueue = new SerialQueue()
+			{
+				CommandDelayTime = BiampTesiraDevice.COMMAND_DELAY_MS,
+				Timeout = BiampTesiraDevice.TIMEOUT_MS
+			};
 			MockSerialPort serialPort = new MockSerialPort();
 			serialQueue.SetPort(serialPort);
 			BiampTesiraSerialBuffer buffer = new BiampTesiraSerialBuffer();
@@ -101,7 +109,7 @@ namespace ICD.Connect.Audio.Biamp.Tests
 				                                    else
 				                                    {
 					                                    Assert.GreaterOrEqual(stopwatch.ElapsedMilliseconds, 20000,
-															"Queue did not wait 20 seconds before sending a command when recieving no response.");
+															"Queue did not wait 20 seconds before sending a command when receiving no response.");
 				                                    }
 				                                    logger.AddEntry(eSeverity.Informational, "Command Transmitted.");
 												};
