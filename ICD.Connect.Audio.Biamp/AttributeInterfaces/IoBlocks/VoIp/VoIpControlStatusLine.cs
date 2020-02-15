@@ -454,6 +454,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			base.Subscribe(command);
 
 			// Subscribe
+			RequestAttribute(AutoAnswerFeedback, command, AUTO_ANSWER_ATTRIBUTE, null, Index);
 			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
 			RequestAttribute(ProtocolInfoFeedback, command, PROTOCOL_INFO_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, command, LINE_READY_ATTRIBUTE, null, Index);
