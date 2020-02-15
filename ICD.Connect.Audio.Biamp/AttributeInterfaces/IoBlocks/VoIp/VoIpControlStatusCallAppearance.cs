@@ -66,7 +66,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			AuthUserNotConfigured,
 			AuthPasswordNotConfigured,
 			InvalidNumber,
-			TempUnavailable
+			TempUnavailable,
+			ServiceUnavailable
 		}
 
 		private static readonly Dictionary<string, eVoIpCallState> s_CallStateSerials =
@@ -123,7 +124,8 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				{"VOIP_PROMPT_AUTH_USER_NOT_CONFIGURED", eVoIpPrompt.AuthUserNotConfigured},
 				{"VOIP_PROMPT_AUTH_PASSWORD_NOT_CONFIGURED", eVoIpPrompt.AuthPasswordNotConfigured},
 				{"VOIP_PROMPT_INVALID_NUMBER", eVoIpPrompt.InvalidNumber},
-				{"VOIP_PROMPT_TEMP_UNAVAILABLE", eVoIpPrompt.TempUnavailable}
+				{"VOIP_PROMPT_TEMP_UNAVAILABLE", eVoIpPrompt.TempUnavailable},
+				{"VOIP_PROMPT_SERVICE_UNAVAILABLE", eVoIpPrompt.ServiceUnavailable }
 			};
 
 		private const string REDIAL_SERVICE = "redial";
