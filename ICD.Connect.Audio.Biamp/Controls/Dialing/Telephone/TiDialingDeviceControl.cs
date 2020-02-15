@@ -578,7 +578,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="args"></param>
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
-			IsOnHold = m_HoldControl.State;
+			IsOnHold = args.Data;
 
 			UpdateSource(m_ActiveSource);
 		}
