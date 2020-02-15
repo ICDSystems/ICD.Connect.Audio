@@ -493,7 +493,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public void SetAutoAnswer(bool autoAnswer)
 		{
-			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Toggle, AUTO_ANSWER_ATTRIBUTE, new Value(autoAnswer), Index);
+			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Set, AUTO_ANSWER_ATTRIBUTE, new Value(autoAnswer), Index);
 		}
 
 		[PublicAPI]
