@@ -740,7 +740,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 			if (registrationControlValue != null)
 				RegistrationStatus =
-					registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus);
+					registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus, eRegistrationStatus.Invalid);
 		}
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
