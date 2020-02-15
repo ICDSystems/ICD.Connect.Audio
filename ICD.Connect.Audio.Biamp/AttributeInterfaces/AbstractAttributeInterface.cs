@@ -193,7 +193,6 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 				case AttributeCode.eCommand.Increment:
 				case AttributeCode.eCommand.Decrement:
 				case AttributeCode.eCommand.Toggle:
-				case AttributeCode.eCommand.Subscribe:
 					RequestAttribute(callback, AttributeCode.eCommand.Get, attribute, null, indices);
 					break;
 			}
