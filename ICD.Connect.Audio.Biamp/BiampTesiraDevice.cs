@@ -454,12 +454,10 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (m_ReadyToTransmit)
 			{
-				IcdConsole.PrintLine(eConsoleColor.Magenta, "Begin Initialization");
 				Initialized = true;
 			}
 			else
 			{
-				IcdConsole.PrintLine(eConsoleColor.Magenta, "Initialization Delayed, Welcome Message not Received");
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 		}
@@ -750,7 +748,6 @@ namespace ICD.Connect.Audio.Biamp
 
 		private void BufferOnOnWelcomeMessageReceived(object sender, EventArgs e)
 		{
-			IcdConsole.PrintLine(eConsoleColor.Magenta, "Welcome Message Received");
 			m_ReadyToTransmit = true;
 		}
 
