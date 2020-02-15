@@ -248,7 +248,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					return LazyLoadControl<VoIpDialingDeviceControl, VoIpControlStatusLine>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
 						                                      new VoIpDialingDeviceControl(id, name, attributeInterface,
-						                                                                   doNotDisturbControl, privacyMuteControl));
+						                                                                   privacyMuteControl));
 				case "ti":
 					return LazyLoadControl<TiDialingDeviceControl, TiControlStatusBlock>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
