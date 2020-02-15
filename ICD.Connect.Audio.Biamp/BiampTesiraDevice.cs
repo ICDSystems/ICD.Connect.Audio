@@ -255,7 +255,6 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			string key = SubscriptionCallbackInfo.GenerateSubscriptionKey(instanceTag, attribute, indices);
 			AttributeCode code = AttributeCode.Subscribe(instanceTag, attribute, key, indices);
-			SubscriptionCallbackInfo info = new SubscriptionCallbackInfo(callback, code);
 			m_SubscriptionCallbacksSection.Enter();
 
 			try
