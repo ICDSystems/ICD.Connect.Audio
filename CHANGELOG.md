@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - Fixed issue with Biamp Tesira VoIP AutoAnswer Set commands
+ - Fixed Biamp Tesira handling of unsolicited feedback
 
 ## [9.5.1] - 2020-02-14
 ### Changed
