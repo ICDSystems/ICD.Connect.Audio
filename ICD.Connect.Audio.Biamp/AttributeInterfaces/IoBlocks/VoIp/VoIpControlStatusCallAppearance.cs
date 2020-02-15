@@ -38,6 +38,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 		public enum eVoIpPrompt
 		{
+			Unknown,
 			None,
 			Starting,
 			Registering,
@@ -328,7 +329,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			State = stateValue.GetObjectValue(s_CallStateSerials);
 
 			Value promptValue = callState.GetValue<Value>("prompt");
-			Prompt = promptValue.GetObjectValue(s_PromptSerials);
+			Prompt = promptValue.GetObjectValue(s_PromptSerials, eVoIpPrompt.Unknown);
 
 
 			// If call state is idle, then clear caller ID info.  Otherwise try to parse it.
