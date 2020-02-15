@@ -478,11 +478,16 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			base.Subscribe(command);
 
 			// Subscribe
-			RequestAttribute(AutoAnswerFeedback, command, AUTO_ANSWER_ATTRIBUTE, null, Index);
-			RequestAttribute(DndEnabledFeedback, command, DND_ENABLED_ATTRIBUTE, null, Index);
 			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
 			RequestAttribute(ProtocolInfoFeedback, command, PROTOCOL_INFO_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, command, LINE_READY_ATTRIBUTE, null, Index);
+
+			// Tesira Documentation claims that these attributes support subscribe, but testing
+			//   with firmware 3.14, they do not successfully subscribe.  If Biamp ever fixes
+			//   uncomment these lines
+			//   http://tesira-help.biamp.com/#t=System_Control%2FTesira_Text_Protocol%2FAttribute_tables%2FControl_Blocks%2FDialer.html 
+			//RequestAttribute(AutoAnswerFeedback, command, AUTO_ANSWER_ATTRIBUTE, null, Index);
+			//RequestAttribute(DndEnabledFeedback, command, DND_ENABLED_ATTRIBUTE, null, Index);
 		}
 
 		/// <summary>
