@@ -250,6 +250,35 @@ namespace ICD.Connect.Audio.Biamp
 
 		#region Attribute Subscription
 
+		public bool IsAttributeSubscribed(SubscriptionCallback callback, string instanceTag, string attribute,
+		                                  int[] indices)
+		{
+			string key = SubscriptionCallbackInfo.GenerateSubscriptionKey(instanceTag, attribute, indices);
+			AttributeCode code = AttributeCode.Subscribe(instanceTag, attribute, key, indices);
+			SubscriptionCallbackInfo info = new SubscriptionCallbackInfo(callback, code);
+			m_SubscriptionCallbacksSection.Enter();
+
+			try
+			{
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
+					return false;
+				}
+
+				if (infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+				{
+					return true;
+				}
+			}
+			finally
+			{
+				m_SubscriptionCallbacksSection.Leave();
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Subscribe to feedback from the device.
 		/// </summary>
