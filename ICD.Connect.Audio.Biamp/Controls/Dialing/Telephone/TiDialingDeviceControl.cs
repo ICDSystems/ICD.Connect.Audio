@@ -27,7 +27,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceAdded;
 		public override event EventHandler<ConferenceSourceEventArgs> OnSourceRemoved;
 
-
 		private readonly TiControlStatusBlock m_TiControl;
 
 		[CanBeNull]
@@ -57,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				m_Hold = value;
 
-				Log(eSeverity.Informational, "{0} hold state set to {1}", this, m_Hold);
+				Log(eSeverity.Informational, "Hold state set to {0}", m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
@@ -88,7 +87,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			
 			Subscribe(m_TiControl);
-			Subscribe(m_HoldControl);
+			SubscribeHold(m_HoldControl);
 			SubscribeDoNotDisturb(m_DoNotDisturbControl);
 		}
 
@@ -191,7 +190,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_TiControl);
-			Unsubscribe(m_HoldControl);
+			UnsubscribeHold(m_HoldControl);
 			UnsubscribeDoNotDisturb(m_DoNotDisturbControl);
 
 			ClearCurrentSource();
@@ -551,7 +550,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Subscribe to the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Subscribe(IBiampTesiraStateDeviceControl holdControl)
+		private void SubscribeHold(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
@@ -563,7 +562,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Unsubscribe from the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Unsubscribe(IBiampTesiraStateDeviceControl holdControl)
+		private void UnsubscribeHold(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
