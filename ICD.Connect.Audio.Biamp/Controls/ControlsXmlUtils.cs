@@ -248,12 +248,13 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					return LazyLoadControl<VoIpConferenceDeviceControl, VoIpControlStatusLine>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
 						                                      new VoIpConferenceDeviceControl(id, name, attributeInterface,
-						                                                                   doNotDisturbControl, privacyMuteControl));
+						                                                                      privacyMuteControl));
 				case "ti":
 					return LazyLoadControl<TiConferenceDeviceControl, TiControlStatusBlock>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new TiConferenceDeviceControl(id, name, attributeInterface, doNotDisturbControl,
-						                                                                 privacyMuteControl, holdControl));
+						                                      new TiConferenceDeviceControl(id, name, attributeInterface,
+						                                                                    doNotDisturbControl,
+						                                                                    privacyMuteControl, holdControl));
 
 				default:
 					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);

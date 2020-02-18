@@ -56,6 +56,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added port configuration features to audio devices
 
+## [9.6.0] - 2020-02-18
+### Changed
+ - Fixed issue with Biamp Tesira VoIP AutoAnswer Set commands
+ - Fixed Biamp Tesira handling of unsolicited feedback
+ - Added VoIp prompt values "Unknown" and "Service Unavaliable"
+
 ## [9.5.1] - 2020-02-14
 ### Changed
  - Improvements to Biamp Serial Queue
