@@ -258,6 +258,34 @@ namespace ICD.Connect.Audio.Biamp
 
 		#region Attribute Subscription
 
+		public bool IsAttributeSubscribed(SubscriptionCallback callback, string instanceTag, string attribute,
+		                                  int[] indices)
+		{
+			string key = SubscriptionCallbackInfo.GenerateSubscriptionKey(instanceTag, attribute, indices);
+			AttributeCode code = AttributeCode.Subscribe(instanceTag, attribute, key, indices);
+			m_SubscriptionCallbacksSection.Enter();
+
+			try
+			{
+				IcdHashSet<SubscriptionCallbackInfo> infos;
+				if (!m_SubscriptionCallbacks.TryGetValue(key, out infos))
+				{
+					return false;
+				}
+
+				if (infos.Any(s => s.Callback == callback && s.Code.CompareEquality(code)))
+				{
+					return true;
+				}
+			}
+			finally
+			{
+				m_SubscriptionCallbacksSection.Leave();
+			}
+
+			return false;
+		}
+
 		/// <summary>
 		/// Subscribe to feedback from the device.
 		/// </summary>
@@ -434,12 +462,10 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			if (m_ReadyToTransmit)
 			{
-				IcdConsole.PrintLine(eConsoleColor.Magenta, "Begin Initialization");
 				Initialized = true;
 			}
 			else
 			{
-				IcdConsole.PrintLine(eConsoleColor.Magenta, "Initialization Delayed, Welcome Message not Received");
 				m_InitializationTimer.Reset(INITIALIZATION_DELAY_MILLISECONDS);
 			}
 		}
@@ -523,16 +549,6 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="args"></param>
 		private void QueueOnSerialResponse(object sender, SerialResponseEventArgs args)
 		{
-			// Handle subscription feedback separately
-			if (args.Response.StartsWith(Response.FEEDBACK))
-			{
-				HandleSubscriptionFeedback(args.Response);
-
-				// It's only unsolicited feedback if it doesn't end with +OK
-				if (!args.Response.Trim().EndsWith(Response.SUCCESS))
-					return;
-			}
-
 			// Ignore any messages that don't fit expected pattern
 			if (args.Response.StartsWith(Response.CANNOT_DELIVER) ||
 			    args.Response.StartsWith(Response.ERROR) ||
@@ -718,6 +734,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			buffer.OnSerialTelnetHeader += BufferOnOnSerialTelnetHeader;
 			buffer.OnWelcomeMessageReceived += BufferOnOnWelcomeMessageReceived;
+			buffer.OnSubscribeResponse += BufferOnSubscribeResponse;
 		}
 
 		private void Unsubscribe(BiampTesiraSerialBuffer buffer)
@@ -729,6 +746,7 @@ namespace ICD.Connect.Audio.Biamp
 
 			buffer.OnSerialTelnetHeader -= BufferOnOnSerialTelnetHeader;
 			buffer.OnWelcomeMessageReceived -= BufferOnOnWelcomeMessageReceived;
+			buffer.OnSubscribeResponse -= BufferOnSubscribeResponse;
 		}
 
 		private void BufferOnOnSerialTelnetHeader(object sender, StringEventArgs args)
@@ -738,8 +756,12 @@ namespace ICD.Connect.Audio.Biamp
 
 		private void BufferOnOnWelcomeMessageReceived(object sender, EventArgs e)
 		{
-			IcdConsole.PrintLine(eConsoleColor.Magenta, "Welcome Message Received");
 			m_ReadyToTransmit = true;
+		}
+
+		private void BufferOnSubscribeResponse(object sender, StringEventArgs e)
+		{
+			HandleSubscriptionFeedback(e.Data);
 		}
 
 		#endregion
