@@ -34,12 +34,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="id"></param>
 		/// <param name="name"></param>
 		/// <param name="line"></param>
-		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
 		public VoIpConferenceDeviceControl(int id, string name, VoIpControlStatusLine line,
-										IBiampTesiraStateDeviceControl doNotDisturbControl,
-										IBiampTesiraStateDeviceControl privacyMuteControl)
-			: base(id, name, line.Device, doNotDisturbControl, privacyMuteControl)
+		                                   IBiampTesiraStateDeviceControl privacyMuteControl)
+			: base(id, name, line.Device, privacyMuteControl)
 		{
 			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
 			m_AppearanceIncomingCalls = new Dictionary<int, IIncomingCall>();
@@ -94,7 +92,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				default:
 					return eDialContextSupport.Unsupported;
 			}
-			
 		}
 
 		/// <summary>
@@ -126,6 +123,15 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			{
 				m_AppearanceSourcesSection.Leave();
 			}
+		}
+
+		/// <summary>
+		/// Sets the do-not-disturb enabled state.
+		/// </summary>
+		/// <param name="enabled"></param>
+		public override void SetDoNotDisturb(bool enabled)
+		{
+			m_Line.SetDndEnabled(enabled);
 		}
 
 		/// <summary>
@@ -663,6 +669,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				return;
 
 			line.OnAutoAnswerChanged += LineOnAutoAnswerChanged;
+			line.OnDndEnabledChanged += LineOnDndEnabledChanged;
 
 			foreach (VoIpControlStatusCallAppearance appearance in line.GetCallAppearances())
 				Subscribe(appearance);
@@ -678,6 +685,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				return;
 
 			line.OnAutoAnswerChanged -= LineOnAutoAnswerChanged;
+			line.OnDndEnabledChanged -= LineOnDndEnabledChanged;
 
 			foreach (VoIpControlStatusCallAppearance appearance in line.GetCallAppearances())
 				Unsubscribe(appearance);
@@ -691,6 +699,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void LineOnAutoAnswerChanged(object sender, BoolEventArgs args)
 		{
 			AutoAnswer = args.Data;
+		}
+
+		private void LineOnDndEnabledChanged(object sender, BoolEventArgs args)
+		{
+			DoNotDisturb = args.Data;
 		}
 
 		#endregion

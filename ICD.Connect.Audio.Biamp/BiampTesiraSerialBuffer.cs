@@ -12,9 +12,11 @@ namespace ICD.Connect.Audio.Biamp
 	public sealed class BiampTesiraSerialBuffer : ISerialBuffer
 	{
 		public const string WELCOME_TEXT = "Welcome to the Tesira Text Protocol Server...";
+		private const string PUBLISH_RESPONSE = "! \"publishToken\":";
 
 		public event EventHandler<StringEventArgs> OnCompletedSerial;
 		public event EventHandler<StringEventArgs> OnSerialTelnetHeader;
+		public event EventHandler<StringEventArgs> OnSubscribeResponse;
 		public event EventHandler OnWelcomeMessageReceived;
 
 		private string m_Remainder;
@@ -116,7 +118,10 @@ namespace ICD.Connect.Audio.Biamp
 
 						if (!string.IsNullOrEmpty(output))
 						{
-							OnCompletedSerial.Raise(this, new StringEventArgs(output));
+							if (output.StartsWith(PUBLISH_RESPONSE))
+								OnSubscribeResponse.Raise(this, new StringEventArgs(output));
+							else
+								OnCompletedSerial.Raise(this, new StringEventArgs(output));
 						}
 					}
 				}
