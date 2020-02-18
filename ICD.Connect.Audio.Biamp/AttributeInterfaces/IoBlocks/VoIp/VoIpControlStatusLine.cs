@@ -68,6 +68,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private const string DIALING_TIMEOUT_ATTRIBUTE = "dialingTimeOut";
 		private const string DTMF_OFF_TIME_ATTRIBUTE = "dtmfOffTime";
 		private const string DTMF_ON_TIME_ATTRIBUTE = "dtmfOnTime";
+		private const string DND_ENABLED_ATTRIBUTE = "dndEnable";
 		private const string LAST_NUMBER_DIALED_ATTRIBUTE = "lastNum";
 		private const string LINE_READY_ATTRIBUTE = "lineReady";
 		private const string DTMF_LOCAL_MUTE_ATTRIBUTE = "localDtmfMute";
@@ -101,6 +102,9 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		public event EventHandler<IntEventArgs> OnDtmfOnTimeChanged;
 
 		[PublicAPI]
+		public event EventHandler<BoolEventArgs> OnDndEnabledChanged;
+
+		[PublicAPI]
 		public event EventHandler<StringEventArgs> OnLastNumberDialedChanged;
 
 		[PublicAPI]
@@ -130,6 +134,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		private int m_DialingTimeout;
 		private int m_DtmfOffTime;
 		private int m_DtmfOnTime;
+		private bool m_DndEnabled;
 		private string m_LastNumberDialed;
 		private bool m_LineReady;
 		private bool m_DtmfLocalMute;
@@ -247,6 +252,23 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 				Log(eSeverity.Informational, "DtmfOnTime set to {0}", m_DtmfOnTime);
 
 				OnDtmfOnTimeChanged.Raise(this, new IntEventArgs(m_DtmfOnTime));
+			}
+		}
+
+		[PublicAPI]
+		public bool DndEnabled
+		{
+			get { return m_DndEnabled; }
+			private set
+			{
+				if (value == m_DndEnabled)
+					return;
+
+				m_DndEnabled = value;
+
+				Log(eSeverity.Informational, "DndEnabled set to {0}", m_DndEnabled);
+
+				OnDndEnabledChanged.Raise(this, new BoolEventArgs(m_DndEnabled));
 			}
 		}
 
@@ -409,6 +431,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			OnDialingTimeoutChanged = null;
 			OnDtmfOffTimeChanged = null;
 			OnDtmfOnTimeChanged = null;
+			OnDndEnabledChanged = null;
 			OnLastNumberDialedChanged = null;
 			OnLineReadyChanged = null;
 			OnDtmfLocalMuteChanged = null;
@@ -436,6 +459,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(DialingTimeoutFeedback, AttributeCode.eCommand.Get, DIALING_TIMEOUT_ATTRIBUTE, null, Index);
 			RequestAttribute(DtmfOffTimeFeedback, AttributeCode.eCommand.Get, DTMF_OFF_TIME_ATTRIBUTE, null, Index);
 			RequestAttribute(DtmfOnTimeFeedback, AttributeCode.eCommand.Get, DTMF_ON_TIME_ATTRIBUTE, null, Index);
+			RequestAttribute(DndEnabledFeedback, AttributeCode.eCommand.Get, DND_ENABLED_ATTRIBUTE, null, Index);
 			RequestAttribute(LastNumberDialedFeedback, AttributeCode.eCommand.Get, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
 			RequestAttribute(LineReadyFeedback, AttributeCode.eCommand.Get, LINE_READY_ATTRIBUTE, null, Index);
 			RequestAttribute(DtmfLocalMuteFeedback, AttributeCode.eCommand.Get, DTMF_LOCAL_MUTE_ATTRIBUTE, null, Index);
@@ -457,6 +481,13 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 			RequestAttribute(LastNumberDialedFeedback, command, LAST_NUMBER_DIALED_ATTRIBUTE, null, Index);
 			RequestAttribute(ProtocolInfoFeedback, command, PROTOCOL_INFO_ATTRIBUTE, null);
 			RequestAttribute(LineReadyFeedback, command, LINE_READY_ATTRIBUTE, null, Index);
+
+			// Tesira Documentation claims that these attributes support subscribe, but testing
+			//   with firmware 3.14, they do not successfully subscribe.  If Biamp ever fixes
+			//   uncomment these lines
+			//   http://tesira-help.biamp.com/#t=System_Control%2FTesira_Text_Protocol%2FAttribute_tables%2FControl_Blocks%2FDialer.html 
+			//RequestAttribute(AutoAnswerFeedback, command, AUTO_ANSWER_ATTRIBUTE, null, Index);
+			//RequestAttribute(DndEnabledFeedback, command, DND_ENABLED_ATTRIBUTE, null, Index);
 		}
 
 		/// <summary>
@@ -493,7 +524,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		[PublicAPI]
 		public void SetAutoAnswer(bool autoAnswer)
 		{
-			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Toggle, AUTO_ANSWER_ATTRIBUTE, new Value(autoAnswer), Index);
+			RequestAttribute(AutoAnswerFeedback, AttributeCode.eCommand.Set, AUTO_ANSWER_ATTRIBUTE, new Value(autoAnswer), Index);
 		}
 
 		[PublicAPI]
@@ -612,6 +643,18 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		}
 
 		[PublicAPI]
+		public void SetDndEnabled(bool enabled)
+		{
+			RequestAttribute(DndEnabledFeedback, AttributeCode.eCommand.Set, DND_ENABLED_ATTRIBUTE, new Value(enabled), Index);
+		}
+
+		[PublicAPI]
+		public void ToggleDndEnabled()
+		{
+			RequestAttribute(DndEnabledFeedback, AttributeCode.eCommand.Toggle, DND_ENABLED_ATTRIBUTE, null, Index);
+		}
+
+		[PublicAPI]
 		public void SetRedialEnabled(bool enabled)
 		{
 			RequestAttribute(RedialEnabledFeedback, AttributeCode.eCommand.Set, REDIAL_ENABLED_ATTRIBUTE, new Value(enabled), Index);
@@ -702,7 +745,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 
 			if (registrationControlValue != null)
 				RegistrationStatus =
-					registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus);
+					registrationControlValue.GetValue<Value>("regStatus").GetObjectValue(s_RegistrationStatus, eRegistrationStatus.Invalid);
 		}
 
 		private void AutoAnswerFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -751,6 +794,12 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.IoBlocks.VoIp
 		{
 			Value innerValue = value.GetValue<Value>("value");
 			DtmfLocalLevel = innerValue.FloatValue;
+		}
+
+		private void DndEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
+		{
+			Value innerValue = value.GetValue<Value>("value");
+			DndEnabled = innerValue.BoolValue;
 		}
 
 		private void RedialEnabledFeedback(BiampTesiraDevice sender, ControlValue value)

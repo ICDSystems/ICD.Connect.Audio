@@ -31,6 +31,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		[CanBeNull]
 		private readonly IBiampTesiraStateDeviceControl m_HoldControl;
 
+		[CanBeNull]
+		private readonly IBiampTesiraStateDeviceControl m_DoNotDisturbControl;
+
 		private bool m_Hold;
 
 		private ThinTraditionalParticipant m_ActiveSource;
@@ -75,15 +78,17 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 									  IBiampTesiraStateDeviceControl doNotDisturbControl,
 									  IBiampTesiraStateDeviceControl privacyMuteControl,
 									  IBiampTesiraStateDeviceControl holdControl)
-			: base(id, name, tiControl.Device, doNotDisturbControl, privacyMuteControl)
+			: base(id, name, tiControl.Device, privacyMuteControl)
 		{
 			m_ActiveSourceSection = new SafeCriticalSection();
 
 			m_TiControl = tiControl;
 			m_HoldControl = holdControl;
+			m_DoNotDisturbControl = doNotDisturbControl;
 
 			Subscribe(m_TiControl);
-			Subscribe(m_HoldControl);
+			SubscribeHold(m_HoldControl);
+			SubscribeDoNotDisturb(m_DoNotDisturbControl);
 		}
 
 		#region Methods
@@ -126,6 +131,21 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_TiControl.SetAutoAnswer(enabled);
 		}
 
+		/// <summary>
+		/// Sets the do-not-disturb enabled state.
+		/// </summary>
+		/// <param name="enabled"></param>
+		public override void SetDoNotDisturb(bool enabled)
+		{
+			if (m_DoNotDisturbControl == null)
+			{
+				Parent.Log(eSeverity.Error, "{0} unable to set Do-Not-Disturb - control is null", Name);
+				return;
+			}
+
+			m_DoNotDisturbControl.SetState(enabled);
+		}
+
 		#endregion
 
 		#region Private Methods
@@ -141,7 +161,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_TiControl);
-			Unsubscribe(m_HoldControl);
+			UnsubscribeHold(m_HoldControl);
+			UnsubscribeDoNotDisturb(m_DoNotDisturbControl);
 
 			ClearCurrentSource();
 		}
@@ -578,7 +599,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Subscribe to the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Subscribe(IBiampTesiraStateDeviceControl holdControl)
+		private void SubscribeHold(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
@@ -590,7 +611,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Unsubscribe from the hold control events.
 		/// </summary>
 		/// <param name="holdControl"></param>
-		private void Unsubscribe(IBiampTesiraStateDeviceControl holdControl)
+		private void UnsubscribeHold(IBiampTesiraStateDeviceControl holdControl)
 		{
 			if (holdControl == null)
 				return;
@@ -605,9 +626,34 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="args"></param>
 		private void HoldControlOnStateChanged(object sender, BoolEventArgs args)
 		{
-			IsOnHold = m_HoldControl.State;
+			IsOnHold = args.Data;
 
 			UpdateSource(m_ActiveSource);
+		}
+
+		#endregion
+
+		#region Do Not Disturb Callbacks
+
+		private void SubscribeDoNotDisturb(IBiampTesiraStateDeviceControl doNotDisturbControl)
+		{
+			if (doNotDisturbControl == null)
+				return;
+
+			doNotDisturbControl.OnStateChanged += DoNotDisturbControlOnStateChanged;
+		}
+
+		private void UnsubscribeDoNotDisturb(IBiampTesiraStateDeviceControl doNotDisturbControl)
+		{
+			if (doNotDisturbControl == null)
+				return;
+
+			doNotDisturbControl.OnStateChanged -= DoNotDisturbControlOnStateChanged;
+		}
+
+		private void DoNotDisturbControlOnStateChanged(object sender, BoolEventArgs args)
+		{
+			DoNotDisturb = args.Data;
 		}
 
 		#endregion
@@ -674,6 +720,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			addRow("IsOnHold", IsOnHold);
 			addRow("Hold Control", m_Hold);
+			addRow("DoNotDisturb Control", m_DoNotDisturbControl);
 		}
 
 		/// <summary>
