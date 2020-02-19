@@ -153,6 +153,15 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_PrivacyMuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(privacyMuteName);
 			m_HoldControl = context.LazyLoadNamedControl<BooleanNamedControl>(holdName);
 
+			if (m_PotsComponent != null)
+			{
+				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
+				SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
+			}
+
+			if (m_PrivacyMuteControl != null)
+				SupportedConferenceFeatures |= eConferenceFeatures.PrivacyMute;
+
 			Subscribe();
 		}
 

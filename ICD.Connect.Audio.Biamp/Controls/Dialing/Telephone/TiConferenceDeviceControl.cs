@@ -87,6 +87,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_HoldControl = holdControl;
 			m_DoNotDisturbControl = doNotDisturbControl;
 
+			if (m_TiControl != null)
+				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
+
+			if (m_DoNotDisturbControl != null)
+				SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
+
 			Subscribe(m_TiControl);
 			SubscribeHold(m_HoldControl);
 			SubscribeDoNotDisturb(m_DoNotDisturbControl);
