@@ -18,18 +18,6 @@ namespace ICD.Connect.Audio.Denon.Controls
 		public DenonAvrPowerControl(DenonAvrDevice parent, int id)
 			: base(parent, id)
 		{
-			Subscribe(parent);
-		}
-
-		/// <summary>
-		/// Override to release resources.
-		/// </summary>
-		/// <param name="disposing"></param>
-		protected override void DisposeFinal(bool disposing)
-		{
-			base.DisposeFinal(disposing);
-
-			Unsubscribe(Parent);
 		}
 
 		#region Methods
@@ -53,14 +41,18 @@ namespace ICD.Connect.Audio.Denon.Controls
 
 		#region Parent Callbacks
 
-		private void Subscribe(DenonAvrDevice parent)
+		protected override void Subscribe(DenonAvrDevice parent)
 		{
+			base.Subscribe(parent);
+
 			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
 			parent.OnDataReceived += ParentOnOnDataReceived;
 		}
 
-		private void Unsubscribe(DenonAvrDevice parent)
+		protected override void Unsubscribe(DenonAvrDevice parent)
 		{
+			base.Unsubscribe(parent);
+
 			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
 			parent.OnDataReceived -= ParentOnOnDataReceived;
 		}

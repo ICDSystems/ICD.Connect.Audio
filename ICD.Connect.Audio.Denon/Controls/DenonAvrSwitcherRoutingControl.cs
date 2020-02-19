@@ -101,8 +101,6 @@ namespace ICD.Connect.Audio.Denon.Controls
 		{
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
-
-			Subscribe(parent);
 		}
 
 		/// <summary>
@@ -119,7 +117,6 @@ namespace ICD.Connect.Audio.Denon.Controls
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_Cache);
-			Unsubscribe(Parent);
 		}
 
 		#region Methods
@@ -317,8 +314,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// Subscribe to the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		private void Subscribe(DenonAvrDevice parent)
+		protected override void Subscribe(DenonAvrDevice parent)
 		{
+			base.Subscribe(parent);
+
 			parent.OnInitializedChanged += ParentOnOnInitializedChanged;
 			parent.OnDataReceived += ParentOnOnDataReceived;
 		}
@@ -327,8 +326,10 @@ namespace ICD.Connect.Audio.Denon.Controls
 		/// Unsubscribe from the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		private void Unsubscribe(DenonAvrDevice parent)
+		protected override void Unsubscribe(DenonAvrDevice parent)
 		{
+			base.Unsubscribe(parent);
+
 			parent.OnInitializedChanged -= ParentOnOnInitializedChanged;
 			parent.OnDataReceived -= ParentOnOnDataReceived;
 		}
