@@ -51,7 +51,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 				m_SupportedVolumeFeatures = value;
 
-				Log(eSeverity.Informational, "Supported volume features changed to {0}", m_IsMuted);
+				Log(eSeverity.Informational, "Supported volume features changed to {0}", m_SupportedVolumeFeatures);
 
 				OnSupportedVolumeFeaturesChanged.Raise(this,
 				                                       new VolumeControlSupportedVolumeFeaturesChangedApiEventArgs(
