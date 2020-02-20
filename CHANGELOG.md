@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Added
+ - QSys Core camera device supports returning to home position and privacy mute
+
 ## [11.6.2] - 2020-02-07
 ### Added
  - Additional QSys Core logging for POTS and VoIP calls

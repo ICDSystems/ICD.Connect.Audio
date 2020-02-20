@@ -41,6 +41,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		public const string CONTROL_PRESET_PRIVATE_TILT = "preset.private.tilt";
 		public const string CONTROL_PRESET_PRIVATE_ZOOM = "preset.private.zoom";
 
+		public const string CONTROL_TOGGLE_PRIVACY = "toggle.privacy";
+
 		private static readonly IcdHashSet<string> s_Controls =
 			new IcdHashSet<string>
 			{
@@ -69,7 +71,14 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 				CONTROL_PRESET_PRIVATE_PAN,
 				CONTROL_PRESET_PRIVATE_SAVE_TRIGGER,
 				CONTROL_PRESET_PRIVATE_TILT,
-				CONTROL_PRESET_PRIVATE_ZOOM
+				CONTROL_PRESET_PRIVATE_ZOOM,
+				CONTROL_TOGGLE_PRIVACY
+			};
+
+		private static readonly IcdHashSet<string> s_FeedbackControls =
+			new IcdHashSet<string>
+			{
+				CONTROL_TOGGLE_PRIVACY
 			};
 
 		/// <summary>
@@ -112,7 +121,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		protected override IEnumerable<INamedComponentControl> GetControlsForSubscribe()
 		{
-			yield break;
+			return GetControls().Where(c => s_FeedbackControls.Contains(c.Name));
 		}
 
 		#region Console
