@@ -6,6 +6,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.QSys.Devices.QSysCore;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
+using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Cameras;
 using ICD.Connect.Cameras.Controls;
 using ICD.Connect.Cameras.Devices;
@@ -16,6 +17,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 {
 	public sealed class QSysCoreCameraDevice : AbstractCameraDevice<QSysCoreCameraDeviceSettings>
 	{
+		private const float TOLERANCE = 0.0001f;
+
 		/// <summary>
 		/// Raised when the parent DSP changes.
 		/// </summary>
@@ -39,7 +42,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// </summary>
 		public QSysCoreCameraDevice()
 		{
-			SupportedCameraFeatures = eCameraFeatures.PanTiltZoom | eCameraFeatures.Presets;
+			SupportedCameraFeatures =
+				eCameraFeatures.PanTiltZoom |
+				eCameraFeatures.Presets |
+				eCameraFeatures.Home |
+				eCameraFeatures.Mute;
 
 			Controls.Add(new GenericCameraRouteSourceControl<QSysCoreCameraDevice>(this, 0));
 			Controls.Add(new CameraDeviceControl(this, 1));
@@ -184,7 +191,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <param name="enable"></param>
 		public override void MuteCamera(bool enable)
 		{
-			throw new NotSupportedException();
+			if (m_CameraComponent == null)
+				return;
+
+			m_CameraComponent.SetValue(CameraNamedComponent.CONTROL_TOGGLE_PRIVACY, enable ? "1" : "0");
 		}
 
 		/// <summary>
@@ -192,7 +202,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// </summary>
 		public override void SendCameraHome()
 		{
-			throw new NotSupportedException();
+			if (m_CameraComponent == null)
+				return;
+
+			m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_HOME_LOAD);
 		}
 
 		#endregion
@@ -268,6 +281,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		[PublicAPI]
 		public void SetDsp(QSysCoreDevice dsp, string componentName, string snapshotsName)
 		{
+			Unsubscribe(m_CameraComponent);
 			Unsubscribe(m_Dsp);
 
 			m_Dsp = dsp;
@@ -284,6 +298,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 					? null
 					: m_Dsp.Components.LazyLoadNamedComponent<SnapshotNamedComponent>(m_SnapshotsName);
 
+			Subscribe(m_CameraComponent);
 			Subscribe(m_Dsp);
 
 			UpdateCachedOnlineStatus();
@@ -293,7 +308,46 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 
 		#endregion
 
-		#region Codec Callbacks
+		#region Camera Component Callbacks
+
+		private void Subscribe(CameraNamedComponent cameraComponent)
+		{
+			if (cameraComponent == null)
+				return;
+
+			cameraComponent.OnControlValueUpdated += CameraComponentOnControlValueUpdated;
+		}
+
+		private void Unsubscribe(CameraNamedComponent cameraComponent)
+		{
+			if (cameraComponent == null)
+				return;
+
+			cameraComponent.OnControlValueUpdated -= CameraComponentOnControlValueUpdated;
+		}
+
+		private void CameraComponentOnControlValueUpdated(object sender, ControlValueUpdateEventArgs eventArgs)
+		{
+			INamedComponentControl control = sender as INamedComponentControl;
+			if (control == null)
+				return;
+
+			switch (control.Name)
+			{
+				case CameraNamedComponent.CONTROL_TOGGLE_PRIVACY:
+					ParseTogglePrivacy(eventArgs);
+					break;
+			}
+		}
+
+		private void ParseTogglePrivacy(ControlValueUpdateEventArgs eventArgs)
+		{
+			IsCameraMuted = Math.Abs(eventArgs.ValuePosition) > TOLERANCE;
+		}
+
+		#endregion
+
+		#region DSP Callbacks
 
 		/// <summary>
 		/// Subscribe to the dsp events.
