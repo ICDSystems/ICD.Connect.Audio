@@ -47,7 +47,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		private readonly string m_Name;
 
 		private ThinTraditionalParticipant m_Participant;
-		private ThinIncomingCall m_IncomingCall;
+		private TraditionalIncomingCall m_IncomingCall;
 
 		#endregion
 
@@ -86,7 +86,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			}
 		}
 
-		private ThinIncomingCall IncomingCall
+		private TraditionalIncomingCall IncomingCall
 		{
 			get { return m_ConferenceSourceCriticalSection.Execute(() => m_IncomingCall); }
 			set
@@ -112,7 +112,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				}
 
 				if (removed != null)
-					OnIncomingCallRemoved.Raise(this, new GenericEventArgs<IIncomingCall>(m_IncomingCall));
+					OnIncomingCallRemoved.Raise(this, new GenericEventArgs<IIncomingCall>(removed));
 
 				if (value != null)
 					OnIncomingCallAdded.Raise(this, new GenericEventArgs<IIncomingCall>(value));
@@ -389,7 +389,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				Participant = null;
-				IncomingCall = new ThinIncomingCall {Direction = eCallDirection.Incoming};
+				IncomingCall = new TraditionalIncomingCall(eCallType.Audio) { Direction = eCallDirection.Incoming };
 			}
 			finally
 			{
@@ -628,7 +628,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		#region Incoming Call Callbacks
 
-		private void Subscribe([CanBeNull] ThinIncomingCall call)
+		private void Subscribe([CanBeNull] TraditionalIncomingCall call)
 		{
 			if (call == null)
 				return;
@@ -637,7 +637,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			call.RejectCallback += IncomingCallRejectCallback;
 		}
 
-		private void Unsubscribe([CanBeNull] ThinIncomingCall call)
+		private void Unsubscribe([CanBeNull] TraditionalIncomingCall call)
 		{
 			if (call == null)
 				return;
