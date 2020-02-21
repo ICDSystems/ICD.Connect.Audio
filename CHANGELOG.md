@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+ - QSys Core camera device implements StoreHome method
+
 ## [11.7.0] - 2020-02-20
 ### Added
  - QSys Core camera device supports returning to home position and privacy mute
