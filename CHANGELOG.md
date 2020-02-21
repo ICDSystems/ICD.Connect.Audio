@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Volume ramping configuration moved into volume points (step size, interval, safety range)
  - Fixed bug where QSys camera was reporting the wrong number of supported presets
 
+## [11.7.1] - 2020-02-21
+### Changed
+ - QSys Core camera device implements StoreHome method
+
 ## [11.7.0] - 2020-02-20
 ### Added
  - QSys Core camera device supports returning to home position and privacy mute

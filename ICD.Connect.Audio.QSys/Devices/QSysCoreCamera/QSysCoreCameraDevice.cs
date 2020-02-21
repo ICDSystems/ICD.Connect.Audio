@@ -200,12 +200,23 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 		/// <summary>
 		/// Resets camera to its predefined home position
 		/// </summary>
-		public override void SendCameraHome()
+		public override void ActivateHome()
 		{
 			if (m_CameraComponent == null)
 				return;
 
 			m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_HOME_LOAD);
+		}
+
+		/// <summary>
+		/// Stores the current position as the home position.
+		/// </summary>
+		public override void StoreHome()
+		{
+			if (m_CameraComponent == null)
+				return;
+
+			m_CameraComponent.Trigger(CameraNamedComponent.CONTROL_PRESET_HOME_SAVE_TRIGGER);
 		}
 
 		#endregion
