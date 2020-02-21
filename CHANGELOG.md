@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.7.1] - 2020-02-21
 ### Changed
  - QSys Core camera device implements StoreHome method
 
