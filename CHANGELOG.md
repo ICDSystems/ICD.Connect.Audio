@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Simplification of volume ramping for percent vs level
  - Volume ramping configuration moved into volume points (step size, interval, safety range)
  - Fixed bug where QSys camera was reporting the wrong number of supported presets
+ - Failing gracefully when a Biamp control fails to load
 
 ## [11.7.1] - 2020-02-21
 ### Changed

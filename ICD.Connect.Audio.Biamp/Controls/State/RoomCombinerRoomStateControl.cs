@@ -1,4 +1,6 @@
-﻿using ICD.Common.Utils.EventArguments;
+﻿using System;
+using ICD.Common.Properties;
+using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 
 namespace ICD.Connect.Audio.Biamp.Controls.State
@@ -10,7 +12,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 	{
 		private readonly int m_MuteSource;
 		private readonly int m_UnmuteSource;
+
+		[NotNull]
 		private readonly RoomCombinerRoom m_Room;
+
+		[NotNull]
 		private readonly IBiampTesiraStateDeviceControl m_Feedback;
 
 		/// <summary>
@@ -23,9 +29,15 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// <param name="feedback"></param>
 		/// <param name="muteSource"></param>
 		public RoomCombinerRoomStateControl(int id, string name, int muteSource, int unmuteSource,
-		                                    RoomCombinerRoom room, IBiampTesiraStateDeviceControl feedback)
+		                                    [NotNull] RoomCombinerRoom room, [NotNull] IBiampTesiraStateDeviceControl feedback)
 			: base(id, name, room.Device)
 		{
+			if (room == null)
+				throw new ArgumentNullException("room");
+
+			if (feedback == null)
+				throw new ArgumentNullException("feedback");
+
 			m_MuteSource = muteSource;
 			m_UnmuteSource = unmuteSource;
 			m_Room = room;
@@ -57,16 +69,29 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 
 		#region Feedback Callbacks
 
+		/// <summary>
+		/// Subscribe to the state control events.
+		/// </summary>
+		/// <param name="feedback"></param>
 		private void Subscribe(IBiampTesiraStateDeviceControl feedback)
 		{
 			feedback.OnStateChanged += FeedbackOnStateChanged;
 		}
 
+		/// <summary>
+		/// Unsubscribe from the state control events.
+		/// </summary>
+		/// <param name="feedback"></param>
 		private void Unsubscribe(IBiampTesiraStateDeviceControl feedback)
 		{
 			feedback.OnStateChanged -= FeedbackOnStateChanged;
 		}
 
+		/// <summary>
+		/// Called when the state control state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="boolEventArgs"></param>
 		private void FeedbackOnStateChanged(object sender, BoolEventArgs boolEventArgs)
 		{
 			State = boolEventArgs.Data;

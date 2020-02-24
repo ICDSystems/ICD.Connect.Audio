@@ -75,6 +75,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <param name="controlElements"></param>
 		/// <param name="cache"></param>
 		/// <returns></returns>
+		[CanBeNull]
 		private static IDeviceControl LazyLoadControl(int id, AttributeInterfaceFactory factory,
 		                                              Dictionary<int, string> controlElements,
 		                                              Dictionary<int, IDeviceControl> cache)
@@ -94,28 +95,37 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			string xml = controlElements[id];
 			string type = XmlUtils.GetAttributeAsString(xml, "type");
 
-			switch (type.ToLower())
+			try
 			{
-				case "partition":
-					return LazyLoadRoomCombinerWall(id, factory, controlElements, cache);
-				case "volume":
-					return LazyLoadControl<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
-						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
-				case "state":
-					return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
-						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new BiampTesiraStateDeviceControl(id, name, attributeInterface));
-				case "roomcombinerroom":
-					return LazyLoadRoomCombinerRoom(id, factory, controlElements, cache);
-				case "voip":
-				case "ti":
-					return LazyLoadDialingControl(id, factory, controlElements, cache);
+				switch (type.ToLower())
+				{
+					case "partition":
+						return LazyLoadRoomCombinerWall(id, factory, controlElements, cache);
+					case "volume":
+						return LazyLoadControl<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
+							(id, factory, controlElements, cache, (name, attributeInterface) =>
+								 new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
+					case "state":
+						return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
+							(id, factory, controlElements, cache, (name, attributeInterface) =>
+								 new BiampTesiraStateDeviceControl(id, name, attributeInterface));
+					case "roomcombinerroom":
+						return LazyLoadRoomCombinerRoom(id, factory, controlElements, cache);
+					case "voip":
+					case "ti":
+						return LazyLoadDialingControl(id, factory, controlElements, cache);
 
-				default:
-					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
-					return null;
+					default:
+						Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);
+						return null;
+				}
 			}
+			catch (Exception e)
+			{
+				Logger.AddEntry(eSeverity.Error, e, "Failed to load control {0}", id);
+			}
+
+			return null;
 		}
 
 		/// <summary>
@@ -127,8 +137,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/// <param name="cache"></param>
 		/// <returns></returns>
 		private static IDeviceControl LazyLoadRoomCombinerRoom(int id, AttributeInterfaceFactory factory,
-		                                                         Dictionary<int, string> controlElements,
-		                                                         Dictionary<int, IDeviceControl> cache)
+		                                                       Dictionary<int, string> controlElements,
+		                                                       Dictionary<int, IDeviceControl> cache)
 		{
 			if (factory == null)
 				throw new ArgumentNullException("factory");
