@@ -5,10 +5,10 @@ using ICD.Connect.Audio.Controls.Volume;
 
 namespace ICD.Connect.Audio.Biamp.Controls.Volume
 {
-	public sealed class BiampTesiraVolumeDeviceControl : AbstractVolumeDeviceControl<BiampTesiraDevice>
+	public sealed class BiampTesiraPrivacyMuteDeviceControl : AbstractVolumeDeviceControl<BiampTesiraDevice>
 	{
 		private readonly string m_Name;
-		private readonly IVolumeAttributeInterface m_VolumeInterface;
+		private readonly IStateAttributeInterface m_StateInterface;
 
 		#region Properties
 
@@ -20,12 +20,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// <summary>
 		/// Gets the minimum supported volume level.
 		/// </summary>
-		public override float VolumeLevelMin { get { return Math.Max(BiampTesiraDevice.TESIRA_LEVEL_MINIMUM, m_VolumeInterface.MinLevel); } }
+		public override float VolumeLevelMin { get { return 0; } }
 
 		/// <summary>
 		/// Gets the maximum supported volume level.
 		/// </summary>
-		public override float VolumeLevelMax { get { return Math.Min(BiampTesiraDevice.TESIRA_LEVEL_MAXIMUM, m_VolumeInterface.MaxLevel); } }
+		public override float VolumeLevelMax { get { return 0; } }
 
 		#endregion
 
@@ -34,21 +34,18 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		/// <param name="id"></param>
 		/// <param name="name"></param>
-		/// <param name="volumeInterface"></param>
-		public BiampTesiraVolumeDeviceControl(int id, string name, IVolumeAttributeInterface volumeInterface)
-			: base(volumeInterface.Device, id)
+		/// <param name="stateInterface"></param>
+		public BiampTesiraPrivacyMuteDeviceControl(int id, string name, IStateAttributeInterface stateInterface)
+			: base(stateInterface.Device, id)
 		{
 			m_Name = name;
-			m_VolumeInterface = volumeInterface;
+			m_StateInterface = stateInterface;
 
 			SupportedVolumeFeatures = eVolumeFeatures.Mute |
 			                          eVolumeFeatures.MuteAssignment |
-			                          eVolumeFeatures.MuteFeedback |
-			                          eVolumeFeatures.Volume |
-			                          eVolumeFeatures.VolumeAssignment |
-			                          eVolumeFeatures.VolumeFeedback;
+			                          eVolumeFeatures.MuteFeedback;
 
-			Subscribe(m_VolumeInterface);
+			Subscribe(m_StateInterface);
 		}
 
 		/// <summary>
@@ -59,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		{
 			base.DisposeFinal(disposing);
 
-			Unsubscribe(m_VolumeInterface);
+			Unsubscribe(m_StateInterface);
 		}
 
 		#region Methods
@@ -70,7 +67,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// <param name="mute"></param>
 		public override void SetIsMuted(bool mute)
 		{
-			m_VolumeInterface.SetMute(mute);
+			m_StateInterface.SetState(mute);
 		}
 
 		/// <summary>
@@ -78,7 +75,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override void ToggleIsMuted()
 		{
-			m_VolumeInterface.SetMute(!m_VolumeInterface.Mute);
+			m_StateInterface.SetState(!m_StateInterface.State);
 		}
 
 		/// <summary>
@@ -87,7 +84,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// <param name="level"></param>
 		public override void SetVolumeLevel(float level)
 		{
-			m_VolumeInterface.SetLevel(level);
+			throw new NotSupportedException();
 		}
 
 		/// <summary>
@@ -96,7 +93,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override void VolumeIncrement()
 		{
-			m_VolumeInterface.IncrementLevel();
+			throw new NotSupportedException();
 		}
 
 		/// <summary>
@@ -105,7 +102,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// </summary>
 		public override void VolumeDecrement()
 		{
-			m_VolumeInterface.DecrementLevel();
+			throw new NotSupportedException();
 		}
 
 		/// <summary>
@@ -131,26 +128,32 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 
 		#region Volume Interface Callbacks
 
-		private void Subscribe(IVolumeAttributeInterface volumeInterface)
+		/// <summary>
+		/// Subscribe to the state interface events.
+		/// </summary>
+		/// <param name="stateInterface"></param>
+		private void Subscribe(IStateAttributeInterface stateInterface)
 		{
-			volumeInterface.OnLevelChanged += VolumeInterfaceOnLevelChanged;
-			volumeInterface.OnMuteChanged += VolumeInterfaceOnMuteChanged;
+			stateInterface.OnStateChanged += StateInterfaceOnStateChanged;
 		}
 
-		private void Unsubscribe(IVolumeAttributeInterface volumeInterface)
+		/// <summary>
+		/// Unsubscribe from the state interface events.
+		/// </summary>
+		/// <param name="stateInterface"></param>
+		private void Unsubscribe(IStateAttributeInterface stateInterface)
 		{
-			volumeInterface.OnLevelChanged -= VolumeInterfaceOnLevelChanged;
-			volumeInterface.OnMuteChanged -= VolumeInterfaceOnMuteChanged;
+			stateInterface.OnStateChanged -= StateInterfaceOnStateChanged;
 		}
 
-		private void VolumeInterfaceOnMuteChanged(object sender, BoolEventArgs args)
+		/// <summary>
+		/// Called when the state interface state changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="boolEventArgs"></param>
+		private void StateInterfaceOnStateChanged(object sender, BoolEventArgs boolEventArgs)
 		{
-			IsMuted = m_VolumeInterface.Mute;
-		}
-
-		private void VolumeInterfaceOnLevelChanged(object sender, FloatEventArgs args)
-		{
-			VolumeLevel = m_VolumeInterface.Level;
+			IsMuted = m_StateInterface.State;
 		}
 
 		#endregion

@@ -73,6 +73,7 @@
     <Compile Include="Devices\QSysCore\Controls\IQSysKrangControl.cs" />
     <Compile Include="Devices\QSysCore\Controls\Dialing\QSysVoipTraditionalConferenceControl.cs" />
     <Compile Include="Devices\QSysCore\Controls\Partitioning\QSysPartitionControl.cs" />
+    <Compile Include="Devices\QSysCore\Controls\Volume\QSysPrivacyMuteControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\AbstractNamedComponent.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\CameraNamedComponent.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\INamedComponentControl.cs" />

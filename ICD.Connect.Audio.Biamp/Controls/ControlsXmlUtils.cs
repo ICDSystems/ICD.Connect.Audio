@@ -105,6 +105,10 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						return LazyLoadControl<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
 							(id, factory, controlElements, cache, (name, attributeInterface) =>
 								 new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
+					case "privacy":
+						return LazyLoadControl<BiampTesiraPrivacyMuteDeviceControl, IStateAttributeInterface>
+							(id, factory, controlElements, cache, (name, attributeInterface) =>
+								 new BiampTesiraPrivacyMuteDeviceControl(id, name, attributeInterface));
 					case "state":
 						return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
 							(id, factory, controlElements, cache, (name, attributeInterface) =>

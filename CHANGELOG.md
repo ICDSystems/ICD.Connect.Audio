@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - Added context enum to IVolumePoint and implementations
  - Added mute type enum to IVolumePoint and implementations
+ - Added privacy mute volume control support to QSys Core and Biamp Tesira drivers
 
 ### Changed
  - Abstract Traditional Participant property setters are now protected so we set them via methods instead of by changing the property.

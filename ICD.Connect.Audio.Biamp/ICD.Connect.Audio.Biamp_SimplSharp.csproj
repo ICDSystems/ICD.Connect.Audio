@@ -194,12 +194,12 @@
     <Compile Include="Controls\State\BiampTesiraStateDeviceControl.cs" />
     <Compile Include="Controls\State\IBiampTesiraStateDeviceControl.cs" />
     <Compile Include="Controls\State\RoomCombinerRoomStateControl.cs" />
+    <Compile Include="Controls\Volume\BiampTesiraPrivacyMuteDeviceControl.cs" />
     <Compile Include="Controls\Volume\BiampTesiraVolumeDeviceControl.cs" />
     <Compile Include="Controls\Channel.cs" />
     <Compile Include="Controls\Dialing\Telephone\TiConferenceDeviceControl.cs" />
     <Compile Include="Controls\ControlsXmlUtils.cs" />
     <Compile Include="Controls\Dialing\VoIP\VoIpConferenceDeviceControl.cs" />
-    <Compile Include="Controls\Volume\IBiampTesiraVolumeDeviceControl.cs" />
     <Compile Include="BiampExternalTelemetryProvider.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
