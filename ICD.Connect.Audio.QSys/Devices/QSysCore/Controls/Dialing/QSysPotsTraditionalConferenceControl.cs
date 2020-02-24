@@ -669,7 +669,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			}
 
 			Log(eSeverity.Debug, "Rejecting incoming call {0}", sender.Number);
-			m_PotsComponent.Trigger(PotsNamedComponent.CONTROL_CALL_CONNECT);
+			m_PotsComponent.Trigger(PotsNamedComponent.CONTROL_CALL_DISCONNECT);
 
 			sender.AnswerState = eCallAnswerState.Ignored;
 		}
