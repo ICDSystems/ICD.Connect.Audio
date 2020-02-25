@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+ - Fixed a bug where Biamp RoomCombiner volume controls were not pulling the right min/max range
+
 ## [11.7.1] - 2020-02-21
 ### Changed
  - QSys Core camera device implements StoreHome method
