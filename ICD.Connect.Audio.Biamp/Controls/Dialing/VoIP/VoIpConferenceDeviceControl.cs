@@ -205,6 +205,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 					case eParticipantStatus.Disconnected:
 						if (source != null)
 							RemoveSource(index);
+						RemoveIncomingCall(index);
 						break;
 				}
 			}
