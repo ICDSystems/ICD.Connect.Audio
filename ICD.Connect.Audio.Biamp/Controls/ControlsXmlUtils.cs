@@ -348,9 +348,16 @@ namespace ICD.Connect.Audio.Biamp.Controls
 
 			// Get channel info showing the control wraps a block channel
 			Channel channel = null;
-			string channelElement;
-			if (XmlUtils.TryGetChildElementAsString(xml, "Channel", out channelElement))
-				channel = Channel.FromXml(channelElement);
+			try
+			{
+				string channelElement;
+				if (XmlUtils.TryGetChildElementAsString(xml, "Channel", out channelElement))
+					channel = Channel.FromXml(channelElement);
+			}
+			// Hack - When no index is specified treat it as null channel
+			catch (FormatException)
+			{
+			}
 
 			// Load the block
 			IAttributeInterface attributeInterface = factory.LazyLoadAttributeInterface(block, instanceTag);

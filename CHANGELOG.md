@@ -17,6 +17,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - Fixed bug where QSys camera was reporting the wrong number of supported presets
  - Failing gracefully when a Biamp control fails to load
 
+## [11.7.2] - 2020-02-25
+### Changed
+ - Fixed a bug where Biamp RoomCombiner volume controls were not pulling the right min/max range
+ - Fixed issue loading Biamp partitions with bad Channel configuration
+
 ## [11.7.1] - 2020-02-21
 ### Changed
  - QSys Core camera device implements StoreHome method

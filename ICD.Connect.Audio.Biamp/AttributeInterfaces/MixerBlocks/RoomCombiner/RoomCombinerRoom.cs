@@ -183,7 +183,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner
 			get { return m_MinOutputLevel; }
 			private set
 			{
-				if (Math.Abs(m_MinInputLevel - value) < 0.01f)
+				if (Math.Abs(m_MinOutputLevel - value) < 0.01f)
 					return;
 				m_MinOutputLevel = value;
 				Log(eSeverity.Informational, "Min Output Level set to {0}", m_MinOutputLevel);
