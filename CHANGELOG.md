@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [11.7.2] - 2020-02-25
 ### Changed
  - Fixed a bug where Biamp RoomCombiner volume controls were not pulling the right min/max range
  - Fixed issue loading Biamp partitions with bad Channel configuration
