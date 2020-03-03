@@ -4,7 +4,7 @@ using ICD.Connect.API.Commands;
 
 namespace ICD.Connect.Audio.Shure.Devices.MXW
 {
-	public abstract class AbstractShureMxwAptDevice<TSettings> : AbstractShureMicDevice<TSettings>, IShureMicDevice
+	public abstract class AbstractShureMxwAptDevice<TSettings> : AbstractShureMicDevice<TSettings>
 		where TSettings : AbstractShureMxwAptDeviceSettings, new()
 	{
 		protected abstract int NumberOfChannels { get; }
