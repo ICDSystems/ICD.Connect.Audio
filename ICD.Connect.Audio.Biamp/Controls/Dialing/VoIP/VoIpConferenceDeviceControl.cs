@@ -262,9 +262,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			{
 				case eParticipantStatus.Connected:
 					source.SetStart(source.Start ?? IcdEnvironment.GetLocalTime());
+					source.SetAnswerState(eCallAnswerState.Answered);
 					break;
 				case eParticipantStatus.Disconnected:
 					source.SetEnd(source.End ?? IcdEnvironment.GetLocalTime());
+					if (source.AnswerState == eCallAnswerState.Unknown)
+						source.SetAnswerState(eCallAnswerState.Unanswered);
 					break;
 			}
 		}
@@ -634,15 +637,21 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		private void AnswerCallback(IIncomingCall sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender, out index))
-				m_Line.GetCallAppearance(index).Answer();
+			if (!TryGetCallAppearance(sender, out index))
+				return;
+
+			m_Line.GetCallAppearance(index).Answer();
+			sender.AnswerState = eCallAnswerState.Answered;
 		}
 
 		private void RejectCallback(IIncomingCall sender)
 		{
 			int index;
-			if (TryGetCallAppearance(sender, out index))
-				m_Line.GetCallAppearance(index).End();
+			if (!TryGetCallAppearance(sender, out index))
+				return;
+
+			m_Line.GetCallAppearance(index).End();
+			sender.AnswerState = eCallAnswerState.Ignored;
 		}
 
 		private bool TryGetCallAppearance(IIncomingCall source, out int index)
