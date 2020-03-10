@@ -81,6 +81,20 @@ namespace ICD.Connect.Audio.VolumePoints
 
 		#endregion
 
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		protected AbstractVolumePointSettings()
+		{
+			VolumeRepresentation = eVolumeRepresentation.Percent;
+			VolumeRampStepSize = GetDefaultStepSize(VolumeRepresentation);
+			VolumeRampInitialStepSize = GetDefaultStepSize(VolumeRepresentation);
+			VolumeRampInterval = DEFAULT_STEP_INTERVAL;
+			VolumeRampInitialInterval = DEFAULT_STEP_INTERVAL;
+			Context = eVolumePointContext.Room;
+			MuteType = eMuteType.RoomAudio;
+		}
+
 		#region Serialization
 
 		/// <summary>
