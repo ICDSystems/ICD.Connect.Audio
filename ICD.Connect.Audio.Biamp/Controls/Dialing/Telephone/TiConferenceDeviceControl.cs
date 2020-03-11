@@ -229,10 +229,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			switch (status)
 			{
 				case eParticipantStatus.Connected:
-					source.SetStart(source.Start ?? IcdEnvironment.GetLocalTime());
+					source.SetStart(source.Start ?? IcdEnvironment.GetUtcTime());
 					break;
 				case eParticipantStatus.Disconnected:
-					source.SetEnd(source.End ?? IcdEnvironment.GetLocalTime());
+					source.SetEnd(source.End ?? IcdEnvironment.GetUtcTime());
 					break;
 			}
 		}

@@ -261,11 +261,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			switch (status)
 			{
 				case eParticipantStatus.Connected:
-					source.SetStart(source.Start ?? IcdEnvironment.GetLocalTime());
+					source.SetStart(source.Start ?? IcdEnvironment.GetUtcTime());
 					source.SetAnswerState(eCallAnswerState.Answered);
 					break;
 				case eParticipantStatus.Disconnected:
-					source.SetEnd(source.End ?? IcdEnvironment.GetLocalTime());
+					source.SetEnd(source.End ?? IcdEnvironment.GetUtcTime());
 					if (source.AnswerState == eCallAnswerState.Unknown)
 						source.SetAnswerState(eCallAnswerState.Unanswered);
 					break;

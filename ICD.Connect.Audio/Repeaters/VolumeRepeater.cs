@@ -77,7 +77,7 @@ namespace ICD.Connect.Audio.Repeaters
 
 			try
 			{
-				m_Timeout = IcdEnvironment.GetLocalTime().AddMilliseconds(timeout);
+				m_Timeout = IcdEnvironment.GetUtcTime().AddMilliseconds(timeout);
 			}
 			catch (ArgumentOutOfRangeException)
 			{
@@ -181,7 +181,7 @@ namespace ICD.Connect.Audio.Repeaters
 
 			try
 			{
-				if (IcdEnvironment.GetLocalTime() > m_Timeout)
+				if (IcdEnvironment.GetUtcTime() > m_Timeout)
 					Release();
 				else
 					SubsequentRamp();

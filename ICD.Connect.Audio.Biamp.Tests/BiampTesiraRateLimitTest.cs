@@ -28,7 +28,7 @@ namespace ICD.Connect.Audio.Biamp.Tests
 		public void RateLimitTest()
 		{
 			ILoggerService logger = ServiceProvider.GetService<ILoggerService>();
-			SerialQueue serialQueue = new SerialQueue()
+			SerialQueue serialQueue = new SerialQueue
 			{
 				CommandDelayTime = BiampTesiraDevice.COMMAND_DELAY_MS,
 				Timeout = BiampTesiraDevice.TIMEOUT_MS
@@ -44,13 +44,13 @@ namespace ICD.Connect.Audio.Biamp.Tests
 
 			serialQueue.OnSerialResponse += (sender, args) =>
 			                                {
-				                                lastReceive = IcdEnvironment.GetLocalTime();
-												logger.AddEntry(eSeverity.Informational, "Command Recieved.");
+				                                lastReceive = IcdEnvironment.GetUtcTime();
+												logger.AddEntry(eSeverity.Informational, "Command Received.");
 											};
 
 			serialQueue.OnSerialTransmission += (sender, args) =>
 												{
-													double elapsedMilliseconds = (IcdEnvironment.GetLocalTime() - lastReceive)
+													double elapsedMilliseconds = (IcdEnvironment.GetUtcTime() - lastReceive)
 														.TotalMilliseconds;
 
 

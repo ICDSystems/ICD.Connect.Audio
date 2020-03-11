@@ -322,7 +322,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (source != null)
 				{
 					source.SetStatus(callStatus);
-					source.SetEnd(DateTime.Now);
+					source.SetEnd(IcdEnvironment.GetUtcTime());
 				}
 				Participant = null;
 				IncomingCall = null;
@@ -363,7 +363,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (callStatus == eParticipantStatus.Connected)
 				{
 					if (source.Start == null)
-						source.SetStart(DateTime.Now);
+						source.SetStart(IcdEnvironment.GetUtcTime());
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Autoanswered;
