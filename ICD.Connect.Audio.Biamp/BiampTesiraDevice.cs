@@ -892,6 +892,9 @@ namespace ICD.Connect.Audio.Biamp
 				yield return node;
 			}
 
+			if (m_ConnectionStateManager != null)
+				yield return m_ConnectionStateManager.Port;
+
 			yield return ConsoleNodeGroup.IndexNodeMap("Attributes", AttributeInterfaces.GetAttributeInterfaces());
 		}
 

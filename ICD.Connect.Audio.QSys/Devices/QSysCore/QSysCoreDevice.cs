@@ -590,16 +590,27 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			return base.GetConsoleCommands();
 		}
 
+		/// <summary>
+		/// Gets the child console nodes.
+		/// </summary>
+		/// <returns></returns>
 		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
 		{
 			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
 				yield return node;
+
+			if (m_ConnectionStateManager != null)
+				yield return m_ConnectionStateManager.Port;
 
 			yield return ConsoleNodeGroup.KeyNodeMap("ChangeGroups", Components.GetChangeGroups(), c => (uint)c.Id);
 			yield return ConsoleNodeGroup.KeyNodeMap("NamedControls", Components.GetNamedControls(), c => (uint)c.Id);
 			yield return ConsoleNodeGroup.KeyNodeMap("NamedComponents", Components.GetNamedComponents(), c => (uint)c.Id);
 		}
 
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
 		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
 		{
 			return base.GetConsoleNodes();

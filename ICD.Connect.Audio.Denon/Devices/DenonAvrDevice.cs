@@ -4,6 +4,7 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
+using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol;
@@ -338,6 +339,31 @@ namespace ICD.Connect.Audio.Denon.Devices
 			SetPort(port);
 		}
 
+		#endregion
+
+		#region Console 
+
+		/// <summary>
+		/// Gets the child console nodes.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleNodeBase> GetConsoleNodes()
+		{
+			foreach (IConsoleNodeBase node in GetBaseConsoleNodes())
+				yield return node;
+
+			if (m_ConnectionStateManager != null)
+				yield return m_ConnectionStateManager.Port;
+		}
+
+		/// <summary>
+		/// Workaround for "unverifiable code" warning.
+		/// </summary>
+		/// <returns></returns>
+		private IEnumerable<IConsoleNodeBase> GetBaseConsoleNodes()
+		{
+			return base.GetConsoleNodes();
+		}
 		#endregion
 	}
 }
