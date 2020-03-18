@@ -26,7 +26,7 @@ namespace ICD.Connect.Audio.VolumePoints
 				if (xHasFlag && !yHasFlag)
 					return 1;
 
-				if (yHasFlag)
+				if (yHasFlag && !xHasFlag)
 					return -1;
 			}
 
