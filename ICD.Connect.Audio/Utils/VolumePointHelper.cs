@@ -26,13 +26,19 @@ namespace ICD.Connect.Audio.Utils
 		/// <summary>
 		/// Raised when the volume control availability changes.
 		/// </summary>
-		public event EventHandler<BoolEventArgs> OnVolumeControlAvailableChanged; 
+		public event EventHandler<BoolEventArgs> OnVolumeControlAvailableChanged;
+
+		/// <summary>
+		/// Raised when the volume control supported volume features change.
+		/// </summary>
+		public event EventHandler<GenericEventArgs<eVolumeFeatures>> OnVolumeControlSupportedVolumeFeaturesChanged; 
 
 		private IVolumePoint m_VolumePoint;
 		private IVolumeDeviceControl m_VolumeControl;
 		private bool m_IsMuted;
 		private bool m_ControlAvailable;
 		private float m_VolumeLevel;
+		private eVolumeFeatures m_SupportedVolumeFeatures;
 
 		#region Properties
 
@@ -80,7 +86,16 @@ namespace ICD.Connect.Audio.Utils
 		/// </summary>
 		public eVolumeFeatures SupportedVolumeFeatures
 		{
-			get { return VolumeControl == null ? eVolumeFeatures.None : VolumeControl.SupportedVolumeFeatures; }
+			get { return m_SupportedVolumeFeatures; }
+			private set
+			{
+				if (value == m_SupportedVolumeFeatures)
+					return;
+
+				m_SupportedVolumeFeatures = value;
+
+				OnVolumeControlSupportedVolumeFeaturesChanged.Raise(this, new GenericEventArgs<eVolumeFeatures>(m_SupportedVolumeFeatures));
+			}
 		}
 
 		/// <summary>
@@ -211,6 +226,7 @@ namespace ICD.Connect.Audio.Utils
 			UpdateVolume();
 			UpdateIsMuted();
 			UpdateControlAvailable();
+			UpdateSupportedVolumeFeatures();
 		}
 
 		/// <summary>
@@ -235,6 +251,12 @@ namespace ICD.Connect.Audio.Utils
 		private void UpdateControlAvailable()
 		{
 			ControlAvailable = VolumeControl != null && VolumeControl.ControlAvailable;
+		}
+
+		private void UpdateSupportedVolumeFeatures()
+		{
+			SupportedVolumeFeatures = VolumeControl == null ? eVolumeFeatures.None :
+			VolumeControl.SupportedVolumeFeatures;
 		}
 
 		#endregion
@@ -291,6 +313,7 @@ namespace ICD.Connect.Audio.Utils
 			volumeControl.OnIsMutedChanged += VolumeControlOnIsMutedChanged;
 			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
 			volumeControl.OnControlAvailableChanged += VolumeControlOnControlAvailableChanged;
+			volumeControl.OnSupportedVolumeFeaturesChanged += VolumeControlOnSupportedVolumeFeaturesChanged;
 		}
 
 		/// <summary>
@@ -305,6 +328,7 @@ namespace ICD.Connect.Audio.Utils
 			volumeControl.OnIsMutedChanged -= VolumeControlOnIsMutedChanged;
 			volumeControl.OnVolumeChanged -= VolumeControlOnVolumeChanged;
 			volumeControl.OnControlAvailableChanged -= VolumeControlOnControlAvailableChanged;
+			volumeControl.OnSupportedVolumeFeaturesChanged -= VolumeControlOnSupportedVolumeFeaturesChanged;
 		}
 
 		/// <summary>
@@ -335,6 +359,16 @@ namespace ICD.Connect.Audio.Utils
 		private void VolumeControlOnControlAvailableChanged(object sender, DeviceControlAvailableApiEventArgs eventArgs)
 		{
 			UpdateControlAvailable();
+		}
+
+		/// <summary>
+		/// Called when the current controls supported features changes.
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="volumeControlSupportedVolumeFeaturesChangedApiEventArgs"></param>
+		private void VolumeControlOnSupportedVolumeFeaturesChanged(object sender, VolumeControlSupportedVolumeFeaturesChangedApiEventArgs volumeControlSupportedVolumeFeaturesChangedApiEventArgs)
+		{
+			UpdateSupportedVolumeFeatures();
 		}
 
 		#endregion
