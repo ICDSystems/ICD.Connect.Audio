@@ -3,7 +3,6 @@ using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
-using ICD.Connect.Audio.Utils;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Devices.Points;
 using ICD.Connect.Settings;
@@ -273,15 +272,37 @@ namespace ICD.Connect.Audio.VolumePoints
 			base.BuildConsoleStatus(addRow);
 
 			addRow("Volume Range Mode", VolumeRepresentation);
-			addRow("Volume Safety Min", VolumeUtils.ToString(VolumeSafetyMin, VolumeRepresentation));
-			addRow("Volume Safety Max", VolumeUtils.ToString(VolumeSafetyMax, VolumeRepresentation));
-			addRow("Volume Default", VolumeUtils.ToString(VolumeDefault, VolumeRepresentation));
-			addRow("Volume Ramp Step Size", VolumeUtils.ToString(VolumeRampStepSize, VolumeRepresentation));
-			addRow("Volume Ramp Initial Step Size", VolumeUtils.ToString(VolumeRampInitialStepSize, VolumeRepresentation));
+			addRow("Volume Safety Min", ToString(VolumeSafetyMin, VolumeRepresentation));
+			addRow("Volume Safety Max", ToString(VolumeSafetyMax, VolumeRepresentation));
+			addRow("Volume Default", ToString(VolumeDefault, VolumeRepresentation));
+			addRow("Volume Ramp Step Size", ToString(VolumeRampStepSize, VolumeRepresentation));
+			addRow("Volume Ramp Initial Step Size", ToString(VolumeRampInitialStepSize, VolumeRepresentation));
 			addRow("Volume Ramp Interval", VolumeRampInterval + "ms");
 			addRow("Volume Ramp Initial Interval", VolumeRampInitialInterval + "ms");
 			addRow("Context", Context);
 			addRow("Mute Type", MuteType);
+		}
+
+		/// <summary>
+		/// Gets a string for the volume using the given representation.
+		/// </summary>
+		/// <param name="volume"></param>
+		/// <param name="representation"></param>
+		/// <returns></returns>
+		private static string ToString(float? volume, eVolumeRepresentation representation)
+		{
+			if (!volume.HasValue)
+				return string.Empty;
+
+			switch (representation)
+			{
+				case eVolumeRepresentation.Level:
+					return string.Format("{0:n2}", volume.Value);
+				case eVolumeRepresentation.Percent:
+					return string.Format("{0:n2}%", volume.Value);
+				default:
+					throw new ArgumentOutOfRangeException("representation");
+			}
 		}
 
 		#endregion

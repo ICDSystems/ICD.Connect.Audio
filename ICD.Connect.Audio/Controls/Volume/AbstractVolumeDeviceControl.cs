@@ -6,7 +6,6 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Volume;
 using ICD.Connect.Audio.EventArguments;
-using ICD.Connect.Audio.Utils;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 
@@ -114,7 +113,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// <summary>
 		/// Gets the current volume, in string representation (e.g. percentage, decibels).
 		/// </summary>
-		public virtual string VolumeString { get { return VolumeUtils.ToString(this.GetVolumePercent(), eVolumeRepresentation.Percent); } }
+		public virtual string VolumeString { get { return string.Format("{0:n2}%", this.GetVolumePercent() * 100); } }
 
 		#endregion
 

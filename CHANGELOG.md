@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Fixed a bug where Volume Safety Max was not being correctly enforced
  - Fixed a bug where volume percentages were not being serialized correctly from DeployAV
+ - Fixed volume percentage string representations in console
 
 ## [12.0.0] - 2020-03-20
 ### Added

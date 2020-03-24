@@ -84,7 +84,6 @@
     <Compile Include="Proxies\Controls\Volume\VolumeDeviceControlApi.cs" />
     <Compile Include="Repeaters\VolumeRepeater.cs" />
     <Compile Include="Utils\VolumePointHelper.cs" />
-    <Compile Include="Utils\VolumeUtils.cs" />
     <Compile Include="VolumePoints\AbstractVolumePoint.cs" />
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
     <Compile Include="eVolumeRepresentation.cs" />
