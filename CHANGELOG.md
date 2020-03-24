@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Added
  - VolumePointHelper - Added OnVolumeControlSupportedVolumeFeaturesChanged event
 
+## [12.0.1] - 2020-03-24
+### Changed
+ - Fixed a bug where Volume Safety Max was not being correctly enforced
+ - Fixed a bug where volume percentages were not being serialized correctly from DeployAV
+
 ## [12.0.0] - 2020-03-20
 ### Added
  - Added context enum to IVolumePoint and implementations

@@ -1,5 +1,4 @@
-﻿using System;
-using ICD.Common.Properties;
+﻿using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices.Points;
 
@@ -8,8 +7,7 @@ namespace ICD.Connect.Audio.VolumePoints
 	[PublicAPI]
 	public abstract class AbstractVolumePointSettings : AbstractPointSettings, IVolumePointSettings
 	{
-		public const float DEFAULT_STEP_LEVEL = 1.0f;
-		public const float DEFAULT_STEP_PERCENT = 0.01f;
+		public const float DEFAULT_STEP = 1.0f;
 		public const long DEFAULT_STEP_INTERVAL = 250;
 
 		private const string ELEMENT_VOLUME_RANGE_MODE = "VolumeRepresentation";
@@ -87,8 +85,8 @@ namespace ICD.Connect.Audio.VolumePoints
 		protected AbstractVolumePointSettings()
 		{
 			VolumeRepresentation = eVolumeRepresentation.Percent;
-			VolumeRampStepSize = GetDefaultStepSize(VolumeRepresentation);
-			VolumeRampInitialStepSize = GetDefaultStepSize(VolumeRepresentation);
+			VolumeRampStepSize = DEFAULT_STEP;
+			VolumeRampInitialStepSize = DEFAULT_STEP;
 			VolumeRampInterval = DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = DEFAULT_STEP_INTERVAL;
 			Context = eVolumePointContext.Room;
@@ -106,12 +104,12 @@ namespace ICD.Connect.Audio.VolumePoints
 			base.WriteElements(writer);
 
 			writer.WriteElementString(ELEMENT_VOLUME_RANGE_MODE, IcdXmlConvert.ToString(VolumeRepresentation));
-			
-			WriteVolume(writer, ELEMENT_VOLUME_SAFETY_MIN, VolumeRepresentation, VolumeSafetyMin);
-			WriteVolume(writer, ELEMENT_VOLUME_SAFETY_MAX, VolumeRepresentation, VolumeSafetyMax);
-			WriteVolume(writer, ELEMENT_VOLUME_DEFAULT, VolumeRepresentation, VolumeDefault);
-			WriteVolume(writer, ELEMENT_VOLUME_RAMP_STEP_SIZE, VolumeRepresentation, VolumeRampStepSize);
-			WriteVolume(writer, ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE, VolumeRepresentation, VolumeRampInitialStepSize);
+
+			writer.WriteElementString(ELEMENT_VOLUME_SAFETY_MIN, IcdXmlConvert.ToString(VolumeSafetyMin));
+			writer.WriteElementString(ELEMENT_VOLUME_SAFETY_MAX,IcdXmlConvert.ToString(VolumeSafetyMax));
+			writer.WriteElementString(ELEMENT_VOLUME_DEFAULT, IcdXmlConvert.ToString(VolumeDefault));
+			writer.WriteElementString(ELEMENT_VOLUME_RAMP_STEP_SIZE, IcdXmlConvert.ToString(VolumeRampStepSize));
+			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE, IcdXmlConvert.ToString(VolumeRampInitialStepSize));
 
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INTERVAL, IcdXmlConvert.ToString(VolumeRampInterval));
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL, IcdXmlConvert.ToString(VolumeRampInitialInterval));
@@ -131,11 +129,11 @@ namespace ICD.Connect.Audio.VolumePoints
 				XmlUtils.TryReadChildElementContentAsEnum<eVolumeRepresentation>(xml, ELEMENT_VOLUME_RANGE_MODE, true) ??
 				eVolumeRepresentation.Percent;
 
-			VolumeSafetyMin = ReadVolume(xml, ELEMENT_VOLUME_SAFETY_MIN, VolumeRepresentation);
-			VolumeSafetyMax = ReadVolume(xml, ELEMENT_VOLUME_SAFETY_MAX, VolumeRepresentation);
-			VolumeDefault = ReadVolume(xml, ELEMENT_VOLUME_DEFAULT, VolumeRepresentation);
-			VolumeRampStepSize = ReadVolume(xml, ELEMENT_VOLUME_RAMP_STEP_SIZE, VolumeRepresentation) ?? GetDefaultStepSize(VolumeRepresentation);
-			VolumeRampInitialStepSize = ReadVolume(xml, ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE, VolumeRepresentation) ?? GetDefaultStepSize(VolumeRepresentation);
+			VolumeSafetyMin = XmlUtils.TryReadChildElementContentAsFloat(xml, ELEMENT_VOLUME_SAFETY_MIN);
+			VolumeSafetyMax = XmlUtils.TryReadChildElementContentAsFloat(xml, ELEMENT_VOLUME_SAFETY_MAX);
+			VolumeDefault = XmlUtils.TryReadChildElementContentAsFloat(xml, ELEMENT_VOLUME_DEFAULT);
+			VolumeRampStepSize = XmlUtils.TryReadChildElementContentAsFloat(xml, ELEMENT_VOLUME_RAMP_STEP_SIZE) ?? DEFAULT_STEP;
+			VolumeRampInitialStepSize = XmlUtils.TryReadChildElementContentAsFloat(xml, ELEMENT_VOLUME_RAMP_INITIAL_STEP_SIZE) ?? DEFAULT_STEP;
 
 			VolumeRampInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
@@ -146,51 +144,6 @@ namespace ICD.Connect.Audio.VolumePoints
 			          eVolumePointContext.Room;
 
 			MuteType = XmlUtils.TryReadChildElementContentAsEnum<eMuteType>(xml, ELEMENT_MUTE_TYPE, true) ?? eMuteType.RoomAudio;
-		}
-
-		#endregion
-
-		#region Private Methods
-
-		private static void WriteVolume(IcdXmlTextWriter writer, string element, eVolumeRepresentation mode, float? value)
-		{
-			switch (mode)
-			{
-				case eVolumeRepresentation.Level:
-					writer.WriteElementString(element, IcdXmlConvert.ToString(value));
-					break;
-				case eVolumeRepresentation.Percent:
-					writer.WriteElementString(element, IcdXmlConvert.ToString(value * 100));
-					break;
-				default:
-					throw new ArgumentOutOfRangeException("mode");
-			}
-		}
-
-		private static float? ReadVolume(string xml, string element, eVolumeRepresentation mode)
-		{
-			switch (mode)
-			{
-				case eVolumeRepresentation.Level:
-					return XmlUtils.TryReadChildElementContentAsFloat(xml, element);
-				case eVolumeRepresentation.Percent:
-					return XmlUtils.TryReadChildElementContentAsFloat(xml, element) / 100;
-				default:
-					throw new ArgumentOutOfRangeException("mode");
-			}
-		}
-
-		private static float GetDefaultStepSize(eVolumeRepresentation mode)
-		{
-			switch (mode)
-			{
-				case eVolumeRepresentation.Level:
-					return DEFAULT_STEP_LEVEL;
-				case eVolumeRepresentation.Percent:
-					return DEFAULT_STEP_PERCENT;
-				default:
-					throw new ArgumentOutOfRangeException("mode");
-			}
 		}
 
 		#endregion

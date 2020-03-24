@@ -201,8 +201,20 @@ namespace ICD.Connect.Audio.Repeaters
 
 			try
 			{
-				if (m_VolumePoint != null)
-					Ramp(m_VolumePoint.VolumeRampInitialStepSize);
+				if (m_VolumePoint == null)
+					return;
+
+				switch (m_VolumePoint.VolumeRepresentation)
+				{
+					case eVolumeRepresentation.Level:
+						Ramp(m_VolumePoint.VolumeRampInitialStepSize);
+						break;
+					case eVolumeRepresentation.Percent:
+						Ramp(m_VolumePoint.VolumeRampInitialStepSize / 100);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 			finally
 			{
@@ -219,8 +231,20 @@ namespace ICD.Connect.Audio.Repeaters
 
 			try
 			{
-				if (m_VolumePoint != null)
-					Ramp(m_VolumePoint.VolumeRampStepSize);
+				if (m_VolumePoint == null)
+					return;
+
+				switch (m_VolumePoint.VolumeRepresentation)
+				{
+					case eVolumeRepresentation.Level:
+						Ramp(m_VolumePoint.VolumeRampStepSize);
+						break;
+					case eVolumeRepresentation.Percent:
+						Ramp(m_VolumePoint.VolumeRampStepSize / 100);
+						break;
+					default:
+						throw new ArgumentOutOfRangeException();
+				}
 			}
 			finally
 			{

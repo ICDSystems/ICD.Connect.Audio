@@ -73,8 +73,8 @@ namespace ICD.Connect.Audio.VolumePoints
 		protected AbstractVolumePoint()
 		{
 			VolumeRepresentation = eVolumeRepresentation.Percent;
-			VolumeRampStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
-			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
+			VolumeRampStepSize = AbstractVolumePointSettings.DEFAULT_STEP;
+			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 		}
@@ -98,7 +98,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			switch (VolumeRepresentation)
 			{
 				case eVolumeRepresentation.Percent:
-					Control.SetVolumePercent(VolumeDefault.Value);
+					Control.SetVolumePercent(VolumeDefault.Value / 100);
 					break;
 
 				case eVolumeRepresentation.Level:
@@ -123,16 +123,16 @@ namespace ICD.Connect.Audio.VolumePoints
 			switch (VolumeRepresentation)
 			{
 				case eVolumeRepresentation.Percent:
-					if (VolumeSafetyMin != null && Control.GetVolumePercent() < VolumeSafetyMin)
-						Control.SetVolumePercent(VolumeSafetyMin.Value);
-					else if (VolumeSafetyMax != null && Control.GetVolumePercent() < VolumeSafetyMax)
-						Control.SetVolumePercent(VolumeSafetyMax.Value);
+					if (VolumeSafetyMin != null && Control.GetVolumePercent() < VolumeSafetyMin / 100)
+						Control.SetVolumePercent(VolumeSafetyMin.Value / 100);
+					else if (VolumeSafetyMax != null && Control.GetVolumePercent() > VolumeSafetyMax / 100)
+						Control.SetVolumePercent(VolumeSafetyMax.Value / 100);
 					break;
 
 				case eVolumeRepresentation.Level:
 					if (VolumeSafetyMin != null && Control.VolumeLevel < VolumeSafetyMin)
 						Control.SetVolumeLevel(VolumeSafetyMin.Value);
-					else if (VolumeSafetyMax != null && Control.VolumeLevel < VolumeSafetyMax)
+					else if (VolumeSafetyMax != null && Control.VolumeLevel > VolumeSafetyMax)
 						Control.SetVolumeLevel(VolumeSafetyMax.Value);
 					break;
 
@@ -231,8 +231,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeSafetyMin = null;
 			VolumeSafetyMax = null;
 			VolumeDefault = null;
-			VolumeRampStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
-			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP_PERCENT;
+			VolumeRampStepSize = AbstractVolumePointSettings.DEFAULT_STEP;
+			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			Context = default(eVolumePointContext);
