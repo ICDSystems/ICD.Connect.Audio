@@ -5,10 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [12.1.0] - 2020-03-24
 ### Added
  - VolumePointHelper - Added OnVolumeControlSupportedVolumeFeaturesChanged event
 
-## [12.0.1] - 2020-03-24
 ### Changed
  - Fixed a bug where Volume Safety Max was not being correctly enforced
  - Fixed a bug where volume percentages were not being serialized correctly from DeployAV
