@@ -193,19 +193,19 @@ namespace ICD.Connect.Audio.Biamp
 		[EventTelemetry(DspTelemetryNames.VOIP_REGISTRATION_STATUS_CHANGED)]
 		event EventHandler<StringEventArgs> OnVoipRegistrationStatusChanged; 
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.VOIP_REGISTERED, DspTelemetryNames.VOIP_REGISTERED_CHANGED)]
+		[DynamicPropertyTelemetry(DspTelemetryNames.VOIP_REGISTERED, null, DspTelemetryNames.VOIP_REGISTERED_CHANGED)]
 		bool VoipRegistered { get; }
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.ACTIVE_FAULTS, DspTelemetryNames.ACTIVE_FAULTS_CHANGED)]
+		[DynamicPropertyTelemetry(DspTelemetryNames.ACTIVE_FAULTS, null, DspTelemetryNames.ACTIVE_FAULTS_CHANGED)]
 		bool ActiveFaults { get; }
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.CALL_ACTIVE, DspTelemetryNames.CALL_ACTIVE_CHANGED)]
+		[DynamicPropertyTelemetry(DspTelemetryNames.CALL_ACTIVE, null, DspTelemetryNames.CALL_ACTIVE_CHANGED)]
 		bool AtcCallActive { get; }
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.FIRMWARE_VERSION, DspTelemetryNames.FIRMWARE_VERSION_CHANGED)]
+		[DynamicPropertyTelemetry(DspTelemetryNames.FIRMWARE_VERSION, null, DspTelemetryNames.FIRMWARE_VERSION_CHANGED)]
 		string FirmwareVersion { get; }
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.VOIP_REGISTRATION_STATUS, DspTelemetryNames.VOIP_REGISTRATION_STATUS_CHANGED)]
+		[DynamicPropertyTelemetry(DspTelemetryNames.VOIP_REGISTRATION_STATUS, null, DspTelemetryNames.VOIP_REGISTRATION_STATUS_CHANGED)]
 		string VoipRegistrationStatus { get; }
 	}
 }
