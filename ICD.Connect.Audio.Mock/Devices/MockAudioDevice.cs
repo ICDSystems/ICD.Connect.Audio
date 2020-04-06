@@ -1,4 +1,4 @@
-﻿using ICD.Connect.Devices;
+﻿using ICD.Connect.Devices.Mock;
 using ICD.Connect.Routing.Mock.Midpoint;
 
 namespace ICD.Connect.Audio.Mock.Devices
@@ -6,7 +6,7 @@ namespace ICD.Connect.Audio.Mock.Devices
 	/// <summary>
 	/// Mock device with routing and volume features.
 	/// </summary>
-	public sealed class MockAudioDevice : AbstractDevice<MockAudioDeviceSettings>
+	public sealed class MockAudioDevice : AbstractMockDevice<MockAudioDeviceSettings>
 	{
 		/// <summary>
 		/// Constructor.
@@ -15,15 +15,6 @@ namespace ICD.Connect.Audio.Mock.Devices
 		{
 			Controls.Add(new MockRouteMidpointControl(this, 0));
 			Controls.Add(new MockAudioDeviceVolumeControl(this, 1));
-		}
-
-		/// <summary>
-		/// Gets the current online status of the device.
-		/// </summary>
-		/// <returns></returns>
-		protected override bool GetIsOnlineStatus()
-		{
-			return true;
 		}
 	}
 }
