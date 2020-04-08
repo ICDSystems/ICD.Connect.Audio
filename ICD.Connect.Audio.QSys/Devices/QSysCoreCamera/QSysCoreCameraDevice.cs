@@ -265,7 +265,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No QSys Core Device with id {0}", settings.DspId.Value);
+					Logger.Log(eSeverity.Error, "No QSys Core Device with id {0}", settings.DspId.Value);
 				}
 			}
 

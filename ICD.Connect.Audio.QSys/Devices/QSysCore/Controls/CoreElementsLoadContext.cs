@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Extensions;
@@ -212,8 +213,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				if (controlType.IsInstanceOfType(control))
 					return control;
 
-				QSysCore.Log(eSeverity.Error, "Error Loading Config, Named Control {0} exists, but is not of type {1}", controlName,
-				             controlType);
+				QSysCore.Logger.Log(eSeverity.Error, "Error Loading Config, Named Control {0} exists, but is not of type {1}",
+				                    controlName,
+				                    controlType);
 				return null;
 			}
 
@@ -224,18 +226,18 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 			}
 			catch (TypeLoadException e)
 			{
-				QSysCore.Log(eSeverity.Error, e, "Exception Instantiating Implicit Control Name:{0}, Type:{1} - Exception In Constructor.", controlName,
+				QSysCore.Logger.Log(eSeverity.Error, e, "Exception Instantiating Implicit Control Name:{0}, Type:{1} - Exception In Constructor.", controlName,
 				             controlType);
 				return null;
 			}
 			catch (InvalidOperationException e)
 			{
-				QSysCore.Log(eSeverity.Error, e, "Exception Instantiating Implicit Control Name:{0}, Type:{1} - Constructor Not Found.", controlName, controlType);
+				QSysCore.Logger.Log(eSeverity.Error, e, "Exception Instantiating Implicit Control Name:{0}, Type:{1} - Constructor Not Found.", controlName, controlType);
 			}
 
 			if (control == null)
 			{
-				QSysCore.Log(eSeverity.Error, "Error Instantiating Implicit Control Name:{0}, Type:{1}", controlName, controlType);
+				QSysCore.Logger.Log(eSeverity.Error, "Error Instantiating Implicit Control Name:{0}, Type:{1}", controlName, controlType);
 				return null;
 			}
 			AddNamedControl(control);
@@ -265,7 +267,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				if (componentType.IsInstanceOfType(component))
 					return component;
 
-				QSysCore.Log(eSeverity.Error, "Error Loading Config, Named Component {0} exists, but is not of type {1}", componentName,
+				QSysCore.Logger.Log(eSeverity.Error, "Error Loading Config, Named Component {0} exists, but is not of type {1}", componentName,
 							 componentType);
 				return null;
 			}
@@ -277,18 +279,18 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 			}
 			catch (TypeLoadException e)
 			{
-				QSysCore.Log(eSeverity.Error, e, "Exception Instantiating Implicit Component Name:{0}, Type:{1} - Exception In Constructor", componentName, componentType);
+				QSysCore.Logger.Log(eSeverity.Error, e, "Exception Instantiating Implicit Component Name:{0}, Type:{1} - Exception In Constructor", componentName, componentType);
 				return null;
 			}
 			catch (InvalidOperationException e)
 			{
-				QSysCore.Log(eSeverity.Error, e, "Exception Instantiating Implicit Component Name:{0}, Type:{1} - Constructor Not Found", componentName, componentType);
+				QSysCore.Logger.Log(eSeverity.Error, e, "Exception Instantiating Implicit Component Name:{0}, Type:{1} - Constructor Not Found", componentName, componentType);
 				return null;
 			}
 
 			if (component == null)
 			{
-				QSysCore.Log(eSeverity.Error, "Error Instantiating Implicit Component Name:{0}, Type:{1}", componentName, componentType);
+				QSysCore.Logger.Log(eSeverity.Error, "Error Instantiating Implicit Component Name:{0}, Type:{1}", componentName, componentType);
 				return null;
 			}
 

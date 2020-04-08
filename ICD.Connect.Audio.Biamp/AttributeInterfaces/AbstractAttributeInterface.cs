@@ -97,7 +97,7 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		public virtual void Log(eSeverity severity, string message, params object[] args)
 		{
 			message = string.Format("{0} - {1}", InstanceTag, message);
-			Device.Log(severity, message, args);
+			Device.Logger.Log(severity, message, args);
 		}
 
 		/// <summary>

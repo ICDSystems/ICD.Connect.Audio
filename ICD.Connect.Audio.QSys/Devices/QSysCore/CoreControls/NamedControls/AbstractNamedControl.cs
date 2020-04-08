@@ -133,7 +133,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 				if (changeGroup != null)
 					changeGroup.AddNamedControl(this);
 				else
-					QSysCore.Log(eSeverity.Warning, "NamedControl {0} couldn't add to change group id {1} - not found", Id, changeGroupId);
+					QSysCore.Logger.Log(eSeverity.Warning, "NamedControl {0} couldn't add to change group id {1} - not found", Id, changeGroupId);
 			}
 		}
 

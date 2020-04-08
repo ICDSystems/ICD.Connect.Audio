@@ -164,7 +164,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_Voltage = value;
 
-				Log(eSeverity.Informational, "{0} - Voltage changed to {1}", this, m_Voltage);
+				Logger.Set("Voltage", eSeverity.Informational, m_Voltage);
 
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
@@ -184,7 +184,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_ButtonPressed = value;
 
-				Log(eSeverity.Informational, "{0} - Button pressed changed to {1}", this, m_ButtonPressed);
+				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -204,7 +204,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_PowerEnabled = value;
 
-				Log(eSeverity.Informational, "{0} - Power enabled changed to {1}", this, m_PowerEnabled);
+				Logger.Set("Power Enabled", eSeverity.Informational, m_PowerEnabled);
 
 				OnPowerEnabledChanged.Raise(this, new BoolEventArgs(m_PowerEnabled));
 			}
@@ -224,7 +224,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_RedLedEnabled = value;
 
-				Log(eSeverity.Informational, "{0} - Red LED enabled changed to {1}", this, m_RedLedEnabled);
+				Logger.Set("Red Led Enabled", eSeverity.Informational, m_RedLedEnabled);
 
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
@@ -244,7 +244,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_GreenLedEnabled = value;
 
-				Log(eSeverity.Informational, "{0} - Green LED enabled changed to {1}", this, m_GreenLedEnabled);
+				Logger.Set("Green Led Enabled", eSeverity.Informational, m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}
@@ -562,7 +562,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 			T port = factory.GetPortById((int)portId) as T;
 			if (port == null)
-				Log(eSeverity.Error, "No {1} Port with id {0}", portId,typeof(T));
+				Logger.Log(eSeverity.Error, "No {0} Port with id {1}", typeof(T), portId);
 
 			return port;
 		}

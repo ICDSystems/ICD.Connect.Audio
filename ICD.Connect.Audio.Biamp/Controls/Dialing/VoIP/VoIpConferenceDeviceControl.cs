@@ -115,7 +115,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 				if (callAppearance == null)
 				{
-					Parent.Log(eSeverity.Error, "Unable to dial - could not find an unused call appearance");
+					Logger.Log(eSeverity.Error, "Unable to dial - could not find an unused call appearance");
 					return;
 				}
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
@@ -76,14 +77,14 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				catch (IcdXmlException e)
 				{
-					qSysCore.Log(eSeverity.Error, e, "Error parsing XML for element");
+					qSysCore.Logger.Log(eSeverity.Error, e, "Error parsing XML for element");
 					continue;
 				}
 
 				if (elementType != null)
 					loadContext.AddElement(id, elementType, elementNameString, elementXml);
 				else
-					loadContext.QSysCore.Log(eSeverity.Error, "No type matching {0} for element id {1}", elementTypeString,
+					loadContext.QSysCore.Logger.Log(eSeverity.Error, "No type matching {0} for element id {1}", elementTypeString,
 					                         id);
 			}
 
@@ -113,7 +114,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				catch (Exception e)
 				{
-					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", kvp.Key, e.Message);
+					loadContext.QSysCore.Logger.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", kvp.Key, e.Message);
 					continue;
 				}
 
@@ -128,7 +129,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				if (typeof(IChangeGroup).IsAssignableFrom(loadContext.GetTypeForId(defaultChangeGroupId)))
 					loadContext.AddDefaultChangeGroup(defaultChangeGroupId);
 				else
-					loadContext.QSysCore.Log(eSeverity.Error,
+					loadContext.QSysCore.Logger.Log(eSeverity.Error,
 					                         "Tried to add DefaultChangeGroup {0}, but there is no change group with that ID.",
 					                         defaultChangeGroup);
 			}
@@ -154,7 +155,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 			}
 			catch (Exception e)
 			{
-				loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", autoChangeGroupId, e.Message);
+				loadContext.QSysCore.Logger.Log(eSeverity.Error, e, "Failed to create ChangeGroup {0} - {1}", autoChangeGroupId, e.Message);
 			}
 
 			loadContext.AddChangeGroup(autoChangeGroup);
@@ -178,7 +179,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				catch (Exception e)
 				{
-					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create NamedControl {0} - {1}", kvp.Key, e.Message);
+					loadContext.QSysCore.Logger.Log(eSeverity.Error, e, "Failed to create NamedControl {0} - {1}", kvp.Key, e.Message);
 					continue;
 				}
 
@@ -203,7 +204,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				catch (Exception e)
 				{
-					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create NamedComponent {0} - {1}", kvp.Key, e.Message);
+					loadContext.QSysCore.Logger.Log(eSeverity.Error, e, "Failed to create NamedComponent {0} - {1}", kvp.Key, e.Message);
 					continue;
 				}
 
@@ -230,7 +231,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				catch (Exception e)
 				{
-					loadContext.QSysCore.Log(eSeverity.Error, e, "Failed to create QsysKrangControl {0} - {1}", kvp.Key, e.Message);
+					loadContext.QSysCore.Logger.Log(eSeverity.Error, e, "Failed to create QsysKrangControl {0} - {1}", kvp.Key, e.Message);
 					continue;
 				}
 

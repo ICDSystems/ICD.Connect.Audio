@@ -53,7 +53,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 
 				m_ButtonPressed = value;
 
-				Log(eSeverity.Informational, "{0} - Button pressed changed to {1}", this, m_ButtonPressed);
+				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -73,7 +73,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 
 				m_LedState = value;
 
-				Log(eSeverity.Informational, "{0} - LED state changed to {1}", this, m_LedState);
+				Logger.Set("Led State", eSeverity.Informational, m_LedState);
 
 				OnLedStateChanged.Raise(this, new BoolEventArgs(m_LedState));
 			}
@@ -303,7 +303,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 
 			TPort port = factory.GetPortById((int)portId) as TPort;
 			if (port == null)
-				Log(eSeverity.Error, "No IO Port with id {0}", portId);
+				Logger.Log(eSeverity.Error, "No IO Port with id {0}", portId);
 
 			return port;
 		}

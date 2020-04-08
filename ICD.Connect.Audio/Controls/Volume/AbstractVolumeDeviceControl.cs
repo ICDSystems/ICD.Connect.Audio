@@ -50,7 +50,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 				m_SupportedVolumeFeatures = value;
 
-				Log(eSeverity.Informational, "Supported volume features changed to {0}", m_SupportedVolumeFeatures);
+				Logger.Set("Supported Volume Features", eSeverity.Informational, m_SupportedVolumeFeatures);
 
 				OnSupportedVolumeFeaturesChanged.Raise(this,
 				                                       new VolumeControlSupportedVolumeFeaturesChangedApiEventArgs(
@@ -72,7 +72,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 				m_IsMuted = value;
 
-				Log(eSeverity.Informational, "IsMuted changed to {0}", m_IsMuted);
+				Logger.Set("Muted", eSeverity.Informational, m_IsMuted);
 
 				OnIsMutedChanged.Raise(this, new VolumeControlIsMutedChangedApiEventArgs(m_IsMuted));
 			}
@@ -91,8 +91,9 @@ namespace ICD.Connect.Audio.Controls.Volume
 
 				m_VolumeLevel = value;
 
-				Log(eSeverity.Informational, "Volume changed: Level={0:F2} Percent={1:P2} Name={2}",
-				    m_VolumeLevel, this.GetVolumePercent(), VolumeString);
+				Logger.Set("Volume Level", eSeverity.Informational, m_VolumeLevel.ToString("F2"));
+				Logger.Set("Volume Percent", eSeverity.Informational, this.GetVolumePercent().ToString("P2"));
+				Logger.Set("Volume String", eSeverity.Informational, VolumeString);
 
 				OnVolumeChanged.Raise(this,
 				                      new VolumeControlVolumeChangedApiEventArgs(m_VolumeLevel, this.GetVolumePercent(),

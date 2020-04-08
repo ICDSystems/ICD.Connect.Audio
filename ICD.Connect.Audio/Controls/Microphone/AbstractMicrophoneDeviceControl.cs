@@ -48,7 +48,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_IsMuted = value;
 
-				Log(eSeverity.Informational, "IsMuted changed to {0}", m_IsMuted);
+				Logger.Set("Muted", eSeverity.Informational, m_IsMuted);
 
 				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_IsMuted));
 			}
@@ -59,7 +59,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// </summary>
 		public bool PhantomPower
 		{
-			get { return m_PhantomPower; }
+			get { return m_PhantomPower;}
 			protected set
 			{
 				if (value == m_PhantomPower)
@@ -67,7 +67,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_PhantomPower = value;
 
-				Log(eSeverity.Informational, "PhantomPower changed to {0}", m_PhantomPower);
+				Logger.Set("Phantom Power", eSeverity.Informational, m_PhantomPower);
 
 				OnPhantomPowerStateChanged.Raise(this, new BoolEventArgs(m_PhantomPower));
 			}
@@ -87,7 +87,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_GainLevel = value;
 
-				Log(eSeverity.Informational, "GainLevel changed to {0}", m_GainLevel);
+				Logger.Set("Gain Level", eSeverity.Informational, m_GainLevel);
 
 				OnGainLevelChanged.Raise(this, new FloatEventArgs(m_GainLevel));
 			}

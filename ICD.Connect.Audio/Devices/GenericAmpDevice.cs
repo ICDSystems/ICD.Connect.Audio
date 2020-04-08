@@ -162,7 +162,7 @@ namespace ICD.Connect.Audio.Devices
 				{
 					if (m_InputVolumePointIds.ContainsKey(item.Key))
 					{
-						Log(eSeverity.Error, "{0} unable to add volume point id for duplicate input {1}", this, item.Key);
+						Logger.Log(eSeverity.Error, "Unable to add volume point id for duplicate input {0}", item.Key);
 						continue;
 					}
 

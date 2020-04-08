@@ -71,7 +71,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_Voltage = value;
 
-				Log(eSeverity.Informational, "Voltage changed to {0}", m_Voltage);
+				Logger.Set("Voltage", eSeverity.Informational, m_Voltage);
 
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
@@ -91,7 +91,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_ButtonPressed = value;
 
-				Log(eSeverity.Informational, "Button pressed changed to {0}", m_ButtonPressed);
+				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -111,7 +111,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_RedLedEnabled = value;
 
-				Log(eSeverity.Informational, "Red LED enabled changed to {0}", m_RedLedEnabled);
+				Logger.Set("Red Led Enabled", eSeverity.Informational, m_RedLedEnabled);
 
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
@@ -131,7 +131,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_GreenLedEnabled = value;
 
-				Log(eSeverity.Informational, "Green LED enabled changed to {0}", m_GreenLedEnabled);
+				Logger.Set("Green Led Enabled", eSeverity.Informational, m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}
@@ -445,7 +445,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 			}
 			catch (KeyNotFoundException)
 			{
-				Log(eSeverity.Error, "No Serial Port with id {0}", portId);
+				Logger.Log(eSeverity.Error, "No Serial Port with id {0}", portId);
 			}
 			
 			return port;

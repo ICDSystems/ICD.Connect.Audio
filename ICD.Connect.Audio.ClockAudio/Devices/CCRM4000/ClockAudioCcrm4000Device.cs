@@ -214,9 +214,8 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.CCRM4000
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No relay with id {0}", settings.ExtendRelay);
-				}
-				
+					Logger.Log(eSeverity.Error, "No relay with id {0}", settings.ExtendRelay);
+				}	
 			}
 			SetExtendRelay(extendRelay);
 
@@ -230,7 +229,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.CCRM4000
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No relay with id {0}", settings.RetractRelay);
+					Logger.Log(eSeverity.Error, "No relay with id {0}", settings.RetractRelay);
 				}
 			}
 			SetRetractRelay(retractRelay);

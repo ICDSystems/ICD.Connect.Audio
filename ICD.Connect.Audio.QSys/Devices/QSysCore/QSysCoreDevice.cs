@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
@@ -179,7 +180,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 			if (!IcdFile.Exists(fullPath))
 			{
-				Log(eSeverity.Error, "Failed to load integration config {0} - Path does not exist", fullPath);
+				Logger.Log(eSeverity.Error, "Failed to load integration config {0} - Path does not exist", fullPath);
 				return;
 			}
 
@@ -192,7 +193,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
+				Logger.Log(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 			}
 		}
 
@@ -299,7 +300,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				Initialize();
 			else
 			{
-				Log(eSeverity.Critical, "Lost connection");
+				Logger.Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
 			}
 		}
@@ -351,7 +352,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to parse data - {0}{1}{2}", e.GetType().Name,
+				Logger.Log(eSeverity.Error, "Failed to parse data - {0}{1}{2}", e.GetType().Name,
 				    IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
 				return;
 			}
@@ -540,7 +541,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+					Logger.Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
 				}
 			}
 

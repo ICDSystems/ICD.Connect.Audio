@@ -225,7 +225,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 			{
 				m_SerialBuffer.Clear();
 
-				Log(eSeverity.Critical, "Lost connection");
+				Logger.Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
 			}
 		}
@@ -332,7 +332,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No serial port with id {0}", settings.Port);
+					Logger.Log(eSeverity.Error, "No serial port with id {0}", settings.Port);
 				}
 			}
 

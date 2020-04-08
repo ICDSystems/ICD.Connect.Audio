@@ -71,7 +71,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		{
 			if (m_PrivacyMuteControl == null)
 			{
-				Parent.Log(eSeverity.Error, "{0} unable to set Privacy Mute - control is null", Name);
+				Logger.Log(eSeverity.Error, "{0} unable to set Privacy Mute - control is null", Name);
 				return;
 			}
 

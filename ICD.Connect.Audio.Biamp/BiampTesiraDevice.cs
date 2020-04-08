@@ -1,4 +1,5 @@
-﻿using ICD.Common.Properties;
+﻿using ICD.Common.Logging.LoggingContexts;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
@@ -234,7 +235,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, e, "{0} Failed to load integration config {1} - {2}", this, fullPath, e.Message);
+				Logger.Log(eSeverity.Error, e, "Failed to load integration config {0} - {1}", fullPath, e.Message);
 			}
 		}
 
@@ -503,7 +504,7 @@ namespace ICD.Connect.Audio.Biamp
 				m_InitializationTimer.Stop();
 				m_ReadyToTransmit = false;
 
-				Log(eSeverity.Critical, "Lost connection");
+				Logger.Log(eSeverity.Critical, "Lost connection");
 				Initialized = false;
 			}
 		}
@@ -578,18 +579,16 @@ namespace ICD.Connect.Audio.Biamp
 
 						// This is a good thing!
 						if (feedback.Contains("ALREADY_SUBSCRIBED"))
-						{
 							return;
-						}
 
 						if (pair == null)
 						{
-							Log(eSeverity.Error, feedback);
+							Logger.Log(eSeverity.Error, feedback);
 						}
 						else
 						{
 							string tX = pair.Code.Serialize().TrimEnd(TtpUtils.CR, TtpUtils.LF);
-							Log(eSeverity.Error, "{0} - {1}", tX, feedback);
+							Logger.Log(eSeverity.Error, "{0} - {1}", tX, feedback);
 						}
 						return;
 				}
@@ -607,7 +606,7 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to parse {0} - {1}", pair, e.Message);
+				Logger.Log(eSeverity.Error, "Failed to parse {0} - {1}", pair, e.Message);
 			}
 		}
 
@@ -652,7 +651,7 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="args"></param>
 		private void QueueOnTimeout(object sender, SerialDataEventArgs args)
 		{
-			Log(eSeverity.Error, "Timeout - {0}", args.Data.Serialize().TrimEnd(TtpUtils.CR, TtpUtils.LF));
+			Logger.Log(eSeverity.Error, "Timeout - {0}", args.Data.Serialize().TrimEnd(TtpUtils.CR, TtpUtils.LF));
 		}
 
 		/// <summary>
@@ -669,9 +668,9 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}{2}{3}",
-					StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message,
-					IcdEnvironment.NewLine, e.StackTrace);
+				Logger.Log(eSeverity.Error, "Failed to execute callback for response {0} - {1}{2}{3}",
+				                StringUtils.ToRepresentation(StringUtils.Trim(responseString)), e.Message,
+				                IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
@@ -691,10 +690,10 @@ namespace ICD.Connect.Audio.Biamp
 			}
 			catch (Exception e)
 			{
-				Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}{3}{4}",
-					StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
-					StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
-					e.Message, IcdEnvironment.NewLine, e.StackTrace);
+				Logger.Log(eSeverity.Error, "Failed to execute callback for request {0} response {1} - {2}{3}{4}",
+				                StringUtils.ToRepresentation(StringUtils.Trim(request.Serialize())),
+				                StringUtils.ToRepresentation(StringUtils.Trim(responseString)),
+				                e.Message, IcdEnvironment.NewLine, e.StackTrace);
 			}
 		}
 
@@ -831,7 +830,7 @@ namespace ICD.Connect.Audio.Biamp
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
+					Logger.Log(eSeverity.Error, "No serial Port with id {0}", settings.Port);
 				}
 			}
 

@@ -96,7 +96,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 				if (changeGroup != null)
 					changeGroup.AddNamedComponent(this, GetControlsForSubscribe());
 				else
-					QSysCore.Log(eSeverity.Warning, "NamedComponent {0} couldn't add to change group id {1} - not found", Id,
+					QSysCore.Logger.Log(eSeverity.Warning, "NamedComponent {0} couldn't add to change group id {1} - not found", Id,
 					             changeGroupId);
 			}
 		}

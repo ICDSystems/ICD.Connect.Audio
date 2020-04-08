@@ -227,7 +227,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 				}
 				catch (KeyNotFoundException)
 				{
-					Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
+					Logger.Log(eSeverity.Error, "No Serial Port with id {0}", settings.Port);
 				}
 			}
 

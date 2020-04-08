@@ -58,7 +58,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				m_Hold = value;
 
-				Log(eSeverity.Informational, "Hold state set to {0}", m_Hold);
+				Logger.Set("Hold", eSeverity.Informational, m_Hold);
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
@@ -146,7 +146,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			if (m_DoNotDisturbControl == null)
 			{
-				Parent.Log(eSeverity.Error, "{0} unable to set Do-Not-Disturb - control is null", Name);
+				Logger.Log(eSeverity.Error, "Unable to set Do-Not-Disturb - control is null");
 				return;
 			}
 
@@ -182,7 +182,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		{
 			if (m_HoldControl == null)
 			{
-				Parent.Log(eSeverity.Error, "{0} unable to hold - control is null", Name);
+				Logger.Log(eSeverity.Error, "Unable to hold - control is null");
 				return;
 			}
 
