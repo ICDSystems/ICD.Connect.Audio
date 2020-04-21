@@ -12,7 +12,7 @@ using ICD.Connect.Devices.Controls;
 namespace ICD.Connect.Audio.Controls.Volume
 {
 	public abstract class AbstractVolumeDeviceControl<T> : AbstractDeviceControl<T>, IVolumeDeviceControl
-		where T : IDeviceBase
+		where T : IDevice
 	{
 		/// <summary>
 		/// Raised when the mute state changes.

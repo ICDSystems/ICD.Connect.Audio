@@ -114,12 +114,13 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 		public float VolumeLevelMin { get; private set; }
 
 		#endregion
+		
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public ProxyVolumeDeviceControl(IProxyDeviceBase parent, int id)
+		public ProxyVolumeDeviceControl(IProxyDevice parent, int id)
 			: base(parent, id)
 		{
 		}

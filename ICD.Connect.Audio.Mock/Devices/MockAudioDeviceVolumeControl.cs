@@ -5,7 +5,7 @@ using ICD.Connect.Devices;
 
 namespace ICD.Connect.Audio.Mock.Devices
 {
-	public sealed class MockAudioDeviceVolumeControl : AbstractVolumeDeviceControl<IDeviceBase>
+	public sealed class MockAudioDeviceVolumeControl : AbstractVolumeDeviceControl<IDevice>
 	{
 		#region Properties
 
@@ -28,7 +28,7 @@ namespace ICD.Connect.Audio.Mock.Devices
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public MockAudioDeviceVolumeControl(IDeviceBase parent, int id)
+		public MockAudioDeviceVolumeControl(IDevice parent, int id)
 			: base(parent, id)
 		{
 			SupportedVolumeFeatures = eVolumeFeatures.Mute |
