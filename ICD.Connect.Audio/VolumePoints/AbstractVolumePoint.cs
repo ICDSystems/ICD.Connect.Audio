@@ -15,6 +15,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		#region Properties
 
 		/// <summary>
+		/// Gets the category for this originator type (e.g. Device, Port, etc)
+		/// </summary>
+		public override string Category { get { return "VolumePoint"; } }
+
+		/// <summary>
 		/// Determines how the volume levels and ramping are defined for this volume point.
 		/// </summary>
 		public eVolumeRepresentation VolumeRepresentation { get; set; }
