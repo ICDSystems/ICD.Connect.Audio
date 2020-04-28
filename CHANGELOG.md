@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - Fixed NullRefException with BiColorMicButtons
+ - IVolumePositionDeviceControl - added range attributes to VolumePosition
 
 ## [9.6.0] - 2020-02-18
 ### Changed
