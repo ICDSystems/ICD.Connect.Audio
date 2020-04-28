@@ -8,6 +8,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Fixed NullRefException with BiColorMicButtons
  - IVolumePositionDeviceControl - added range attributes to VolumePosition
+ - BiampExternalTelemetryProvider - Changed ActiveFaults to ActiveFaultState
+ - BiampExternalTelemetryProvider - Fixed ActiveFaultsState parsing to handle no device faults correctly
+ 
+### Added
+ - BiampExternalTelemetryProvider - added network info telemetry
+ - BiampExternalTelemetryProvider - added serial number telemetry
+ - BiampExternalTelemetryProvider - added active fault message telemetry
+ 
+### Removed
+ - BiampExternalTelemetryProvider - removed VoIP and CallControl telemetry - it did not properly handle multiple cards
 
 ## [9.6.0] - 2020-02-18
 ### Changed
