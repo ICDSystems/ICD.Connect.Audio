@@ -74,7 +74,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 				m_PortButton = value;
 				SubscribePortButton(m_PortButton);
 				ConfigurePortButton(m_PortButton);
-				ButtonPressed = m_PortButton.State;
+				ButtonPressed = m_PortButton != null && m_PortButton.State;
 
 				UpdateCachedOnlineStatus();
 			}
@@ -92,7 +92,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 				m_PortVoltage = value;
 				SubscribePortVoltage(m_PortVoltage);
 				ConfigurePortVoltage(m_PortVoltage);
-				Voltage = m_PortVoltage.AnalogIn;
+				Voltage = m_PortVoltage == null ? (ushort)0 : m_PortVoltage.AnalogIn;
 
 				UpdateCachedOnlineStatus();
 			}
