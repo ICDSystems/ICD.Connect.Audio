@@ -1,4 +1,5 @@
 ﻿using System;
+using ICD.Common.Utils.Attributes;
 using ICD.Connect.API.Attributes;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.Proxies.Controls.Volume;
@@ -27,6 +28,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		[ApiProperty(VolumeLevelDeviceControlApi.PROPERTY_VOLUME_POSITION,
 			VolumeLevelDeviceControlApi.HELP_PROPERTY_VOLUME_POSITION)]
 		[DynamicPropertyTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_LEVEL, VolumeTelemetryNames.VOLUME_CONTROL_LEVEL_CHANGED)]
+		[Range(0.0f, 1.0f)]
 		float VolumePosition { get; }
 
 		/// <summary>
