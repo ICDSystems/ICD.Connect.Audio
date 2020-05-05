@@ -100,7 +100,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// Will return false if mute feedback is not supported.
 		/// </summary>
 		[ApiProperty(VolumeDeviceControlApi.PROPERTY_IS_MUTED, VolumeDeviceControlApi.HELP_PROPERTY_IS_MUTED)]
-		[DynamicPropertyTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_IS_MUTED, VolumeTelemetryNames.VOLUME_CONTROL_MUTE_COMMAND, VolumeTelemetryNames.VOLUME_CONTROL_IS_MUTED_CHANGED)]
+		[PropertyTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_IS_MUTED, VolumeTelemetryNames.VOLUME_CONTROL_MUTE_COMMAND, VolumeTelemetryNames.VOLUME_CONTROL_IS_MUTED_CHANGED)]
 		bool IsMuted { get; }
 
 		/// <summary>

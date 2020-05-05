@@ -6,6 +6,7 @@ using ICD.Connect.Audio.Telemetry;
 using ICD.Connect.Devices;
 using ICD.Connect.Telemetry;
 using ICD.Connect.Telemetry.Attributes;
+using ICD.Connect.Telemetry.Nodes.External;
 
 namespace ICD.Connect.Audio.Biamp
 {
@@ -316,31 +317,31 @@ namespace ICD.Connect.Audio.Biamp
 		[EventTelemetry(DeviceTelemetryNames.DEVICE_SERIAL_NUMBER_CHANGED)]
 		event EventHandler<StringEventArgs> OnSerialNumberChanged;
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_STATE, null, DspTelemetryNames.ACTIVE_FAULT_STATE_CHANGED)]
+		[PropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_STATE, null, DspTelemetryNames.ACTIVE_FAULT_STATE_CHANGED)]
 		bool ActiveFaultState { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION, null, DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION, null, DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION_CHANGED)]
 		string FirmwareVersion { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_ADDRESS, null, DeviceTelemetryNames.DEVICE_IP_ADDRESS_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_ADDRESS, null, DeviceTelemetryNames.DEVICE_IP_ADDRESS_CHANGED)]
 		string IpAddress { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_SUBNET, null, DeviceTelemetryNames.DEVICE_IP_SUBNET_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_SUBNET, null, DeviceTelemetryNames.DEVICE_IP_SUBNET_CHANGED)]
 		string IpSubnet { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_GATEWAY, null, DeviceTelemetryNames.DEVICE_IP_GATEWAY_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_GATEWAY, null, DeviceTelemetryNames.DEVICE_IP_GATEWAY_CHANGED)]
 		string IpGateway { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_HOSTNAME, null, DeviceTelemetryNames.DEVICE_HOSTNAME_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_HOSTNAME, null, DeviceTelemetryNames.DEVICE_HOSTNAME_CHANGED)]
 		string Hostname { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_MAC_ADDRESS, null, DeviceTelemetryNames.DEVICE_MAC_ADDRESS_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_MAC_ADDRESS, null, DeviceTelemetryNames.DEVICE_MAC_ADDRESS_CHANGED)]
 		string MacAddress { get; }
 
-		[DynamicPropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_MESSAGE, null, DspTelemetryNames.ACTIVE_FAULT_MESSAGE_CHANGED)]
+		[PropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_MESSAGE, null, DspTelemetryNames.ACTIVE_FAULT_MESSAGE_CHANGED)]
 		string ActiveFaultMessages { get; }
 
-		[DynamicPropertyTelemetry(DeviceTelemetryNames.DEVICE_SERIAL_NUMBER, null, DeviceTelemetryNames.DEVICE_SERIAL_NUMBER_CHANGED)]
+		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_SERIAL_NUMBER, null, DeviceTelemetryNames.DEVICE_SERIAL_NUMBER_CHANGED)]
 		string SerialNumber { get; }
 	}
 }
