@@ -440,7 +440,21 @@ namespace ICD.Connect.Audio.Biamp
 		internal void SendData(SubscriptionCallback callback, ICode data, int priority)
 		{
 			CodeCallbackPair pair = new CodeCallbackPair(data, callback);
-			m_SerialQueue.EnqueuePriority(pair, (a, b) => a.Code.CompareEquality(b.Code),priority);
+			m_SerialQueue.EnqueuePriority(pair, EqualityCompareCodes, priority);
+		}
+
+		/// <summary>
+		/// Compares the two codes for equality.
+		/// </summary>
+		/// <param name="dataA"></param>
+		/// <param name="dataB"></param>
+		/// <returns></returns>
+		private static bool EqualityCompareCodes(ISerialData dataA, ISerialData dataB)
+		{
+			ICode codeA = (ICode)dataA;
+			ICode codeB = (ICode)dataB;
+
+			return codeA.CompareEquality(codeB);
 		}
 
 		#endregion
