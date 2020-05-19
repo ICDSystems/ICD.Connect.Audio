@@ -466,7 +466,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				{
 					//Update incoming call first
 					UpdateIncomingCall(m_IncomingCall);
-					m_ActiveSource = new ThinTraditionalParticipant(m_IncomingCall);
+					m_ActiveSource = ThinTraditionalParticipant.FromIncomingCall(m_IncomingCall);
 					ClearCurrentIncomingCall();
 				}
 				else
