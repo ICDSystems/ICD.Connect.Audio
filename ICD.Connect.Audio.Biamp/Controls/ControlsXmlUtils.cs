@@ -15,6 +15,8 @@ using ICD.Connect.Audio.Biamp.Controls.Partitioning;
 using ICD.Connect.Audio.Biamp.Controls.State;
 using ICD.Connect.Audio.Biamp.Controls.Volume;
 using ICD.Connect.Conferencing.Controls.Dialing;
+using ICD.Connect.Conferencing.DialContexts;
+using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Devices.Controls;
 
 namespace ICD.Connect.Audio.Biamp.Controls
@@ -240,6 +242,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			int? doNotDisturbId = XmlUtils.TryReadChildElementContentAsInt(xml, "DoNotDisturb");
 			int? privacyMuteId = XmlUtils.TryReadChildElementContentAsInt(xml, "PrivacyMute");
 			int? holdId = XmlUtils.TryReadChildElementContentAsInt(xml, "Hold");
+			string callInNumber = XmlUtils.TryReadChildElementContentAsString(xml, "CallInNumber");
 
 			IBiampTesiraStateDeviceControl doNotDisturbControl = doNotDisturbId.HasValue
 				                                                    ? LazyLoadControl(doNotDisturbId.Value, factory, controlElements,
@@ -259,16 +262,33 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			switch (type.ToLower())
 			{
 				case "voip":
+					DialContext voipInfo =
+						new DialContext
+						{
+							Protocol = eDialProtocol.Sip,
+							CallType = eCallType.Audio,
+							DialString = callInNumber
+						};
+
 					return LazyLoadControl<VoIpConferenceDeviceControl, VoIpControlStatusLine>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
 						                                      new VoIpConferenceDeviceControl(id, name, attributeInterface,
-						                                                                      privacyMuteControl));
+						                                                                      privacyMuteControl, voipInfo));
 				case "ti":
+					DialContext tiInfo =
+						new DialContext
+						{
+							Protocol = eDialProtocol.Pstn,
+							CallType = eCallType.Audio,
+							DialString = callInNumber
+						};
+
 					return LazyLoadControl<TiConferenceDeviceControl, TiControlStatusBlock>
 						(id, factory, controlElements, cache, (name, attributeInterface) =>
 						                                      new TiConferenceDeviceControl(id, name, attributeInterface,
 						                                                                    doNotDisturbControl,
-						                                                                    privacyMuteControl, holdControl));
+						                                                                    privacyMuteControl, holdControl,
+																							tiInfo));
 
 				default:
 					Logger.AddEntry(eSeverity.Error, "Unable to create control for unknown type \"{0}\"", type);

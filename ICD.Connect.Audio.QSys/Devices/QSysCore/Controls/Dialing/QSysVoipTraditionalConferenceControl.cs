@@ -147,6 +147,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			string voipName = XmlUtils.TryReadChildElementContentAsString(xml, "ControlName");
 			string privacyMuteName = XmlUtils.TryReadChildElementContentAsString(xml, "PrivacyMuteControl");
 			string holdName = XmlUtils.TryReadChildElementContentAsString(xml, "HoldControl");
+			string sipAddress = XmlUtils.TryReadChildElementContentAsString(xml, "SipAddress");
 
 			// Load volume/mute controls
 			m_VoipComponent = context.LazyLoadNamedComponent<VoipNamedComponent>(voipName);
@@ -161,6 +162,14 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 			if (m_PrivacyMuteControl != null)
 				SupportedConferenceFeatures |= eConferenceFeatures.PrivacyMute;
+
+			CallInInfo =
+				new DialContext
+				{
+					Protocol = eDialProtocol.Sip,
+					CallType = eCallType.Audio,
+					DialString = sipAddress
+				};
 
 			Subscribe();
 		}

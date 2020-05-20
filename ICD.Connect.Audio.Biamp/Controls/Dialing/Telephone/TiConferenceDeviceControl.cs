@@ -75,10 +75,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
 		/// <param name="holdControl"></param>
+		/// <param name="callInInfo"></param>
 		public TiConferenceDeviceControl(int id, string name, TiControlStatusBlock tiControl,
-									  IBiampTesiraStateDeviceControl doNotDisturbControl,
-									  IBiampTesiraStateDeviceControl privacyMuteControl,
-									  IBiampTesiraStateDeviceControl holdControl)
+		                                 IBiampTesiraStateDeviceControl doNotDisturbControl,
+		                                 IBiampTesiraStateDeviceControl privacyMuteControl,
+		                                 IBiampTesiraStateDeviceControl holdControl,
+		                                 IDialContext callInInfo)
 			: base(id, name, tiControl.Device, privacyMuteControl)
 		{
 			m_ActiveSourceSection = new SafeCriticalSection();
@@ -86,6 +88,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_TiControl = tiControl;
 			m_HoldControl = holdControl;
 			m_DoNotDisturbControl = doNotDisturbControl;
+			CallInInfo = callInInfo;
 
 			if (m_TiControl != null)
 				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;

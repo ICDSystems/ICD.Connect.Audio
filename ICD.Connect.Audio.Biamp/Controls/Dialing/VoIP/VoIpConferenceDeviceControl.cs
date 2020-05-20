@@ -35,8 +35,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// <param name="name"></param>
 		/// <param name="line"></param>
 		/// <param name="privacyMuteControl"></param>
+		/// <param name="callInInfo"></param>
 		public VoIpConferenceDeviceControl(int id, string name, VoIpControlStatusLine line,
-		                                   IBiampTesiraStateDeviceControl privacyMuteControl)
+		                                   IBiampTesiraStateDeviceControl privacyMuteControl,
+		                                   IDialContext callInInfo)
 			: base(id, name, line.Device, privacyMuteControl)
 		{
 			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
@@ -44,6 +46,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			m_AppearanceSourcesSection = new SafeCriticalSection();
 
 			m_Line = line;
+			CallInInfo = callInInfo;
 
 			SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
 			SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
