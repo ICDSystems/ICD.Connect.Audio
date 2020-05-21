@@ -107,7 +107,7 @@ namespace ICD.Connect.Audio.Devices
 				return null;
 
 			IOriginator originator;
-			ServiceProvider.GetService<ICore>().Originators.TryGetChild(id, out originator);
+			Core.Originators.TryGetChild(id, out originator);
 
 			return originator as IVolumePoint;
 		}

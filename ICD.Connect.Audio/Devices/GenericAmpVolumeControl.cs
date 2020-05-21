@@ -1,7 +1,6 @@
 ﻿using System;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
@@ -12,7 +11,6 @@ using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Routing.Extensions;
 using ICD.Connect.Routing.RoutingGraphs;
-using ICD.Connect.Settings.Cores;
 
 namespace ICD.Connect.Audio.Devices
 {
@@ -303,13 +301,13 @@ namespace ICD.Connect.Audio.Devices
 		}
 
 		[CanBeNull]
-		private static IVolumeDeviceControl GetRoutedVolumeDeviceControl(IRouteDestinationControl destination, int input)
+		private IVolumeDeviceControl GetRoutedVolumeDeviceControl(IRouteDestinationControl destination, int input)
 		{
 			if (destination == null)
 				throw new ArgumentNullException("destination");
 
 			IRoutingGraph graph;
-			if (!ServiceProvider.GetService<ICore>().TryGetRoutingGraph(out graph))
+			if (!Parent.Core.TryGetRoutingGraph(out graph))
 				return null;
 
 			while (true)
