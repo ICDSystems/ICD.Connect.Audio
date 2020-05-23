@@ -42,6 +42,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		private string m_LastDialedNumber;
 
 		private TraditionalIncomingCall m_IncomingCall;
+		
+		/// <summary>
+		/// True when we are rejecting a call - prevents call from being added as an answered/active source
+		/// </summary>
+		private bool m_RejectingCall;
 
 		#region Properties
 
@@ -228,14 +233,25 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				source.SetDirection(eCallDirection.Outgoing);
 			}
 
+			//Don't update answer state for incoming calls - those are preserved from the incoming call
+			if (source.Direction != eCallDirection.Incoming)
+			{
+				// Don't update the answer state if we can't determine the current answer state
+				// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)4
+				eCallAnswerState answerState = TiControlStateToOutboundAnswerState(m_TiControl.State);
+				if ((source.AnswerState == eCallAnswerState.Unknown || source.AnswerState == eCallAnswerState.Unanswered)
+				    && answerState != eCallAnswerState.Unknown)
+					source.SetAnswerState(answerState);
+			}
+
 			// Start/End
 			switch (status)
 			{
 				case eParticipantStatus.Connected:
-					source.SetStart(source.Start ?? IcdEnvironment.GetUtcTime());
+					source.SetStart(source.StartTime ?? IcdEnvironment.GetUtcTime());
 					break;
 				case eParticipantStatus.Disconnected:
-					source.SetEnd(source.End ?? IcdEnvironment.GetUtcTime());
+					source.SetEnd(source.EndTime ?? IcdEnvironment.GetUtcTime());
 					break;
 			}
 		}
@@ -251,47 +267,60 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			call.Name = call.Name ?? call.Number;
 
 			// Don't update the answer state if we can't determine the current answer state
-			eCallAnswerState answerState = TiControlStateToAnswerState(m_TiControl.State);
-			if (answerState != eCallAnswerState.Unknown)
+			// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)
+			eCallAnswerState answerState = TiControlStateToIncomingAnswerState(m_TiControl.State);
+			if ((call.AnswerState == eCallAnswerState.Unknown || call.AnswerState == eCallAnswerState.Unanswered)
+			    &&answerState != eCallAnswerState.Unknown)
 				call.AnswerState = answerState;
-
-			// Assume the call is outgoing unless we discover otherwise.
-			eCallDirection direction = TiControlStateToDirection(m_TiControl.State);
-			if (direction == eCallDirection.Incoming)
-			{
-				m_LastDialedNumber = null;
-				call.Direction = eCallDirection.Incoming;
-			}
 		}
 
-		private static eCallDirection TiControlStateToDirection(TiControlStatusBlock.eTiCallState state)
-		{
-			switch (state)
-			{
-				case TiControlStatusBlock.eTiCallState.Ringing:
-					return eCallDirection.Incoming;
-
-				default:
-					return eCallDirection.Undefined;
-			}
-		}
-
-		private static eCallAnswerState TiControlStateToAnswerState(TiControlStatusBlock.eTiCallState state)
+		private eCallAnswerState TiControlStateToIncomingAnswerState(TiControlStatusBlock.eTiCallState state)
 		{
 
 			switch (state)
 			{
 				case TiControlStatusBlock.eTiCallState.Fault:
-				case TiControlStatusBlock.eTiCallState.Idle:
 				case TiControlStatusBlock.eTiCallState.Init:
 				case TiControlStatusBlock.eTiCallState.BusyTone:
 				case TiControlStatusBlock.eTiCallState.ErrorTone:
-				case TiControlStatusBlock.eTiCallState.Dropped:
 					return eCallAnswerState.Unknown;
 
 				case TiControlStatusBlock.eTiCallState.Dialing:
 				case TiControlStatusBlock.eTiCallState.RingBack:
 				case TiControlStatusBlock.eTiCallState.Ringing:
+					return eCallAnswerState.Unanswered;
+
+				case TiControlStatusBlock.eTiCallState.Idle:
+				case TiControlStatusBlock.eTiCallState.Dropped:
+					return m_RejectingCall ? eCallAnswerState.Rejected : eCallAnswerState.Ignored;
+
+				case TiControlStatusBlock.eTiCallState.Connected:
+				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+					return AutoAnswer ? eCallAnswerState.AutoAnswered : eCallAnswerState.Answered;
+
+				default:
+					throw new ArgumentOutOfRangeException("state");
+			}
+		}
+
+		private static eCallAnswerState TiControlStateToOutboundAnswerState(TiControlStatusBlock.eTiCallState state)
+		{
+
+			switch (state)
+			{
+				case TiControlStatusBlock.eTiCallState.Idle:
+				case TiControlStatusBlock.eTiCallState.Init:
+				case TiControlStatusBlock.eTiCallState.Ringing:
+					return eCallAnswerState.Unknown;
+
+				case TiControlStatusBlock.eTiCallState.Fault:
+				case TiControlStatusBlock.eTiCallState.BusyTone:
+				case TiControlStatusBlock.eTiCallState.ErrorTone:
+				case TiControlStatusBlock.eTiCallState.Dropped:
+					return eCallAnswerState.Rejected;
+
+				case TiControlStatusBlock.eTiCallState.Dialing:
+				case TiControlStatusBlock.eTiCallState.RingBack:
 					return eCallAnswerState.Unanswered;
 
 				case TiControlStatusBlock.eTiCallState.Connected:
@@ -397,10 +426,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 					case eParticipantStatus.EarlyMedia:
 					case eParticipantStatus.Preserved:
 					case eParticipantStatus.RemotePreserved:
-						if (m_ActiveSource == null)
-							CreateActiveSource();
-						else
-							UpdateSource(m_ActiveSource);
+						// If we are rejecting a call, don't create a participant
+						if (!m_RejectingCall)
+						{
+							if (m_ActiveSource == null)
+								CreateActiveSource();
+							else
+								UpdateSource(m_ActiveSource);
+						}
 						break;
 
 					case eParticipantStatus.Undefined:
@@ -429,13 +462,25 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 			try
 			{
-				if(m_IncomingCall != null)
-					ClearCurrentIncomingCall();
-
 				ClearCurrentSource();
 
-				m_ActiveSource = new ThinTraditionalParticipant();
+				// If there's an incoming call, we're answering that, so pull info from it
+				if (m_IncomingCall != null)
+				{
+					//Update incoming call first
+					UpdateIncomingCall(m_IncomingCall);
+					m_ActiveSource = ThinTraditionalParticipant.FromIncomingCall(m_IncomingCall);
+					ClearCurrentIncomingCall();
+				}
+				else
+				{
+					m_ActiveSource = new ThinTraditionalParticipant();
+					m_ActiveSource.SetDirection(eCallDirection.Outgoing);
+					m_ActiveSource.SetAnswerState(eCallAnswerState.Unknown);
+				}
+
 				m_ActiveSource.SetCallType(eCallType.Audio);
+
 				Subscribe(m_ActiveSource);
 
 				// Setup the source properties
@@ -487,10 +532,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// <param name="source"></param>
 		private void Subscribe(ThinTraditionalParticipant source)
 		{
-			source.HoldCallback += HoldCallback;
-			source.ResumeCallback += ResumeCallback;
-			source.SendDtmfCallback += SendDtmfCallback;
-			source.HangupCallback += HangupCallback;
+			source.HoldCallback = HoldCallback;
+			source.ResumeCallback = ResumeCallback;
+			source.SendDtmfCallback = SendDtmfCallback;
+			source.HangupCallback = HangupCallback;
 		}
 
 		/// <summary>
@@ -561,7 +606,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			try
 			{
 				if (m_IncomingCall == null)
+				{
+					m_RejectingCall = false;
 					return;
+				}
 
 				UpdateIncomingCall(m_IncomingCall);
 				Unsubscribe(m_IncomingCall);
@@ -569,6 +617,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				m_IncomingCall = null;
 
 				SetHold(false);
+
+				m_RejectingCall = false;
 			}
 			finally
 			{
@@ -593,9 +643,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_TiControl.Answer();
 		}
 
+		/// <summary>
+		/// Rejects the incoming call
+		/// </summary>
+		/// <param name="sender"></param>
 		private void RejectCallback(IIncomingCall sender)
 		{
-			// Rejects the incoming call.
+			m_RejectingCall = true;
 			SetHold(true);
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OffHook);
 			m_TiControl.SetHookState(TiControlStatusBlock.eHookState.OnHook);
@@ -697,12 +751,16 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 		private void AttributeInterfaceOnCallerNumberChanged(object sender, StringEventArgs stringEventArgs)
 		{
+			if (m_IncomingCall != null)
+				m_IncomingCall.Number = stringEventArgs.Data;
 			if (m_ActiveSource != null)
 				UpdateSource(m_ActiveSource);
 		}
 
 		private void AttributeInterfaceOnCallerNameChanged(object sender, StringEventArgs stringEventArgs)
 		{
+			if (m_IncomingCall != null)
+				m_IncomingCall.Name = stringEventArgs.Data;
 			if (m_ActiveSource != null)
 				UpdateSource(m_ActiveSource);
 		}

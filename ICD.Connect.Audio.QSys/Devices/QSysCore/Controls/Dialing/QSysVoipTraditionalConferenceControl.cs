@@ -345,7 +345,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					CreateIncomingCall();
 					incomingCall = IncomingCall;
 				}
-				incomingCall.Direction = eCallDirection.Incoming;
 				incomingCall.AnswerState = eCallAnswerState.Unanswered;
 			}
 			else
@@ -371,11 +370,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 				if (callStatus == eParticipantStatus.Connected)
 				{
-					if (source.Start == null)
+					if (source.StartTime == null)
 						source.SetStart(IcdEnvironment.GetUtcTime());
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
-						incomingCall.AnswerState = eCallAnswerState.Autoanswered;
+						incomingCall.AnswerState = eCallAnswerState.AutoAnswered;
 				}
 			}
 		}
@@ -407,7 +406,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				Participant = null;
-				IncomingCall = new TraditionalIncomingCall(eCallType.Audio) { Direction = eCallDirection.Incoming };
+				IncomingCall = new TraditionalIncomingCall(eCallType.Audio);
 			}
 			finally
 			{

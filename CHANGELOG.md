@@ -10,6 +10,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - MockAudioDevice now inherits from AbstractMockDevice
  - Using new logging context
 
+## [13.0.0] - 2020-05-23
+### Changed
+Changed Biamp and QSys conferecing for ConferenceHistory changes - StartTime/EndTime renames, AutoAnswer rename, incoming calls have no direction
+
 ## [12.1.0] - 2020-03-24
 ### Added
  - VolumePointHelper - Added OnVolumeControlSupportedVolumeFeaturesChanged event

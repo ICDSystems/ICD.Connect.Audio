@@ -258,17 +258,21 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				}
 
 				source.SetDirection(eCallDirection.Outgoing);
+
 			}
 
 			// Start/End
 			switch (status)
 			{
 				case eParticipantStatus.Connected:
-					source.SetStart(source.Start ?? IcdEnvironment.GetUtcTime());
-					source.SetAnswerState(eCallAnswerState.Answered);
+					source.SetStart(source.StartTime ?? IcdEnvironment.GetUtcTime());
+					if (source.Direction == eCallDirection.Incoming && AutoAnswer)
+						source.SetAnswerState(eCallAnswerState.AutoAnswered);
+					else
+						source.SetAnswerState(eCallAnswerState.Answered);
 					break;
 				case eParticipantStatus.Disconnected:
-					source.SetEnd(source.End ?? IcdEnvironment.GetUtcTime());
+					source.SetEnd(source.EndTime ?? IcdEnvironment.GetUtcTime());
 					if (source.AnswerState == eCallAnswerState.Unknown)
 						source.SetAnswerState(eCallAnswerState.Unanswered);
 					break;
@@ -361,31 +365,14 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				call.Number = callAppearance.CallerNumber;
 
 			call.Name = call.Name ?? call.Number;
-
-			// Assume the call is outgoing unless we discover otherwise.
-			eCallDirection direction = VoIpCallStateToDirection(callAppearance.State);
-			if (direction == eCallDirection.Incoming)
-			{
-				m_LastDialedNumber = null;
-				call.Direction = eCallDirection.Incoming;
-			}
-			else if (call.Direction != eCallDirection.Incoming)
-			{
-				if (string.IsNullOrEmpty(call.Number) &&
-					string.IsNullOrEmpty(call.Name) &&
-					!string.IsNullOrEmpty(m_LastDialedNumber))
-				{
-					call.Number = m_LastDialedNumber;
-					call.Name = m_LastDialedNumber;
-					m_LastDialedNumber = null;
-				}
-
-				call.Direction = eCallDirection.Outgoing;
-			}
+			
+			m_LastDialedNumber = null;
 
 			// Don't update the answer state if we can't determine the current answer state
-			eCallAnswerState answerState = VoIpCallStateToAnswerState(callAppearance.State);
-			if (answerState != eCallAnswerState.Unknown)
+			// Don't update the answer state if it's already set to a answered state
+			eCallAnswerState answerState = VoIpCallStateToIncomingAnswerState(callAppearance.State);
+			if ((call.AnswerState != eCallAnswerState.Unanswered || call.AnswerState == eCallAnswerState.Unknown) &&
+				answerState != eCallAnswerState.Unknown)
 				call.AnswerState = answerState;
 		}
 
@@ -444,6 +431,10 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				IIncomingCall call;
 				if (!m_AppearanceIncomingCalls.TryGetValue(index, out call))
 					return;
+
+				//If no answer state, set to ignored
+				if (call.AnswerState == eCallAnswerState.Unanswered || call.AnswerState == eCallAnswerState.Unknown)
+					call.AnswerState = eCallAnswerState.Ignored;
 
 				Unsubscribe(call);
 
@@ -511,7 +502,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			}
 		}
 
-		private static eCallAnswerState VoIpCallStateToAnswerState(VoIpControlStatusCallAppearance.eVoIpCallState state)
+		private eCallAnswerState VoIpCallStateToIncomingAnswerState(VoIpControlStatusCallAppearance.eVoIpCallState state)
 		{
 			switch (state)
 			{
@@ -537,7 +528,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfActive:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.ConfHold:
 				case VoIpControlStatusCallAppearance.eVoIpCallState.AnswerCall:
-					return eCallAnswerState.Answered;
+					return AutoAnswer ? eCallAnswerState.AutoAnswered : eCallAnswerState.Answered;
 
 				default:
 					throw new ArgumentOutOfRangeException("state");
@@ -654,7 +645,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 				return;
 
 			m_Line.GetCallAppearance(index).End();
-			sender.AnswerState = eCallAnswerState.Ignored;
+			sender.AnswerState = eCallAnswerState.Rejected;
 		}
 
 		private bool TryGetCallAppearance(IIncomingCall source, out int index)
