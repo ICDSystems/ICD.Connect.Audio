@@ -2,15 +2,11 @@
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.Services;
-using ICD.Connect.Audio.Telemetry;
-using ICD.Connect.Devices;
-using ICD.Connect.Telemetry;
-using ICD.Connect.Telemetry.Attributes;
-using ICD.Connect.Telemetry.Nodes.External;
+using ICD.Connect.Telemetry.Providers.External;
 
 namespace ICD.Connect.Audio.Biamp
 {
-	public sealed class BiampExternalTelemetryProvider : IBiampExternalTelemetryProvider
+	public sealed class BiampExternalTelemetryProvider : AbstractExternalTelemetryProvider<BiampTesiraDevice>, IBiampExternalTelemetryProvider
 	{
 		private const string NO_FAULTS_MESSAGE = "No fault in device";
 
@@ -24,7 +20,6 @@ namespace ICD.Connect.Audio.Biamp
 		public event EventHandler<StringEventArgs> OnActiveFaultMessagesChanged;
 		public event EventHandler<StringEventArgs> OnSerialNumberChanged;
 
-		private BiampTesiraDevice m_Parent;
 		private bool m_ActiveFaultState;
 		private string m_FirmwareVersion;
 		private string m_IpAddress;
@@ -34,6 +29,8 @@ namespace ICD.Connect.Audio.Biamp
 		private string m_SerialNumber;
 		private string m_IpSubnet;
 		private string m_IpGateway;
+
+		#region Properties
 
 		public bool ActiveFaultState
 		{
@@ -161,37 +158,37 @@ namespace ICD.Connect.Audio.Biamp
 			}
 		}
 
-		public void SetParent(ITelemetryProvider provider)
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		/// Sets the parent telemetry provider that this instance extends.
+		/// </summary>
+		/// <param name="parent"></param>
+		protected override void SetParent(BiampTesiraDevice parent)
 		{
-			if (!(provider is BiampTesiraDevice))
-				throw new InvalidOperationException(
-					string.Format("Cannot create external telemetry for provider {0}, " +
-								  "Provider must be of type BiampTesiraDevice.", provider));
+			base.SetParent(parent);
 
-			UnsubscribeParent(m_Parent);
-
-			m_Parent = (BiampTesiraDevice)provider;
-
-			SubscribeParent(m_Parent);
-
-			Update(m_Parent);
+			Update();
 		}
 
-		private void Update(BiampTesiraDevice parent)
+		private void Update()
 		{
-			if (parent == null)
+			DeviceService service = Parent == null ? null : GetDeviceService(Parent);
+			if (service == null)
 				return;
 
-			FirmwareVersion = GetDeviceService(parent).FirmwareVersion;
-			IpAddress = GetDeviceService(parent).IpAddress;
-			Hostname = GetDeviceService(parent).Hostname;
-			MacAddress = GetDeviceService(parent).MacAddress;
-			SerialNumber = GetDeviceService(parent).SerialNumber;
-			IpSubnet = GetDeviceService(parent).SubnetMask;
-			IpGateway = GetDeviceService(parent).DefaultGateway;
+			FirmwareVersion = service.FirmwareVersion;
+			IpAddress = service.IpAddress;
+			Hostname = service.Hostname;
+			MacAddress = service.MacAddress;
+			SerialNumber = service.SerialNumber;
+			IpSubnet = service.SubnetMask;
+			IpGateway = service.DefaultGateway;
 
 			// Active Faults
-			string faults = GetDeviceService(parent).ActiveFaultStatus;
+			string faults = service.ActiveFaultStatus;
 			if (string.IsNullOrEmpty(faults) || string.Equals(faults, NO_FAULTS_MESSAGE, StringComparison.OrdinalIgnoreCase))
 			{
 				ActiveFaultState = false;
@@ -203,34 +200,44 @@ namespace ICD.Connect.Audio.Biamp
 
 		}
 
-		private void SubscribeParent(BiampTesiraDevice parent)
+		#endregion
+
+		#region Parent Callbacks
+
+		protected override void Subscribe(BiampTesiraDevice parent)
 		{
-			if (parent == null)
+			base.Subscribe(parent);
+
+			DeviceService service = parent == null ? null : GetDeviceService(parent);
+			if (service == null)
 				return;
 
-			GetDeviceService(parent).OnFirmwareVersionChanged += ParentOnFirmwareVersionChanged;
-			GetDeviceService(parent).OnFaultStatusChanged += ParentOnFaultStatusChanged;
-			GetDeviceService(parent).OnIpAddressChanged += ParentOnIpAddressChanged;
-			GetDeviceService(parent).OnHostnameChanged += ParentOnHostnameChanged;
-			GetDeviceService(parent).OnMacAddressChanged += ParentOnMacAddressChanged;
-			GetDeviceService(parent).OnSerialNumberChanged += ParentOnSerialNumberChanged;
-			GetDeviceService(parent).OnSubnetMaskChanged += ParentOnSubnetMaskChanged;
-			GetDeviceService(parent).OnDefaultGatewayChanged += ParentOnDefaultGatewayChanged;
+			service.OnFirmwareVersionChanged += ParentOnFirmwareVersionChanged;
+			service.OnFaultStatusChanged += ParentOnFaultStatusChanged;
+			service.OnIpAddressChanged += ParentOnIpAddressChanged;
+			service.OnHostnameChanged += ParentOnHostnameChanged;
+			service.OnMacAddressChanged += ParentOnMacAddressChanged;
+			service.OnSerialNumberChanged += ParentOnSerialNumberChanged;
+			service.OnSubnetMaskChanged += ParentOnSubnetMaskChanged;
+			service.OnDefaultGatewayChanged += ParentOnDefaultGatewayChanged;
 		}
 
-		private void UnsubscribeParent(BiampTesiraDevice parent)
+		protected override void Unsubscribe(BiampTesiraDevice parent)
 		{
-			if (m_Parent == null)
+			base.Unsubscribe(parent);
+
+			DeviceService service = parent == null ? null : GetDeviceService(parent);
+			if (service == null)
 				return;
 
-			GetDeviceService(parent).OnFirmwareVersionChanged -= ParentOnFirmwareVersionChanged;
-			GetDeviceService(parent).OnFaultStatusChanged -= ParentOnFaultStatusChanged;
-			GetDeviceService(parent).OnIpAddressChanged -= ParentOnIpAddressChanged;
-			GetDeviceService(parent).OnHostnameChanged -= ParentOnHostnameChanged;
-			GetDeviceService(parent).OnMacAddressChanged -= ParentOnMacAddressChanged;
-			GetDeviceService(parent).OnSerialNumberChanged -= ParentOnSerialNumberChanged;
-			GetDeviceService(parent).OnSubnetMaskChanged -= ParentOnSubnetMaskChanged;
-			GetDeviceService(parent).OnDefaultGatewayChanged -= ParentOnDefaultGatewayChanged;
+			service.OnFirmwareVersionChanged -= ParentOnFirmwareVersionChanged;
+			service.OnFaultStatusChanged -= ParentOnFaultStatusChanged;
+			service.OnIpAddressChanged -= ParentOnIpAddressChanged;
+			service.OnHostnameChanged -= ParentOnHostnameChanged;
+			service.OnMacAddressChanged -= ParentOnMacAddressChanged;
+			service.OnSerialNumberChanged -= ParentOnSerialNumberChanged;
+			service.OnSubnetMaskChanged -= ParentOnSubnetMaskChanged;
+			service.OnDefaultGatewayChanged -= ParentOnDefaultGatewayChanged;
 		}
 
 		private void ParentOnIpAddressChanged(object sender, StringEventArgs e)
@@ -286,62 +293,7 @@ namespace ICD.Connect.Audio.Biamp
 		{
 			SerialNumber = e.Data;
 		}
-	}
 
-	public interface IBiampExternalTelemetryProvider : IExternalTelemetryProvider
-	{
-		[EventTelemetry(DspTelemetryNames.ACTIVE_FAULT_STATE_CHANGED)]
-		event EventHandler<BoolEventArgs> OnActiveFaultStateChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION_CHANGED)]
-		event EventHandler<StringEventArgs> OnFirmwareVersionChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_IP_ADDRESS_CHANGED)]
-		event EventHandler<StringEventArgs> OnIpAddressChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_IP_SUBNET_CHANGED)]
-		event EventHandler<StringEventArgs> OnIpSubnetChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_IP_GATEWAY_CHANGED)]
-		event EventHandler<StringEventArgs> OnIpGatewayChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_HOSTNAME_CHANGED)]
-		event EventHandler<StringEventArgs> OnHostnameChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_MAC_ADDRESS_CHANGED)]
-		event EventHandler<StringEventArgs> OnMacAddressChanged;
-
-		[EventTelemetry(DspTelemetryNames.ACTIVE_FAULT_MESSAGE_CHANGED)]
-		event EventHandler<StringEventArgs> OnActiveFaultMessagesChanged;
-
-		[EventTelemetry(DeviceTelemetryNames.DEVICE_SERIAL_NUMBER_CHANGED)]
-		event EventHandler<StringEventArgs> OnSerialNumberChanged;
-
-		[PropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_STATE, null, DspTelemetryNames.ACTIVE_FAULT_STATE_CHANGED)]
-		bool ActiveFaultState { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION, null, DeviceTelemetryNames.DEVICE_FIRMWARE_VERSION_CHANGED)]
-		string FirmwareVersion { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_ADDRESS, null, DeviceTelemetryNames.DEVICE_IP_ADDRESS_CHANGED)]
-		string IpAddress { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_SUBNET, null, DeviceTelemetryNames.DEVICE_IP_SUBNET_CHANGED)]
-		string IpSubnet { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_IP_GATEWAY, null, DeviceTelemetryNames.DEVICE_IP_GATEWAY_CHANGED)]
-		string IpGateway { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_HOSTNAME, null, DeviceTelemetryNames.DEVICE_HOSTNAME_CHANGED)]
-		string Hostname { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_MAC_ADDRESS, null, DeviceTelemetryNames.DEVICE_MAC_ADDRESS_CHANGED)]
-		string MacAddress { get; }
-
-		[PropertyTelemetry(DspTelemetryNames.ACTIVE_FAULT_MESSAGE, null, DspTelemetryNames.ACTIVE_FAULT_MESSAGE_CHANGED)]
-		string ActiveFaultMessages { get; }
-
-		[PropertyTelemetry(DeviceTelemetryNames.DEVICE_SERIAL_NUMBER, null, DeviceTelemetryNames.DEVICE_SERIAL_NUMBER_CHANGED)]
-		string SerialNumber { get; }
+		#endregion
 	}
 }

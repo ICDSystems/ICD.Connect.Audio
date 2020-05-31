@@ -201,6 +201,7 @@
     <Compile Include="Controls\ControlsXmlUtils.cs" />
     <Compile Include="Controls\Dialing\VoIP\VoIpConferenceDeviceControl.cs" />
     <Compile Include="BiampExternalTelemetryProvider.cs" />
+    <Compile Include="IBiampExternalTelemetryProvider.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TesiraTextProtocol\Codes\AbstractCode.cs" />
