@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils;
@@ -63,7 +64,8 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 
 				m_Hold = value;
 
-				Logger.Set("Hold", eSeverity.Informational, m_Hold);
+				Logger.LogSetTo(eSeverity.Informational, "IsOnHold", m_Hold);
+				Activities.LogActivity(ConferenceDeviceControlActivities.GetHoldActivity(m_Hold));
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}

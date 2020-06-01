@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -53,7 +54,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 
 				m_ButtonPressed = value;
 
-				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
+				Logger.LogSetTo(eSeverity.Informational, "ButtonPressed", m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -73,7 +74,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 
 				m_LedState = value;
 
-				Logger.Set("Led State", eSeverity.Informational, m_LedState);
+				Logger.LogSetTo(eSeverity.Informational, "LedState", m_LedState);
 
 				OnLedStateChanged.Raise(this, new BoolEventArgs(m_LedState));
 			}

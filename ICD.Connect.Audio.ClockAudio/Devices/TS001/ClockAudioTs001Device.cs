@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
@@ -71,7 +72,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_Voltage = value;
 
-				Logger.Set("Voltage", eSeverity.Informational, m_Voltage);
+				Logger.LogSetTo(eSeverity.Informational, "Voltage", m_Voltage);
 
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
@@ -91,7 +92,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_ButtonPressed = value;
 
-				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
+				Logger.LogSetTo(eSeverity.Informational, "ButtonPressed", m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -111,7 +112,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_RedLedEnabled = value;
 
-				Logger.Set("Red Led Enabled", eSeverity.Informational, m_RedLedEnabled);
+				Logger.LogSetTo(eSeverity.Informational, "RedLedEnabled", m_RedLedEnabled);
 
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
@@ -131,7 +132,7 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.TS001
 
 				m_GreenLedEnabled = value;
 
-				Logger.Set("Green Led Enabled", eSeverity.Informational, m_GreenLedEnabled);
+				Logger.LogSetTo(eSeverity.Informational, "GreenLedEnabled", m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}

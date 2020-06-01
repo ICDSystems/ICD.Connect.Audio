@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
@@ -8,6 +9,7 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Microphone;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using Activity = ICD.Common.Logging.LoggingContexts.Activity;
 
 namespace ICD.Connect.Audio.Controls.Microphone
 {
@@ -48,7 +50,10 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_IsMuted = value;
 
-				Logger.Set("Muted", eSeverity.Informational, m_IsMuted);
+				Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
+				Activities.LogActivity(m_IsMuted
+									   ? new Activity(Activity.ePriority.Medium, "IsMuted", "Muted", eSeverity.Informational)
+									   : new Activity(Activity.ePriority.Low, "IsMuted", "Unmuted", eSeverity.Informational));
 
 				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_IsMuted));
 			}
@@ -67,7 +72,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_PhantomPower = value;
 
-				Logger.Set("Phantom Power", eSeverity.Informational, m_PhantomPower);
+				Logger.LogSetTo(eSeverity.Informational, "PhantomPower", m_PhantomPower);
 
 				OnPhantomPowerStateChanged.Raise(this, new BoolEventArgs(m_PhantomPower));
 			}
@@ -87,7 +92,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 
 				m_GainLevel = value;
 
-				Logger.Set("Gain Level", eSeverity.Informational, m_GainLevel);
+				Logger.LogSetTo(eSeverity.Informational, "GainLevel", m_GainLevel);
 
 				OnGainLevelChanged.Raise(this, new FloatEventArgs(m_GainLevel));
 			}

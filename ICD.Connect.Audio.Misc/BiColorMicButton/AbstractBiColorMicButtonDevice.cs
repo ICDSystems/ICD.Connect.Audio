@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Logging.LoggingContexts;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -164,7 +165,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_Voltage = value;
 
-				Logger.Set("Voltage", eSeverity.Informational, m_Voltage);
+				Logger.LogSetTo(eSeverity.Informational, "Voltage", m_Voltage);
 
 				OnVoltageChanged.Raise(this, new UShortEventArgs(m_Voltage));
 			}
@@ -184,7 +185,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_ButtonPressed = value;
 
-				Logger.Set("Button Pressed", eSeverity.Informational, m_ButtonPressed);
+				Logger.LogSetTo(eSeverity.Informational, "ButtonPressed", m_ButtonPressed);
 
 				OnButtonPressedChanged.Raise(this, new BoolEventArgs(m_ButtonPressed));
 			}
@@ -204,14 +205,14 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_PowerEnabled = value;
 
-				Logger.Set("Power Enabled", eSeverity.Informational, m_PowerEnabled);
+				Logger.LogSetTo(eSeverity.Informational, "PowerEnabled", m_PowerEnabled);
 
 				OnPowerEnabledChanged.Raise(this, new BoolEventArgs(m_PowerEnabled));
 			}
 		}
 
 		/// <summary>
-		/// Gets the enabled state of the Red LED.
+		/// Gets the enabled state of the red LED.
 		/// </summary>
 		[PublicAPI]
 		public bool RedLedEnabled
@@ -224,7 +225,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_RedLedEnabled = value;
 
-				Logger.Set("Red Led Enabled", eSeverity.Informational, m_RedLedEnabled);
+				Logger.LogSetTo(eSeverity.Informational, "RedLedEnabled", m_RedLedEnabled);
 
 				OnRedLedEnabledChanged.Raise(this, new BoolEventArgs(m_RedLedEnabled));
 			}
@@ -244,7 +245,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 				m_GreenLedEnabled = value;
 
-				Logger.Set("Green Led Enabled", eSeverity.Informational, m_GreenLedEnabled);
+				Logger.LogSetTo(eSeverity.Informational, "GreenLedEnabled", m_GreenLedEnabled);
 
 				OnGreenLedEnabledChanged.Raise(this, new BoolEventArgs(m_GreenLedEnabled));
 			}
