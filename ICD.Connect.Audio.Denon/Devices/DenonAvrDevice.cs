@@ -7,6 +7,7 @@ using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Denon.Controls;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Network.Ports;
@@ -104,10 +105,6 @@ namespace ICD.Connect.Audio.Denon.Devices
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
-
-			Controls.Add(new DenonAvrSwitcherRoutingControl(this, 0));
-			Controls.Add(new DenonAvrPowerControl(this, 1));
-			Controls.Add(new DenonAvrVolumeControl(this, 2));
 		}
 
 		#region Methods
@@ -337,6 +334,21 @@ namespace ICD.Connect.Audio.Denon.Devices
 			}
 
 			SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(DenonAvrDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new DenonAvrSwitcherRoutingControl(this, 0));
+			addControl(new DenonAvrPowerControl(this, 1));
+			addControl(new DenonAvrVolumeControl(this, 2));
 		}
 
 		#endregion

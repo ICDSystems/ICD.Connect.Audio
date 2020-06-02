@@ -10,6 +10,7 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Cameras;
 using ICD.Connect.Cameras.Controls;
 using ICD.Connect.Cameras.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Settings;
 
@@ -47,9 +48,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 				eCameraFeatures.Presets |
 				eCameraFeatures.Home |
 				eCameraFeatures.Mute;
-
-			Controls.Add(new GenericCameraRouteSourceControl<QSysCoreCameraDevice>(this, 0));
-			Controls.Add(new CameraDeviceControl(this, 1));
 		}
 
 		/// <summary>
@@ -283,6 +281,20 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCoreCamera
 			settings.DspId = m_Dsp == null ? null : (int?)m_Dsp.Id;
 			settings.ComponentName = m_ComponentName;
 			settings.SnapshotsName = m_SnapshotsName;
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(QSysCoreCameraDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new GenericCameraRouteSourceControl<QSysCoreCameraDevice>(this, 0));
+			addControl(new CameraDeviceControl(this, 1));
 		}
 
 		#endregion

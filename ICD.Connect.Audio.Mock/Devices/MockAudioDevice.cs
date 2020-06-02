@@ -1,5 +1,8 @@
-﻿using ICD.Connect.Devices.Mock;
+﻿using System;
+using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.Mock;
 using ICD.Connect.Routing.Mock.Midpoint;
+using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Mock.Devices
 {
@@ -9,12 +12,17 @@ namespace ICD.Connect.Audio.Mock.Devices
 	public sealed class MockAudioDevice : AbstractMockDevice<MockAudioDeviceSettings>
 	{
 		/// <summary>
-		/// Constructor.
+		/// Override to add controls to the device.
 		/// </summary>
-		public MockAudioDevice()
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(MockAudioDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
 		{
-			Controls.Add(new MockRouteMidpointControl(this, 0));
-			Controls.Add(new MockAudioDeviceVolumeControl(this, 1));
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new MockRouteMidpointControl(this, 0));
+			addControl(new MockAudioDeviceVolumeControl(this, 1));
 		}
 	}
 }

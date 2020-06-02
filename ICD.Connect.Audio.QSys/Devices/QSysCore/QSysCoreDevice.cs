@@ -16,6 +16,7 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Network.Ports;
@@ -103,8 +104,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		{
 			m_NetworkProperties = new SecureNetworkProperties();
 			m_Components = new QSysCoreComponentsCollection(this);
-
-			Controls.Add(new QSysCoreRoutingControl(this, 0));
 
 			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
@@ -546,6 +545,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 
 			m_ConnectionStateManager.SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(QSysCoreDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new QSysCoreRoutingControl(this, 0));
 		}
 
 		#endregion

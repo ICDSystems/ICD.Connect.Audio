@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Ports.RelayPort;
 using ICD.Connect.Settings;
@@ -53,8 +55,6 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.CCRM4000
 		public ClockAudioCcrm4000Device()
 		{
 			m_ResetTimer = SafeTimer.Stopped(OpenAllRelays);
-
-			Controls.Add(new ClockAudioCcrm4000RoutSourceControl(this, 0));
 		}
 
 		#region Methods
@@ -264,6 +264,19 @@ namespace ICD.Connect.Audio.ClockAudio.Devices.CCRM4000
 			SetRetractRelay(null);
 			RelayLatch = false;
 			RelayHoldTime = 500;
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(ClockAudioCcrm4000DeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new ClockAudioCcrm4000RoutSourceControl(this, 0));
 		}
 
 		#endregion

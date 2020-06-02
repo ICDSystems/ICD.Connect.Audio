@@ -142,8 +142,6 @@ namespace ICD.Connect.Audio.Biamp
 
 			m_LoadedControls = new IcdHashSet<IDeviceControl>();
 
-			Controls.Add(new BiampTesiraRoutingControl(this, 0));
-
 			m_SubscriptionCallbacks = new Dictionary<string, IcdHashSet<SubscriptionCallbackInfo>>();
 			m_SubscriptionCallbacksSection = new SafeCriticalSection();
 
@@ -849,6 +847,19 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(BiampTesiraDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new BiampTesiraRoutingControl(this, 0));
 		}
 
 		#endregion

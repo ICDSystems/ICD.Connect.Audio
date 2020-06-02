@@ -9,6 +9,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Shure.Controls;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
@@ -81,14 +82,6 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 		}
 
 		#endregion
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		public ShureMx396Device()
-		{
-			Controls.Add(new ShureMicRouteSourceControl(this, 0));
-		}
 
 		/// <summary>
 		/// Release resources.
@@ -307,6 +300,19 @@ namespace ICD.Connect.Audio.Shure.Devices.MX
 				Logger.Log(eSeverity.Error, "No IO Port with id {0}", portId);
 
 			return port;
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(ShureMx396DeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new ShureMicRouteSourceControl(this, 0));
 		}
 
 		#endregion

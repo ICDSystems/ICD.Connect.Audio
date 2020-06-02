@@ -7,6 +7,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Shure.Controls;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Ports;
@@ -57,8 +58,6 @@ namespace ICD.Connect.Audio.Shure.Devices
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
-
-			Controls.Add(new ShureMicRouteSourceControl(this, 0));
 		}
 
 		/// <summary>
@@ -232,6 +231,19 @@ namespace ICD.Connect.Audio.Shure.Devices
 			}
 
 			m_ConnectionStateManager.SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(TSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			addControl(new ShureMicRouteSourceControl(this, 0));
 		}
 
 		#endregion

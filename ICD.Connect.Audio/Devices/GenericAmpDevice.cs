@@ -11,6 +11,7 @@ using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Settings;
@@ -40,16 +41,6 @@ namespace ICD.Connect.Audio.Devices
 		{
 			m_InputVolumePointIds = new Dictionary<int, int>();
 			m_InputsSection = new SafeCriticalSection();
-
-			GenericAmpRouteSwitcherControl switcherControl = new GenericAmpRouteSwitcherControl(this, 0);
-			switcherControl.OnRouteChange += GenericAmpRouteSwitcherControlOnRouteChange;
-			Controls.Add(switcherControl);
-
-			// Needs to be added after the route control
-			var volumeControl = new GenericAmpVolumeControl(this, 1);
-			volumeControl.OnIsMutedChanged += VolumeControlOnIsMutedChanged;
-			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
-			Controls.Add(volumeControl);
 		}
 
 		/// <summary>
@@ -233,6 +224,27 @@ namespace ICD.Connect.Audio.Devices
 			base.ApplySettingsFinal(settings, factory);
 
 			SetInputVolumePointIds(settings.GetInputVolumePointIds());
+		}
+
+		/// <summary>
+		/// Override to add controls to the device.
+		/// </summary>
+		/// <param name="settings"></param>
+		/// <param name="factory"></param>
+		/// <param name="addControl"></param>
+		protected override void AddControls(GenericAmpDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		{
+			base.AddControls(settings, factory, addControl);
+
+			GenericAmpRouteSwitcherControl switcherControl = new GenericAmpRouteSwitcherControl(this, 0);
+			switcherControl.OnRouteChange += GenericAmpRouteSwitcherControlOnRouteChange;
+			addControl(switcherControl);
+
+			// Needs to be added after the route control
+			GenericAmpVolumeControl volumeControl = new GenericAmpVolumeControl(this, 1);
+			volumeControl.OnIsMutedChanged += VolumeControlOnIsMutedChanged;
+			volumeControl.OnVolumeChanged += VolumeControlOnVolumeChanged;
+			addControl(volumeControl);
 		}
 
 		#endregion
