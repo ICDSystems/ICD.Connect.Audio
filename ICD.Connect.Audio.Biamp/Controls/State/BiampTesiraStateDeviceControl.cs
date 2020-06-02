@@ -1,4 +1,5 @@
-﻿using ICD.Common.Utils.EventArguments;
+﻿using System;
+using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces;
 
 namespace ICD.Connect.Audio.Biamp.Controls.State
@@ -14,10 +15,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="stateAttribute"></param>
-		public BiampTesiraStateDeviceControl(int id, string name, IStateAttributeInterface stateAttribute)
-			: base(id, name, stateAttribute.Device)
+		public BiampTesiraStateDeviceControl(int id, Guid uuid, string name, IStateAttributeInterface stateAttribute)
+			: base(id, uuid, name, stateAttribute.Device)
 		{
 			m_StateAttribute = stateAttribute;
 

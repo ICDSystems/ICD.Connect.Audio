@@ -30,6 +30,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 	    /// </summary>
 	    private readonly Dictionary<int, Type> m_ElementsTypes;
 
+	    /// <summary>
+	    /// Element ID to UUID
+	    /// </summary>
+	    private readonly Dictionary<int, Guid> m_ElementUuids;
+
 		/// <summary>
 		/// Element ID to Friendly Name
 		/// </summary>
@@ -103,6 +108,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		    QSysCore = qSysCore;
 			m_NextAvailableId = NEXT_ID_START;
 			m_ElementsTypes = new Dictionary<int, Type>();
+			m_ElementUuids = new Dictionary<int, Guid>();
 			m_ElementNames = new Dictionary<int, string>();
 			m_ElementsXml = new Dictionary<int, string>();
 			m_ChangeGroupBindings = new Dictionary<string, int>();
@@ -125,13 +131,15 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// Adds a generic control
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="controlType"></param>
 		/// <param name="controlName"></param>
 		/// <param name="xml"></param>
-		internal void AddElement(int id, Type controlType, string controlName, string xml)
+		internal void AddElement(int id, Guid uuid, Type controlType, string controlName, string xml)
 	    {
 		    m_ElementsTypes[id] = controlType;
 		    m_ElementsXml[id] = xml;
+		    m_ElementUuids[id] = uuid;
 			m_ElementNames[id] = controlName;
 	    }
 
@@ -141,7 +149,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// <param name="changeGroup"></param>
 		internal void AddChangeGroup(IChangeGroup changeGroup)
 		{
-			AddElement(changeGroup.Id, changeGroup.GetType(), changeGroup.Name, null);
+			AddElement(changeGroup.Id, Guid.Empty, changeGroup.GetType(), changeGroup.Name, null);
 			BindChangeGroup(changeGroup);
 			m_ChangeGroups.Add(changeGroup.Id, changeGroup);
 		}
@@ -152,7 +160,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// <param name="namedControl"></param>
 		internal void AddNamedControl(INamedControl namedControl)
 		{
-			AddElement(namedControl.Id, namedControl.GetType(), namedControl.Name, null);
+			AddElement(namedControl.Id, Guid.Empty, namedControl.GetType(), namedControl.Name, null);
 			BindNamedControl(namedControl);
 			m_NamedControls.Add(namedControl.Id, namedControl);
 		}
@@ -163,7 +171,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// <param name="namedComponent"></param>
 		internal void AddNamedComponent(INamedComponent namedComponent)
 		{
-			AddElement(namedComponent.Id, namedComponent.GetType(), namedComponent.Name, null);
+			AddElement(namedComponent.Id, Guid.Empty, namedComponent.GetType(), namedComponent.Name, null);
 			BindNamedComponent(namedComponent);
 			m_NamedComponents.Add(namedComponent.Id, namedComponent);
 		}
@@ -174,7 +182,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 		/// <param name="krangControl"></param>
 		internal void AddKrangControl(IQSysKrangControl krangControl)
 		{
-			AddElement(krangControl.Id, krangControl.GetType(), krangControl.Name, null);
+			AddElement(krangControl.Id, krangControl.Uuid, krangControl.GetType(), krangControl.Name, null);
 			m_KrangControls.Add(krangControl.Id, krangControl);
 		}
 
@@ -317,6 +325,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 				checkValue++;
 			}
+		}
+
+		public Guid GetUuidForElementId(int id)
+		{
+			Guid uuid;
+			return m_ElementUuids.TryGetValue(id, out uuid) ? uuid : Guid.Empty;
 		}
 
 		[CanBeNull]

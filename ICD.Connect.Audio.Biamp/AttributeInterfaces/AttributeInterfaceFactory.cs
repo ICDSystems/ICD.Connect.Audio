@@ -129,6 +129,11 @@ namespace ICD.Connect.Audio.Biamp.AttributeInterfaces
 		/// </summary>
 		public string ConsoleHelp { get { return string.Empty; } }
 
+		/// <summary>
+		/// Gets the parent device for this factory.
+		/// </summary>
+		public BiampTesiraDevice Device { get { return m_Device; } }
+
 		#endregion
 
 		/// <summary>

@@ -23,14 +23,16 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
+		/// <param name="muteSource"></param>
 		/// <param name="unmuteSource"></param>
 		/// <param name="room"></param>
 		/// <param name="feedback"></param>
-		/// <param name="muteSource"></param>
-		public RoomCombinerRoomStateControl(int id, string name, int muteSource, int unmuteSource,
-		                                    [NotNull] RoomCombinerRoom room, [NotNull] IBiampTesiraStateDeviceControl feedback)
-			: base(id, name, room.Device)
+		public RoomCombinerRoomStateControl(int id, Guid uuid, string name, int muteSource, int unmuteSource,
+		                                    [NotNull] RoomCombinerRoom room,
+		                                    [NotNull] IBiampTesiraStateDeviceControl feedback)
+			: base(id, uuid, name, room.Device)
 		{
 			if (room == null)
 				throw new ArgumentNullException("room");

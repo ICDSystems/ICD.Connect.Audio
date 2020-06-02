@@ -1,4 +1,5 @@
-﻿using ICD.Common.Utils.EventArguments;
+﻿using System;
+using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.AttributeInterfaces.MixerBlocks.RoomCombiner;
 using ICD.Connect.Partitioning.Controls;
 
@@ -29,10 +30,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Partitioning
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="wall"></param>
-		public BiampTesiraPartitionDeviceControl(int id, string name, RoomCombinerWall wall)
-			: base(wall.Device, id)
+		public BiampTesiraPartitionDeviceControl(int id, Guid uuid, string name, RoomCombinerWall wall)
+			: base(wall.Device, id, uuid)
 		{
 			m_Name = name;
 			m_Wall = wall;

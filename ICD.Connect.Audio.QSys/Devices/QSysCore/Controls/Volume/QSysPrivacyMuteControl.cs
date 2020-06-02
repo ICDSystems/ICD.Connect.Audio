@@ -40,12 +40,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 		/// Constructor used to load control from xml
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="friendlyName"></param>
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-		public QSysPrivacyMuteControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
-			: base(context.QSysCore, id)
+		public QSysPrivacyMuteControl(int id, Guid uuid, string friendlyName, CoreElementsLoadContext context, string xml)
+			: base(context.QSysCore, id, uuid)
 		{
 			m_Name = friendlyName;
 

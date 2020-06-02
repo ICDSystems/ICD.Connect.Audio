@@ -18,6 +18,7 @@ using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.Utils;
 
 namespace ICD.Connect.Audio.Biamp.Controls
 {
@@ -26,7 +27,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		/*
 		XML controls are in one of 2 formats:
 		
-		<Control type="Volume" id="1" name="Line Volume">
+		<Control type="Volume" id="1" uuid="0D79ED58-BCC3-4d2d-B206-68938C33720E" name="Line Volume">
 			<Block>SomethingBlock</Block>
 			<InstanceTag>SomethingBlock1</InstanceTag>
 			<Channel type="Input">
@@ -34,7 +35,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			</Channel>
 		</Control>
 		
-		<Control type="Volume" id="2" name="Volume">
+		<Control type="Volume" id="2" uuid="C6B7650C-0814-4f26-8BAE-507C1CD42DA3" name="Volume">
 			<Block>SomethingBlock</Block>
 			<InstanceTag>SomethingBlock1</InstanceTag>
 		</Control>
@@ -105,16 +106,16 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						return LazyLoadRoomCombinerWall(id, factory, controlElements, cache);
 					case "volume":
 						return LazyLoadControl<BiampTesiraVolumeDeviceControl, IVolumeAttributeInterface>
-							(id, factory, controlElements, cache, (name, attributeInterface) =>
-								 new BiampTesiraVolumeDeviceControl(id, name, attributeInterface));
+							(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+								 new BiampTesiraVolumeDeviceControl(id, uuid, name, attributeInterface));
 					case "privacy":
 						return LazyLoadControl<BiampTesiraPrivacyMuteDeviceControl, IStateAttributeInterface>
-							(id, factory, controlElements, cache, (name, attributeInterface) =>
-								 new BiampTesiraPrivacyMuteDeviceControl(id, name, attributeInterface));
+							(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+								 new BiampTesiraPrivacyMuteDeviceControl(id, uuid, name, attributeInterface));
 					case "state":
 						return LazyLoadControl<BiampTesiraStateDeviceControl, IStateAttributeInterface>
-							(id, factory, controlElements, cache, (name, attributeInterface) =>
-								 new BiampTesiraStateDeviceControl(id, name, attributeInterface));
+							(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+								 new BiampTesiraStateDeviceControl(id, uuid, name, attributeInterface));
 					case "roomcombinerroom":
 						return LazyLoadRoomCombinerRoom(id, factory, controlElements, cache);
 					case "voip":
@@ -172,8 +173,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 				                                                 : null;
 
 			return LazyLoadControl<RoomCombinerRoomStateControl, RoomCombinerBlock>
-				(id, factory, controlElements, cache, (name, attributeInterface) =>
-				                                      new RoomCombinerRoomStateControl(id, name, muteSource, unmuteSource,
+				(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+				                                      new RoomCombinerRoomStateControl(id, uuid, name, muteSource, unmuteSource,
 				                                                                       attributeInterface.GetRoom(room),
 				                                                                       feedbackControl));
 		}
@@ -206,8 +207,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			int wall = XmlUtils.ReadChildElementContentAsInt(xml, "Wall");
 
 			return LazyLoadControl<BiampTesiraPartitionDeviceControl, RoomCombinerBlock>
-				(id, factory, controlElements, cache, (name, attributeInterface) =>
-				                                      new BiampTesiraPartitionDeviceControl(id, name,
+				(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+				                                      new BiampTesiraPartitionDeviceControl(id, uuid, name,
 				                                                                            attributeInterface.GetWall(wall)));
 		}
 
@@ -271,8 +272,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						};
 
 					return LazyLoadControl<VoIpConferenceDeviceControl, VoIpControlStatusLine>
-						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new VoIpConferenceDeviceControl(id, name, attributeInterface,
+						(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+						                                      new VoIpConferenceDeviceControl(id, uuid, name, attributeInterface,
 						                                                                      privacyMuteControl, voipInfo));
 				case "ti":
 					DialContext tiInfo =
@@ -284,8 +285,8 @@ namespace ICD.Connect.Audio.Biamp.Controls
 						};
 
 					return LazyLoadControl<TiConferenceDeviceControl, TiControlStatusBlock>
-						(id, factory, controlElements, cache, (name, attributeInterface) =>
-						                                      new TiConferenceDeviceControl(id, name, attributeInterface,
+						(id, factory, controlElements, cache, (uuid, name, attributeInterface) =>
+						                                      new TiConferenceDeviceControl(id, uuid, name, attributeInterface,
 						                                                                    doNotDisturbControl,
 						                                                                    privacyMuteControl, holdControl,
 																							tiInfo));
@@ -310,7 +311,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 		private static TControl LazyLoadControl<TControl, TAttributeInterface>(int id, AttributeInterfaceFactory factory,
 		                                                                       Dictionary<int, string> controlElements,
 		                                                                       Dictionary<int, IDeviceControl> cache,
-		                                                                       Func<string, TAttributeInterface, TControl>
+		                                                                       Func<Guid, string, TAttributeInterface, TControl>
 			                                                                       constructor)
 			where TControl : class, IDeviceControl
 			where TAttributeInterface : class, IAttributeInterface
@@ -334,8 +335,18 @@ namespace ICD.Connect.Audio.Biamp.Controls
 			{
 				string xml = controlElements[id];
 				string name = XmlUtils.GetAttributeAsString(xml, "name");
-				IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
+				Guid uuid;
 
+				try
+				{
+					uuid = XmlUtils.GetAttributeAsGuid(xml, "uuid");
+				}
+				catch (Exception)
+				{
+					uuid = DeviceControlUtils.GenerateUuid(factory.Device, id);
+				}
+
+				IAttributeInterface attributeInterface = GetAttributeInterfaceFromXml(xml, factory);
 				TAttributeInterface concreteAttributeInterface;
 
 				try
@@ -349,7 +360,7 @@ namespace ICD.Connect.Audio.Biamp.Controls
 					throw new InvalidCastException(castMessage, e);
 				}
 
-				TControl control = constructor(name, concreteAttributeInterface);
+				TControl control = constructor(uuid, name, concreteAttributeInterface);
 				cache.Add(id, control);
 			}
 

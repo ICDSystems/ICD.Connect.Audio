@@ -13,6 +13,7 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
+using ICD.Connect.Devices.Utils;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 {
@@ -66,12 +67,22 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				int id;
 				string elementTypeString, elementNameString;
 				Type elementType;
+				Guid uuid;
 
 				try
 				{
 					id = XmlUtils.GetAttributeAsInt(elementXml, "id");
 					elementTypeString = XmlUtils.GetAttributeAsString(elementXml, "type");
 					elementNameString = XmlUtils.GetAttributeAsString(elementXml, "name");
+
+					try
+					{
+						uuid = XmlUtils.GetAttributeAsGuid(elementXml, "uuid");
+					}
+					catch (Exception)
+					{
+						uuid = DeviceControlUtils.GenerateUuid(qSysCore, id);
+					}
 
 					s_TypeToAttribute.TryGetKey(elementTypeString, out elementType);
 				}
@@ -82,7 +93,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				}
 
 				if (elementType != null)
-					loadContext.AddElement(id, elementType, elementNameString, elementXml);
+					loadContext.AddElement(id, uuid, elementType, elementNameString, elementXml);
 				else
 					loadContext.QSysCore.Logger.Log(eSeverity.Error, "No type matching {0} for element id {1}", elementTypeString,
 					                         id);
@@ -145,7 +156,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				return;
 
 			int autoChangeGroupId = loadContext.GetNextId();
-			loadContext.AddElement(autoChangeGroupId, typeof(ChangeGroup), "Auto Change Group", null);
+			loadContext.AddElement(autoChangeGroupId, Guid.Empty, typeof(ChangeGroup), "Auto Change Group", null);
 
 			IChangeGroup autoChangeGroup = null;
 
@@ -226,7 +237,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls
 				try
 				{
 					control =
-						ReflectionUtils.CreateInstance(kvp.Value, kvp.Key, loadContext.GetNameForElementId(kvp.Key), loadContext,
+						ReflectionUtils.CreateInstance(kvp.Value,
+						                               kvp.Key,
+													   loadContext.GetUuidForElementId(kvp.Key),
+						                               loadContext.GetNameForElementId(kvp.Key),
+						                               loadContext,
 						                               controlXml) as IQSysKrangControl;
 				}
 				catch (Exception e)

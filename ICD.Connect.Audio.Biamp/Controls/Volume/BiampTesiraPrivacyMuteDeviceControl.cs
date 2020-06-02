@@ -33,10 +33,12 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="stateInterface"></param>
-		public BiampTesiraPrivacyMuteDeviceControl(int id, string name, IStateAttributeInterface stateInterface)
-			: base(stateInterface.Device, id)
+		public BiampTesiraPrivacyMuteDeviceControl(int id, Guid uuid, string name,
+		                                           IStateAttributeInterface stateInterface)
+			: base(stateInterface.Device, id, uuid)
 		{
 			m_Name = name;
 			m_StateInterface = stateInterface;

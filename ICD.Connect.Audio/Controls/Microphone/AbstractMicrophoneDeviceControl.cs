@@ -111,6 +111,17 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		}
 
 		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="id"></param>
+		/// <param name="uuid"></param>
+		protected AbstractMicrophoneDeviceControl(T parent, int id, Guid uuid)
+			: base(parent, id, uuid)
+		{
+		}
+
+		/// <summary>
 		/// Override to release resources.
 		/// </summary>
 		/// <param name="disposing"></param>

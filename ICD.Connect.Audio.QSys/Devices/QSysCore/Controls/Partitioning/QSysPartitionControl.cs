@@ -1,4 +1,5 @@
-﻿using ICD.Common.Properties;
+﻿using System;
+using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Partitioning.Controls;
@@ -30,12 +31,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Partitioning
 		/// Constructor used to load control from xml
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="friendlyName"></param>
 		/// <param name="context"></param>
 		/// <param name="xml"></param>
 		[UsedImplicitly]
-		public QSysPartitionControl(int id, string friendlyName, CoreElementsLoadContext context, string xml)
-			: base(context.QSysCore, id)
+		public QSysPartitionControl(int id, Guid uuid, string friendlyName, CoreElementsLoadContext context, string xml)
+			: base(context.QSysCore, id, uuid)
 		{
 			m_Name = friendlyName;
 

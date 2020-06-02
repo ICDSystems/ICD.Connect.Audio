@@ -77,18 +77,19 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="tiControl"></param>
 		/// <param name="doNotDisturbControl"></param>
 		/// <param name="privacyMuteControl"></param>
 		/// <param name="holdControl"></param>
 		/// <param name="callInInfo"></param>
-		public TiConferenceDeviceControl(int id, string name, TiControlStatusBlock tiControl,
+		public TiConferenceDeviceControl(int id, Guid uuid, string name, TiControlStatusBlock tiControl,
 		                                 IBiampTesiraStateDeviceControl doNotDisturbControl,
 		                                 IBiampTesiraStateDeviceControl privacyMuteControl,
 		                                 IBiampTesiraStateDeviceControl holdControl,
 		                                 IDialContext callInInfo)
-			: base(id, name, tiControl.Device, privacyMuteControl)
+			: base(id, uuid, name, tiControl.Device, privacyMuteControl)
 		{
 			m_ActiveSourceSection = new SafeCriticalSection();
 

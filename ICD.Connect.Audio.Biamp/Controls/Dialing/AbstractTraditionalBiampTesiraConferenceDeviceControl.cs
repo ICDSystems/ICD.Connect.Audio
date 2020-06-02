@@ -1,4 +1,5 @@
-﻿using ICD.Common.Properties;
+﻿using System;
+using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
@@ -34,12 +35,13 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="parent"></param>
 		/// <param name="privacyMuteControl"></param>
-		protected AbstractBiampTesiraConferenceDeviceControl(int id, string name, BiampTesiraDevice parent,
-														  IBiampTesiraStateDeviceControl privacyMuteControl)
-			: base(parent, id)
+		protected AbstractBiampTesiraConferenceDeviceControl(int id, Guid uuid, string name, BiampTesiraDevice parent,
+		                                                     IBiampTesiraStateDeviceControl privacyMuteControl)
+			: base(parent, id, uuid)
 		{
 			m_Name = name;
 

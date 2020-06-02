@@ -33,10 +33,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Volume
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="volumeInterface"></param>
-		public BiampTesiraVolumeDeviceControl(int id, string name, IVolumeAttributeInterface volumeInterface)
-			: base(volumeInterface.Device, id)
+		public BiampTesiraVolumeDeviceControl(int id, Guid uuid, string name, IVolumeAttributeInterface volumeInterface)
+			: base(volumeInterface.Device, id, uuid)
 		{
 			m_Name = name;
 			m_VolumeInterface = volumeInterface;

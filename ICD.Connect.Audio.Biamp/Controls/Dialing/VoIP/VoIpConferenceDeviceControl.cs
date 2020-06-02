@@ -32,14 +32,15 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="line"></param>
 		/// <param name="privacyMuteControl"></param>
 		/// <param name="callInInfo"></param>
-		public VoIpConferenceDeviceControl(int id, string name, VoIpControlStatusLine line,
+		public VoIpConferenceDeviceControl(int id, Guid uuid, string name, VoIpControlStatusLine line,
 		                                   IBiampTesiraStateDeviceControl privacyMuteControl,
 		                                   IDialContext callInInfo)
-			: base(id, name, line.Device, privacyMuteControl)
+			: base(id, uuid, name, line.Device, privacyMuteControl)
 		{
 			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
 			m_AppearanceIncomingCalls = new Dictionary<int, IIncomingCall>();

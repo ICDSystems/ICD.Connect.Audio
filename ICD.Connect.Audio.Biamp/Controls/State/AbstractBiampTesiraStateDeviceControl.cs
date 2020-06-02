@@ -48,10 +48,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.State
 		/// Constructor.
 		/// </summary>
 		/// <param name="id"></param>
+		/// <param name="uuid"></param>
 		/// <param name="name"></param>
 		/// <param name="device"></param>
-		protected AbstractBiampTesiraStateDeviceControl(int id, string name, BiampTesiraDevice device)
-			: base(device, id)
+		protected AbstractBiampTesiraStateDeviceControl(int id, Guid uuid, string name, BiampTesiraDevice device)
+			: base(device, id, uuid)
 		{
 			m_Name = name;
 		}
