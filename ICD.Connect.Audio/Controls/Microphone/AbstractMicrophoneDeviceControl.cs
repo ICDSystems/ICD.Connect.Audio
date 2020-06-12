@@ -9,7 +9,7 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Console.Microphone;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
-using Activity = ICD.Common.Logging.LoggingContexts.Activity;
+using ICD.Common.Logging.Activities;
 
 namespace ICD.Connect.Audio.Controls.Microphone
 {
