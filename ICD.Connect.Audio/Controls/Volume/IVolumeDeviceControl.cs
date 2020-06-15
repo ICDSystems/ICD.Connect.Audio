@@ -146,7 +146,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		void ToggleIsMuted();
 
 		/// <summary>
-		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// Sets the raw volume level in the device volume representation.
 		/// </summary>
 		/// <param name="level"></param>
 		[ApiMethod(VolumeDeviceControlApi.METHOD_SET_VOLUME_LEVEL, VolumeDeviceControlApi.HELP_METHOD_SET_VOLUME_LEVEL)]

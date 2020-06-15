@@ -145,7 +145,7 @@ namespace ICD.Connect.Audio.Proxies.Controls.Volume
 		}
 
 		/// <summary>
-		/// Sets the raw volume. This will be clamped to the min/max and safety min/max.
+		/// Sets the raw volume level in the device volume representation.
 		/// </summary>
 		/// <param name="level"></param>
 		public void SetVolumeLevel(float level)
