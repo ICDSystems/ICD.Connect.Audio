@@ -267,6 +267,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_PrivacyMuteControl.SetValue(enabled);
 		}
 
+		public override void SetCameraEnabled(bool enabled)
+		{
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Private Methods

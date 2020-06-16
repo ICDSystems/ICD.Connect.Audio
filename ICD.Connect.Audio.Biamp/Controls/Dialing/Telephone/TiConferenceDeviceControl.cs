@@ -164,6 +164,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			m_DoNotDisturbControl.SetState(enabled);
 		}
 
+		public override void SetCameraEnabled(bool enabled)
+		{
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Private Methods

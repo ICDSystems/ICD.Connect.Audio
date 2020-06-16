@@ -150,6 +150,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 			m_Line.SetAutoAnswer(enabled);
 		}
 
+		public override void SetCameraEnabled(bool enabled)
+		{
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Private Methods
