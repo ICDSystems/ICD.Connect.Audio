@@ -80,6 +80,11 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 			m_PrivacyMuteControl.SetState(enabled);
 		}
 
+		public override void SetCameraEnabled(bool enabled)
+		{
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Privacy Mute Callbacks
