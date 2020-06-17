@@ -51,6 +51,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.VoIP
 
 			SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
 			SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
+			SupportedConferenceFeatures |= eConferenceFeatures.Hold;
 
 			Subscribe(m_Line);
 		}

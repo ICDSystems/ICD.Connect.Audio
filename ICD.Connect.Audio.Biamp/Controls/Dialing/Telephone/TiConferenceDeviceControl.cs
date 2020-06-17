@@ -104,6 +104,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 			if (m_DoNotDisturbControl != null)
 				SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
 
+			if (m_HoldControl != null)
+				SupportedConferenceFeatures |= eConferenceFeatures.Hold;
+
 			Subscribe(m_TiControl);
 			SubscribeHold(m_HoldControl);
 			SubscribeDoNotDisturb(m_DoNotDisturbControl);

@@ -46,6 +46,9 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 			m_Name = name;
 
 			m_PrivacyMuteControl = privacyMuteControl;
+
+			SupportedConferenceFeatures |= eConferenceFeatures.Dtmf;
+
 			if (m_PrivacyMuteControl != null)
 				SupportedConferenceFeatures |= eConferenceFeatures.PrivacyMute;
 
