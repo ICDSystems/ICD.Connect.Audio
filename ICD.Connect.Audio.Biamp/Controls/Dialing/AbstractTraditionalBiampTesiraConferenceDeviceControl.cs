@@ -83,7 +83,7 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing
 			m_PrivacyMuteControl.SetState(enabled);
 		}
 
-		public override void SetCameraEnabled(bool enabled)
+		public override void SetCameraMute(bool mute)
 		{
 			throw new NotSupportedException();
 		}
