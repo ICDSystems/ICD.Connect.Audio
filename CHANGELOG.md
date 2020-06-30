@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+### Changed
+ - Improved volume telemetry, differentiating between level and percentage
+
 ## [14.0.0] - 2020-06-18
 ### Added
  - UUIDs are loaded from DSP configs
