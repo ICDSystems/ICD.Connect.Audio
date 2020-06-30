@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
  - Improved volume telemetry, differentiating between level and percentage
+ - Fixed a bug where Biamp serial commands were not being safely compared
 
 ## [14.0.0] - 2020-06-18
 ### Added

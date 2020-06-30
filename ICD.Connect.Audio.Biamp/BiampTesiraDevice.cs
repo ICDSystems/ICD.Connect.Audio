@@ -447,8 +447,20 @@ namespace ICD.Connect.Audio.Biamp
 		/// <param name="dataA"></param>
 		/// <param name="dataB"></param>
 		/// <returns></returns>
-		private static bool EqualityCompareCodes(ISerialData dataA, ISerialData dataB)
+		private static bool EqualityCompareCodes([NotNull] ISerialData dataA, [NotNull] ISerialData dataB)
 		{
+			if (dataA == null)
+				throw new ArgumentNullException("dataA");
+
+			if (dataB == null)
+				throw new ArgumentNullException("dataB");
+
+			if (!(dataA is ICode))
+				throw new ArgumentException("dataA is not an ICode - it is a " + dataA.GetType().Name, "dataA");
+
+			if (!(dataB is ICode))
+				throw new ArgumentException("dataB is not an ICode - it is a " + dataB.GetType().Name, "dataB");
+
 			ICode codeA = (ICode)dataA;
 			ICode codeB = (ICode)dataB;
 
