@@ -116,6 +116,9 @@ namespace ICD.Connect.Audio.Controls.Volume
 		{
 			base.Subscribe(parent);
 
+			if (parent == null)
+				return;
+
 			parent.OnVolumeChanged += ParentOnVolumeChanged;
 		}
 
@@ -126,6 +129,9 @@ namespace ICD.Connect.Audio.Controls.Volume
 		protected override void Unsubscribe(IVolumeDeviceControl parent)
 		{
 			base.Unsubscribe(parent);
+
+			if (parent == null)
+				return;
 
 			parent.OnVolumeChanged += ParentOnVolumeChanged;
 		}
