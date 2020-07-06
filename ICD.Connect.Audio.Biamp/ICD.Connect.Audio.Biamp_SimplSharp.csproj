@@ -181,7 +181,7 @@
     <Compile Include="AttributeInterfaces\Services\AbstractService.cs" />
     <Compile Include="AttributeInterfaces\Services\DeviceService.cs" />
     <Compile Include="AttributeInterfaces\Services\SessionService.cs" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="BiampTesiraDevice.cs" />
     <Compile Include="BiampTesiraDeviceSettings.cs" />
     <Compile Include="BiampTesiraRoutingControl.cs" />

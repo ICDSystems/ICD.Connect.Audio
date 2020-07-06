@@ -78,7 +78,7 @@
     <Compile Include="Devices\DenonAvrDeviceSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
     <None Include="AVR-3808CISerialProtocol_Ver520a.pdf" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>

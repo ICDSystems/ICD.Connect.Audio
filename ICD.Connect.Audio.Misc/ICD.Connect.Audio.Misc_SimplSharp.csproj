@@ -71,7 +71,7 @@
     <Compile Include="BiColorMicButton\IBiColorMicButton.cs" />
     <Compile Include="BiColorMicButton\IBiColorMicButtonDeviceSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
