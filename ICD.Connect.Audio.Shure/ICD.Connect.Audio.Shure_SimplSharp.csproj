@@ -84,7 +84,7 @@
     <Compile Include="Devices\eLedBrightness.cs" />
     <Compile Include="Devices\eLedColor.cs" />
     <None Include="MXA310_Command_Strings.pdf" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Devices\MXA\ShureMxa310Device.cs" />
     <Compile Include="Devices\MXA\ShureMxa310DeviceSettings.cs" />

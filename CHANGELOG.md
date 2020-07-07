@@ -7,8 +7,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 
 ### Changed
+ - Improved volume telemetry, differentiating between level and percentage
+ - Fixed a bug where Biamp serial commands were not being safely compared
+
+## [14.0.0] - 2020-06-18
+### Added
+ - UUIDs are loaded from DSP configs
+
+### Changed
  - MockAudioDevice now inherits from AbstractMockDevice
- - Using new logging context
+ - Refactoring for telemetry, logging, device controls, and more
 
 ## [13.0.0] - 2020-05-23
 ### Changed

@@ -69,6 +69,7 @@
     <Compile Include="Controls\Microphone\IMicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumeDeviceControl.cs" />
     <Compile Include="Controls\Volume\VolumeDeviceControlActivities.cs" />
+    <Compile Include="Controls\Volume\VolumeDeviceControlExternalTelemetryProvider.cs" />
     <Compile Include="EventArguments\VolumeControlSupportedVolumeFeaturesChangedApiEventArgs.cs" />
     <Compile Include="Proxies\Controls\Volume\ProxyVolumeDeviceControl.cs" />
     <Compile Include="Telemetry\DspTelemetryNames.cs" />
@@ -80,7 +81,7 @@
     <Compile Include="Devices\GenericAmpRouteSwitcherControl.cs" />
     <Compile Include="Devices\GenericAmpVolumeControl.cs" />
     <Compile Include="KrangPlugin.cs" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Proxies\Controls\Volume\VolumeDeviceControlApi.cs" />
     <Compile Include="Repeaters\VolumeRepeater.cs" />

@@ -55,6 +55,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 		VolumeRamp = 64
 	}
 
+	[ExternalTelemetry("Volume Device Control Telemetry", typeof(VolumeDeviceControlExternalTelemetryProvider))]
 	public interface IVolumeDeviceControl : IDeviceControl
 	{
 		#region Events
@@ -72,7 +73,6 @@ namespace ICD.Connect.Audio.Controls.Volume
 		/// Will not raise if volume feedback is not supported.
 		/// </summary>
 		[ApiEvent(VolumeDeviceControlApi.EVENT_VOLUME_CHANGED, VolumeDeviceControlApi.HELP_EVENT_VOLUME_CHANGED)]
-		[EventTelemetry(VolumeTelemetryNames.VOLUME_CONTROL_VOLUME_CHANGED)]
 		event EventHandler<VolumeControlVolumeChangedApiEventArgs> OnVolumeChanged;
 
 		/// <summary>

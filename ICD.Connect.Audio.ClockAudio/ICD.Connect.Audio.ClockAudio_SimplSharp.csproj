@@ -75,7 +75,7 @@
     <Compile Include="Devices\CCRM4000\ClockAudioCcrm4000RouteSourceControl.cs" />
     <Compile Include="Devices\TS001\ClockAudioTs001Device.cs" />
     <Compile Include="Devices\TS001\ClockAudioTs001DeviceSettings.cs" />
-    <None Include="ObfuscationSettings.cs" />
+    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
