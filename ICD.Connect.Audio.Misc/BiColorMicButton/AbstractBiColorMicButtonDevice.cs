@@ -472,7 +472,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 
 		#endregion
 
-#region Port GreenLed
+		#region Port GreenLed
 
 		protected abstract void SubscribePortGreenLed(TPortType port);
 		protected abstract void UnsubscribePortGreenLed(TPortType port);

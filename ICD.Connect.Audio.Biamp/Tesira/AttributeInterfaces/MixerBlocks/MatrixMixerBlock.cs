@@ -1,0 +1,15 @@
+namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.MixerBlocks
+{
+	public sealed class MatrixMixerBlock : AbstractMixerBlock
+	{
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="device"></param>
+		/// <param name="instanceTag"></param>
+		public MatrixMixerBlock(BiampTesiraDevice device, string instanceTag)
+			: base(device, instanceTag)
+		{
+		}
+	}
+}

@@ -1,6 +1,7 @@
 ﻿using ICD.Common.Utils.EventArguments;
 using NUnit.Framework;
 using System.Collections.Generic;
+using ICD.Connect.Audio.Biamp.Tesira;
 
 namespace ICD.Connect.Audio.Biamp.Tests
 {

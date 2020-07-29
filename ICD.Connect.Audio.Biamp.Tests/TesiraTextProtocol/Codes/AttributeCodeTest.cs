@@ -1,6 +1,6 @@
 ﻿using ICD.Common.Properties;
-using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Codes;
-using ICD.Connect.Audio.Biamp.TesiraTextProtocol.Parsing;
+using ICD.Connect.Audio.Biamp.Tesira.TesiraTextProtocol.Codes;
+using ICD.Connect.Audio.Biamp.Tesira.TesiraTextProtocol.Parsing;
 using NUnit.Framework;
 
 namespace ICD.Connect.Audio.Biamp.Tests.TesiraTextProtocol.Codes

@@ -3,6 +3,7 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
+using ICD.Connect.Audio.Biamp.Tesira;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.Mock.Ports;
 using ICD.Connect.Protocol.SerialQueues;
