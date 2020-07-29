@@ -7,6 +7,8 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Misc.BiColorMicLed;
+using ICD.Connect.Audio.Misc.MicMuteButton;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Extensions;
@@ -15,9 +17,11 @@ using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.BiColorMicButtonLed
 {
-	public abstract class AbstractBiColorMicButtonDevice<TPortType,TSettings> : AbstractDevice<TSettings>, IBiColorMicButton where TPortType : class, IPort where TSettings : IBiColorMicButtonDeviceSettings, new()
+	public abstract class AbstractBiColorMicButtonLedDevice<TPortType, TSettings> : AbstractDevice<TSettings>, IMicMuteButton, IBiColorMicLed
+		where TPortType : class, IPort
+		where TSettings : IMicMuteButtonDeviceSettings, new()
 	{
 		/// <summary>
 		/// Raised when the microphone button is pressed.
@@ -47,7 +51,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		/// Raised when the microphone voltage changes.
 		/// </summary>
 		[PublicAPI]
-		public event EventHandler<UShortEventArgs> OnVoltageChanged; 
+		public event EventHandler<UShortEventArgs> OnVoltageChanged;
 
 		private IDigitalInputPort m_PortButton;
 		private IIoPort m_PortVoltage;
@@ -459,7 +463,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		protected abstract void SubscribePortPower(TPortType port);
 		protected abstract void UnsubscribePortPower(TPortType port);
 		protected abstract void UpdatePowerState();
-		protected virtual void ConfigurePortPower(TPortType port){}
+		protected virtual void ConfigurePortPower(TPortType port) { }
 
 		#endregion
 
@@ -468,7 +472,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		protected abstract void SubscribePortRedLed(TPortType port);
 		protected abstract void UnsubscribePortRedLed(TPortType port);
 		protected abstract void UpdateRedLedState();
-		protected virtual void ConfigurePortRedLed(TPortType port){}
+		protected virtual void ConfigurePortRedLed(TPortType port) { }
 
 		#endregion
 
@@ -477,7 +481,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		protected abstract void SubscribePortGreenLed(TPortType port);
 		protected abstract void UnsubscribePortGreenLed(TPortType port);
 		protected abstract void UpdateGreenLedState();
-		protected virtual void ConfigurePortGreenLed(TPortType port){}
+		protected virtual void ConfigurePortGreenLed(TPortType port) { }
 
 		#endregion
 
@@ -525,8 +529,8 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		{
 			base.CopySettingsFinal(settings);
 
-				settings.ButtonInputPort = m_PortButton == null ? (int?)null : m_PortButton.Id;
-				settings.VoltageInputPort = m_PortVoltage == null ? (int?)null : m_PortVoltage.Id;
+			settings.ButtonInputPort = m_PortButton == null ? (int?)null : m_PortButton.Id;
+			settings.VoltageInputPort = m_PortVoltage == null ? (int?)null : m_PortVoltage.Id;
 		}
 
 		/// <summary>

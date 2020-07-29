@@ -3,16 +3,10 @@ using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Devices;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.BiColorMicLed
 {
-	public interface IBiColorMicButton : IDevice
+	public interface IBiColorMicLed : IDevice
 	{
-		/// <summary>
-		/// Raised when the microphone button is pressed.
-		/// </summary>
-		[PublicAPI]
-		event EventHandler<BoolEventArgs> OnButtonPressedChanged;
-
 		/// <summary>
 		/// Raised when the red LED enabled state changes.
 		/// </summary>
@@ -30,25 +24,6 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		/// </summary>
 		[PublicAPI]
 		event EventHandler<BoolEventArgs> OnGreenLedEnabledChanged;
-
-		/// <summary>
-		/// Raised when the microphone voltage changes.
-		/// </summary>
-		[PublicAPI]
-		event EventHandler<UShortEventArgs> OnVoltageChanged;
-
-
-		/// <summary>
-		/// Gets the voltage reported by the microphone hardware.
-		/// </summary>
-		[PublicAPI]
-		ushort Voltage { get; }
-
-		/// <summary>
-		/// Gets the current presses state of the button.
-		/// </summary>
-		[PublicAPI]
-		bool ButtonPressed { get; }
 
 		/// <summary>
 		/// Gets the enabled state of the power output.

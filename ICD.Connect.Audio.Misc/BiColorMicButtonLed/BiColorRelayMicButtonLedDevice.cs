@@ -3,9 +3,9 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Protocol.Ports.RelayPort;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.BiColorMicButtonLed
 {
-	public sealed class BiColorRelayMicButtonDevice : AbstractBiColorMicButtonDevice<IRelayPort, BiColorRelayMicButtonDeviceSettings>
+	public sealed class BiColorRelayMicButtonLedDevice : AbstractBiColorMicButtonLedDevice<IRelayPort, BiColorRelayMicButtonLedDeviceSettings>
 	{
 
 		#region Methods
@@ -160,7 +160,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		/// Override to apply properties to the settings instance.
 		/// </summary>
 		/// <param name="settings"></param>
-		protected override void CopySettingsFinal(BiColorRelayMicButtonDeviceSettings settings)
+		protected override void CopySettingsFinal(BiColorRelayMicButtonLedDeviceSettings settings)
 		{
 			base.CopySettingsFinal(settings);
 
@@ -174,7 +174,7 @@ namespace ICD.Connect.Audio.Misc.BiColorMicButton
 		/// </summary>
 		/// <param name="settings"></param>
 		/// <param name="factory"></param>
-		protected override void ApplySettingsFinal(BiColorRelayMicButtonDeviceSettings settings, IDeviceFactory factory)
+		protected override void ApplySettingsFinal(BiColorRelayMicButtonLedDeviceSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
 

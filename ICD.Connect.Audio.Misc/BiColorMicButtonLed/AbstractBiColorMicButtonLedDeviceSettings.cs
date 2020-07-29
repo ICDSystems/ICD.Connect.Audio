@@ -1,12 +1,13 @@
 ﻿using ICD.Common.Utils.Xml;
+using ICD.Connect.Audio.Misc.MicMuteButton;
 using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.BiColorMicButtonLed
 {
-	public abstract class AbstractBiColorMicButtonDeviceSettings : AbstractDeviceSettings, IBiColorMicButtonDeviceSettings
+	public abstract class AbstractBiColorMicButtonLedDeviceSettings : AbstractDeviceSettings, IMicMuteButtonDeviceSettings
 	{
 
 		private const string BUTTON_INPUT_PORT_ELEMENT = "ButtonInputPort";

@@ -29,9 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove=".gitignore" />
     <None Remove="ICD.Connect.Audio.projectinfo" />
   </ItemGroup>

@@ -3,11 +3,10 @@ using ICD.Connect.Protocol.Ports.DigitalInput;
 using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.MicMuteButton
 {
-	public interface IBiColorMicButtonDeviceSettings: IDeviceSettings
+	public interface IMicMuteButtonDeviceSettings: IDeviceSettings
 	{
-
 		[OriginatorIdSettingsProperty(typeof(IDigitalInputPort))]
 		int? ButtonInputPort { get; set; }
 

@@ -3,10 +3,10 @@ using ICD.Connect.Protocol.Ports.IoPort;
 using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Misc.BiColorMicButton
+namespace ICD.Connect.Audio.Misc.BiColorMicButtonLed
 {
-	[KrangSettings("BiColorMicButton", typeof(BiColorMicButtonDevice))]
-	public sealed class BiColorMicButtonDeviceSettings : AbstractBiColorMicButtonDeviceSettings
+	[KrangSettings("BiColorMicButton", typeof(BiColorMicButtonLedDevice))]
+	public sealed class BiColorMicButtonLedDeviceSettings : AbstractBiColorMicButtonLedDeviceSettings
 	{
 		private const string POWER_OUTPUT_PORT_ELEMENT = "PowerOutputPort";
 		private const string RED_LED_OUTPUT_PORT_ELEMENT = "RedLedOutputPort";
