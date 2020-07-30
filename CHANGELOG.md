@@ -5,6 +5,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+### Added
+ - Biamp Parle microphone device
+
+### Changed
+ - Split IBiColorMicButton interfaces into IBiColorMicLed & IMicMuteButton. Created interface that implements both: IBiColorMicButtonLed
 
 ## [14.1.2] - 2020-09-08
 ### Changed
