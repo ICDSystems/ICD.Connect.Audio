@@ -83,7 +83,11 @@ namespace ICD.Connect.Audio.Biamp
 				}
 
 				if (output.StartsWith(PUBLISH_RESPONSE))
+				{
 					OnSubscribeResponse.Raise(this, new StringEventArgs(output));
+					continue;
+				}
+
 				yield return output;
 			}
 		}
