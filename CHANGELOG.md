@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [14.1.1] - 2020-08-13
+### Changed
+ - Fixed a regression where Biamp subscription responses were not being paired correctly
+
 ## [14.1.0] - 2020-07-14
 ### Changed
  - Improved volume telemetry, differentiating between level and percentage
