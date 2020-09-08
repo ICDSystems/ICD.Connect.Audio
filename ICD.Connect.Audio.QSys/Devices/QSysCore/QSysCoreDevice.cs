@@ -7,7 +7,6 @@ using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.IO;
-using ICD.Common.Utils.Json;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Timers;
 using ICD.Connect.API.Commands;
@@ -352,7 +351,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			catch (Exception e)
 			{
 				Logger.Log(eSeverity.Error, "Failed to parse data - {0}{1}{2}", e.GetType().Name,
-				    IcdEnvironment.NewLine, JsonUtils.Format(stringEventArgs.Data));
+				           IcdEnvironment.NewLine, stringEventArgs.Data);
 				return;
 			}
 
