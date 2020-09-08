@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [14.1.2] - 2020-09-08
 ### Changed
  - Fixed a bug where malformed QSys JSON was not being logged
 
