@@ -65,7 +65,6 @@ namespace ICD.Connect.Audio.Biamp.Controls.Dialing.Telephone
 				m_Hold = value;
 
 				Logger.LogSetTo(eSeverity.Informational, "IsOnHold", m_Hold);
-				Activities.LogActivity(ConferenceDeviceControlActivities.GetHoldActivity(m_Hold));
 
 				OnHoldChanged.Raise(this, new BoolEventArgs(m_Hold));
 			}
