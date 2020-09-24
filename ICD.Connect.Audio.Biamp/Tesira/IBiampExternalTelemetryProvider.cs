@@ -1,7 +1,6 @@
 using System;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Telemetry;
-using ICD.Connect.Devices;
 using ICD.Connect.Devices.Telemetry;
 using ICD.Connect.Telemetry.Attributes;
 using ICD.Connect.Telemetry.Providers.External;

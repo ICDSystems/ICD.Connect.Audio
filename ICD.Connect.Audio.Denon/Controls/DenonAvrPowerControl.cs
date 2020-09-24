@@ -1,6 +1,6 @@
 ﻿using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Denon.Devices;
-using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.Controls.Power;
 
 namespace ICD.Connect.Audio.Denon.Controls
 {

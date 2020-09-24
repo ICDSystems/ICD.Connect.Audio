@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Split IBiColorMicButton interfaces into IBiColorMicLed & IMicMuteButton. Created interface that implements both: IBiColorMicButtonLed
 
+## [14.1.3] - 2020-09-24
+### Changed
+ - Fixed a bug where default audio activities were not being initialized
+
 ## [14.1.2] - 2020-09-08
 ### Changed
  - Fixed a bug where malformed QSys JSON was not being logged

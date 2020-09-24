@@ -68,15 +68,21 @@ namespace ICD.Connect.Audio.Controls.Volume
 			get { return m_IsMuted; }
 			protected set
 			{
-				if (value == m_IsMuted)
-					return;
+				try
+				{
+					if (value == m_IsMuted)
+						return;
 
-				m_IsMuted = value;
+					m_IsMuted = value;
 
-				Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
-				Activities.LogActivity(VolumeDeviceControlActivities.GetMutedActivity(m_IsMuted));
+					Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
 
-				OnIsMutedChanged.Raise(this, new VolumeControlIsMutedChangedApiEventArgs(m_IsMuted));
+					OnIsMutedChanged.Raise(this, new VolumeControlIsMutedChangedApiEventArgs(m_IsMuted));
+				}
+				finally
+				{
+					Activities.LogActivity(VolumeDeviceControlActivities.GetMutedActivity(m_IsMuted));
+				}
 			}
 		}
 
@@ -117,6 +123,44 @@ namespace ICD.Connect.Audio.Controls.Volume
 		public virtual string VolumeString { get { return string.Format("{0:n2}%", this.GetVolumePercent() * 100); } }
 
 		#endregion
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="id"></param>
+		protected AbstractVolumeDeviceControl(T parent, int id)
+			: base(parent, id)
+		{
+			// Initialize activities
+			IsMuted = false;
+		}
+
+		/// <summary>
+		/// Constructor.
+		/// </summary>
+		/// <param name="parent"></param>
+		/// <param name="id"></param>
+		/// <param name="uuid"></param>
+		protected AbstractVolumeDeviceControl(T parent, int id, Guid uuid)
+			: base(parent, id, uuid)
+		{
+			// Initialize activities
+			IsMuted = false;
+		}
+
+		/// <summary>
+		/// Override to release resources.
+		/// </summary>
+		/// <param name="disposing"></param>
+		protected override void DisposeFinal(bool disposing)
+		{
+			OnIsMutedChanged = null;
+			OnVolumeChanged = null;
+			OnSupportedVolumeFeaturesChanged = null;
+
+			base.DisposeFinal(disposing);
+		}
 
 		#region Methods
 
@@ -163,40 +207,6 @@ namespace ICD.Connect.Audio.Controls.Volume
 		public abstract void VolumeRampStop();
 
 		#endregion
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="parent"></param>
-		/// <param name="id"></param>
-		protected AbstractVolumeDeviceControl(T parent, int id)
-			: base(parent, id)
-		{
-		}
-
-		/// <summary>
-		/// Constructor.
-		/// </summary>
-		/// <param name="parent"></param>
-		/// <param name="id"></param>
-		/// <param name="uuid"></param>
-		protected AbstractVolumeDeviceControl(T parent, int id, Guid uuid)
-			: base(parent, id, uuid)
-		{
-		}
-
-		/// <summary>
-		/// Override to release resources.
-		/// </summary>
-		/// <param name="disposing"></param>
-		protected override void DisposeFinal(bool disposing)
-		{
-			OnIsMutedChanged = null;
-			OnVolumeChanged = null;
-			OnSupportedVolumeFeaturesChanged = null;
-
-			base.DisposeFinal(disposing);
-		}
 
 		#region Console
 

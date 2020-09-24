@@ -45,17 +45,23 @@ namespace ICD.Connect.Audio.Controls.Microphone
 			get { return m_IsMuted; }
 			protected set
 			{
-				if (value == m_IsMuted)
-					return;
+				try
+				{
+					if (value == m_IsMuted)
+						return;
 
-				m_IsMuted = value;
+					m_IsMuted = value;
 
-				Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
-				Activities.LogActivity(m_IsMuted
-									   ? new Activity(Activity.ePriority.Medium, "IsMuted", "Muted", eSeverity.Informational)
-									   : new Activity(Activity.ePriority.Low, "IsMuted", "Unmuted", eSeverity.Informational));
+					Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
 
-				OnMuteStateChanged.Raise(this, new BoolEventArgs(m_IsMuted));
+					OnMuteStateChanged.Raise(this, new BoolEventArgs(m_IsMuted));
+				}
+				finally
+				{
+					Activities.LogActivity(m_IsMuted
+						                       ? new Activity(Activity.ePriority.Medium, "IsMuted", "Muted", eSeverity.Informational)
+						                       : new Activity(Activity.ePriority.Low, "IsMuted", "Unmuted", eSeverity.Informational));
+				}
 			}
 		}
 
@@ -64,7 +70,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// </summary>
 		public bool PhantomPower
 		{
-			get { return m_PhantomPower;}
+			get { return m_PhantomPower; }
 			protected set
 			{
 				if (value == m_PhantomPower)
@@ -108,6 +114,8 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		protected AbstractMicrophoneDeviceControl(T parent, int id)
 			: base(parent, id)
 		{
+			// Initialize activities
+			IsMuted = false;
 		}
 
 		/// <summary>
@@ -119,6 +127,8 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		protected AbstractMicrophoneDeviceControl(T parent, int id, Guid uuid)
 			: base(parent, id, uuid)
 		{
+			// Initialize activities
+			IsMuted = false;
 		}
 
 		/// <summary>
