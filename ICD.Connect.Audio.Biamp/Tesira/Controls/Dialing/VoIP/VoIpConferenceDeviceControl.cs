@@ -52,6 +52,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 			SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
 			SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
 			SupportedConferenceFeatures |= eConferenceFeatures.Hold;
+			SupportedConferenceFeatures |= eConferenceFeatures.CanDial;
+			SupportedConferenceFeatures |= eConferenceFeatures.CanEnd;
 
 			Subscribe(m_Line);
 		}

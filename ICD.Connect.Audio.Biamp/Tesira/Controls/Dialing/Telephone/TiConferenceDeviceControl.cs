@@ -97,6 +97,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			m_DoNotDisturbControl = doNotDisturbControl;
 			CallInInfo = callInInfo;
 
+			SupportedConferenceFeatures |= eConferenceFeatures.CanDial | eConferenceFeatures.CanEnd;
+
 			if (m_TiControl != null)
 				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
 
