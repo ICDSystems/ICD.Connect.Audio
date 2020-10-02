@@ -151,7 +151,7 @@ namespace ICD.Connect.Audio.Denon.Devices
 		[PublicAPI]
 		public void SetPort(ISerialPort port)
 		{
-			m_ConnectionStateManager.SetPort(port);
+			m_ConnectionStateManager.SetPort(port, false);
 		}
 
 		/// <summary>
@@ -337,6 +337,17 @@ namespace ICD.Connect.Audio.Denon.Devices
 			}
 
 			SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add actions on StartSettings
+		/// This should be used to start communications with devices and perform initial actions
+		/// </summary>
+		protected override void StartSettingsFinal()
+		{
+			base.StartSettingsFinal();
+
+			m_ConnectionStateManager.Start();
 		}
 
 		#endregion

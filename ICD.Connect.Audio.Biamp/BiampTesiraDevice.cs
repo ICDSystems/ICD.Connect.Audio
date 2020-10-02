@@ -193,7 +193,7 @@ namespace ICD.Connect.Audio.Biamp
 
 		public void SetPort(ISerialPort port)
 		{
-			m_ConnectionStateManager.SetPort(port);
+			m_ConnectionStateManager.SetPort(port, false);
 			m_SerialQueue.SetPort(port);
 		}
 
@@ -836,6 +836,17 @@ namespace ICD.Connect.Audio.Biamp
 			}
 
 			SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add actions on StartSettings
+		/// This should be used to start communications with devices and perform initial actions
+		/// </summary>
+		protected override void StartSettingsFinal()
+		{
+			base.StartSettingsFinal();
+
+			m_ConnectionStateManager.Start();
 		}
 
 		#endregion
