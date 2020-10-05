@@ -201,8 +201,17 @@
     <Compile Include="Tesira\Controls\ControlsXmlUtils.cs" />
     <Compile Include="Tesira\Controls\Dialing\VoIP\VoIpConferenceDeviceControl.cs" />
     <Compile Include="Tesira\BiampExternalTelemetryProvider.cs" />
+    <Compile Include="Tesira\Devices\AbstractTesiraChildAttributeInterfaceDevice.cs" />
+    <Compile Include="Tesira\Devices\AbstractTesiraChildAttributeInterfaceDeviceSettings.cs" />
+    <Compile Include="Tesira\Devices\AbstractTesiraChildDevice.cs" />
+    <Compile Include="Tesira\Devices\AbstractTesiraChildDeviceSettings.cs" />
+    <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothControl.cs" />
+    <Compile Include="Tesira\Devices\ITesiraChildAttributInterfaceDeviceSettings.cs" />
+    <Compile Include="Tesira\Devices\ITesiraChildDeviceSettings.cs" />
     <Compile Include="Tesira\Devices\ParleMicLedsDevice.cs" />
     <Compile Include="Tesira\Devices\ParleMicLedsDeviceSettings.cs" />
+    <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothDevice.cs" />
+    <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothDeviceSettings.cs" />
     <Compile Include="Tesira\IBiampExternalTelemetryProvider.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
