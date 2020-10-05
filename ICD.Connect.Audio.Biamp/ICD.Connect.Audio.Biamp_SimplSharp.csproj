@@ -126,6 +126,7 @@
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\DanteInputBlock.cs" />
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\DanteOutputBlock.cs" />
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\DtmfDecodeBlock.cs" />
+    <Compile Include="Tesira\AttributeInterfaces\IoBlocks\ExUbt\ExUbtBluetoothControlStatusBlock.cs" />
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\TcCallStateCommands.cs" />
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\TelephoneInterface\TiControlStatusBlock.cs" />
     <Compile Include="Tesira\AttributeInterfaces\IoBlocks\TelephoneInterface\TiReceiveBlock.cs" />
@@ -254,6 +255,10 @@
     <ProjectReference Include="..\..\ICD.Connect.Devices\ICD.Connect.Devices\ICD.Connect.Devices_SimplSharp.csproj">
       <Project>{FD46A717-5836-4B73-ADD0-2706639DA8ED}</Project>
       <Name>ICD.Connect.Devices_SimplSharp</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\ICD.Connect.Misc\ICD.Connect.Misc\ICD.Connect.Misc_SimplSharp.csproj">
+      <Project>{3BAE6352-77B5-499A-9DA5-2AB198F53183}</Project>
+      <Name>ICD.Connect.Misc_SimplSharp</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\ICD.Connect.Partitioning\ICD.Connect.Partitioning\ICD.Connect.Partitioning_SimplSharp.csproj">
       <Project>{42FB8CF0-6AE6-4C70-AFDD-DF95F07E077F}</Project>

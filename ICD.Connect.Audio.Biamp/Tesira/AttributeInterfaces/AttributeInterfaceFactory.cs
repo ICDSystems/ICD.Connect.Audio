@@ -16,6 +16,7 @@ using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.FilterBlocks;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.GeneratorBlocks;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.Aec;
+using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.ExUbt;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.VoIp;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.LogicBlocks;
@@ -112,7 +113,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces
 			typeof(MatrixMixerBlock),
 			typeof(RoomCombinerBlock),
 			typeof(RouterBlock),
-			typeof(SourceSelectorBlock)
+			typeof(SourceSelectorBlock),
+			typeof(ExUbtBluetoothControlStatusBlock)
 		};
 
 		private static readonly Dictionary<string, Type> s_NameToAttributeInterface; 
