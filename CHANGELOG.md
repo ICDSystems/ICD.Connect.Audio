@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
  - MockAudioDevice now inherits from AbstractMockDevice
  - Refactoring for telemetry, logging, device controls, and more
 
+## [13.1.0] - 2020-06-10
+### Changed
+ - Implemented StartSettings to start communications with devices
+
 ## [13.0.0] - 2020-05-23
 ### Changed
 Changed Biamp and QSys conferecing for ConferenceHistory changes - StartTime/EndTime renames, AutoAnswer rename, incoming calls have no direction

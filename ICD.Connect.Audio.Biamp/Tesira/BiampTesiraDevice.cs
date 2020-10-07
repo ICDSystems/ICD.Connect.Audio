@@ -192,7 +192,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 		public void SetPort(ISerialPort port)
 		{
-			m_ConnectionStateManager.SetPort(port);
+			m_ConnectionStateManager.SetPort(port, false);
 			m_SerialQueue.SetPort(port);
 		}
 
@@ -867,11 +867,23 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <param name="settings"></param>
 		/// <param name="factory"></param>
 		/// <param name="addControl"></param>
-		protected override void AddControls(BiampTesiraDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		protected override void AddControls(BiampTesiraDeviceSettings settings, IDeviceFactory factory,
+		                                    Action<IDeviceControl> addControl)
 		{
 			base.AddControls(settings, factory, addControl);
 
 			addControl(new BiampTesiraRoutingControl(this, 0));
+		}
+
+		/// <summary>
+		/// Override to add actions on StartSettings
+		/// This should be used to start communications with devices and perform initial actions
+		/// </summary>
+		protected override void StartSettingsFinal()
+		{
+			base.StartSettingsFinal();
+
+			m_ConnectionStateManager.Start();
 		}
 
 		#endregion

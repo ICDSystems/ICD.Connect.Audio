@@ -93,6 +93,11 @@ namespace ICD.Connect.Audio.Shure.Devices
 			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
+		private void SetPort(ISerialPort port)
+		{
+			m_ConnectionStateManager.SetPort(port, false);
+		}
+
 		#endregion
 
 		/// <summary>
@@ -204,7 +209,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 		{
 			base.ClearSettingsFinal();
 
-			m_ConnectionStateManager.SetPort(null);
+			SetPort(null);
 		}
 
 		/// <summary>
@@ -230,7 +235,18 @@ namespace ICD.Connect.Audio.Shure.Devices
 				}
 			}
 
-			m_ConnectionStateManager.SetPort(port);
+			SetPort(port);
+		}
+
+		/// <summary>
+		/// Override to add actions on StartSettings
+		/// This should be used to start communications with devices and perform initial actions
+		/// </summary>
+		protected override void StartSettingsFinal()
+		{
+			base.StartSettingsFinal();
+
+			m_ConnectionStateManager.Start();
 		}
 
 		/// <summary>
