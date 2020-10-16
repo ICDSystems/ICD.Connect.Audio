@@ -9,6 +9,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 	public sealed class TesiraExUbtBluetoothDevice : AbstractTesiraChildAttributeInterfaceDevice<ExUbtBluetoothControlStatusBlock,TesiraExUbtBluetoothDeviceSettings>, IBluetoothDevice
 	{
 		private const int BLUETOOTH_CONTROL_ID = 1;
+		private const int CONFERENCE_CONTROL_ID = 2;
 
 		public ExUbtBluetoothControlStatusBlock BluetoothControlStatusBlock {get { return AttributeInterface; }}
 
@@ -23,6 +24,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 			base.AddControls(settings, factory, addControl);
 
 			addControl(new TesiraExUbtBluetoothControl(this, BLUETOOTH_CONTROL_ID));
+			addControl(new TesiraExUbtBluetoothConferenceControl(this, CONFERENCE_CONTROL_ID));
 		}
 
 		
@@ -47,10 +49,16 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 		{
 			base.SetAttributeInterface(attributeInterface);
 
-			IDeviceControl control;
-			if (Controls.TryGetControl(BLUETOOTH_CONTROL_ID, out control) && control is TesiraExUbtBluetoothControl)
+			IDeviceControl btControl;
+			if (Controls.TryGetControl(BLUETOOTH_CONTROL_ID, out btControl) && btControl is TesiraExUbtBluetoothControl)
 			{
-				((TesiraExUbtBluetoothControl)control).SetBlock(attributeInterface);
+				((TesiraExUbtBluetoothControl)btControl).SetBlock(attributeInterface);
+			}
+
+			IDeviceControl confControl;
+			if (Controls.TryGetControl(CONFERENCE_CONTROL_ID, out confControl) && confControl is TesiraExUbtBluetoothConferenceControl)
+			{
+				((TesiraExUbtBluetoothConferenceControl)confControl).SetBlock(attributeInterface);
 			}
 		}
 	}

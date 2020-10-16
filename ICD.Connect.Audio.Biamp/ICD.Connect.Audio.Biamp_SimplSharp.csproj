@@ -206,6 +206,7 @@
     <Compile Include="Tesira\Devices\AbstractTesiraChildAttributeInterfaceDeviceSettings.cs" />
     <Compile Include="Tesira\Devices\AbstractTesiraChildDevice.cs" />
     <Compile Include="Tesira\Devices\AbstractTesiraChildDeviceSettings.cs" />
+    <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothConferenceControl.cs" />
     <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothControl.cs" />
     <Compile Include="Tesira\Devices\ITesiraChildAttributInterfaceDeviceSettings.cs" />
     <Compile Include="Tesira\Devices\ITesiraChildDeviceSettings.cs" />
