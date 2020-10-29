@@ -773,7 +773,9 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 		private void BufferOnSerialTelnetHeader(object sender, StringEventArgs args)
 		{
-			m_ConnectionStateManager.Send(TelnetControl.Reject(args.Data));
+			TelnetCommand command = TelnetCommand.Parse(args.Data);
+
+			m_ConnectionStateManager.Send(command.Reject().Serialize());
 		}
 
 		private void BufferOnWelcomeMessageReceived(object sender, EventArgs e)

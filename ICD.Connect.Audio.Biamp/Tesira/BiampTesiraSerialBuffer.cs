@@ -56,7 +56,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 				yield break;
 
 			// First check for telnet negotiation
-			while (m_Remainder.Length >= 3 && m_Remainder[0] == TelnetControl.HEADER)
+			while (m_Remainder.Length >= 3 && m_Remainder[0] == TelnetCommand.HEADER)
 			{
 				string output = m_Remainder.Substring(0, 3);
 				m_Remainder = m_Remainder.Substring(3);
