@@ -59,14 +59,13 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		private const long INITIALIZATION_DELAY_MILLISECONDS = 3 * 1000;
 
 		internal const float TESIRA_LEVEL_MINIMUM = -100f;
-
 		internal const float TESIRA_LEVEL_MAXIMUM = 20f;
 
 		internal const int PRIORITY_SERVICE = 16;
 		internal const int PRIORITY_SET = 32;
 		internal const int PRIORITY_SUBSCRIBE_INITIAL = 64;
 		internal const int PRIORITY_GET = 128;
-		internal const int PRIORITY_SUBSCRIBE_PERODIC = 256;
+		internal const int PRIORITY_SUBSCRIBE_PERIODIC = 256;
 
 		public delegate void SubscriptionCallback(BiampTesiraDevice sender, ControlValue value);
 
@@ -390,7 +389,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 			foreach (SubscriptionCallbackInfo subscription in subscriptions)
 			{
-				SendData(subscription.Callback, subscription.Code, PRIORITY_SUBSCRIBE_PERODIC);
+				SendData(subscription.Callback, subscription.Code, PRIORITY_SUBSCRIBE_PERIODIC);
 			}
 		}
 
@@ -755,8 +754,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 				return;
 			}
 
-			buffer.OnSerialTelnetHeader += BufferOnOnSerialTelnetHeader;
-			buffer.OnWelcomeMessageReceived += BufferOnOnWelcomeMessageReceived;
+			buffer.OnSerialTelnetHeader += BufferOnSerialTelnetHeader;
+			buffer.OnWelcomeMessageReceived += BufferOnWelcomeMessageReceived;
 			buffer.OnSubscribeResponse += BufferOnSubscribeResponse;
 		}
 
@@ -767,17 +766,17 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 				return;
 			}
 
-			buffer.OnSerialTelnetHeader -= BufferOnOnSerialTelnetHeader;
-			buffer.OnWelcomeMessageReceived -= BufferOnOnWelcomeMessageReceived;
+			buffer.OnSerialTelnetHeader -= BufferOnSerialTelnetHeader;
+			buffer.OnWelcomeMessageReceived -= BufferOnWelcomeMessageReceived;
 			buffer.OnSubscribeResponse -= BufferOnSubscribeResponse;
 		}
 
-		private void BufferOnOnSerialTelnetHeader(object sender, StringEventArgs args)
+		private void BufferOnSerialTelnetHeader(object sender, StringEventArgs args)
 		{
 			m_ConnectionStateManager.Send(TelnetControl.Reject(args.Data));
 		}
 
-		private void BufferOnOnWelcomeMessageReceived(object sender, EventArgs e)
+		private void BufferOnWelcomeMessageReceived(object sender, EventArgs e)
 		{
 			m_ReadyToTransmit = true;
 		}
