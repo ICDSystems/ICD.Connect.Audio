@@ -94,6 +94,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		private readonly ComSpecProperties m_ComSpecProperties;
 
 		private bool m_ReadyToTransmit;
+		private readonly BiampTesiraTelemetryComponent m_TelementryComponent;
 
 		#region Properties
 
@@ -167,6 +168,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 			m_ConnectionStateManager = new ConnectionStateManager(this) { ConfigurePort = ConfigurePort };
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
+
+			m_TelementryComponent = new BiampTesiraTelemetryComponent(this);
 		}
 
 		#region Methods

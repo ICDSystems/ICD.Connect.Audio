@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
  - Split IBiColorMicButton interfaces into IBiColorMicLed & IMicMuteButton. Created interface that implements both: IBiColorMicButtonLed
+ - Biamp Tesira - Move common MonitoredDeviceInfo telemetry to BiampTesiraTelemetryComponent
 
 ## [14.1.3] - 2020-09-24
 ### Changed
