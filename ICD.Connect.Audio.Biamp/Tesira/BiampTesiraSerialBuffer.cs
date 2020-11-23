@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.Tesira.TesiraTextProtocol.Parsing;
+using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.Network.Ports.Tcp;
 using ICD.Connect.Protocol.SerialBuffers;
 
@@ -90,6 +91,14 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 				yield return output;
 			}
+		}
+
+		public static bool EchoComparer(ISerialData command, string response)
+		{
+			if (command == null || response == null)
+				return false;
+			
+			return response.Equals(command.Serialize().Trim(s_Delimiters));
 		}
 	}
 }

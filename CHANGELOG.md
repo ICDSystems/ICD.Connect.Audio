@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Added
  - Biamp Parle microphone device
+ - Biamp Tesira now ignores Echoed responses, supporting SSH and allowing more resilient connections
 
 ### Changed
  - Split IBiColorMicButton interfaces into IBiColorMicLed & IMicMuteButton. Created interface that implements both: IBiColorMicButtonLed

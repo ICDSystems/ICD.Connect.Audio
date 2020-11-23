@@ -150,7 +150,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 			m_SerialQueue = new SerialQueue
 			{
 				Timeout = TIMEOUT_MS,
-				CommandDelayTime = COMMAND_DELAY_MS
+				CommandDelayTime = COMMAND_DELAY_MS,
+				EchoComparer = BiampTesiraSerialBuffer.EchoComparer
 			};
 
 			m_SerialBuffer = new BiampTesiraSerialBuffer();
