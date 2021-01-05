@@ -187,6 +187,7 @@
     <Compile Include="Tesira\BiampTesiraDeviceSettings.cs" />
     <Compile Include="Tesira\BiampTesiraRoutingControl.cs" />
     <Compile Include="Tesira\BiampTesiraSerialBuffer.cs" />
+    <Compile Include="Tesira\BiampTesiraTelemetryComponent.cs" />
     <Compile Include="Tesira\Controls\Dialing\AbstractTraditionalBiampTesiraConferenceDeviceControl.cs" />
     <Compile Include="Tesira\Controls\Dialing\IBiampTesiraConferenceDeviceControl.cs" />
     <Compile Include="Tesira\Controls\IBiampTesiraDeviceControl.cs" />
@@ -214,7 +215,6 @@
     <Compile Include="Tesira\Devices\ParleMicLedsDeviceSettings.cs" />
     <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothDevice.cs" />
     <Compile Include="Tesira\Devices\ExUbtBluetooth\TesiraExUbtBluetoothDeviceSettings.cs" />
-    <Compile Include="Tesira\IBiampExternalTelemetryProvider.cs" />
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tesira\TesiraTextProtocol\Codes\AbstractCode.cs" />
