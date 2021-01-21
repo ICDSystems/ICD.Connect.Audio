@@ -138,7 +138,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = XmlUtils.TryReadChildElementContentAsLong(xml, ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL) ?? DEFAULT_STEP_INTERVAL;
 
-			// Backwards compatability for "VolumeType" element.
+			// Backwards compatibility for "VolumeType" element.
 			Context = XmlUtils.TryReadChildElementContentAsEnum<eVolumePointContext>(xml, ELEMENT_CONTEXT, true) ??
 			          XmlUtils.TryReadChildElementContentAsEnum<eVolumePointContext>(xml, ELEMENT_VOLUME_TYPE, true) ??
 			          eVolumePointContext.Room;

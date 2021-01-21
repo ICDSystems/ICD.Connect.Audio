@@ -25,7 +25,8 @@ namespace ICD.Connect.Audio.Repeaters
 		/// <summary>
 		/// Tracking the last set level/percentage to mitigate any rounding errors.
 		/// </summary>
-		private float? m_LastValue;
+		private float? m_LastLevel;
+		private float? m_LastPercent;
 
 		#region Constructor
 
@@ -90,7 +91,8 @@ namespace ICD.Connect.Audio.Repeaters
 
 			m_VolumePoint = volumePoint;
 			m_Up = up;
-			m_LastValue = null;
+			m_LastLevel = null;
+			m_LastPercent = null;
 
 			InitialRamp();
 
@@ -160,7 +162,8 @@ namespace ICD.Connect.Audio.Repeaters
 			{
 				m_RepeatTimer.Stop();
 				m_VolumePoint = null;
-				m_LastValue = null;
+				m_LastLevel = null;
+				m_LastPercent = null;
 			}
 			finally
 			{
@@ -275,31 +278,34 @@ namespace ICD.Connect.Audio.Repeaters
 				if (volumeControl.IsMuted)
 					volumeControl.SetIsMuted(false);
 
-				float? min = m_VolumePoint.VolumeSafetyMin;
-				float? max = m_VolumePoint.VolumeSafetyMax;
+				float? safetyMin = m_VolumePoint.VolumeSafetyMin;
+				float? safetyMax = m_VolumePoint.VolumeSafetyMax;
 
 				switch (m_VolumePoint.VolumeRepresentation)
 				{
 					case eVolumeRepresentation.Level:
-						m_LastValue = (m_LastValue ?? volumeControl.VolumeLevel) + stepSize;
+						m_LastLevel = (m_LastLevel ?? volumeControl.VolumeLevel) + stepSize;
 
-						if (min.HasValue && m_LastValue < min)
-							m_LastValue = min.Value;
-						if (max.HasValue && m_LastValue > max)
-							m_LastValue = max.Value;
+						if (safetyMin.HasValue && m_LastLevel < safetyMin)
+							m_LastLevel = safetyMin.Value;
+						if (safetyMax.HasValue && m_LastLevel > safetyMax)
+							m_LastLevel = safetyMax.Value;
 
-						volumeControl.SetVolumeLevel(m_LastValue.Value);
+						volumeControl.SetVolumeLevel(m_LastLevel.Value);
 						break;
 
 					case eVolumeRepresentation.Percent:
-						m_LastValue = (m_LastValue ?? volumeControl.GetVolumePercent()) + stepSize;
+						m_LastPercent = (m_LastPercent ?? volumeControl.GetVolumePercent()) + stepSize;
 
-						if (min.HasValue && m_LastValue < min)
-							m_LastValue = min.Value;
-						if (max.HasValue && m_LastValue > max)
-							m_LastValue = max.Value;
+						float? safetyMinPercent = safetyMin == null ? (float?)null : volumeControl.ConvertLevelToPercent(safetyMin.Value);
+						float? safetyMaxPercent = safetyMax == null ? (float?)null : volumeControl.ConvertLevelToPercent(safetyMax.Value);
 
-						volumeControl.SetVolumePercent(m_LastValue.Value);
+						if (safetyMinPercent.HasValue && m_LastPercent < safetyMinPercent)
+							m_LastPercent = safetyMinPercent.Value;
+						if (safetyMaxPercent.HasValue && m_LastPercent > safetyMaxPercent)
+							m_LastPercent = safetyMaxPercent.Value;
+
+						volumeControl.SetVolumePercent(m_LastPercent.Value);
 						break;
 
 					default:
