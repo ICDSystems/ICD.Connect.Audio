@@ -1,5 +1,6 @@
 ﻿using System;
 using ICD.Common.Properties;
+using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Controls.Volume;
@@ -153,6 +154,44 @@ namespace ICD.Connect.Audio.Utils
 			}
 		}
 
+		/// <summary>
+		/// Gets the best minimum level for the volume point
+		/// This is the highest value of the safety minimum, if set,
+		/// and the Control's minimum
+		/// </summary>
+		public float MinLevel
+		{
+			get
+			{
+				if (VolumePoint == null || VolumeControl == null)
+					return float.MaxValue;
+
+				if (!VolumePoint.VolumeSafetyMin.HasValue)
+					return VolumeControl.VolumeLevelMin;
+
+				return Math.Max(VolumeControl.VolumeLevelMin, VolumePoint.VolumeSafetyMin.Value);
+			}
+		}
+
+		/// <summary>
+		/// Gets the best maximum value for the volume point
+		/// This is the lowest value of the safety maximum, if set,
+		/// and the Control's maximum
+		/// </summary>
+		public float MaxLevel
+		{
+			get
+			{
+				if (VolumePoint == null || VolumeControl == null)
+					return float.MinValue;
+
+				if (!VolumePoint.VolumeSafetyMax.HasValue)
+					return VolumeControl.VolumeLevelMax;
+
+				return Math.Min(VolumeControl.VolumeLevelMax, VolumePoint.VolumeSafetyMax.Value);
+			}
+		}
+
 		#endregion
 
 		#region Methods
@@ -188,25 +227,24 @@ namespace ICD.Connect.Audio.Utils
 		}
 
 		/// <summary>
-		/// Gets the volume percent of the current volume control.
+		/// Gets the volume percent of the current volume control, based on the MinLevel/MaxLevel
 		/// Returns 0 if the current volume control is null.
 		/// </summary>
 		/// <returns></returns>
 		public float GetVolumePercent()
 		{
-			return VolumeControl == null ? 0 : VolumeControl.GetVolumePercent();
+			return VolumeControl == null ? 0 : MathUtils.ToPercent(MinLevel, MaxLevel, VolumeLevel);
 		}
 
 		/// <summary>
-		/// Sets the volume percent of the current volume control.
+		/// Sets the volume percent of the current volume control, based on the MinLevel/MaxLevel
 		/// Does nothing if the current volume control is null or does not support volume assignment.
 		/// </summary>
 		/// <param name="percent"></param>
-		/// <returns></returns>
 		public void SetVolumePercent(float percent)
 		{
 			if (VolumeControl != null && SupportedVolumeFeatures.HasFlag(eVolumeFeatures.VolumeAssignment))
-				VolumeControl.SetVolumePercent(percent);
+				VolumeControl.SetVolumeLevel(MathUtils.FromPercent(MinLevel, MaxLevel, percent));
 		}
 
 		/// <summary>

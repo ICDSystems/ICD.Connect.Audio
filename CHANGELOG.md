@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 ### Changed
+ - Change VolumePointHelper to use the volume percentage scaled between the best min/max levels between the control and the volume point.
+
+### Changed
  - VolumeRepeater now properly ramps percent volume representations
 
 ## [15.0.0] - 2021-01-14
