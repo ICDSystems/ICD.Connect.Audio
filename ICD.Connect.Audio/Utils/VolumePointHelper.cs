@@ -6,6 +6,7 @@ using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Audio.VolumePoints;
 using ICD.Connect.Devices.EventArguments;
+using ICD.Connect.Settings.Originators;
 
 namespace ICD.Connect.Audio.Utils
 {
@@ -167,6 +168,23 @@ namespace ICD.Connect.Audio.Utils
 
 			// Clears and unsubscribes from the point and control
 			VolumePoint = null;
+		}
+
+		/// <summary>
+		/// Gets the name for the volume point based on the current room combine state.
+		/// </summary>
+		/// <param name="combine"></param>
+		/// <returns></returns>
+		[NotNull]
+		public string GetName(bool combine)
+		{
+			if (VolumePoint != null && !string.IsNullOrEmpty(VolumePoint.GetName(combine)))
+				return VolumePoint.GetName(combine);
+
+			if (VolumeControl != null && !string.IsNullOrEmpty(VolumeControl.Name))
+				return VolumeControl.Name;
+
+			return string.Empty;
 		}
 
 		/// <summary>
