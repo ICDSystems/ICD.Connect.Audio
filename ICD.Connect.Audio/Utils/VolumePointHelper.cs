@@ -14,6 +14,11 @@ namespace ICD.Connect.Audio.Utils
 	public sealed class VolumePointHelper : IDisposable
 	{
 		/// <summary>
+		/// Raised when the underlying volume control changes.
+		/// </summary>
+		public event EventHandler<GenericEventArgs<IVolumeDeviceControl>> OnVolumeControlChanged; 
+
+		/// <summary>
 		/// Raised when the mute state changes.
 		/// Will not raise if mute feedback is not supported.
 		/// </summary>
@@ -79,6 +84,8 @@ namespace ICD.Connect.Audio.Utils
 				Unsubscribe(m_VolumeControl);
 				m_VolumeControl = value;
 				Subscribe(m_VolumeControl);
+
+				OnVolumeControlChanged.Raise(this, m_VolumeControl);
 			}
 		}
 
@@ -96,7 +103,7 @@ namespace ICD.Connect.Audio.Utils
 
 				m_SupportedVolumeFeatures = value;
 
-				OnVolumeControlSupportedVolumeFeaturesChanged.Raise(this, new GenericEventArgs<eVolumeFeatures>(m_SupportedVolumeFeatures));
+				OnVolumeControlSupportedVolumeFeaturesChanged.Raise(this, m_SupportedVolumeFeatures);
 			}
 		}
 
@@ -114,7 +121,7 @@ namespace ICD.Connect.Audio.Utils
 
 				m_VolumeLevel = value;
 
-				OnVolumeControlVolumeChanged.Raise(this, new FloatEventArgs(m_VolumeLevel));
+				OnVolumeControlVolumeChanged.Raise(this, m_VolumeLevel);
 			}
 		}
 
@@ -132,7 +139,7 @@ namespace ICD.Connect.Audio.Utils
 
 				m_IsMuted = value;
 
-				OnVolumeControlIsMutedChanged.Raise(this, new BoolEventArgs(m_IsMuted));
+				OnVolumeControlIsMutedChanged.Raise(this, m_IsMuted);
 			}
 		}
 
@@ -150,7 +157,7 @@ namespace ICD.Connect.Audio.Utils
 
 				m_ControlAvailable = value;
 
-				OnVolumeControlAvailableChanged.Raise(this, new BoolEventArgs(m_ControlAvailable));
+				OnVolumeControlAvailableChanged.Raise(this, m_ControlAvailable);
 			}
 		}
 
@@ -201,6 +208,7 @@ namespace ICD.Connect.Audio.Utils
 		/// </summary>
 		public void Dispose()
 		{
+			OnVolumeControlChanged = null;
 			OnVolumeControlIsMutedChanged = null;
 			OnVolumeControlVolumeChanged = null;
 			OnVolumeControlAvailableChanged = null;
