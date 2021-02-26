@@ -47,21 +47,12 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.Services
 		private const string STOP_PARTITION_AUDIO_SERVICE = "stopPartitionAudio";
 
 		private const string ACTIVE_FAULTS_ATTRIBUTE = "activeFaultList";
-		private const string DISCOVERED_SERVERS_ATTRIBUTE = "discoveredServers";
-		private const string DNS_CONFIG_ATTRIBUTE = "dnsConfig";
-		private const string DNS_STATUS_ATTRIBUTE = "dnsStatus";
 		private const string HOSTNAME_ATTRIBUTE = "hostname";
-		private const string RESOLVER_HOSTS_TABLE = "hostTable";
-		private const string NETWORK_INTERFACE_CONFIG_ATTRIBUTE = "ipConfig";
-		private const string NETWORK_INTERFACE_STATUS_ATTRIBUTE = "ipStatus";
-		private const string KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE = "knownRedundantDeviceStates";
 		private const string MDNS_ENABLED_ATTRIBUTE = "mDNSEnabled";
 		private const string NETWORK_STATUS_ATTRIBUTE = "networkStatus";
 		private const string SERIAL_NUMBER_ATTRIBUTE = "serialNumber";
 		private const string TELNET_DISABLED_ATTRIBUTE = "telnetDisabled";
 		private const string FIRMWARE_VERSION_ATTRIBUTE = "version";
-
-	    private const string VOIP_CONTROL_STATUS = "protocols";
 
         public delegate void LinkStatusCallback(DeviceService sender, eLinkStatus status);
 
@@ -345,29 +336,12 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.Services
 
 			// Get intial values
 			RequestAttribute(ActiveFaultsFeedback, AttributeCode.eCommand.Get, ACTIVE_FAULTS_ATTRIBUTE, null);
-			RequestAttribute(DiscoveredServersFeedback, AttributeCode.eCommand.Get, DISCOVERED_SERVERS_ATTRIBUTE, null);
-			RequestAttribute(DnsConfigFeedback, AttributeCode.eCommand.Get, DNS_CONFIG_ATTRIBUTE, null);
-			RequestAttribute(DnsStatusFeedback, AttributeCode.eCommand.Get, DNS_STATUS_ATTRIBUTE, null);
 			RequestAttribute(HostnameFeedback, AttributeCode.eCommand.Get, HOSTNAME_ATTRIBUTE, null);
-			RequestAttribute(ResolverHostsTableFeedback, AttributeCode.eCommand.Get, RESOLVER_HOSTS_TABLE, null);
-			RequestAttribute(KnownRedundantDeviceStatesFeedback, AttributeCode.eCommand.Get, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
 			RequestAttribute(MdnsEnabledFeedback, AttributeCode.eCommand.Get, MDNS_ENABLED_ATTRIBUTE, null);
 			RequestAttribute(NetworkStatusFeedback, AttributeCode.eCommand.Get, NETWORK_STATUS_ATTRIBUTE, null);
 			RequestAttribute(SerialNumberFeedback, AttributeCode.eCommand.Get, SERIAL_NUMBER_ATTRIBUTE, null);
 			RequestAttribute(TelnetDisabledFeedback, AttributeCode.eCommand.Get, TELNET_DISABLED_ATTRIBUTE, null);
 			RequestAttribute(FirmwareVersionFeedback, AttributeCode.eCommand.Get, FIRMWARE_VERSION_ATTRIBUTE, null);
-		}
-
-		/// <summary>
-		/// Subscribe/unsubscribe to the system using the given command type.
-		/// </summary>
-		/// <param name="command"></param>
-		protected override void Subscribe(AttributeCode.eCommand command)
-		{
-			base.Subscribe(command);
-
-			// Subscribe
-			RequestAttribute(KnownRedundantDeviceStatesFeedback, command, KNOWN_REDUNDANT_DEVICE_STATES_ATTRIBUTE, null);
 		}
 
 		[PublicAPI]
@@ -494,34 +468,10 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.Services
 		    ActiveFaultStatus = activeFaults.GetValue<Value>("name").StringValue;
 		}
 
-		private void DiscoveredServersFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			ArrayValue discoveredServers = value.GetValue<ArrayValue>("value");
-			// todo
-		}
-
-		private void DnsConfigFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			ControlValue dnsConfig = value.GetValue<ControlValue>("value");
-			// todo
-		}
-
-		private void DnsStatusFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			ControlValue dnsStatus = value.GetValue<ControlValue>("value");
-			// todo
-		}
-
 		private void HostnameFeedback(BiampTesiraDevice sender, ControlValue value)
 		{
 			Value innerValue = value.GetValue<Value>("value");
 			Hostname = innerValue.StringValue;
-		}
-
-		private void ResolverHostsTableFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			ControlValue hostTable = value.GetValue<ControlValue>("value");
-			// todo
 		}
 
 		private void MdnsEnabledFeedback(BiampTesiraDevice sender, ControlValue value)
@@ -565,12 +515,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.Services
 		{
 			Value innerValue = value.GetValue<Value>("value");
 			FirmwareVersion = innerValue.StringValue;
-		}
-
-		private void KnownRedundantDeviceStatesFeedback(BiampTesiraDevice sender, ControlValue value)
-		{
-			ArrayValue deviceStates = value.GetValue<ArrayValue>("deviceStates");
-			// todo
 		}
 
 		#endregion
