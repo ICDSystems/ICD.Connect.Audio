@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [15.1.1] - 2021-02-26
 ### Changed
  - Biamp Tesira - Removed unused polling and subscribing in DeviceService to resolve error responses desyncing parsing
 
 ## [15.1.0] - 2021-01-25
 ### Added
  - VolumePointHelper - added properties to get the best min/max values
+
 ### Changed
  - Change VolumePointHelper to use the volume percentage scaled between the best min/max levels between the control and the volume point.
  - VolumeRepeater now properly ramps percent volume representations
