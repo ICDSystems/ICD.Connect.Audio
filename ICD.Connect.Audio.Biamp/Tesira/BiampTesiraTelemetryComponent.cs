@@ -40,10 +40,10 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 			Tesira.MonitoredDeviceInfo.FirmwareVersion = service.FirmwareVersion;
 			Tesira.MonitoredDeviceInfo.SerialNumber = service.SerialNumber;
 			Tesira.MonitoredDeviceInfo.NetworkInfo.Hostname = service.Hostname;
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4Address = service.IpAddress;
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).MacAddress = service.MacAddress;
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4SubnetMask = service.SubnetMask;
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4Gateway = service.DefaultGateway;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Address = service.IpAddress;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = service.MacAddress;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4SubnetMask = service.SubnetMask;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Gateway = service.DefaultGateway;
 
 			// Active Faults
 			string faults = service.ActiveFaultStatus;
@@ -81,17 +81,17 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 		private void ParentOnIpAddressChanged(object sender, StringEventArgs e)
 		{
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4Address = e.Data;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Address = e.Data;
 		}
 
 		private void ParentOnSubnetMaskChanged(object sender, StringEventArgs e)
 		{
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4SubnetMask = e.Data;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4SubnetMask = e.Data;
 		}
 
 		private void ParentOnDefaultGatewayChanged(object sender, StringEventArgs e)
 		{
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).Ipv4Gateway = e.Data;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Gateway = e.Data;
 		}
 
 		private DeviceService GetDeviceService(BiampTesiraDevice parent)
@@ -125,7 +125,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 		private void ParentOnMacAddressChanged(object sender, StringEventArgs e)
 		{
-			Tesira.MonitoredDeviceInfo.NetworkInfo.GetOrAddAdapter(1).MacAddress = e.Data;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = e.Data;
 		}
 
 		private void ParentOnSerialNumberChanged(object sender, StringEventArgs e)
