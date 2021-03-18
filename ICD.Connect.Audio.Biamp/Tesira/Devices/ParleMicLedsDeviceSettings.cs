@@ -1,5 +1,4 @@
-﻿using ICD.Common.Utils.Xml;
-using ICD.Connect.Settings.Attributes;
+﻿using ICD.Connect.Settings.Attributes;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Devices
 {
