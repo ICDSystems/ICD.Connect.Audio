@@ -2,6 +2,7 @@
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.Services;
+using ICD.Connect.Devices.Telemetry.DeviceInfo;
 
 namespace ICD.Connect.Audio.Biamp.Tesira
 {
@@ -37,11 +38,15 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 			if (service == null)
 				return;
 
+			string macAddress = service.MacAddress ?? string.Empty;
+			IcdPhysicalAddress mac;
+			IcdPhysicalAddress.TryParse(macAddress, out mac);
+
 			Tesira.MonitoredDeviceInfo.FirmwareVersion = service.FirmwareVersion;
 			Tesira.MonitoredDeviceInfo.SerialNumber = service.SerialNumber;
 			Tesira.MonitoredDeviceInfo.NetworkInfo.Hostname = service.Hostname;
 			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Address = service.IpAddress;
-			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = service.MacAddress;
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = mac;
 			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4SubnetMask = service.SubnetMask;
 			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).Ipv4Gateway = service.DefaultGateway;
 
@@ -125,7 +130,11 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 
 		private void ParentOnMacAddressChanged(object sender, StringEventArgs e)
 		{
-			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = e.Data;
+			string macAddress = e.Data ?? string.Empty;
+			IcdPhysicalAddress mac;
+			IcdPhysicalAddress.TryParse(macAddress, out mac);
+
+			Tesira.MonitoredDeviceInfo.NetworkInfo.Adapters.GetOrAddAdapter(1).MacAddress = mac;
 		}
 
 		private void ParentOnSerialNumberChanged(object sender, StringEventArgs e)
