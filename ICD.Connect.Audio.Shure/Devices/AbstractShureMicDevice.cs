@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.Controls.Microphone;
+using ICD.Connect.Audio.Devices.Microphones;
 using ICD.Connect.Audio.Shure.Controls;
-using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
@@ -16,7 +18,7 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Shure.Devices
 {
-	public abstract class AbstractShureMicDevice<TSettings> : AbstractDevice<TSettings>, IShureMicDevice
+	public abstract class AbstractShureMicDevice<TSettings> : AbstractMicrophoneDevice<TSettings>, IShureMicDevice
 		where TSettings : AbstractShureMicDeviceSettings, new()
 	{
 		/// <summary>
@@ -78,6 +80,50 @@ namespace ICD.Connect.Audio.Shure.Devices
 		#region Methods
 
 		/// <summary>
+		/// Sets the gain level.
+		/// </summary>
+		/// <param name="volume"></param>
+		public override void SetGainLevel(float volume)
+		{
+			volume = MathUtils.Clamp(volume, 0, 1400);
+
+			ShureMicSerialData command = new ShureMicSerialData
+			{
+				Type = ShureMicSerialData.SET,
+				Channel = 0,
+				Command = "AUDIO_GAIN_HI_RES",
+				Value = ((int)volume).ToString()
+			};
+
+			Send(command.Serialize());
+		}
+
+		/// <summary>
+		/// Sets the muted state.
+		/// </summary>
+		/// <param name="mute"></param>
+		public override void SetMuted(bool mute)
+		{
+			ShureMicSerialData command = new ShureMicSerialData
+			{
+				Type = ShureMicSerialData.SET,
+				Command = "DEVICE_AUDIO_MUTE",
+				Value = mute ? "ON" : "OFF"
+			};
+
+			Send(command.Serialize());
+		}
+
+		/// <summary>
+		/// Sets the phantom power state.
+		/// </summary>
+		/// <param name="power"></param>
+		public override void SetPhantomPower(bool power)
+		{
+			throw new NotSupportedException();
+		}
+
+		/// <summary>
 		/// Sets the color and brightness of the hardware LED.
 		/// </summary>
 		/// <param name="color"></param>
@@ -93,6 +139,10 @@ namespace ICD.Connect.Audio.Shure.Devices
 			return m_ConnectionStateManager != null && m_ConnectionStateManager.IsOnline;
 		}
 
+		/// <summary>
+		/// Sets the port for serial communication.
+		/// </summary>
+		/// <param name="port"></param>
 		private void SetPort(ISerialPort port)
 		{
 			m_ConnectionStateManager.SetPort(port, false);
@@ -129,6 +179,10 @@ namespace ICD.Connect.Audio.Shure.Devices
 		private void PortOnConnectionStatusChanged(object sender, BoolEventArgs e)
 		{
 			m_SerialBuffer.Clear();
+
+			// Get the current state of the device
+			if (e.Data)
+				Send("< GET 0 ALL >");
 		}
 
 		/// <summary>
@@ -170,7 +224,21 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// <param name="stringEventArgs"></param>
 		private void SerialBufferOnCompletedSerial(object sender, StringEventArgs stringEventArgs)
 		{
-			ShureMicSerialData response = ShureMicSerialData.Deserialize(stringEventArgs.Data);
+			// Not sure why we get these messages - some kind of null-op?
+			if (stringEventArgs.Data == "< REP ERR >")
+				return;
+
+			ShureMicSerialData response;
+
+			try
+			{
+				response = ShureMicSerialData.Deserialize(stringEventArgs.Data);
+			}
+			catch (FormatException)
+			{
+				Logger.Log(eSeverity.Error, "Failed to parse message \"{0}\"", stringEventArgs.Data);
+				return;
+			}
 
 			switch (response.Type)
 			{
@@ -180,6 +248,14 @@ namespace ICD.Connect.Audio.Shure.Devices
 					{
 						case "MUTE_BUTTON_STATUS":
 							MuteButtonStatus = response.Value == "ON";
+							break;
+
+						case "DEVICE_AUDIO_MUTE":
+							IsMuted = response.Value == "ON";
+							break;
+
+						case "AUDIO_GAIN_HI_RES":
+							GainLevel = float.Parse(response.Value);
 							break;
 					}
 
@@ -260,6 +336,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 			base.AddControls(settings, factory, addControl);
 
 			addControl(new ShureMicRouteSourceControl(this, 0));
+			addControl(new MicrophoneDeviceControl(this, 1));
 		}
 
 		#endregion

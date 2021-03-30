@@ -1,10 +1,10 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
-using ICD.Connect.Devices;
+using ICD.Connect.Audio.Devices.Microphones;
 
 namespace ICD.Connect.Audio.Shure.Devices
 {
-	public interface IShureMicDevice : IDevice
+	public interface IShureMicDevice : IMicrophoneDevice
 	{
 		/// <summary>
 		/// Raised when the mute button is pressed/released.

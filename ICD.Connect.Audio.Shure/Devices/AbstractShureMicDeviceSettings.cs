@@ -1,11 +1,11 @@
 ﻿using ICD.Common.Utils.Xml;
-using ICD.Connect.Devices;
+using ICD.Connect.Audio.Devices.Microphones;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Shure.Devices
 {
-	public abstract class AbstractShureMicDeviceSettings : AbstractDeviceSettings
+	public abstract class AbstractShureMicDeviceSettings : AbstractMicrophoneDeviceSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 
