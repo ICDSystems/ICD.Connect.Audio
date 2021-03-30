@@ -1,10 +1,10 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
-using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices;
 
-namespace ICD.Connect.Audio.Controls.Microphone
+namespace ICD.Connect.Audio.Devices.Microphones
 {
-	public interface IMicrophoneDeviceControl : IDeviceControl
+	public interface IMicrophoneDevice : IDevice
 	{
 		/// <summary>
 		/// Raised when the mute state changes.
