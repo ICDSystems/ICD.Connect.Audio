@@ -30,9 +30,21 @@ namespace ICD.Connect.Audio.Shure
 		/// <returns></returns>
 		public string Serialize()
 		{
-			return Channel.HasValue
-				? string.Format("< {0} {1} {2} {3} >", Type, Channel.Value, Command, Value)
-				: string.Format("< {0} {1} {2} >", Type, Command, Value);
+			switch (Type)
+			{
+				case GET:
+					return Channel.HasValue
+						       ? string.Format("< {0} {1} {2} >", Type, Channel.Value, Command)
+						       : string.Format("< {0} {1} >", Type, Command);
+
+				case SET:
+					return Channel.HasValue
+						       ? string.Format("< {0} {1} {2} {3} >", Type, Channel.Value, Command, Value)
+						       : string.Format("< {0} {1} {2} >", Type, Command, Value);
+
+				default:
+					throw new InvalidOperationException();
+			}
 		}
 
 		/// <summary>

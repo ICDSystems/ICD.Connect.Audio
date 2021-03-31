@@ -17,7 +17,7 @@ using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Settings;
 using ICD.Connect.Settings.Originators;
 
-namespace ICD.Connect.Audio.Devices
+namespace ICD.Connect.Audio.Devices.GenericAmp
 {
 	/// <summary>
 	/// The GenericAmpDevice is essentially a mock audio switcher that provides a single

@@ -4,7 +4,6 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Console.Volume;
 using ICD.Connect.Audio.EventArguments;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;

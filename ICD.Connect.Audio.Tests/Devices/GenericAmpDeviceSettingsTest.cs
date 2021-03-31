@@ -1,4 +1,4 @@
-﻿using ICD.Connect.Audio.Devices;
+﻿using ICD.Connect.Audio.Devices.GenericAmp;
 using ICD.Connect.Devices.Tests.Devices;
 using NUnit.Framework;
 

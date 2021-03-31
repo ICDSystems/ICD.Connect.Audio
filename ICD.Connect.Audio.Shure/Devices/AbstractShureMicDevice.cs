@@ -6,7 +6,6 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls.Microphone;
 using ICD.Connect.Audio.Devices.Microphones;
 using ICD.Connect.Audio.Shure.Controls;
 using ICD.Connect.Devices.Controls;
@@ -26,10 +25,34 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnMuteButtonStatusChanged;
 
+		/// <summary>
+		/// Raised when the audio gain changes.
+		/// </summary>
+		public event EventHandler<IntEventArgs> OnAudioGainChanged;
+
+		/// <summary>
+		/// Raised when the muted state changes.
+		/// </summary>
+		public event EventHandler<BoolEventArgs> OnIsMutedChanged; 
+
 		private readonly ConnectionStateManager m_ConnectionStateManager;
 		private readonly ShureMicSerialBuffer m_SerialBuffer;
 
 		private bool m_MuteButtonStatus;
+		private int m_AudioGain;
+		private bool m_IsMuted;
+
+		#region Properties
+
+		/// <summary>
+		/// Gets the number of channels supported by the microphone.
+		/// </summary>
+		protected abstract int NumberOfChannels { get; }
+
+		/// <summary>
+		/// Gets the automix channel.
+		/// </summary>
+		protected int AutomixChannel { get { return NumberOfChannels + 1; } }
 
 		/// <summary>
 		/// Gets the mute button state.
@@ -47,6 +70,42 @@ namespace ICD.Connect.Audio.Shure.Devices
 				OnMuteButtonStatusChanged.Raise(this, new BoolEventArgs(m_MuteButtonStatus));
 			}
 		}
+
+		/// <summary>
+		/// Gets the analog gain level.
+		/// </summary>
+		public int AudioGain
+		{
+			get { return m_AudioGain; }
+			private set
+			{
+				if (value == m_AudioGain)
+					return;
+
+				m_AudioGain = value;
+
+				OnAudioGainChanged.Raise(this, m_AudioGain);
+			}
+		}
+
+		/// <summary>
+		/// Gets the muted state.
+		/// </summary>
+		public bool IsMuted
+		{
+			get { return m_IsMuted; }
+			private set
+			{
+				if (value == m_IsMuted)
+					return;
+
+				m_IsMuted = value;
+
+				OnIsMutedChanged.Raise(this, m_IsMuted);
+			}
+		}
+
+		#endregion
 
 		/// <summary>
 		/// Constructor.
@@ -68,6 +127,8 @@ namespace ICD.Connect.Audio.Shure.Devices
 		protected override void DisposeFinal(bool disposing)
 		{
 			OnMuteButtonStatusChanged = null;
+			OnAudioGainChanged = null;
+			OnIsMutedChanged = null;
 
 			base.DisposeFinal(disposing);
 
@@ -83,14 +144,14 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// Sets the gain level.
 		/// </summary>
 		/// <param name="volume"></param>
-		public override void SetGainLevel(float volume)
+		public void SetAudioGain(float volume)
 		{
 			volume = MathUtils.Clamp(volume, 0, 1400);
 
 			ShureMicSerialData command = new ShureMicSerialData
 			{
 				Type = ShureMicSerialData.SET,
-				Channel = 0,
+				Channel = AutomixChannel,
 				Command = "AUDIO_GAIN_HI_RES",
 				Value = ((int)volume).ToString()
 			};
@@ -102,7 +163,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// Sets the muted state.
 		/// </summary>
 		/// <param name="mute"></param>
-		public override void SetMuted(bool mute)
+		public void SetIsMuted(bool mute)
 		{
 			ShureMicSerialData command = new ShureMicSerialData
 			{
@@ -115,20 +176,24 @@ namespace ICD.Connect.Audio.Shure.Devices
 		}
 
 		/// <summary>
-		/// Sets the phantom power state.
-		/// </summary>
-		/// <param name="power"></param>
-		public override void SetPhantomPower(bool power)
-		{
-			throw new NotSupportedException();
-		}
-
-		/// <summary>
 		/// Sets the color and brightness of the hardware LED.
 		/// </summary>
 		/// <param name="color"></param>
 		/// <param name="brightness"></param>
 		public abstract void SetLedStatus(eLedColor color, eLedBrightness brightness);
+
+		/// <summary>
+		/// Sets the port for serial communication.
+		/// </summary>
+		/// <param name="port"></param>
+		public void SetPort(ISerialPort port)
+		{
+			m_ConnectionStateManager.SetPort(port, false);
+		}
+
+		#endregion
+
+		#region Private Methods
 
 		/// <summary>
 		/// Gets the current online status of the device.
@@ -140,17 +205,6 @@ namespace ICD.Connect.Audio.Shure.Devices
 		}
 
 		/// <summary>
-		/// Sets the port for serial communication.
-		/// </summary>
-		/// <param name="port"></param>
-		private void SetPort(ISerialPort port)
-		{
-			m_ConnectionStateManager.SetPort(port, false);
-		}
-
-		#endregion
-
-		/// <summary>
 		/// Sends the message to the device.
 		/// </summary>
 		/// <param name="message"></param>
@@ -158,6 +212,8 @@ namespace ICD.Connect.Audio.Shure.Devices
 		{
 			m_ConnectionStateManager.Send(message + "\r\n");
 		}
+
+		#endregion
 
 		#region Port Callbacks
 
@@ -180,9 +236,18 @@ namespace ICD.Connect.Audio.Shure.Devices
 		{
 			m_SerialBuffer.Clear();
 
+			if (!e.Data)
+				return;
+
 			// Get the current state of the device
-			if (e.Data)
-				Send("< GET 0 ALL >");
+			ShureMicSerialData command = new ShureMicSerialData
+			{
+				Type = ShureMicSerialData.GET,
+				Channel = 0,
+				Command = "ALL",
+			};
+
+			Send(command.Serialize());
 		}
 
 		/// <summary>
@@ -255,7 +320,8 @@ namespace ICD.Connect.Audio.Shure.Devices
 							break;
 
 						case "AUDIO_GAIN_HI_RES":
-							GainLevel = float.Parse(response.Value);
+							if (response.Channel == AutomixChannel)
+								AudioGain = int.Parse(response.Value);
 							break;
 					}
 
@@ -336,7 +402,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 			base.AddControls(settings, factory, addControl);
 
 			addControl(new ShureMicRouteSourceControl(this, 0));
-			addControl(new MicrophoneDeviceControl(this, 1));
+			addControl(new ShureMicrophoneDeviceControl(this, 1));
 		}
 
 		#endregion

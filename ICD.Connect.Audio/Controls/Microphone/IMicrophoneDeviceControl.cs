@@ -1,16 +1,11 @@
 ﻿using System;
 using ICD.Common.Utils.EventArguments;
-using ICD.Connect.Devices.Controls;
+using ICD.Connect.Audio.Controls.Volume;
 
 namespace ICD.Connect.Audio.Controls.Microphone
 {
-	public interface IMicrophoneDeviceControl : IDeviceControl
+	public interface IMicrophoneDeviceControl : IVolumeDeviceControl
 	{
-		/// <summary>
-		/// Raised when the mute state changes.
-		/// </summary>
-		event EventHandler<BoolEventArgs> OnMuteStateChanged;
-
 		/// <summary>
 		/// Raised when the phantom power state changes.
 		/// </summary>
@@ -19,14 +14,9 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Raised when the gain level changes.
 		/// </summary>
-		event EventHandler<FloatEventArgs> OnGainLevelChanged;
+		event EventHandler<FloatEventArgs> OnAnalogGainLevelChanged;
 
 		#region Properties
-
-		/// <summary>
-		/// Gets the muted state.
-		/// </summary>
-		bool IsMuted { get; }
 
 		/// <summary>
 		/// Gets the phantom power state.
@@ -36,7 +26,7 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Gets the gain level.
 		/// </summary>
-		float GainLevel { get; }
+		float AnalogGainLevel { get; }
 
 		#endregion
 
@@ -45,14 +35,8 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Sets the gain level.
 		/// </summary>
-		/// <param name="volume"></param>
-		void SetGainLevel(float volume);
-
-		/// <summary>
-		/// Sets the muted state.
-		/// </summary>
-		/// <param name="mute"></param>
-		void SetMuted(bool mute);
+		/// <param name="level"></param>
+		void SetAnalogGainLevel(float level);
 
 		/// <summary>
 		/// Sets the phantom power state.

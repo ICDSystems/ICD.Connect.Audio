@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls.Microphone;
 
-namespace ICD.Connect.Audio.Console.Microphone
+namespace ICD.Connect.Audio.Controls.Microphone
 {
 	public static class MicrophoneDeviceControlConsole
 	{
@@ -31,9 +30,9 @@ namespace ICD.Connect.Audio.Console.Microphone
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			addRow("Gain Level", instance.GainLevel);
-			addRow("Muted", instance.IsMuted);
+			addRow("Is Muted", instance.IsMuted);
 			addRow("Phantom Power", instance.PhantomPower);
+			addRow("Analog Gain Level", instance.AnalogGainLevel);
 		}
 
 		/// <summary>
@@ -46,11 +45,9 @@ namespace ICD.Connect.Audio.Console.Microphone
 			if (instance == null)
 				throw new ArgumentNullException("instance");
 
-			yield return new GenericConsoleCommand<float>("SetGainLevel", "SetGainLevel <LEVEL>", l => instance.SetGainLevel(l));
-			yield return new GenericConsoleCommand<bool>("SetMuted", "SetMuted <true/false>", b => instance.SetMuted(b));
-			yield return
-				new GenericConsoleCommand<bool>("SetPhantomPower", "SetPhantomPower <true/false>", b => instance.SetPhantomPower(b))
-				;
+			yield return new GenericConsoleCommand<bool>("SetIsMuted", "SetIsMuted <TRUE/FALSE>", b => instance.SetIsMuted(b));
+			yield return new GenericConsoleCommand<bool>("SetPhantomPower", "SetPhantomPower <TRUE/FALSE>", b => instance.SetPhantomPower(b));
+			yield return new GenericConsoleCommand<float>("SetAnalogGainLevel", "SetAnalogGainLevel <LEVEL>", f => instance.SetAnalogGainLevel(f));
 		}
 	}
 }

@@ -12,7 +12,7 @@ using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Routing.RoutingGraphs;
 using ICD.Connect.Routing.Utils;
 
-namespace ICD.Connect.Audio.Devices
+namespace ICD.Connect.Audio.Devices.GenericAmp
 {
 	/// <summary>
 	/// Very similar to the mock switcher control. Fakes an audio switch with a single output.

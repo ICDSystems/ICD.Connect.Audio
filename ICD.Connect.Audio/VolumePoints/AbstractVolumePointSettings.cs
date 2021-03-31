@@ -77,6 +77,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public eMuteType MuteType { get; set; }
 
+		/// <summary>
+		/// When enabled volume levels will be ramped logarithmically.
+		/// </summary>
+		public bool Logarithmic { get; set; }
+
 		#endregion
 
 		/// <summary>

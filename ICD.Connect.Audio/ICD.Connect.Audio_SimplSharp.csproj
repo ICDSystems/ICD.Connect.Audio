@@ -62,10 +62,8 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Console\Microphone\MicrophoneDeviceControlConsole.cs" />
-    <Compile Include="Console\Volume\VolumeDeviceControlConsole.cs" />
+    <Compile Include="Controls\Volume\VolumeDeviceControlConsole.cs" />
     <Compile Include="Controls\Microphone\AbstractMicrophoneDeviceControl.cs" />
-    <Compile Include="Controls\Microphone\MicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\AbstractVolumeDeviceControl.cs" />
     <Compile Include="Controls\Microphone\IMicrophoneDeviceControl.cs" />
     <Compile Include="Controls\Volume\IVolumeDeviceControl.cs" />
@@ -73,7 +71,7 @@
     <Compile Include="Controls\Volume\VolumeDeviceControlExternalTelemetryProvider.cs" />
     <Compile Include="Devices\Microphones\AbstractMicrophoneDevice.cs" />
     <Compile Include="Devices\Microphones\AbstractMicrophoneDeviceSettings.cs" />
-    <Compile Include="Devices\Microphones\MicrophoneDeviceConsole.cs" />
+    <Compile Include="Controls\Microphone\MicrophoneDeviceControlConsole.cs" />
     <Compile Include="Devices\Microphones\IMicrophoneDevice.cs" />
     <Compile Include="Devices\Microphones\IMicrophoneDeviceSettings.cs" />
     <Compile Include="EventArguments\VolumeControlSupportedVolumeFeaturesChangedApiEventArgs.cs" />

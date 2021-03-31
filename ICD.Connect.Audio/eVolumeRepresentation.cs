@@ -3,6 +3,6 @@
 	public enum eVolumeRepresentation
 	{
 		Level,
-		Percent,
+		Percent
 	}
 }

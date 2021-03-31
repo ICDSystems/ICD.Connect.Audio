@@ -5,9 +5,8 @@ using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Controls.Volume;
 
-namespace ICD.Connect.Audio.Console.Volume
+namespace ICD.Connect.Audio.Controls.Volume
 {
 	public static class VolumeDeviceControlConsole
 	{

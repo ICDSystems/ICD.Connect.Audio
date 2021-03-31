@@ -6,21 +6,14 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Console.Microphone;
+using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Devices;
-using ICD.Connect.Devices.Controls;
-using ICD.Common.Logging.Activities;
 
 namespace ICD.Connect.Audio.Controls.Microphone
 {
-	public abstract class AbstractMicrophoneDeviceControl<T> : AbstractDeviceControl<T>, IMicrophoneDeviceControl
+	public abstract class AbstractMicrophoneDeviceControl<T> : AbstractVolumeDeviceControl<T>, IMicrophoneDeviceControl
 		where T : IDevice
 	{
-		/// <summary>
-		/// Raised when the mute state changes.
-		/// </summary>
-		public event EventHandler<BoolEventArgs> OnMuteStateChanged;
-
 		/// <summary>
 		/// Raised when the phantom power state changes.
 		/// </summary>
@@ -29,41 +22,12 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Raised when the gain level changes.
 		/// </summary>
-		public event EventHandler<FloatEventArgs> OnGainLevelChanged;
+		public event EventHandler<FloatEventArgs> OnAnalogGainLevelChanged;
 
-		private bool m_IsMuted;
 		private bool m_PhantomPower;
-		private float m_GainLevel;
+		private float m_AnalogGainLevel;
 
 		#region Properties
-
-		/// <summary>
-		/// Gets the muted state.
-		/// </summary>
-		public bool IsMuted
-		{
-			get { return m_IsMuted; }
-			protected set
-			{
-				try
-				{
-					if (value == m_IsMuted)
-						return;
-
-					m_IsMuted = value;
-
-					Logger.LogSetTo(eSeverity.Informational, "IsMuted", m_IsMuted);
-
-					OnMuteStateChanged.Raise(this, new BoolEventArgs(m_IsMuted));
-				}
-				finally
-				{
-					Activities.LogActivity(m_IsMuted
-						                       ? new Activity(Activity.ePriority.Medium, "IsMuted", "Muted", eSeverity.Informational)
-						                       : new Activity(Activity.ePriority.Low, "IsMuted", "Unmuted", eSeverity.Informational));
-				}
-			}
-		}
 
 		/// <summary>
 		/// Gets the phantom power state.
@@ -87,20 +51,20 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Gets the gain level.
 		/// </summary>
-		public float GainLevel
+		public float AnalogGainLevel
 		{
-			get { return m_GainLevel; }
+			get { return m_AnalogGainLevel; }
 			protected set
 			{
 				const double tolerance = 0.001f;
-				if (Math.Abs(value - m_GainLevel) < tolerance)
+				if (Math.Abs(value - m_AnalogGainLevel) < tolerance)
 					return;
 
-				m_GainLevel = value;
+				m_AnalogGainLevel = value;
 
-				Logger.LogSetTo(eSeverity.Informational, "GainLevel", m_GainLevel);
+				Logger.LogSetTo(eSeverity.Informational, "GainLevel", m_AnalogGainLevel);
 
-				OnGainLevelChanged.Raise(this, new FloatEventArgs(m_GainLevel));
+				OnAnalogGainLevelChanged.Raise(this, new FloatEventArgs(m_AnalogGainLevel));
 			}
 		}
 
@@ -114,8 +78,6 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		protected AbstractMicrophoneDeviceControl(T parent, int id)
 			: base(parent, id)
 		{
-			// Initialize activities
-			IsMuted = false;
 		}
 
 		/// <summary>
@@ -127,8 +89,6 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		protected AbstractMicrophoneDeviceControl(T parent, int id, Guid uuid)
 			: base(parent, id, uuid)
 		{
-			// Initialize activities
-			IsMuted = false;
 		}
 
 		/// <summary>
@@ -137,9 +97,8 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
-			OnMuteStateChanged = null;
 			OnPhantomPowerStateChanged = null;
-			OnGainLevelChanged = null;
+			OnAnalogGainLevelChanged = null;
 
 			base.DisposeFinal(disposing);
 		}
@@ -149,36 +108,14 @@ namespace ICD.Connect.Audio.Controls.Microphone
 		/// <summary>
 		/// Sets the gain level.
 		/// </summary>
-		/// <param name="volume"></param>
-		public abstract void SetGainLevel(float volume);
-
-		/// <summary>
-		/// Sets the muted state.
-		/// </summary>
-		/// <param name="mute"></param>
-		public abstract void SetMuted(bool mute);
+		/// <param name="level"></param>
+		public abstract void SetAnalogGainLevel(float level);
 
 		/// <summary>
 		/// Sets the phantom power state.
 		/// </summary>
 		/// <param name="power"></param>
 		public abstract void SetPhantomPower(bool power);
-
-		/// <summary>
-		/// Toggles the current mute state.
-		/// </summary>
-		public virtual void MuteToggle()
-		{
-			SetMuted(!IsMuted);
-		}
-
-		/// <summary>
-		/// Toggles the current phantom power state.
-		/// </summary>
-		public virtual void PhantomPowerToggle()
-		{
-			SetPhantomPower(!PhantomPower);
-		}
 
 		#endregion
 

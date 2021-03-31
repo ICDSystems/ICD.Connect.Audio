@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ICD.Connect.API.Commands;
 
 namespace ICD.Connect.Audio.Shure.Devices.MXW
@@ -7,8 +6,6 @@ namespace ICD.Connect.Audio.Shure.Devices.MXW
 	public abstract class AbstractShureMxwAptDevice<TSettings> : AbstractShureMicDevice<TSettings>
 		where TSettings : AbstractShureMxwAptDeviceSettings, new()
 	{
-		protected abstract int NumberOfChannels { get; }
-
 		public override void SetLedStatus(eLedColor color, eLedBrightness brightness)
 		{
 			if (brightness == eLedBrightness.Disabled)
@@ -20,12 +17,6 @@ namespace ICD.Connect.Audio.Shure.Devices.MXW
 		#region Private Methods
 
 		private void SetLedColor(eLedColor color)
-		{
-			foreach (int channel in Enumerable.Range(1, NumberOfChannels))
-				SetLedColor(color, channel);
-		}
-
-		private void SetLedColor(eLedColor color, int channel)
 		{
 			string leds = "OF OF";
 			switch (color)
@@ -44,7 +35,7 @@ namespace ICD.Connect.Audio.Shure.Devices.MXW
 			ShureMicSerialData command = new ShureMicSerialData
 			{
 				Type = ShureMicSerialData.SET,
-				Channel = channel,
+				Channel = 0,
 				Command = "LED_STATUS",
 				Value = leds
 			};
@@ -54,16 +45,10 @@ namespace ICD.Connect.Audio.Shure.Devices.MXW
 
 		private void SetLedOff()
 		{
-			foreach (int channel in Enumerable.Range(1, NumberOfChannels))
-				SetLedOff(channel);
-		}
-
-		private void SetLedOff(int channel)
-		{
 			ShureMicSerialData command = new ShureMicSerialData
 			{
 				Type = ShureMicSerialData.SET,
-				Channel = channel,
+				Channel = 0,
 				Command = "LED_STATUS",
 				Value = "OF OF"
 			};

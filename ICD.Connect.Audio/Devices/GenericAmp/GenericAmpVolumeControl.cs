@@ -12,7 +12,7 @@ using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Routing.Extensions;
 using ICD.Connect.Routing.RoutingGraphs;
 
-namespace ICD.Connect.Audio.Devices
+namespace ICD.Connect.Audio.Devices.GenericAmp
 {
 	public sealed class GenericAmpVolumeControl : AbstractVolumeDeviceControl<GenericAmpDevice>
 	{

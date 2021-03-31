@@ -6,7 +6,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
 using ICD.Connect.Settings.Attributes;
 
-namespace ICD.Connect.Audio.Devices
+namespace ICD.Connect.Audio.Devices.GenericAmp
 {
 	[KrangSettings("GenericAmpDevice", typeof(GenericAmpDevice))]
 	public sealed class GenericAmpDeviceSettings : AbstractDeviceSettings
