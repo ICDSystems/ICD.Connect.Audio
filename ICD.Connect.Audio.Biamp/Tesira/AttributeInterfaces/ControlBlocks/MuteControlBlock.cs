@@ -29,7 +29,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.ControlBlocks
 
 		private int m_ChannelCount;
 		private bool m_Ganged;
-		private bool m_UseRamping;
 
 		#region Properties
 
