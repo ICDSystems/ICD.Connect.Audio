@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
 using ICD.Connect.Routing.EventArguments;
-using ICD.Connect.Routing.RoutingGraphs;
 
 namespace ICD.Connect.Audio.Biamp.Tesira
 {
@@ -28,15 +24,9 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// </summary>
 		public event EventHandler<TransmissionStateEventArgs> OnActiveTransmissionStateChanged;
 
-		private IRoutingGraph m_CachedRoutingGraph;
+		private readonly RoutingGraphSourceConnectionComponent m_SourceComponent;
 
-		/// <summary>
-		/// Gets the routing graph.
-		/// </summary>
-		public IRoutingGraph RoutingGraph
-		{
-			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
-		}
+		private readonly RoutingGraphDestinationConnectionComponent m_DestinationComponent;
 
 		/// <summary>
 		/// Constructor.
@@ -46,6 +36,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		public BiampTesiraRoutingControl(BiampTesiraDevice parent, int id)
 			: base(parent, id)
 		{
+			m_SourceComponent = new RoutingGraphSourceConnectionComponent(this);
+			m_DestinationComponent = new RoutingGraphDestinationConnectionComponent(this);
 		}
 
 		/// <summary>
@@ -89,10 +81,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public override ConnectorInfo GetInput(int input)
 		{
-			if (!ContainsInput(input))
-				throw new ArgumentOutOfRangeException("input");
-
-			return new ConnectorInfo(input, eConnectionType.Audio);
+			return m_DestinationComponent.GetInput(input);
 		}
 
 		/// <summary>
@@ -102,8 +91,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public override bool ContainsInput(int input)
 		{
-			Connection connection = RoutingGraph.Connections.GetInputConnection(this, input);
-			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
+			return m_DestinationComponent.ContainsInput(input);
 		}
 
 		/// <summary>
@@ -126,10 +114,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public ConnectorInfo GetOutput(int output)
 		{
-			if (!ContainsOutput(output))
-				throw new ArgumentOutOfRangeException("output");
-
-			return new ConnectorInfo(output, eConnectionType.Audio);
+			return m_SourceComponent.GetOutput(output);
 		}
 
 		/// <summary>
@@ -139,8 +124,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public bool ContainsOutput(int output)
 		{
-			Connection connection = RoutingGraph.Connections.GetOutputConnection(this, output);
-			return connection != null && connection.ConnectionType.HasFlag(eConnectionType.Audio);
+			return m_SourceComponent.ContainsOutput(output);
 		}
 
 		/// <summary>
@@ -149,10 +133,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
-			return
-				RoutingGraph.Connections
-				            .GetInputConnections(Parent.Id, Id, eConnectionType.Audio)
-				            .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio));
+			return m_DestinationComponent.GetInputs();
 		}
 
 		/// <summary>
@@ -161,10 +142,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// <returns></returns>
 		public IEnumerable<ConnectorInfo> GetOutputs()
 		{
-			return
-				RoutingGraph.Connections
-				            .GetOutputConnections(Parent.Id, Id, eConnectionType.Audio)
-				            .Select(c => new ConnectorInfo(c.Source.Address, eConnectionType.Audio));
+			return m_DestinationComponent.GetInputs();
 		}
 	}
 }

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Changed
  - IVolumePoint implements IPoint<T>
+ - BiampTesira - changed routing control to use RoutingGraphConnectionComponents
 
 ## [15.1.1] - 2021-02-26
 ### Changed
