@@ -17,6 +17,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 
 		public override string Method { get { return METHOD_VALUE; } }
 
+		public override string Id { get { return RpcUtils.RPCID_NAMED_COMPONENTS_GET_ALL; } }
+
 		/// <summary>
 		/// Override to add serialize params to JSON.
 		/// </summary>

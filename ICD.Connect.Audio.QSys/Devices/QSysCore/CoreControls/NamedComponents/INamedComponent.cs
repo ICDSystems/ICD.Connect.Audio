@@ -29,5 +29,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		void SetValue(string controlName, string value);
 
 		void Trigger(string controlName);
+
+		/// <summary>
+		/// Method called for the component to parse property feedback form qsys
+		/// </summary>
+		/// <param name="property"></param>
+		void ParsePropertyFeedback(JToken property);
     }
 }

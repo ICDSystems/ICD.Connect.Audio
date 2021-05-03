@@ -5,6 +5,7 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
+using ICD.Connect.Audio.QSys.EventArgs;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
@@ -93,6 +94,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		}
 
 		public void SetValue(string value)
+		{
+			m_Component.QSysCore.SendData(new ComponentSetRpc(m_Component.ComponentName, Name, value));
+		}
+
+		public void SetValue(bool value)
 		{
 			m_Component.QSysCore.SendData(new ComponentSetRpc(m_Component.ComponentName, Name, value));
 		}

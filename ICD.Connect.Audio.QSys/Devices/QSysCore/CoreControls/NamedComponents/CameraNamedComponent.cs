@@ -97,7 +97,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			// If we don't have a component name, bail out
 			if (string.IsNullOrEmpty(componentName))
 				throw new InvalidOperationException(
-					string.Format("Tried to create VoipNamedComponent {0}:{1} without component name", id, friendlyName));
+					string.Format("Tried to create CameraNamedComponent {0}:{1} without component name", id, friendlyName));
 
 			ComponentName = componentName;
 			AddControls(s_Controls);

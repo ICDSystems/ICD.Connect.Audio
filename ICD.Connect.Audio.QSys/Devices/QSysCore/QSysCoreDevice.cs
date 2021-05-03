@@ -200,6 +200,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			LoadControls(m_ConfigPath);
 		}
 
+		public void GetNamedComponents()
+		{
+			SendData(new ComponentGetComponentsRpc());
+		}
+
 		#endregion
 
 		#region Internal Methods
@@ -244,11 +249,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 		}
 
 		/// <summary>
-		/// Initialize the CODEC.
+		/// Initialize the DSP.
 		/// </summary>
 		private void Initialize()
 		{
 			Components.Initialize();
+
+			GetNamedComponents();
 
 			Initialized = true;
 		}
@@ -377,18 +384,27 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				case (RpcUtils.RPCID_NAMED_COMPONENT_GET):
 					ParseNamedComponentGetResponse(json);
 					break;
+				case (RpcUtils.RPCID_NAMED_COMPONENTS_GET_ALL):
+					ParseNamedComponentsGetAllResponse(json);
+					break;
 			}
 		}
 
-		private void ParseNamedControlSetResponse(JToken json)
+		private void ParseNamedControlSetResponse([NotNull] JToken json)
 		{
+			if (json == null)
+				throw new ArgumentNullException("json");
+
 			JToken result = json.SelectToken("result");
 			if (result != null && result.HasValues)
 				ParseNamedControlResponse(result);
 		}
 
-		private void ParseChangeGroupResponse(JToken json)
+		private void ParseChangeGroupResponse([NotNull] JToken json)
 		{
+			if (json == null)
+				throw new ArgumentNullException("json");
+
 			JToken responseParams = json.SelectToken("params");
 			if (!responseParams.HasValues)
 				return;
@@ -407,8 +423,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			}
 		}
 
-		private void ParseNamedComponentChangeGroupResponse(JToken result)
+		private void ParseNamedComponentChangeGroupResponse([NotNull] JToken result)
 		{
+			if (result == null)
+				throw new ArgumentNullException("result");
+
 			string nameToken = (string)result.SelectToken("Component");
 
 			if (string.IsNullOrEmpty(nameToken))
@@ -419,8 +438,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				component.ParseFeedback(result);
 		}
 
-		private void ParseNamedComponentGetResponse(JToken response)
+		private void ParseNamedComponentGetResponse([NotNull] JToken response)
 		{
+			if (response == null)
+				throw new ArgumentNullException("response");
+
 			JToken result = response.SelectToken("result");
 			if (result == null || !result.HasValues)
 				return;
@@ -435,11 +457,34 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 				return;
 
 			JToken controls = result.SelectToken("Controls");
-			if (!controls.HasValues)
+			if (controls == null || !controls.HasValues)
 				return;
 
 			foreach (JToken control in controls)
 				component.ParseFeedback(control);
+		}
+
+		private void ParseNamedComponentsGetAllResponse([NotNull] JToken response)
+		{
+			if (response == null)
+				throw new ArgumentNullException("response");
+
+			JToken result = response.SelectToken("result");
+
+			foreach(JToken control in result)
+			{
+				JToken properties = control.SelectToken("Properties");
+				if (properties == null || !properties.HasValues)
+					continue;
+
+				string nameToken = (string)control.SelectToken("Name");
+				INamedComponent component;
+				if (!Components.TryGetNamedComponent(nameToken, out component))
+					continue;
+
+				foreach(JToken property in properties)
+					component.ParsePropertyFeedback(property);
+			}
 		}
 
 		/// <summary>
@@ -598,7 +643,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 			yield return new ConsoleCommand("GetStatus", "Gets Core Status", () => SendData(new StatusGetRpc()));
 			yield return
-				new ConsoleCommand("GetComponents", "Gets Components in Design", () => SendData(new ComponentGetComponentsRpc()));
+				new ConsoleCommand("GetComponents", "Gets Components in Design", () => GetNamedComponents());
 			yield return new ConsoleCommand("ReloadControls", "Reload controls from previous file", () => ReloadControls());
 			yield return
 				new GenericConsoleCommand<string>("LoadControls", "Load Controls from Specified File", p => LoadControls(p));

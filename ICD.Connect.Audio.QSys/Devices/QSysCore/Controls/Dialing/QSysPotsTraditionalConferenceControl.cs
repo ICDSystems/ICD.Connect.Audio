@@ -8,6 +8,7 @@ using ICD.Common.Utils.Services.Logging;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
+using ICD.Connect.Audio.QSys.EventArgs;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;

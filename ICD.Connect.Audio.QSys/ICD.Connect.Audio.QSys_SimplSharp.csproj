@@ -66,6 +66,26 @@
     <Reference Include="System.Data" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Devices\AbstractNamedComponentQSysDevice.cs" />
+    <Compile Include="Devices\AbstractNamedComponentQSysDeviceSettings.cs" />
+    <Compile Include="Devices\INamedComponentQSysDevice.cs" />
+    <Compile Include="Devices\INamedComponentQSysDeviceSettings.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\AbstractSwitcherNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\AudioSwitcherNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\CameraSwitcherNamedComponent.cs" />
+    <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\ISwitcherNamedComponent.cs" />
+    <Compile Include="Devices\Switchers\AbstractSwitcherNamedComponentQSysDevice.cs" />
+    <Compile Include="Devices\Switchers\AudioSwitcher\AudioSwitcherQSysDevice.cs" />
+    <Compile Include="Devices\Switchers\AudioSwitcher\AudioSwitcherQSysDeviceSettings.cs" />
+    <Compile Include="Devices\Switchers\CameraSwitcher\CameraSwitcherQSysDevice.cs" />
+    <Compile Include="Devices\Switchers\CameraSwitcher\CameraSwitcherQSysDeviceSettings.cs" />
+    <Compile Include="Devices\Switchers\Controls\AbstractSwitcherRouteSwitchControl.cs" />
+    <Compile Include="Devices\Switchers\Controls\AudioSwitcherRouteSwitchControl.cs" />
+    <Compile Include="Devices\Switchers\Controls\CameraSwitcherRouteSwitchControl.cs" />
+    <Compile Include="Devices\Switchers\ISwitcherNamedComponentQSysDevice.cs" />
+    <Compile Include="EventArgs\ControlValueUpdateEventArgs.cs" />
+    <Compile Include="EventArgs\SwitcherOutputMuteChangedEventArgs.cs" />
+    <Compile Include="EventArgs\SwitcherOutputSelectChangedEventArgs.cs" />
     <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDevice.cs" />
     <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDeviceSettings.cs" />
@@ -93,7 +113,6 @@
     <Compile Include="Devices\QSysCore\CoreControls\NamedComponents\INamedComponent.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedControls\AbstractNamedControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedControls\BooleanNamedControl.cs" />
-    <Compile Include="Devices\QSysCore\CoreControls\NamedControls\ControlValueUpdateEventArgs.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedControls\INamedControl.cs" />
     <Compile Include="Devices\QSysCore\CoreControls\NamedControls\NamedControl.cs" />
     <Compile Include="Devices\QSysCore\Rpc\AbstractSnapshotRpc.cs" />

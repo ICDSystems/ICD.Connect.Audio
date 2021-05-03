@@ -48,6 +48,12 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
             m_ControlValues = new List<ControlValueInfo> {new ControlValueInfo(controlName, controlValue)};
 	    }
 
+	    public ComponentSetRpc(string componentName, string controlName, object controlValue)
+	    {
+		    Name = componentName;
+		    m_ControlValues = new List<ControlValueInfo> { new ControlValueInfo(controlName, controlValue) };
+	    }
+
 		public void AddControlValue(string name, object value)
 		{
 			AddControlValue(name, value, null);

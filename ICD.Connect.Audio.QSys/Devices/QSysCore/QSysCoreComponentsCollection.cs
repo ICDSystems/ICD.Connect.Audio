@@ -24,6 +24,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 		private CoreElementsLoadContext m_LoadContext;
 
+		internal CoreElementsLoadContext LoadContext { get { return m_LoadContext; } }
+
 		/// <summary>
 		/// Constructor.
 		/// </summary>

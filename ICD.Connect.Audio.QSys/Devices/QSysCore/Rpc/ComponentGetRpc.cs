@@ -24,9 +24,15 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 		private const string CONTROLS_PROPERTY = "Controls";
 		private const string CONTROLS_NAME_PROPERTY = "Name";
 
+		private const string PROPERTIES_PROPERTY = "Properties";
+		private const string PROPERTIES_NAME_PROPERTY = "Name";
+
+
 		private const string METHOD_VALUE = "Component.Get";
 
 		private readonly List<string> m_Controls;
+
+		private readonly List<string> m_Properties;
 
 		public override string Method { get { return METHOD_VALUE; } }
 
@@ -37,10 +43,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public ComponentGetRpc(string componentName, string control)
+		public ComponentGetRpc(string componentName, string control) : this(componentName, new List<string> {control})
 		{
-			Name = componentName;
-			m_Controls = new List<string>{control};
 		}
 
 		/// <summary>
@@ -50,6 +54,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 		{
 			Name = componentName;
 			m_Controls = controls.ToList();
+			m_Properties = new List<string>{"tone_output"};
 		}
 
 		/// <summary>
@@ -84,6 +89,22 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 					{
 						writer.WritePropertyName(CONTROLS_NAME_PROPERTY);
 						writer.WriteValue(control);
+					}
+					writer.WriteEndObject();
+				}
+			}
+			writer.WriteEndArray();
+
+			// Properties
+			writer.WritePropertyName(PROPERTIES_PROPERTY);
+			writer.WriteStartArray();
+			{
+				foreach (string property in m_Properties)
+				{
+					writer.WriteStartObject();
+					{
+						writer.WritePropertyName(PROPERTIES_NAME_PROPERTY);
+						writer.WriteValue(property);
 					}
 					writer.WriteEndObject();
 				}

@@ -1,6 +1,7 @@
 ﻿using System;
 using ICD.Common.Utils;
 using ICD.Connect.API.Nodes;
+using ICD.Connect.Audio.QSys.EventArgs;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls

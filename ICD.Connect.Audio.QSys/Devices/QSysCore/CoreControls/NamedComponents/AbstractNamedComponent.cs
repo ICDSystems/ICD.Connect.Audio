@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
@@ -9,8 +10,8 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
+using ICD.Connect.Audio.QSys.EventArgs;
 using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
@@ -24,6 +25,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 		private readonly Dictionary<string, INamedComponentControl> m_NamedComponentControls;
 		private readonly SafeCriticalSection m_NamedComponentControlsCriticalSection;
+
+		private readonly Dictionary<string, Action<string>> m_PropertyCallbacks;
+		private readonly SafeCriticalSection m_PropertyCallbacksSafeCriticalSection;
 
 		/// <summary>
 		/// Component Name in QSys
@@ -41,6 +45,8 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		{
 			m_NamedComponentControls = new Dictionary<string, INamedComponentControl>();
 			m_NamedComponentControlsCriticalSection = new SafeCriticalSection();
+			m_PropertyCallbacks = new Dictionary<string, Action<string>>();
+			m_PropertyCallbacksSafeCriticalSection = new SafeCriticalSection();
 		}
 
 		/// <summary>
@@ -71,6 +77,46 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 
 			if (control != null)
 				control.ParseFeedback(feedback);
+		}
+
+		/// <summary>
+		/// Parse property feedback from QSys
+		/// </summary>
+		/// <param name="feedback"></param>
+		public void ParsePropertyFeedback([NotNull] JToken feedback)
+		{
+			if (feedback == null)
+				throw new ArgumentNullException("feedback");
+
+			string name = (string)feedback.SelectToken("Name");
+			Action<string> callback;
+
+			m_PropertyCallbacksSafeCriticalSection.Enter();
+			try
+			{
+				
+				if (!m_PropertyCallbacks.TryGetValue(name, out callback))
+					return;
+			}
+			finally
+			{
+				m_PropertyCallbacksSafeCriticalSection.Leave();
+			}
+
+			callback((string)feedback.SelectToken("Value"));
+		}
+
+		protected void AddPropertyResponseCallback(string name, Action<string> callback)
+		{
+			m_PropertyCallbacksSafeCriticalSection.Enter();
+			try
+			{
+				m_PropertyCallbacks[name] = callback;
+			}
+			finally
+			{
+				m_PropertyCallbacksSafeCriticalSection.Leave();
+			}
 		}
 
 		/// <summary>
@@ -106,7 +152,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// <summary>
 		/// Send a get command to get the current values of all controls registered in the component
 		/// </summary>
-		private void PollControls()
+		protected void PollControls()
 		{
 			IEnumerable<string> controlNames = Enumerable.Empty<string>();
 			m_NamedComponentControlsCriticalSection.Execute(() => controlNames = m_NamedComponentControls.Keys.ToArray());
@@ -146,7 +192,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// <summary>
 		/// Unsubscribes and clears all of the added named component controls.
 		/// </summary>
-		private void ClearControls()
+		protected void ClearControls()
 		{
 			m_NamedComponentControlsCriticalSection.Enter();
 
@@ -163,6 +209,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 			}
 		}
 
+		/// <summary>
+		/// Gets the controls to subscribe to by default
+		/// </summary>
+		/// <returns>Controls to subscribe to</returns>
+		[NotNull]
 		protected abstract IEnumerable<INamedComponentControl> GetControlsForSubscribe();
 
 		/// <summary>
@@ -191,6 +242,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 					throw new KeyNotFoundException(string.Format("NamedComponent {0} Control name {1} not found", this, controlName));
 
 				return control;
+			}
+			finally
+			{
+				m_NamedComponentControlsCriticalSection.Leave();
+			}
+		}
+
+		public bool TryGetControl(string controlName, out INamedComponentControl control)
+		{
+			m_NamedComponentControlsCriticalSection.Enter();
+			try
+			{
+				return m_NamedComponentControls.TryGetValue(controlName, out control);
 			}
 			finally
 			{
@@ -235,7 +299,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
-		private void ControlOnValueUpdated(object sender, ControlValueUpdateEventArgs eventArgs)
+		protected virtual void ControlOnValueUpdated(object sender, ControlValueUpdateEventArgs eventArgs)
 		{
 			OnControlValueUpdated.Raise(sender, eventArgs);
 		}

@@ -5,6 +5,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
+using ICD.Connect.Audio.QSys.EventArgs;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Volume
 {

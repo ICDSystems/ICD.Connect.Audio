@@ -2,6 +2,7 @@
 using ICD.Common.Properties;
 using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
+using ICD.Connect.Audio.QSys.EventArgs;
 using ICD.Connect.Partitioning.Controls;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Partitioning
