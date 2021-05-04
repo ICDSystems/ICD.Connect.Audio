@@ -1,19 +1,12 @@
-﻿using ICD.Common.Properties;
-using ICD.Connect.Audio.Controls.Volume;
+﻿using ICD.Connect.Audio.Controls.Volume;
 using ICD.Connect.Devices.Points;
 
 namespace ICD.Connect.Audio.VolumePoints
 {
-	public interface IVolumePoint : IPoint
+	public interface IVolumePoint : IPoint<IVolumeDeviceControl>
 	{
 		#region Properties
-
-		/// <summary>
-		/// Gets/sets the control for this point.
-		/// </summary>
-		[CanBeNull]
-		new IVolumeDeviceControl Control { get; }
-
+		
 		/// <summary>
 		/// Determines how the volume levels and ramping are defined for this volume point.
 		/// </summary>
