@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
@@ -9,6 +10,7 @@ using ICD.Common.Utils.Xml;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.EventArgs;
+using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
@@ -18,7 +20,7 @@ using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 {
-	public sealed class QSysVoipTraditionalConferenceControl : AbstractTraditionalConferenceDeviceControl<QSysCoreDevice>,
+	public sealed class QSysVoipTraditionalConferenceControl : AbstractConferenceDeviceControl<QSysCoreDevice, Conference>,
 	                                                           IQSysKrangControl
 	{
 		private const float TOLERANCE = 0.0001f;
@@ -48,19 +50,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
 		private readonly string m_Name;
 
-		private ThinTraditionalParticipant m_Participant;
+		private ThinParticipant m_Participant;
 		private TraditionalIncomingCall m_IncomingCall;
 
 		#endregion
 
 		#region Properties
 
-		private ThinTraditionalParticipant Participant
+		private ThinParticipant Participant
 		{
 			get { return m_ConferenceSourceCriticalSection.Execute(() => m_Participant); }
 			set
 			{
-				ITraditionalParticipant removed;
+				IParticipant removed;
 
 				m_ConferenceSourceCriticalSection.Enter();
 
@@ -157,21 +159,21 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_PrivacyMuteControl = context.LazyLoadNamedControl<BooleanNamedControl>(privacyMuteName);
 			m_HoldControl = context.LazyLoadNamedControl<BooleanNamedControl>(holdName);
 
-			SupportedConferenceFeatures |= eConferenceFeatures.Dtmf |
-			                               eConferenceFeatures.CanDial |
-			                               eConferenceFeatures.CanEnd;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.Dtmf |
+			                               eConferenceControlFeatures.CanDial |
+			                               eConferenceControlFeatures.CanEnd;
 
 			if (m_VoipComponent != null)
 			{
-				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
-				SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.AutoAnswer;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.DoNotDisturb;
 			}
 
 			if (m_PrivacyMuteControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.PrivacyMute;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.PrivacyMute;
 
 			if (m_HoldControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.Hold;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
 
 			CallInInfo =
 				new DialContext
@@ -202,6 +204,11 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		}
 
 		#region Public Methods
+
+		public override IEnumerable<Conference> GetConferences()
+		{
+			yield break;
+		}
 
 		/// <summary>
 		/// Returns the level of support the dialer has for the given booking.
@@ -277,6 +284,16 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		}
 
 		public override void SetCameraMute(bool mute)
+		{
+			throw new NotSupportedException();
+		}
+
+		public override void StartPersonalMeeting()
+		{
+			throw new NotSupportedException();
+		}
+
+		public override void EnableCallLock(bool enabled)
 		{
 			throw new NotSupportedException();
 		}
@@ -403,7 +420,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				IncomingCall = null;
-				Participant = new ThinTraditionalParticipant();
+				Participant = new ThinParticipant();
 				Participant.SetCallType(eCallType.Audio);
 			}
 			finally
@@ -523,7 +540,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		{
 			bool onHold = Math.Abs(e.ValueRaw) > TOLERANCE;
 
-			ThinTraditionalParticipant source = Participant;
+			ThinParticipant source = Participant;
 			if (source == null)
 				return;
 
@@ -537,29 +554,29 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		#region Participant Callbacks
 
-		private void Subscribe(ThinTraditionalParticipant traditionalParticipant)
+		private void Subscribe(ThinParticipant participant)
 		{
-			if (traditionalParticipant == null)
+			if (participant == null)
 				return;
 
-			traditionalParticipant.HangupCallback += ConferenceSourceHangupCallback;
-			traditionalParticipant.HoldCallback += ConferenceSourceHoldCallback;
-			traditionalParticipant.ResumeCallback += ConferenceSourceResumeCallback;
-			traditionalParticipant.SendDtmfCallback += ConferenceSourceSendDtmfCallback;
+			participant.HangupCallback += ConferenceSourceHangupCallback;
+			participant.HoldCallback += ConferenceSourceHoldCallback;
+			participant.ResumeCallback += ConferenceSourceResumeCallback;
+			participant.SendDtmfCallback += ConferenceSourceSendDtmfCallback;
 		}
 
-		private void Unsubscribe(ThinTraditionalParticipant traditionalParticipant)
+		private void Unsubscribe(ThinParticipant participant)
 		{
-			if (traditionalParticipant == null)
+			if (participant == null)
 				return;
 
-			traditionalParticipant.HangupCallback = null;
-			traditionalParticipant.HoldCallback = null;
-			traditionalParticipant.ResumeCallback = null;
-			traditionalParticipant.SendDtmfCallback = null;
+			participant.HangupCallback = null;
+			participant.HoldCallback = null;
+			participant.ResumeCallback = null;
+			participant.SendDtmfCallback = null;
 		}
 
-		private void ConferenceSourceHangupCallback(ThinTraditionalParticipant sender)
+		private void ConferenceSourceHangupCallback(ThinParticipant sender)
 		{
 			if (m_VoipComponent == null)
 			{
@@ -571,7 +588,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_DISCONNECT);
 		}
 
-		private void ConferenceSourceHoldCallback(ThinTraditionalParticipant sender)
+		private void ConferenceSourceHoldCallback(ThinParticipant sender)
 		{
 			if (m_HoldControl == null)
 			{
@@ -584,7 +601,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_HoldControl.SetValue(true);
 		}
 
-		private void ConferenceSourceResumeCallback(ThinTraditionalParticipant sender)
+		private void ConferenceSourceResumeCallback(ThinParticipant sender)
 		{
 			if (m_HoldControl == null)
 			{
@@ -596,7 +613,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_HoldControl.SetValue(false);
 		}
 
-		private void ConferenceSourceSendDtmfCallback(ThinTraditionalParticipant sender, string dtmf)
+		private void ConferenceSourceSendDtmfCallback(ThinParticipant sender, string dtmf)
 		{
 			if (m_VoipComponent == null)
 			{

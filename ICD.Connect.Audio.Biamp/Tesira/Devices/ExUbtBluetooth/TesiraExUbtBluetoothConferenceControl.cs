@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
-using ICD.Common.Utils.Extensions;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.ExUbt;
 using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
@@ -15,7 +14,7 @@ using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 {
-	public sealed class TesiraExUbtBluetoothConferenceControl : AbstractConferenceDeviceControl<TesiraExUbtBluetoothDevice, TraditionalConference>
+	public sealed class TesiraExUbtBluetoothConferenceControl : AbstractConferenceDeviceControl<TesiraExUbtBluetoothDevice, Conference>
 	{
 		#region Events
 
@@ -29,22 +28,12 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 		/// </summary>
 		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallRemoved;
 
-		/// <summary>
-		/// Raised when a conference is added to the dialing control.
-		/// </summary>
-		public override event EventHandler<ConferenceEventArgs> OnConferenceAdded;
-
-		/// <summary>
-		/// Raised when a conference is removed from the dialing control.
-		/// </summary>
-		public override event EventHandler<ConferenceEventArgs> OnConferenceRemoved;
-
 		#endregion
 
 		private ExUbtBluetoothControlStatusBlock m_Block;
 
 		[CanBeNull]
-		private TraditionalConference m_ActiveConference;
+		private Conference m_ActiveConference;
 
 		private bool m_BluetoothStreamingStatus;
 
@@ -79,14 +68,14 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 		public TesiraExUbtBluetoothConferenceControl([NotNull] TesiraExUbtBluetoothDevice parent, int id) 
 			: base(parent, id)
 		{
-			SupportedConferenceFeatures = eConferenceFeatures.None;
+			SupportedConferenceControlFeatures = eConferenceControlFeatures.None;
 		}
 
 		#endregion
 
 		#region Methods
 
-		public override IEnumerable<TraditionalConference> GetConferences()
+		public override IEnumerable<Conference> GetConferences()
 		{
 			if (m_ActiveConference != null)
 				yield return m_ActiveConference;
@@ -122,6 +111,16 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 			throw new NotSupportedException();
 		}
 
+		public override void StartPersonalMeeting()
+		{
+			throw new NotSupportedException();
+		}
+
+		public override void EnableCallLock(bool enabled)
+		{
+			throw new NotSupportedException();
+		}
+
 		#endregion
 
 		#region Private Methods
@@ -132,7 +131,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 
 			DateTime now = IcdEnvironment.GetUtcTime();
 
-			ThinTraditionalParticipant participant = new ThinTraditionalParticipant
+			ThinParticipant participant = new ThinParticipant
 			{
 				HangupCallback = HangupParticipant
 			};
@@ -143,10 +142,10 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 			participant.SetStart(now);
 			participant.SetStatus(eParticipantStatus.Connected);
 
-			m_ActiveConference = new TraditionalConference();
+			m_ActiveConference = new Conference();
 			m_ActiveConference.AddParticipant(participant);
 
-			OnConferenceAdded.Raise(this, new ConferenceEventArgs(m_ActiveConference));
+			RaiseOnConferenceAdded(this, new ConferenceEventArgs(m_ActiveConference));
 		}
 
 		private void EndConference()
@@ -156,13 +155,13 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 
 			m_ActiveConference.Hangup();
 
-			TraditionalConference endedConference = m_ActiveConference;
+			Conference endedConference = m_ActiveConference;
 			m_ActiveConference = null;
 
-			OnConferenceRemoved.Raise(this, new ConferenceEventArgs(endedConference));
+			RaiseOnConferenceRemoved(this, new ConferenceEventArgs(endedConference));
 		}
 
-		private void HangupParticipant(ThinTraditionalParticipant participant)
+		private void HangupParticipant(ThinParticipant participant)
 		{
 			participant.SetStatus(eParticipantStatus.Disconnected);
 			participant.SetEnd(IcdEnvironment.GetUtcTime());

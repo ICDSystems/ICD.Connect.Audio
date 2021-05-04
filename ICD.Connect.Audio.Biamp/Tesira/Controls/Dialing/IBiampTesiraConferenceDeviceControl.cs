@@ -2,7 +2,7 @@
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 {
-	public interface IBiampTesiraConferenceDeviceControl : IBiampTesiraDeviceControl, ITraditionalConferenceDeviceControl
+	public interface IBiampTesiraConferenceDeviceControl : IBiampTesiraDeviceControl, IConferenceDeviceControl
 	{
 	}
 }

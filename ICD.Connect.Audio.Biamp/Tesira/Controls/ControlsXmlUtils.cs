@@ -221,7 +221,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls
 		/// <param name="cache"></param>
 		/// <returns></returns>
 		[CanBeNull]
-		private static ITraditionalConferenceDeviceControl LazyLoadDialingControl(int id, AttributeInterfaceFactory factory,
+		private static IConferenceDeviceControl LazyLoadDialingControl(int id, AttributeInterfaceFactory factory,
 		                                                            Dictionary<int, string> controlElements,
 		                                                            Dictionary<int, IDeviceControl> cache)
 		{

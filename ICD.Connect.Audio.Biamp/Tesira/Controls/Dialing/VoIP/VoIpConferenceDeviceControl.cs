@@ -24,7 +24,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 
 		private readonly VoIpControlStatusLine m_Line;
 
-		private readonly Dictionary<int, ThinTraditionalParticipant> m_AppearanceSources;
+		private readonly Dictionary<int, ThinParticipant> m_AppearanceSources;
 		private readonly Dictionary<int, IIncomingCall> m_AppearanceIncomingCalls; 
 		private readonly SafeCriticalSection m_AppearanceSourcesSection;
 		private string m_LastDialedNumber;
@@ -43,18 +43,18 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		                                   IDialContext callInInfo)
 			: base(id, uuid, name, line.Device, privacyMuteControl)
 		{
-			m_AppearanceSources = new Dictionary<int, ThinTraditionalParticipant>();
+			m_AppearanceSources = new Dictionary<int, ThinParticipant>();
 			m_AppearanceIncomingCalls = new Dictionary<int, IIncomingCall>();
 			m_AppearanceSourcesSection = new SafeCriticalSection();
 
 			m_Line = line;
 			CallInInfo = callInInfo;
 
-			SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
-			SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
-			SupportedConferenceFeatures |= eConferenceFeatures.Hold;
-			SupportedConferenceFeatures |= eConferenceFeatures.CanDial;
-			SupportedConferenceFeatures |= eConferenceFeatures.CanEnd;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.AutoAnswer;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.DoNotDisturb;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.CanDial;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.CanEnd;
 
 			Subscribe(m_Line);
 		}
@@ -173,7 +173,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 
 			try
 			{
-				ThinTraditionalParticipant source = GetSource(index);
+				ThinParticipant source = GetSource(index);
 				if (source != null)
 				{
 					VoIpControlStatusCallAppearance callAppearance = m_Line.GetCallAppearance(index);
@@ -228,7 +228,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		/// </summary>
 		/// <param name="source"></param>
 		/// <param name="callAppearance"></param>
-		private void UpdateSource(ThinTraditionalParticipant source, VoIpControlStatusCallAppearance callAppearance)
+		private void UpdateSource(ThinParticipant source, VoIpControlStatusCallAppearance callAppearance)
 		{
 			if (source == null || callAppearance == null)
 				return;
@@ -285,7 +285,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		}
 
 		[CanBeNull]
-		private ThinTraditionalParticipant GetSource(int index)
+		private ThinParticipant GetSource(int index)
 		{
 			return m_AppearanceSourcesSection.Execute(() => m_AppearanceSources.GetDefault(index));
 		}
@@ -297,7 +297,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		/// <returns></returns>
 		private void CreateSource(int index)
 		{
-			ThinTraditionalParticipant source;
+			ThinParticipant source;
 
 			m_AppearanceSourcesSection.Enter();
 
@@ -309,7 +309,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 
 				RemoveSource(index);
 
-				source = new ThinTraditionalParticipant();
+				source = new ThinParticipant();
 				source.SetCallType(eCallType.Audio);
 
 				Subscribe(source);
@@ -337,7 +337,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 
 			try
 			{
-				ThinTraditionalParticipant source;
+				ThinParticipant source;
 				if (!m_AppearanceSources.TryGetValue(index, out source))
 					return;
 
@@ -402,7 +402,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 			{
 				RemoveIncomingCall(index);
 
-				ThinTraditionalParticipant source = GetSource(index);
+				ThinParticipant source = GetSource(index);
 				if (source != null)
 					RemoveSource(index);
 
@@ -548,7 +548,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		/// Subscribe to the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Subscribe(ThinTraditionalParticipant source)
+		private void Subscribe(ThinParticipant source)
 		{
 			source.HoldCallback += HoldCallback;
 			source.ResumeCallback += ResumeCallback;
@@ -560,7 +560,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 		/// Unsubscribe from the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Unsubscribe(ThinTraditionalParticipant source)
+		private void Unsubscribe(ThinParticipant source)
 		{
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
@@ -568,34 +568,34 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 			source.HangupCallback = null;
 		}
 
-		private void HoldCallback(ThinTraditionalParticipant sender)
+		private void HoldCallback(ThinParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Hold();
 		}
 
-		private void ResumeCallback(ThinTraditionalParticipant sender)
+		private void ResumeCallback(ThinParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).Resume();
 		}
 
-		private void SendDtmfCallback(ThinTraditionalParticipant sender, string data)
+		private void SendDtmfCallback(ThinParticipant sender, string data)
 		{
 			foreach (char digit in data)
 				m_Line.Dtmf(digit);
 		}
 
-		private void HangupCallback(ThinTraditionalParticipant sender)
+		private void HangupCallback(ThinParticipant sender)
 		{
 			int index;
 			if (TryGetCallAppearance(sender, out index))
 				m_Line.GetCallAppearance(index).End();
 		}
 
-		private bool TryGetCallAppearance(ThinTraditionalParticipant source, out int index)
+		private bool TryGetCallAppearance(ThinParticipant source, out int index)
 		{
 			m_AppearanceSourcesSection.Enter();
 
@@ -750,7 +750,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 			if (callAppearance == null)
 				return;
 
-			ThinTraditionalParticipant source = GetSource(callAppearance.Index);
+			ThinParticipant source = GetSource(callAppearance.Index);
 			if (source != null)
 				UpdateSource(source, callAppearance);
 
@@ -765,7 +765,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 			if (callAppearance == null)
 				return;
 
-			ThinTraditionalParticipant source = GetSource(callAppearance.Index);
+			ThinParticipant source = GetSource(callAppearance.Index);
 			if(source != null)
 				UpdateSource(source, callAppearance);
 

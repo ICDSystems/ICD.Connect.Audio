@@ -39,7 +39,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 		private bool m_Hold;
 
-		private ThinTraditionalParticipant m_ActiveSource;
+		private ThinParticipant m_ActiveSource;
 		private readonly SafeCriticalSection m_ActiveSourceSection;
 		private string m_LastDialedNumber;
 
@@ -98,16 +98,16 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			m_DoNotDisturbControl = doNotDisturbControl;
 			CallInInfo = callInInfo;
 
-			SupportedConferenceFeatures |= eConferenceFeatures.CanDial | eConferenceFeatures.CanEnd;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.CanDial | eConferenceControlFeatures.CanEnd;
 
 			if (m_TiControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.AutoAnswer;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.AutoAnswer;
 
 			if (m_DoNotDisturbControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.DoNotDisturb;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.DoNotDisturb;
 
 			if (m_HoldControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.Hold;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
 
 			Subscribe(m_TiControl);
 			SubscribeHold(m_HoldControl);
@@ -209,7 +209,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		/// Updates the source to match the state of the TI block.
 		/// </summary>
 		/// <param name="source"></param>
-		private void UpdateSource(ThinTraditionalParticipant source)
+		private void UpdateSource(ThinParticipant source)
 		{
 			if (source == null)
 				return;
@@ -477,12 +477,12 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 				{
 					//Update incoming call first
 					UpdateIncomingCall(m_IncomingCall);
-					m_ActiveSource = ThinTraditionalParticipant.FromIncomingCall(m_IncomingCall);
+					m_ActiveSource = ThinParticipant.FromIncomingCall(m_IncomingCall);
 					ClearCurrentIncomingCall();
 				}
 				else
 				{
-					m_ActiveSource = new ThinTraditionalParticipant();
+					m_ActiveSource = new ThinParticipant();
 					m_ActiveSource.SetDirection(eCallDirection.Outgoing);
 					m_ActiveSource.SetAnswerState(eCallAnswerState.Unknown);
 				}
@@ -538,7 +538,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		/// Subscribe to the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Subscribe(ThinTraditionalParticipant source)
+		private void Subscribe(ThinParticipant source)
 		{
 			source.HoldCallback = HoldCallback;
 			source.ResumeCallback = ResumeCallback;
@@ -550,7 +550,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		/// Unsubscribe from the source callbacks.
 		/// </summary>
 		/// <param name="source"></param>
-		private void Unsubscribe(ThinTraditionalParticipant source)
+		private void Unsubscribe(ThinParticipant source)
 		{
 			source.HoldCallback = null;
 			source.ResumeCallback = null;
@@ -558,23 +558,23 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			source.HangupCallback = null;
 		}
 
-		private void HoldCallback(ThinTraditionalParticipant sender)
+		private void HoldCallback(ThinParticipant sender)
 		{
 			SetHold(true);
 		}
 
-		private void ResumeCallback(ThinTraditionalParticipant sender)
+		private void ResumeCallback(ThinParticipant sender)
 		{
 			SetHold(false);
 		}
 
-		private void SendDtmfCallback(ThinTraditionalParticipant sender, string data)
+		private void SendDtmfCallback(ThinParticipant sender, string data)
 		{
 			foreach (char digit in data)
 				m_TiControl.Dtmf(digit);
 		}
 
-		private void HangupCallback(ThinTraditionalParticipant sender)
+		private void HangupCallback(ThinParticipant sender)
 		{
 			// Ends the active call.
 			m_TiControl.End();

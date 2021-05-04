@@ -1,16 +1,17 @@
 ﻿using System;
+using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Tesira.Controls.State;
+using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 {
-	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractTraditionalConferenceDeviceControl<BiampTesiraDevice>,
-	                                                                IBiampTesiraConferenceDeviceControl
+	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractConferenceDeviceControl<BiampTesiraDevice, Conference>, IBiampTesiraConferenceDeviceControl
 	{
 		private readonly string m_Name;
 		
@@ -47,10 +48,10 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 
 			m_PrivacyMuteControl = privacyMuteControl;
 
-			SupportedConferenceFeatures |= eConferenceFeatures.Dtmf;
+			SupportedConferenceControlFeatures |= eConferenceControlFeatures.Dtmf;
 
 			if (m_PrivacyMuteControl != null)
-				SupportedConferenceFeatures |= eConferenceFeatures.PrivacyMute;
+				SupportedConferenceControlFeatures |= eConferenceControlFeatures.PrivacyMute;
 
 			SubscribePrivacyMute(m_PrivacyMuteControl);
 		}
@@ -69,6 +70,15 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 		#region Methods
 
 		/// <summary>
+		/// Gets the active conference sources.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<Conference> GetConferences()
+		{
+			yield break;
+		}
+
+		/// <summary>
 		/// Sets the privacy mute enabled state.
 		/// </summary>
 		/// <param name="enabled"></param>
@@ -84,6 +94,16 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 		}
 
 		public override void SetCameraMute(bool mute)
+		{
+			throw new NotSupportedException();
+		}
+
+		public override void StartPersonalMeeting()
+		{
+			throw new NotSupportedException();
+		}
+
+		public override void EnableCallLock(bool enabled)
 		{
 			throw new NotSupportedException();
 		}
