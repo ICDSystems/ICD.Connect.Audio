@@ -6,7 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [16.0.0] - 2021-05-14
 ### Added
+ - Added event to VolumePointHelper for when the underlying volume control changes
+ - Added microphone abstractions - compatible with existing volume point workflow
  - QSys - Added AudioSwitcherQSysDevice and CameraSwitcherQSysDevice, and associated controls
  - QSys - Added component property support to components and RPC
 
