@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using ICD.Common.Utils.Extensions;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
 using ICD.Connect.Audio.QSys.EventArgs;
 using Newtonsoft.Json.Linq;

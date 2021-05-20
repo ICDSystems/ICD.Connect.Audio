@@ -4,7 +4,6 @@ using System.Linq;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.EventArgs;
 using ICD.Connect.Cameras;
 using ICD.Connect.Cameras.Controls;

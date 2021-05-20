@@ -8,11 +8,9 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedComponents;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Settings;
-using ICD.Connect.Settings.Originators;
 
 namespace ICD.Connect.Audio.QSys.Devices
 {
-
 	public abstract class AbstractNamedComponentQSysDevice<TSettings, TNamedComponent> : AbstractDevice<TSettings>, INamedComponentQSysDevice<TNamedComponent> where TNamedComponent: class, INamedComponent where TSettings: INamedComponentQSysDeviceSettings, new()
 	{
 		[CanBeNull]

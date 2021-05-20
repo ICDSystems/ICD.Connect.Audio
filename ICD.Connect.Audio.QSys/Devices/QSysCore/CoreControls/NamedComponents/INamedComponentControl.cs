@@ -1,6 +1,5 @@
 using System;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls;
 using ICD.Connect.Audio.QSys.EventArgs;
 using Newtonsoft.Json.Linq;
 
