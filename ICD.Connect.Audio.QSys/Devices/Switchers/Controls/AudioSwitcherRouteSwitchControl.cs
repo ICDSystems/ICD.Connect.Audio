@@ -5,14 +5,15 @@ using ICD.Connect.Routing.Connections;
 
 namespace ICD.Connect.Audio.QSys.Devices.Switchers.Controls
 {
-	class AudioSwitcherRouteSwitchControl : AbstractSwitcherRouteSwitchControl<AudioSwitcherQSysDevice, AudioSwitcherNamedComponent>
+	public sealed class AudioSwitcherRouteSwitchControl : AbstractSwitcherRouteSwitchControl<AudioSwitcherQSysDevice, AudioSwitcherNamedComponent>
 	{
 		/// <summary>
 		/// Constructor.
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public AudioSwitcherRouteSwitchControl(AudioSwitcherQSysDevice parent, int id) : base(parent, id, eConnectionType.Audio)
+		public AudioSwitcherRouteSwitchControl(AudioSwitcherQSysDevice parent, int id)
+			: base(parent, id, eConnectionType.Audio)
 		{
 		}
 

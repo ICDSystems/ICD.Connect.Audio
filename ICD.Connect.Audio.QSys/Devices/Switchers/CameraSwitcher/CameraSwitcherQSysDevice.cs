@@ -6,7 +6,8 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.QSys.Devices.Switchers.CameraSwitcher
 {
-	class CameraSwitcherQSysDevice : AbstractSwitcherNamedComponentQSysDevice<CameraSwitcherQSysDeviceSettings, CameraSwitcherNamedComponent>
+	public sealed class CameraSwitcherQSysDevice :
+		AbstractSwitcherNamedComponentQSysDevice<CameraSwitcherQSysDeviceSettings, CameraSwitcherNamedComponent>
 	{
 		/// <summary>
 		/// Override to add controls to the device.
@@ -14,7 +15,8 @@ namespace ICD.Connect.Audio.QSys.Devices.Switchers.CameraSwitcher
 		/// <param name="settings"></param>
 		/// <param name="factory"></param>
 		/// <param name="addControl"></param>
-		protected override void AddControls(CameraSwitcherQSysDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+		protected override void AddControls(CameraSwitcherQSysDeviceSettings settings, IDeviceFactory factory,
+		                                    Action<IDeviceControl> addControl)
 		{
 			base.AddControls(settings, factory, addControl);
 

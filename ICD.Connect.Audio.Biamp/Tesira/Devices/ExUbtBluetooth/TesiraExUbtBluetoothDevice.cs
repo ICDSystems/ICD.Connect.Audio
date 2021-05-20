@@ -27,8 +27,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 			addControl(new TesiraExUbtBluetoothConferenceControl(this, CONFERENCE_CONTROL_ID));
 		}
 
-		
-
 		protected override void Subscribe(ExUbtBluetoothControlStatusBlock attributeInterface)
 		{
 			base.Subscribe(attributeInterface);
