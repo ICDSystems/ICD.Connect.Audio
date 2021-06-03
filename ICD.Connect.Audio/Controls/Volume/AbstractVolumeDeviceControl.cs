@@ -93,7 +93,7 @@ namespace ICD.Connect.Audio.Controls.Volume
 			get { return m_VolumeLevel; }
 			protected set
 			{
-				if (Math.Abs(value - m_VolumeLevel) < 0.01f)
+				if (Math.Abs(value - m_VolumeLevel) < 0.001f)
 					return;
 
 				m_VolumeLevel = value;
