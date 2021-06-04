@@ -203,6 +203,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 					case eParticipantStatus.EarlyMedia:
 					case eParticipantStatus.Preserved:
 					case eParticipantStatus.RemotePreserved:
+					case eParticipantStatus.Waiting:
 						if (source == null)
 							CreateSource(index);
 						break;

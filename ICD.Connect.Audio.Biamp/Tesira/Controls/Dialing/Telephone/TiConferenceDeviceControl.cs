@@ -215,7 +215,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 				return;
 
 			eParticipantStatus status = TiControlStateToSourceStatus(m_TiControl.State);
-			if (IsOnline(status) && IsOnHold)
+			if (status.GetIsOnline() && IsOnHold)
 				status = eParticipantStatus.OnHold;
 
 			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
@@ -367,36 +367,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 				default:
 					throw new ArgumentOutOfRangeException("state");
-			}
-		}
-
-		/// <summary>
-		/// TODO - This belongs in conferencing utils somewhere.
-		/// </summary>
-		/// <param name="status"></param>
-		/// <returns></returns>
-		private static bool IsOnline(eParticipantStatus status)
-		{
-			switch (status)
-			{
-				case eParticipantStatus.Undefined:
-				case eParticipantStatus.Dialing:
-				case eParticipantStatus.Connecting:
-				case eParticipantStatus.Ringing:
-				case eParticipantStatus.Disconnecting:
-				case eParticipantStatus.Disconnected:
-				case eParticipantStatus.Idle:
-					return false;
-
-				case eParticipantStatus.Connected:
-				case eParticipantStatus.OnHold:
-				case eParticipantStatus.EarlyMedia:
-				case eParticipantStatus.Preserved:
-				case eParticipantStatus.RemotePreserved:
-					return true;
-
-				default:
-					throw new ArgumentOutOfRangeException("status");
 			}
 		}
 
