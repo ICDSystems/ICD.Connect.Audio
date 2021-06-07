@@ -18,6 +18,13 @@ namespace ICD.Connect.Audio.VolumePoints
 
 		public int Compare(IVolumePoint x, IVolumePoint y)
 		{
+			if (x == null && y == null)
+				return 0;
+			if (x == null)
+				return -1;
+			if (y == null)
+				return 1;
+
 			foreach (eVolumePointContext flag in EnumUtils.GetFlagsExceptNone(m_Context))
 			{
 				bool xHasFlag = x.Context.HasFlag(flag);
