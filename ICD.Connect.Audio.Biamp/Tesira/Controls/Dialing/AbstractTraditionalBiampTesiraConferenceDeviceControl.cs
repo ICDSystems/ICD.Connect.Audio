@@ -11,7 +11,7 @@ using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 {
-	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractConferenceDeviceControl<BiampTesiraDevice, Conference>, IBiampTesiraConferenceDeviceControl
+	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractConferenceDeviceControl<BiampTesiraDevice, ThinConference>, IBiampTesiraConferenceDeviceControl
 	{
 		private readonly string m_Name;
 		
@@ -73,7 +73,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 		/// Gets the active conference sources.
 		/// </summary>
 		/// <returns></returns>
-		public override IEnumerable<Conference> GetConferences()
+		public override IEnumerable<ThinConference> GetConferences()
 		{
 			yield break;
 		}

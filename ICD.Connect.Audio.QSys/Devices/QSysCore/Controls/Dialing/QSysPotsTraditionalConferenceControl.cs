@@ -20,7 +20,7 @@ using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 {
-	public sealed class QSysPotsTraditionalConferenceControl : AbstractConferenceDeviceControl<QSysCoreDevice, Conference>,
+	public sealed class QSysPotsTraditionalConferenceControl : AbstractConferenceDeviceControl<QSysCoreDevice, ThinConference>,
 	                                                           IQSysKrangControl
 	{
 		private const float TOLERANCE = 0.0001f;
@@ -205,7 +205,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 
 		#region Public Methods
 
-		public override IEnumerable<Conference> GetConferences()
+		public override IEnumerable<ThinConference> GetConferences()
 		{
 			yield break;
 		}
