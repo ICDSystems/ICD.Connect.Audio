@@ -204,6 +204,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 					case eParticipantStatus.Preserved:
 					case eParticipantStatus.RemotePreserved:
 					case eParticipantStatus.Waiting:
+					case eParticipantStatus.Invited:
 						if (source == null)
 							CreateSource(index);
 						break;
