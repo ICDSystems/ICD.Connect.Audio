@@ -57,6 +57,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		eMuteType MuteType { get; set; }
 
+		/// <summary>
+		/// Determines if the privacy mute control will be driven by the control system, and/or drive the control system.
+		/// </summary>
+		ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
+
 		#endregion
 	}
 }

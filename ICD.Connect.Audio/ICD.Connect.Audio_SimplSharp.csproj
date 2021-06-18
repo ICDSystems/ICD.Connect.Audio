@@ -93,6 +93,7 @@
     <Compile Include="VolumePoints\AbstractVolumePointSettings.cs" />
     <Compile Include="eVolumeRepresentation.cs" />
     <Compile Include="VolumePoints\eMuteType.cs" />
+    <Compile Include="VolumePoints\ePrivacyMuteFeedback.cs" />
     <Compile Include="VolumePoints\IVolumePoint.cs" />
     <Compile Include="VolumePoints\IVolumePointSettings.cs" />
     <Compile Include="VolumePoints\VolumeContextComparer.cs" />

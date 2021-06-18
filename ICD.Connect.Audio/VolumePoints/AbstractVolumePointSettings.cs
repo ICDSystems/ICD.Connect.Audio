@@ -24,6 +24,7 @@ namespace ICD.Connect.Audio.VolumePoints
 		private const string ELEMENT_VOLUME_TYPE = "VolumeType";
 		private const string ELEMENT_CONTEXT = "Context";
 		private const string ELEMENT_MUTE_TYPE = "MuteType";
+		private const string ELEMENT_PRIVACY_MUTE_MASK = "PrivacyMuteMask";
 
 		#region Properties
 
@@ -78,9 +79,9 @@ namespace ICD.Connect.Audio.VolumePoints
 		public eMuteType MuteType { get; set; }
 
 		/// <summary>
-		/// When enabled volume levels will be ramped logarithmically.
+		/// Determines if the privacy mute control will be driven by the control system, and/or drive the control system.
 		/// </summary>
-		public bool Logarithmic { get; set; }
+		public ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
 
 		#endregion
 
@@ -96,6 +97,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialInterval = DEFAULT_STEP_INTERVAL;
 			Context = eVolumePointContext.Room;
 			MuteType = eMuteType.RoomAudio;
+			PrivacyMuteMask = ePrivacyMuteFeedback.Set;
 		}
 
 		#region Serialization
@@ -120,6 +122,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			writer.WriteElementString(ELEMENT_VOLUME_RAMP_INITIAL_INTERVAL, IcdXmlConvert.ToString(VolumeRampInitialInterval));
 			writer.WriteElementString(ELEMENT_CONTEXT, IcdXmlConvert.ToString(Context));
 			writer.WriteElementString(ELEMENT_MUTE_TYPE, IcdXmlConvert.ToString(MuteType));
+			writer.WriteElementString(ELEMENT_PRIVACY_MUTE_MASK, IcdXmlConvert.ToString(PrivacyMuteMask));
 		}
 
 		/// <summary>
@@ -149,6 +152,9 @@ namespace ICD.Connect.Audio.VolumePoints
 			          eVolumePointContext.Room;
 
 			MuteType = XmlUtils.TryReadChildElementContentAsEnum<eMuteType>(xml, ELEMENT_MUTE_TYPE, true) ?? eMuteType.RoomAudio;
+			PrivacyMuteMask =
+				XmlUtils.TryReadChildElementContentAsEnum<ePrivacyMuteFeedback>(xml, ELEMENT_PRIVACY_MUTE_MASK, true) ??
+				ePrivacyMuteFeedback.Set;
 		}
 
 		#endregion

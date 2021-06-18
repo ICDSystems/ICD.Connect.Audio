@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## Added
+ - Added mask to VolumePoints to configure direction of privacy mute authority
+
 ## [16.0.0] - 2021-05-14
 ### Added
  - Added event to VolumePointHelper for when the underlying volume control changes

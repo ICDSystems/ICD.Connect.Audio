@@ -69,6 +69,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public eMuteType MuteType { get; set; }
 
+		/// <summary>
+		/// Determines if the privacy mute control will be driven by the control system, and/or drive the control system.
+		/// </summary>
+		public ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
+
 		#endregion
 
 		/// <summary>
@@ -81,6 +86,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialStepSize = AbstractVolumePointSettings.DEFAULT_STEP;
 			VolumeRampInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
+			PrivacyMuteMask = ePrivacyMuteFeedback.Set;
 		}
 
 		#region Private Methods
@@ -222,6 +228,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			settings.VolumeRampInitialInterval = VolumeRampInitialInterval;
 			settings.Context = Context;
 			settings.MuteType = MuteType;
+			settings.PrivacyMuteMask = PrivacyMuteMask;
 		}
 
 		/// <summary>
@@ -241,6 +248,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialInterval = AbstractVolumePointSettings.DEFAULT_STEP_INTERVAL;
 			Context = default(eVolumePointContext);
 			MuteType = default(eMuteType);
+			PrivacyMuteMask = ePrivacyMuteFeedback.Set;
 		}
 
 		/// <summary>
@@ -262,6 +270,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			VolumeRampInitialInterval = settings.VolumeRampInitialInterval;
 			Context = settings.Context;
 			MuteType = settings.MuteType;
+			PrivacyMuteMask = settings.PrivacyMuteMask;
 		}
 
 		#endregion
@@ -286,6 +295,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			addRow("Volume Ramp Initial Interval", VolumeRampInitialInterval + "ms");
 			addRow("Context", Context);
 			addRow("Mute Type", MuteType);
+			addRow("Privacy Mute Mask", PrivacyMuteMask);
 		}
 
 		/// <summary>
