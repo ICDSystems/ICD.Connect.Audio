@@ -285,8 +285,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 			string data = stringEventArgs.Data;
 
 			// Ignore empty change groups
-			if (data ==
-			    @"{""jsonrpc"":""2.0"",""method"":""ChangeGroup.Poll"",""params"":{""Id"":""AutoChangeGroup"",""Changes"":[]}}")
+			if (data.Contains(@"{""jsonrpc"":""2.0"",""method"":""ChangeGroup.Poll"",""params"":{""Id"":""AutoChangeGroup"",""Changes"":[]}}"))
 				return;
 
 			m_SerialBuffer.Enqueue(data);
