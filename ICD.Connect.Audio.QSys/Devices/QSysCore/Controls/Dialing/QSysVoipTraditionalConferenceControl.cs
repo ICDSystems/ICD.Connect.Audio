@@ -15,7 +15,6 @@ using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Conferencing.IncomingCalls;
-using ICD.Connect.Conferencing.Participants;
 using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
@@ -24,6 +23,15 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 	                                                           IQSysKrangControl
 	{
 		private const float TOLERANCE = 0.0001f;
+
+		private enum eControlStatus
+		{
+			Undefined,
+			Disconnected,
+			Connected,
+			Dialing,
+			Incoming
+		}
 
 		#region Events
 
@@ -36,6 +44,9 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		/// Raised when an incoming call is removed from the conference component.
 		/// </summary>
 		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallRemoved;
+
+		public override event EventHandler<ConferenceEventArgs> OnConferenceAdded;
+		public override event EventHandler<ConferenceEventArgs> OnConferenceRemoved;
 
 		#endregion
 
@@ -50,19 +61,19 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		private readonly SafeCriticalSection m_ConferenceSourceCriticalSection;
 		private readonly string m_Name;
 
-		private ThinParticipant m_Participant;
+		private ThinConference m_Participant;
 		private TraditionalIncomingCall m_IncomingCall;
 
 		#endregion
 
 		#region Properties
 
-		private ThinParticipant Participant
+		private ThinConference Participant
 		{
 			get { return m_ConferenceSourceCriticalSection.Execute(() => m_Participant); }
 			set
 			{
-				IParticipant removed;
+				ThinConference removed;
 
 				m_ConferenceSourceCriticalSection.Enter();
 
@@ -83,10 +94,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				}
 
 				if (removed != null)
-					RemoveParticipant(removed);
+					OnConferenceRemoved.Raise(this, removed);
 
 				if (value != null)
-					AddParticipant(value);
+					OnConferenceAdded.Raise(this, value);
 			}
 		}
 
@@ -318,7 +329,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (m_IncomingCall != null)
 					m_IncomingCall.Number = args.ValueString;
 				if (m_Participant != null)
-					m_Participant.SetNumber(args.ValueString);
+					m_Participant.Number = args.ValueString;
 			}
 			finally
 			{
@@ -337,7 +348,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 				if (m_IncomingCall != null)
 					m_IncomingCall.Name = args.ValueString;
 				if (m_Participant != null)
-					m_Participant.SetName(args.ValueString);
+					m_Participant.Name = args.ValueString;
 			}
 			finally
 			{
@@ -353,24 +364,25 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		private void ParseCallStatus(ControlValueUpdateEventArgs args)
 		{
 			Logger.Log(eSeverity.Debug, "Call Status: {0}", args.ValueString);
-			eParticipantStatus callStatus = QSysStatusToConferenceSourceStatus(args.ValueString);
+			eConferenceStatus callStatus = QSysStatusToConferenceStatus(args.ValueString);
+			eControlStatus controlStatus = QSysStatusToControlStatus(args.ValueString);
 
 			var incomingCall = IncomingCall;
 			var source = Participant;
 
-			if (callStatus == eParticipantStatus.Disconnected || callStatus == eParticipantStatus.Idle)
+			if (controlStatus == eControlStatus.Disconnected)
 			{
 				if (source != null)
 				{
-					source.SetStatus(callStatus);
-					source.SetEnd(IcdEnvironment.GetUtcTime());
+					source.Status = (callStatus);
+					source.EndTime = IcdEnvironment.GetUtcTime();
 				}
 				Participant = null;
 				IncomingCall = null;
 				return;
 			}
 
-			if (callStatus == eParticipantStatus.Ringing)
+			if (controlStatus == eControlStatus.Incoming)
 			{
 				if (incomingCall == null)
 				{
@@ -387,23 +399,23 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					source = Participant;
 				}
 
-				source.SetStatus(callStatus);
+				source.Status = callStatus;
 
-				if (callStatus == eParticipantStatus.Dialing)
+				if (controlStatus == eControlStatus.Dialing)
 				{
-					source.SetDirection(eCallDirection.Outgoing);
+					source.Direction = eCallDirection.Outgoing;
 					string number = GetNumberFromDialingStatus(args.ValueString);
 					if (!string.IsNullOrEmpty(number))
-						source.SetNumber(number);
+						source.Number = number;
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.Ignored;
 				}
 
-				if (callStatus == eParticipantStatus.Connected)
+				if (controlStatus == eControlStatus.Connected)
 				{
 					if (source.StartTime == null)
-						source.SetStart(IcdEnvironment.GetUtcTime());
+						source.StartTime = (IcdEnvironment.GetUtcTime());
 
 					if (incomingCall != null && incomingCall.AnswerState == eCallAnswerState.Unanswered)
 						incomingCall.AnswerState = eCallAnswerState.AutoAnswered;
@@ -420,8 +432,10 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 					return;
 
 				IncomingCall = null;
-				Participant = new ThinParticipant();
-				Participant.SetCallType(eCallType.Audio);
+				Participant = new ThinConference
+				{
+					CallType = eCallType.Audio
+				};
 			}
 			finally
 			{
@@ -446,26 +460,49 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			}
 		}
 
-		private static eParticipantStatus QSysStatusToConferenceSourceStatus(string qsysStatus)
+		private static eControlStatus QSysStatusToControlStatus(string qsysStatus)
 		{
 			string status = qsysStatus.Split('-', 2).ToArray()[0].Trim();
 
 			switch (status.ToLower())
 			{
 				case "idle":
-					return eParticipantStatus.Disconnected;
+					return eControlStatus.Disconnected;
 				case "normal clearing":
-					return eParticipantStatus.Disconnected;
+					return eControlStatus.Disconnected;
 				case "disconnected":
-					return eParticipantStatus.Disconnected;
+					return eControlStatus.Disconnected;
 				case "dialing":
-					return eParticipantStatus.Dialing;
+					return eControlStatus.Dialing;
 				case "connected":
-					return eParticipantStatus.Connected;
+					return eControlStatus.Connected;
 				case "incoming call":
-					return eParticipantStatus.Ringing;
+					return eControlStatus.Incoming;
 				default:
-					return eParticipantStatus.Undefined;
+					return eControlStatus.Undefined;
+			}
+		}
+
+		private static eConferenceStatus QSysStatusToConferenceStatus(string qsysStatus)
+		{
+			string status = qsysStatus.Split('-', 2).ToArray()[0].Trim();
+
+			switch (status.ToLower())
+			{
+				case "idle":
+					return eConferenceStatus.Disconnected;
+				case "normal clearing":
+					return eConferenceStatus.Disconnected;
+				case "disconnected":
+					return eConferenceStatus.Disconnected;
+				case "dialing":
+					return eConferenceStatus.Connecting;
+				case "connected":
+					return eConferenceStatus.Connected;
+				case "incoming call":
+					return eConferenceStatus.Connecting;
+				default:
+					return eConferenceStatus.Undefined;
 			}
 		}
 
@@ -540,43 +577,43 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 		{
 			bool onHold = Math.Abs(e.ValueRaw) > TOLERANCE;
 
-			ThinParticipant source = Participant;
+			ThinConference source = Participant;
 			if (source == null)
 				return;
 
-			if (source.Status == eParticipantStatus.Connected && onHold)
-				source.SetStatus(eParticipantStatus.OnHold);
-			else if (source.Status == eParticipantStatus.OnHold && !onHold)
-				source.SetStatus(eParticipantStatus.Connected);
+			if (source.Status == eConferenceStatus.Connected && onHold)
+				source.Status = eConferenceStatus.OnHold;
+			else if (source.Status == eConferenceStatus.OnHold && !onHold)
+				source.Status = eConferenceStatus.Connected;
 		}
 
 		#endregion
 
 		#region Participant Callbacks
 
-		private void Subscribe(ThinParticipant participant)
+		private void Subscribe(ThinConference participant)
 		{
 			if (participant == null)
 				return;
 
-			participant.HangupCallback += ConferenceSourceHangupCallback;
+			participant.LeaveConferenceCallback += ConferenceSourceHangupCallback;
 			participant.HoldCallback += ConferenceSourceHoldCallback;
 			participant.ResumeCallback += ConferenceSourceResumeCallback;
 			participant.SendDtmfCallback += ConferenceSourceSendDtmfCallback;
 		}
 
-		private void Unsubscribe(ThinParticipant participant)
+		private void Unsubscribe(ThinConference participant)
 		{
 			if (participant == null)
 				return;
 
-			participant.HangupCallback = null;
+			participant.LeaveConferenceCallback = null;
 			participant.HoldCallback = null;
 			participant.ResumeCallback = null;
 			participant.SendDtmfCallback = null;
 		}
 
-		private void ConferenceSourceHangupCallback(ThinParticipant sender)
+		private void ConferenceSourceHangupCallback(ThinConference sender)
 		{
 			if (m_VoipComponent == null)
 			{
@@ -588,7 +625,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_VoipComponent.Trigger(VoipNamedComponent.CONTROL_CALL_DISCONNECT);
 		}
 
-		private void ConferenceSourceHoldCallback(ThinParticipant sender)
+		private void ConferenceSourceHoldCallback(ThinConference sender)
 		{
 			if (m_HoldControl == null)
 			{
@@ -601,7 +638,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_HoldControl.SetValue(true);
 		}
 
-		private void ConferenceSourceResumeCallback(ThinParticipant sender)
+		private void ConferenceSourceResumeCallback(ThinConference sender)
 		{
 			if (m_HoldControl == null)
 			{
@@ -613,7 +650,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			m_HoldControl.SetValue(false);
 		}
 
-		private void ConferenceSourceSendDtmfCallback(ThinParticipant sender, string dtmf)
+		private void ConferenceSourceSendDtmfCallback(ThinConference sender, string dtmf)
 		{
 			if (m_VoipComponent == null)
 			{

@@ -10,11 +10,11 @@ using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Tesira.AttributeInterfaces.IoBlocks.TelephoneInterface;
 using ICD.Connect.Audio.Biamp.Tesira.Controls.State;
+using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Conferencing.IncomingCalls;
-using ICD.Connect.Conferencing.Participants;
 using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
@@ -26,9 +26,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		/// </summary>
 		public event EventHandler<BoolEventArgs> OnHoldChanged;
 
-		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallAdded;
-		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallRemoved;
-
 		private readonly TiControlStatusBlock m_TiControl;
 
 		[CanBeNull]
@@ -39,8 +36,8 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 		private bool m_Hold;
 
-		private ThinParticipant m_ActiveSource;
-		private readonly SafeCriticalSection m_ActiveSourceSection;
+		private ThinConference m_ActiveConference;
+		private readonly SafeCriticalSection m_ActiveSection;
 		private string m_LastDialedNumber;
 
 		private TraditionalIncomingCall m_IncomingCall;
@@ -91,7 +88,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		                                 IDialContext callInInfo)
 			: base(id, uuid, name, tiControl.Device, privacyMuteControl)
 		{
-			m_ActiveSourceSection = new SafeCriticalSection();
+			m_ActiveSection = new SafeCriticalSection();
 
 			m_TiControl = tiControl;
 			m_HoldControl = holdControl;
@@ -187,7 +184,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			UnsubscribeHold(m_HoldControl);
 			UnsubscribeDoNotDisturb(m_DoNotDisturbControl);
 
-			ClearCurrentSource();
+			ClearCurrentConference();
 		}
 
 		/// <summary>
@@ -203,83 +200,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			}
 
 			m_HoldControl.SetState(hold);
-		}
-
-		/// <summary>
-		/// Updates the source to match the state of the TI block.
-		/// </summary>
-		/// <param name="source"></param>
-		private void UpdateSource(ThinParticipant source)
-		{
-			if (source == null)
-				return;
-
-			eParticipantStatus status = TiControlStateToSourceStatus(m_TiControl.State);
-			if (status.GetIsOnline() && IsOnHold)
-				status = eParticipantStatus.OnHold;
-
-			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
-				source.SetName(m_TiControl.CallerName);
-
-			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
-				source.SetNumber(m_TiControl.CallerNumber);
-
-			source.SetStatus(status);
-			source.SetName(source.Name ?? source.Number);
-
-			if (source.Direction != eCallDirection.Incoming)
-			{
-				if (string.IsNullOrEmpty(source.Number) &&
-					string.IsNullOrEmpty(source.Name) &&
-					!string.IsNullOrEmpty(m_LastDialedNumber))
-				{
-					source.SetNumber(m_LastDialedNumber);
-					source.SetName(m_LastDialedNumber);
-					m_LastDialedNumber = null;
-				}
-
-				source.SetDirection(eCallDirection.Outgoing);
-			}
-
-			//Don't update answer state for incoming calls - those are preserved from the incoming call
-			if (source.Direction != eCallDirection.Incoming)
-			{
-				// Don't update the answer state if we can't determine the current answer state
-				// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)4
-				eCallAnswerState answerState = TiControlStateToOutboundAnswerState(m_TiControl.State);
-				if ((source.AnswerState == eCallAnswerState.Unknown || source.AnswerState == eCallAnswerState.Unanswered)
-				    && answerState != eCallAnswerState.Unknown)
-					source.SetAnswerState(answerState);
-			}
-
-			// Start/End
-			switch (status)
-			{
-				case eParticipantStatus.Connected:
-					source.SetStart(source.StartTime ?? IcdEnvironment.GetUtcTime());
-					break;
-				case eParticipantStatus.Disconnected:
-					source.SetEnd(source.EndTime ?? IcdEnvironment.GetUtcTime());
-					break;
-			}
-		}
-
-		private void UpdateIncomingCall(TraditionalIncomingCall call)
-		{
-			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
-				call.Name = m_TiControl.CallerName;
-
-			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
-				call.Number = m_TiControl.CallerNumber;
-
-			call.Name = call.Name ?? call.Number;
-
-			// Don't update the answer state if we can't determine the current answer state
-			// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)
-			eCallAnswerState answerState = TiControlStateToIncomingAnswerState(m_TiControl.State);
-			if ((call.AnswerState == eCallAnswerState.Unknown || call.AnswerState == eCallAnswerState.Unanswered)
-			    &&answerState != eCallAnswerState.Unknown)
-				call.AnswerState = answerState;
 		}
 
 		private eCallAnswerState TiControlStateToIncomingAnswerState(TiControlStatusBlock.eTiCallState state)
@@ -340,211 +260,197 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			}
 		}
 
-		private static eParticipantStatus TiControlStateToSourceStatus(TiControlStatusBlock.eTiCallState state)
+		private static eConferenceStatus TiControlStateToConferenceStatus(TiControlStatusBlock.eTiCallState state)
 		{
 			switch (state)
 			{
 				case TiControlStatusBlock.eTiCallState.Init:
 				case TiControlStatusBlock.eTiCallState.Fault:
 				case TiControlStatusBlock.eTiCallState.ErrorTone:
-					return eParticipantStatus.Undefined;
+					return eConferenceStatus.Undefined;
 
 				case TiControlStatusBlock.eTiCallState.Dialing:
-					return eParticipantStatus.Dialing;
-
-				case TiControlStatusBlock.eTiCallState.Ringing:
-					return eParticipantStatus.Ringing;
+					case TiControlStatusBlock.eTiCallState.Ringing:
+					return eConferenceStatus.Connecting;
 
 				case TiControlStatusBlock.eTiCallState.BusyTone:
 				case TiControlStatusBlock.eTiCallState.Dropped:
 				case TiControlStatusBlock.eTiCallState.Idle:
-					return eParticipantStatus.Disconnected;
+					return eConferenceStatus.Disconnected;
 
 				case TiControlStatusBlock.eTiCallState.Connected:
 				case TiControlStatusBlock.eTiCallState.ConnectedMuted:
 				case TiControlStatusBlock.eTiCallState.RingBack:
-					return eParticipantStatus.Connected;
-
+					return eConferenceStatus.Connected;
+				
 				default:
 					throw new ArgumentOutOfRangeException("state");
-			}
-		}
-
-		#endregion
-
-		#region Sources
-
-		/// <summary>
-		/// Creates a source if a call is active but no source exists yet. Clears the source if an existing call becomes inactive.
-		/// </summary>
-		/// <param name="state"></param>
-		/// <returns></returns>
-		private void CreateOrRemoveSourceForCallState(TiControlStatusBlock.eTiCallState state)
-		{
-			eParticipantStatus status = TiControlStateToSourceStatus(state);
-
-			m_ActiveSourceSection.Enter();
-
-			try
-			{
-
-				switch (status)
-				{
-					case eParticipantStatus.Ringing:
-						if (m_IncomingCall == null)
-							CreateIncomingCall();
-						else
-							UpdateIncomingCall(m_IncomingCall);
-						break;
-
-					case eParticipantStatus.Dialing:
-					case eParticipantStatus.Connecting:
-					case eParticipantStatus.Connected:
-					case eParticipantStatus.OnHold:
-					case eParticipantStatus.EarlyMedia:
-					case eParticipantStatus.Preserved:
-					case eParticipantStatus.RemotePreserved:
-						// If we are rejecting a call, don't create a participant
-						if (!m_RejectingCall)
-						{
-							if (m_ActiveSource == null)
-								CreateActiveSource();
-							else
-								UpdateSource(m_ActiveSource);
-						}
-						break;
-
-					case eParticipantStatus.Undefined:
-					case eParticipantStatus.Idle:
-					case eParticipantStatus.Disconnecting:
-					case eParticipantStatus.Disconnected:
-						if (m_ActiveSource != null)
-							ClearCurrentSource();
-						if (m_IncomingCall != null)
-							ClearCurrentIncomingCall();
-						break;
-				}
-			}
-			finally
-			{
-				m_ActiveSourceSection.Leave();
 			}
 		}
 
 		/// <summary>
 		/// Instantiates a new active source.
 		/// </summary>
-		private void CreateActiveSource()
+		private void CreateConferenceAndParticipant()
 		{
-			m_ActiveSourceSection.Enter();
+			m_ActiveSection.Enter();
 
 			try
 			{
-				ClearCurrentSource();
+				ClearCurrentConference();
+				
 
 				// If there's an incoming call, we're answering that, so pull info from it
 				if (m_IncomingCall != null)
 				{
 					//Update incoming call first
 					UpdateIncomingCall(m_IncomingCall);
-					m_ActiveSource = ThinParticipant.FromIncomingCall(m_IncomingCall);
+					m_ActiveConference = ThinConference.FromIncomingCall(m_IncomingCall);
 					ClearCurrentIncomingCall();
 				}
 				else
 				{
-					m_ActiveSource = new ThinParticipant();
-					m_ActiveSource.SetDirection(eCallDirection.Outgoing);
-					m_ActiveSource.SetAnswerState(eCallAnswerState.Unknown);
+					m_ActiveConference = new ThinConference();
+					m_ActiveConference.Direction = eCallDirection.Outgoing;
+					m_ActiveConference.AnswerState = eCallAnswerState.Unknown;
 				}
 
-				m_ActiveSource.SetCallType(eCallType.Audio);
+				Subscribe(m_ActiveConference);
 
-				Subscribe(m_ActiveSource);
+				m_ActiveConference.CallType = eCallType.Audio;
 
-				// Setup the source properties
-				UpdateSource(m_ActiveSource);
+				// Setup the conference
+				UpdateConference(m_ActiveConference);
 
 				// Clear the hold state between calls
 				SetHold(false);
 			}
 			finally
 			{
-				m_ActiveSourceSection.Leave();
+				m_ActiveSection.Leave();
 			}
 
-			AddParticipant(m_ActiveSource);
+			AddConference(m_ActiveConference);
 		}
+
+		#endregion
+
+		#region Conference
 
 		/// <summary>
 		/// Unsubscribes from the current source and clears the field.
 		/// </summary>
-		private void ClearCurrentSource()
+		private void ClearCurrentConference()
 		{
-			m_ActiveSourceSection.Enter();
+			m_ActiveSection.Enter();
 
 			try
 			{
-				if (m_ActiveSource == null)
+				if (m_ActiveConference == null)
 					return;
 
-				UpdateSource(m_ActiveSource);
-
-				Unsubscribe(m_ActiveSource);
-
-				RemoveParticipant(m_ActiveSource);
-
-				m_ActiveSource = null;
+				UpdateConference(m_ActiveConference);
+				Unsubscribe(m_ActiveConference);
+				RemoveConference(m_ActiveConference);
+				m_ActiveConference = null;
 
 				// Clear the hold state between calls
 				SetHold(false);
 			}
 			finally
 			{
-				m_ActiveSourceSection.Leave();
+				m_ActiveSection.Leave();
 			}
 		}
 
-		/// <summary>
-		/// Subscribe to the source callbacks.
-		/// </summary>
-		/// <param name="source"></param>
-		private void Subscribe(ThinParticipant source)
+		private void Subscribe(ThinConference conference)
 		{
-			source.HoldCallback = HoldCallback;
-			source.ResumeCallback = ResumeCallback;
-			source.SendDtmfCallback = SendDtmfCallback;
-			source.HangupCallback = HangupCallback;
+			conference.HoldCallback = HoldCallback;
+			conference.ResumeCallback = ResumeCallback;
+			conference.SendDtmfCallback = SendDtmfCallback;
+			conference.LeaveConferenceCallback = LeaveCallback;
 		}
 
-		/// <summary>
-		/// Unsubscribe from the source callbacks.
-		/// </summary>
-		/// <param name="source"></param>
-		private void Unsubscribe(ThinParticipant source)
+		private void Unsubscribe(ThinConference conference)
 		{
-			source.HoldCallback = null;
-			source.ResumeCallback = null;
-			source.SendDtmfCallback = null;
-			source.HangupCallback = null;
+			conference.HoldCallback = null;
+			conference.ResumeCallback = null;
+			conference.SendDtmfCallback = null;
+			conference.LeaveConferenceCallback = null;
 		}
 
-		private void HoldCallback(ThinParticipant sender)
+		private void UpdateConference(ThinConference conference)
+		{
+			conference.Status = TiControlStateToConferenceStatus(m_TiControl.State);
+			
+			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
+				conference.Name = m_TiControl.CallerName;
+			else if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				conference.Name = m_TiControl.CallerNumber;
+
+			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				conference.Number = m_TiControl.CallerNumber;
+
+			eConferenceStatus status = TiControlStateToConferenceStatus(m_TiControl.State);
+			if (IsOnHold)
+				status = eConferenceStatus.OnHold;
+
+			conference.Status = status;
+
+			if (conference.Direction != eCallDirection.Incoming)
+			{
+				if (string.IsNullOrEmpty(conference.Number) &&
+					string.IsNullOrEmpty(conference.Name) &&
+					!string.IsNullOrEmpty(m_LastDialedNumber))
+				{
+					conference.Number = m_LastDialedNumber;
+					conference.Name = m_LastDialedNumber;
+					m_LastDialedNumber = null;
+				}
+
+				conference.Direction = eCallDirection.Outgoing;
+			}
+
+			//Don't update answer state for incoming calls - those are preserved from the incoming call
+			if (conference.Direction != eCallDirection.Incoming)
+			{
+				// Don't update the answer state if we can't determine the current answer state
+				// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)4
+				eCallAnswerState answerState = TiControlStateToOutboundAnswerState(m_TiControl.State);
+				if ((conference.AnswerState == eCallAnswerState.Unknown || conference.AnswerState == eCallAnswerState.Unanswered)
+					&& answerState != eCallAnswerState.Unknown)
+					conference.AnswerState = answerState;
+			}
+
+			// Start/End
+			switch (status)
+			{
+				case eConferenceStatus.Connected:
+					conference.StartTime = conference.StartTime ?? IcdEnvironment.GetUtcTime();
+					break;
+				case eConferenceStatus.Disconnected:
+					conference.EndTime = conference.EndTime ?? IcdEnvironment.GetUtcTime();
+					break;
+			}
+		}
+
+		private void HoldCallback(ThinConference sender)
 		{
 			SetHold(true);
 		}
 
-		private void ResumeCallback(ThinParticipant sender)
+		private void ResumeCallback(ThinConference sender)
 		{
 			SetHold(false);
 		}
 
-		private void SendDtmfCallback(ThinParticipant sender, string data)
+		private void SendDtmfCallback(ThinConference sender, string data)
 		{
 			foreach (char digit in data)
 				m_TiControl.Dtmf(digit);
 		}
 
-		private void HangupCallback(ThinParticipant sender)
+		private void LeaveCallback(ThinConference sender)
 		{
 			// Ends the active call.
 			m_TiControl.End();
@@ -552,15 +458,88 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 		#endregion
 
+		#region Participant
+
+		/// <summary>
+		/// Creates a source if a call is active but no source exists yet. Clears the source if an existing call becomes inactive.
+		/// </summary>
+		/// <param name="state"></param>
+		/// <returns></returns>
+		private void CreateOrRemoveConferenceForCallState(TiControlStatusBlock.eTiCallState state)
+		{
+			m_ActiveSection.Enter();
+
+			try
+			{
+
+				switch (state)
+				{
+					case TiControlStatusBlock.eTiCallState.Init:
+					case TiControlStatusBlock.eTiCallState.Dropped:
+					case TiControlStatusBlock.eTiCallState.Idle:
+					case TiControlStatusBlock.eTiCallState.Fault:
+					case TiControlStatusBlock.eTiCallState.ErrorTone:
+						ClearCurrentConference();
+						ClearCurrentIncomingCall();
+						break;
+
+					case TiControlStatusBlock.eTiCallState.Dialing:
+					case TiControlStatusBlock.eTiCallState.RingBack:
+					case TiControlStatusBlock.eTiCallState.BusyTone:
+					case TiControlStatusBlock.eTiCallState.Connected:
+					case TiControlStatusBlock.eTiCallState.ConnectedMuted:
+						// If we are rejecting a call, don't create a participant
+						if (!m_RejectingCall)
+						{
+							if (m_ActiveConference == null)
+								CreateConferenceAndParticipant();
+							else
+								UpdateConference(m_ActiveConference);
+						}
+						break;
+					case TiControlStatusBlock.eTiCallState.Ringing:
+						if (m_IncomingCall == null)
+							CreateIncomingCall();
+						else
+							UpdateIncomingCall(m_IncomingCall);
+						break;
+					
+				}
+			}
+			finally
+			{
+				m_ActiveSection.Leave();
+			}
+		}
+
+		#endregion
+
 		#region Incoming Calls
+
+		private void UpdateIncomingCall(TraditionalIncomingCall call)
+		{
+			if (!string.IsNullOrEmpty(m_TiControl.CallerName))
+				call.Name = m_TiControl.CallerName;
+
+			if (!string.IsNullOrEmpty(m_TiControl.CallerNumber))
+				call.Number = m_TiControl.CallerNumber;
+
+			call.Name = call.Name ?? call.Number;
+
+			// Don't update the answer state if we can't determine the current answer state
+			// Also, once we have a valid answer state, don't overrite it (prevents rejected/ignored from overrideing answered)
+			eCallAnswerState answerState = TiControlStateToIncomingAnswerState(m_TiControl.State);
+			if ((call.AnswerState == eCallAnswerState.Unknown || call.AnswerState == eCallAnswerState.Unanswered)
+			    &&answerState != eCallAnswerState.Unknown)
+				call.AnswerState = answerState;
+		}
 
 		private void CreateIncomingCall()
 		{
-			m_ActiveSourceSection.Enter();
+			m_ActiveSection.Enter();
 			try
 			{
-				if (m_ActiveSource != null)
-					ClearCurrentSource();
+				ClearCurrentConference();
 
 				ClearCurrentIncomingCall();
 
@@ -572,15 +551,15 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			}
 			finally
 			{
-				m_ActiveSourceSection.Leave();
+				m_ActiveSection.Leave();
 			}
 
-			OnIncomingCallAdded.Raise(this, new GenericEventArgs<IIncomingCall>(m_IncomingCall));
+			AddIncomingCall(m_IncomingCall);
 		}
 
 		private void ClearCurrentIncomingCall()
 		{
-			m_ActiveSourceSection.Enter();
+			m_ActiveSection.Enter();
 			try
 			{
 				if (m_IncomingCall == null)
@@ -591,7 +570,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 				UpdateIncomingCall(m_IncomingCall);
 				Unsubscribe(m_IncomingCall);
-				OnIncomingCallRemoved.Raise(this, new GenericEventArgs<IIncomingCall>(m_IncomingCall));
+				RemoveIncomingCall(m_IncomingCall);
 				m_IncomingCall = null;
 
 				SetHold(false);
@@ -600,7 +579,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			}
 			finally
 			{
-				m_ActiveSourceSection.Leave();
+				m_ActiveSection.Leave();
 			}
 		}
 
@@ -671,7 +650,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		{
 			IsOnHold = args.Data;
 
-			UpdateSource(m_ActiveSource);
+			UpdateConference(m_ActiveConference);
 		}
 
 		#endregion
@@ -731,16 +710,16 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 		{
 			if (m_IncomingCall != null)
 				m_IncomingCall.Number = stringEventArgs.Data;
-			if (m_ActiveSource != null)
-				UpdateSource(m_ActiveSource);
+			if (m_ActiveConference != null)
+				UpdateConference(m_ActiveConference);
 		}
 
 		private void AttributeInterfaceOnCallerNameChanged(object sender, StringEventArgs stringEventArgs)
 		{
 			if (m_IncomingCall != null)
 				m_IncomingCall.Name = stringEventArgs.Data;
-			if (m_ActiveSource != null)
-				UpdateSource(m_ActiveSource);
+			if (m_ActiveConference != null)
+				UpdateConference(m_ActiveConference);
 		}
 
 		private void AttributeInterfaceOnAutoAnswerChanged(object sender, BoolEventArgs args)
@@ -750,7 +729,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 		private void AttributeInterfaceOnCallStateChanged(TiControlStatusBlock sender, TiControlStatusBlock.eTiCallState callState)
 		{
-			CreateOrRemoveSourceForCallState(callState);
+			CreateOrRemoveConferenceForCallState(callState);
 		}
 
 		#endregion

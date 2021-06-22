@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
 using ICD.Common.Properties;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Biamp.Tesira.Controls.State;
-using ICD.Connect.Conferencing.Conferences;
 using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.EventArguments;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 {
-	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractConferenceDeviceControl<BiampTesiraDevice, ThinConference>, IBiampTesiraConferenceDeviceControl
+	public abstract class AbstractBiampTesiraConferenceDeviceControl : AbstractThinConferenceDeviceControl<BiampTesiraDevice>, IBiampTesiraConferenceDeviceControl
 	{
 		private readonly string m_Name;
 		
@@ -68,15 +66,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing
 		}
 
 		#region Methods
-
-		/// <summary>
-		/// Gets the active conference sources.
-		/// </summary>
-		/// <returns></returns>
-		public override IEnumerable<ThinConference> GetConferences()
-		{
-			yield break;
-		}
 
 		/// <summary>
 		/// Sets the privacy mute enabled state.

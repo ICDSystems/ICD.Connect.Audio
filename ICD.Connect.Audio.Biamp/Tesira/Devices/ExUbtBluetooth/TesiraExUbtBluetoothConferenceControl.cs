@@ -9,7 +9,6 @@ using ICD.Connect.Conferencing.Controls.Dialing;
 using ICD.Connect.Conferencing.DialContexts;
 using ICD.Connect.Conferencing.EventArguments;
 using ICD.Connect.Conferencing.IncomingCalls;
-using ICD.Connect.Conferencing.Participants;
 using ICD.Connect.Conferencing.Participants.Enums;
 
 namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
@@ -27,6 +26,9 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 		/// Raised when an incoming call is removed from the dialing control.
 		/// </summary>
 		public override event EventHandler<GenericEventArgs<IIncomingCall>> OnIncomingCallRemoved;
+
+		public override event EventHandler<ConferenceEventArgs> OnConferenceAdded;
+		public override event EventHandler<ConferenceEventArgs> OnConferenceRemoved;
 
 		#endregion
 
@@ -131,21 +133,18 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 
 			DateTime now = IcdEnvironment.GetUtcTime();
 
-			ThinParticipant participant = new ThinParticipant
+			ThinConference conference = new ThinConference
 			{
-				HangupCallback = HangupParticipant
+				Name = m_Block.ConnectedDeviceName,
+				AnswerState = eCallAnswerState.Answered,
+				CallType = eCallType.Audio,
+				DialTime = now,
+				StartTime = now,
+				Status = eConferenceStatus.Connected
 			};
-			participant.SetName(m_Block.ConnectedDeviceName);
-			participant.SetAnswerState(eCallAnswerState.Answered);
-			participant.SetCallType(eCallType.Audio);
-			participant.SetDialTime(now);
-			participant.SetStart(now);
-			participant.SetStatus(eParticipantStatus.Connected);
 
-			m_ActiveConference = new ThinConference();
-			m_ActiveConference.AddParticipant(participant);
-
-			RaiseOnConferenceAdded(this, new ConferenceEventArgs(m_ActiveConference));
+			m_ActiveConference = conference;
+			OnConferenceAdded.Raise(this, m_ActiveConference);
 		}
 
 		private void EndConference()
@@ -153,21 +152,13 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Devices.ExUbtBluetooth
 			if (m_ActiveConference == null)
 				return;
 
-			m_ActiveConference.Hangup();
+			m_ActiveConference.EndTime = IcdEnvironment.GetUtcTime();
+			m_ActiveConference.Status = eConferenceStatus.Disconnected;
 
 			ThinConference endedConference = m_ActiveConference;
 			m_ActiveConference = null;
 
-			RaiseOnConferenceRemoved(this, new ConferenceEventArgs(endedConference));
-		}
-
-		private void HangupParticipant(ThinParticipant participant)
-		{
-			participant.SetStatus(eParticipantStatus.Disconnected);
-			participant.SetEnd(IcdEnvironment.GetUtcTime());
-
-			if (m_ActiveConference != null)
-				m_ActiveConference.RemoveParticipant(participant);
+			OnConferenceRemoved.Raise(this, endedConference);
 		}
 
 		#endregion
