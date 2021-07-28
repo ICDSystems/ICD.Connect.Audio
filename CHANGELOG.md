@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## Changed
+ - Tesira RoomCombinerRoomStateControl now implements IVolumeDeviceControl as a mute control
+
 ## [16.1.0] - 2021-08-03
 ## Added
  - Added mask to VolumePoints to configure direction of privacy mute authority

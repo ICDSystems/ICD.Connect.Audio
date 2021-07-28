@@ -28,7 +28,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.State
 		/// <summary>
 		/// Gets the state of the control.
 		/// </summary>
-		public bool State
+		public virtual bool State
 		{
 			get { return m_State; }
 			protected set
