@@ -19,6 +19,8 @@ namespace ICD.Connect.Audio.Devices.GenericAmp
 		[CanBeNull]
 		private IVolumeDeviceControl m_ActiveControl;
 
+		private readonly IRouteSwitcherControl m_Switcher;
+
 		#region Properties
 
 		/// <summary>
@@ -46,7 +48,8 @@ namespace ICD.Connect.Audio.Devices.GenericAmp
 		public GenericAmpVolumeControl(GenericAmpDevice parent, int id)
 			: base(parent, id)
 		{
-			Subscribe(parent);
+			m_Switcher = parent.Switcher;
+			Subscribe(m_Switcher);
 		}
 
 		#region Methods
@@ -122,7 +125,7 @@ namespace ICD.Connect.Audio.Devices.GenericAmp
 		/// <param name="disposing"></param>
 		protected override void DisposeFinal(bool disposing)
 		{
-			Unsubscribe(Parent);
+			Unsubscribe(m_Switcher);
 
 			base.DisposeFinal(disposing);
 		}
@@ -243,28 +246,22 @@ namespace ICD.Connect.Audio.Devices.GenericAmp
 
 		#endregion
 
-		#region Parent Callbacks
+		#region Switcher Control Callbacks
 
-		/// <summary>
-		/// Subscribe to the parent events.
-		/// </summary>
-		/// <param name="parent"></param>
-		protected override void Subscribe(GenericAmpDevice parent)
+		private void Subscribe(IRouteSwitcherControl switcher)
 		{
-			base.Subscribe(parent);
+			if (switcher == null)
+				return;
 
-			parent.Switcher.OnActiveInputsChanged += SwitcherOnActiveInputsChanged;
+			switcher.OnActiveInputsChanged += SwitcherOnActiveInputsChanged;
 		}
 
-		/// <summary>
-		/// Unsubscribe from the parent events.
-		/// </summary>
-		/// <param name="parent"></param>
-		protected override void Unsubscribe(GenericAmpDevice parent)
+		private void Unsubscribe(IRouteSwitcherControl switcher)
 		{
-			base.Subscribe(parent);
+			if (switcher == null)
+				return;
 
-			parent.Switcher.OnActiveInputsChanged -= SwitcherOnActiveInputsChanged;
+			switcher.OnActiveInputsChanged -= SwitcherOnActiveInputsChanged;
 		}
 
 		/// <summary>
