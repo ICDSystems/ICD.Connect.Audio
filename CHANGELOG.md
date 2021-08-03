@@ -5,8 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [16.1.0] - 2021-08-03
 ## Added
  - Added mask to VolumePoints to configure direction of privacy mute authority
+
+## Changed
+ - Fixed issue comparing volume changes of less than one percent
+ - VolumeContextComparer - Fixed null ref exceptions
+ - QSys - Slightly baetter handling of empty change group responses
 
 ## [16.0.0] - 2021-05-14
 ### Added
