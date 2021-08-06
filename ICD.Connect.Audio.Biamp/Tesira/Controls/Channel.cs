@@ -65,6 +65,7 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls
 		/// </summary>
 		/// <param name="xml"></param>
 		/// <returns></returns>
+		[CanBeNull]
 		public static Channel FromXml(string xml)
 		{
 			string channelTypeString = XmlUtils.GetAttributeAsString(xml, "type");
@@ -75,6 +76,11 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls
 			int[] indices = XmlUtils.GetChildElementsAsString(xml, "Index")
 			                        .Select(e => XmlUtils.ReadElementContentAsInt(e))
 			                        .ToArray();
+
+			// Hack to work around DAV generated room combiner partitions having a channel type of None with no indices
+			// It doesn't have any channels - hopefully this doesn't break other things!
+			if (channelType == eChannelType.None && indices.Length == 0)
+				return null;
 
 			return new Channel(channelType, indices);
 		}
