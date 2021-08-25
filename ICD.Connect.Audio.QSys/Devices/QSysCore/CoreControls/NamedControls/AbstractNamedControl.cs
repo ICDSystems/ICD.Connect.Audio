@@ -1,4 +1,10 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+extern alias RealNewtonsoft;
+using RealNewtonsoft.Newtonsoft.Json.Linq;
+#else
+using Newtonsoft.Json.Linq;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICD.Common.Properties;
@@ -13,7 +19,6 @@ using ICD.Connect.Audio.QSys.Devices.QSysCore.Controls;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups;
 using ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc;
 using ICD.Connect.Audio.QSys.EventArgs;
-using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.NamedControls
 {

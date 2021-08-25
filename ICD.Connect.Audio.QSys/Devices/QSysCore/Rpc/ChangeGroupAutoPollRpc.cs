@@ -1,6 +1,11 @@
-﻿using System;
-using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups;
+﻿#if NETFRAMEWORK
+extern alias RealNewtonsoft;
+using RealNewtonsoft.Newtonsoft.Json;
+#else
 using Newtonsoft.Json;
+#endif
+using System;
+using ICD.Connect.Audio.QSys.Devices.QSysCore.CoreControls.ChangeGroups;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 {

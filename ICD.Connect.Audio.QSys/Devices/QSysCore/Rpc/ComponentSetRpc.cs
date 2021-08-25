@@ -1,6 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#if NETFRAMEWORK
+extern alias RealNewtonsoft;
+using RealNewtonsoft.Newtonsoft.Json;
+#else
 using Newtonsoft.Json;
+#endif
+using System;
+using System.Collections.Generic;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Rpc
 {

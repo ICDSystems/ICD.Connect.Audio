@@ -1,4 +1,10 @@
-﻿using System;
+﻿#if NETFRAMEWORK
+extern alias RealNewtonsoft;
+using RealNewtonsoft.Newtonsoft.Json.Linq;
+#else
+using Newtonsoft.Json.Linq;
+#endif
+using System;
 using System.Collections.Generic;
 using System.Text;
 using ICD.Common.Logging.LoggingContexts;
@@ -23,7 +29,6 @@ using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings;
-using Newtonsoft.Json.Linq;
 
 namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 {
