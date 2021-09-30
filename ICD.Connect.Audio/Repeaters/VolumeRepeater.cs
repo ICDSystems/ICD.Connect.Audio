@@ -284,11 +284,20 @@ namespace ICD.Connect.Audio.Repeaters
 				switch (m_VolumePoint.VolumeRepresentation)
 				{
 					case eVolumeRepresentation.Level:
+
+						// Clamp safetyMin and safetyMax to the absolute min/max on the control
+						safetyMin = safetyMin.HasValue
+							            ? Math.Max(safetyMin.Value, volumeControl.VolumeLevelMin)
+							            : volumeControl.VolumeLevelMin;
+						safetyMax = safetyMax.HasValue
+							            ? Math.Max(safetyMax.Value, volumeControl.VolumeLevelMax)
+							            : volumeControl.VolumeLevelMax;
+
 						m_LastLevel = (m_LastLevel ?? volumeControl.VolumeLevel) + stepSize;
 
-						if (safetyMin.HasValue && m_LastLevel < safetyMin)
+						if (m_LastLevel < safetyMin)
 							m_LastLevel = safetyMin.Value;
-						if (safetyMax.HasValue && m_LastLevel > safetyMax)
+						if (m_LastLevel > safetyMax)
 							m_LastLevel = safetyMax.Value;
 
 						volumeControl.SetVolumeLevel(m_LastLevel.Value);
