@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [Unreleased]
 
+## [16.1.3] - 2022-01-03
+### Changed
+ - Added NetworkProperites to AbstractShureMicDevice
+
 ## [16.1.2] - 2021-10-04
 ### Changed
  - Volume repeater respects control and safety min/max values

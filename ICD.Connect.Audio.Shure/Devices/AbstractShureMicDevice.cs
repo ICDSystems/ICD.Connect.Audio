@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
@@ -11,6 +12,8 @@ using ICD.Connect.Audio.Shure.Controls;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
+using ICD.Connect.Protocol.Network.Ports;
+using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Settings;
@@ -33,8 +36,9 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// <summary>
 		/// Raised when the muted state changes.
 		/// </summary>
-		public event EventHandler<BoolEventArgs> OnIsMutedChanged; 
+		public event EventHandler<BoolEventArgs> OnIsMutedChanged;
 
+		private readonly NetworkProperties m_NetworkProperties;
 		private readonly ConnectionStateManager m_ConnectionStateManager;
 		private readonly ShureMicSerialBuffer m_SerialBuffer;
 
@@ -43,6 +47,12 @@ namespace ICD.Connect.Audio.Shure.Devices
 		private bool m_IsMuted;
 
 		#region Properties
+
+		/// <summary>
+		/// Network properties for the device
+		/// </summary>
+		[NotNull]
+		public NetworkProperties NetworkProperties {get { return m_NetworkProperties; }}
 
 		/// <summary>
 		/// Gets the number of channels supported by the microphone.
@@ -115,10 +125,20 @@ namespace ICD.Connect.Audio.Shure.Devices
 			m_SerialBuffer = new ShureMicSerialBuffer();
 			Subscribe(m_SerialBuffer);
 
-			m_ConnectionStateManager = new ConnectionStateManager(this);
+			m_ConnectionStateManager = new ConnectionStateManager(this){ConfigurePort = ConfigurePort};
 			m_ConnectionStateManager.OnConnectedStateChanged += PortOnConnectionStatusChanged;
 			m_ConnectionStateManager.OnIsOnlineStateChanged += PortOnIsOnlineStateChanged;
 			m_ConnectionStateManager.OnSerialDataReceived += PortOnSerialDataReceived;
+		}
+
+		/// <summary>
+		/// Configures the given port for communication with the device.
+		/// </summary>
+		/// <param name="port"></param>
+		private void ConfigurePort(IPort port)
+		{
+			if (port is INetworkPort)
+				(port as INetworkPort).ApplyDeviceConfiguration(NetworkProperties);
 		}
 
 		/// <summary>
@@ -342,6 +362,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 			base.CopySettingsFinal(settings);
 
 			settings.Port = m_ConnectionStateManager.PortNumber;
+			settings.NetworkProperties.Copy(NetworkProperties);
 		}
 
 		/// <summary>
@@ -351,7 +372,9 @@ namespace ICD.Connect.Audio.Shure.Devices
 		{
 			base.ClearSettingsFinal();
 
+			NetworkProperties.ClearNetworkProperties();
 			SetPort(null);
+			
 		}
 
 		/// <summary>
@@ -362,6 +385,8 @@ namespace ICD.Connect.Audio.Shure.Devices
 		protected override void ApplySettingsFinal(TSettings settings, IDeviceFactory factory)
 		{
 			base.ApplySettingsFinal(settings, factory);
+
+			NetworkProperties.Copy(settings.NetworkProperties);
 
 			ISerialPort port = null;
 
