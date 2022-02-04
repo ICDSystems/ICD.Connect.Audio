@@ -122,6 +122,7 @@ namespace ICD.Connect.Audio.Shure.Devices
 		/// </summary>
 		protected AbstractShureMicDevice()
 		{
+			m_NetworkProperties = new NetworkProperties();
 			m_SerialBuffer = new ShureMicSerialBuffer();
 			Subscribe(m_SerialBuffer);
 
