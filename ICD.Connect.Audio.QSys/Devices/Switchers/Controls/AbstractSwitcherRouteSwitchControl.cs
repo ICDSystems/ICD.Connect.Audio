@@ -364,7 +364,8 @@ namespace ICD.Connect.Audio.QSys.Devices.Switchers.Controls
 
 		private void SwitcherComponentOnOnOutputSelectChanged(object sender, SwitcherOutputSelectChangedEventArgs args)
 		{
-			SwitcherCache.SetInputForOutput(args.Output, args.SelectedInput, ConnectionMask);
+			//Call UpdateCurrentState for the output so implemners can override as necessary
+			UpdateCurrentState(args.Output);
 		}
 
 		#endregion
