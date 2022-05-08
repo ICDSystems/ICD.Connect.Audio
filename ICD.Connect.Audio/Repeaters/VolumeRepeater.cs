@@ -64,14 +64,21 @@ namespace ICD.Connect.Audio.Repeaters
 			VolumeHold(volumePoint, up, long.MaxValue);
 		}
 
+		public void VolumeHold([NotNull] IVolumePoint volumePoint, bool up, long timeout)
+		{
+			VolumeHold(volumePoint, up, timeout, false);
+		}
+
 		/// <summary>
 		/// Starts/continues ramping in the given direction.
 		/// Ramping will stop automatically after the given timeout(ms) unless called periodically.
+		/// Starts with subsequent ramp values if startSubsequentRamp is true
 		/// </summary>
 		/// <param name="volumePoint"></param>
 		/// <param name="up"></param>
 		/// <param name="timeout"></param>
-		public void VolumeHold([NotNull] IVolumePoint volumePoint, bool up, long timeout)
+		/// <param name="startSubsequentRamp"></param>
+		public void VolumeHold([NotNull] IVolumePoint volumePoint, bool up, long timeout, bool startSubsequentRamp)
 		{
 			if (volumePoint == null)
 				throw new ArgumentNullException("volumePoint");
@@ -94,7 +101,10 @@ namespace ICD.Connect.Audio.Repeaters
 			m_LastLevel = null;
 			m_LastPercent = null;
 
-			InitialRamp();
+			if (startSubsequentRamp)
+				SubsequentRamp();
+			else
+				InitialRamp();
 
 			m_RepeatTimer.Reset(m_VolumePoint.VolumeRampInitialInterval, m_VolumePoint.VolumeRampInterval);
 		}
@@ -295,10 +305,7 @@ namespace ICD.Connect.Audio.Repeaters
 
 						m_LastLevel = (m_LastLevel ?? volumeControl.VolumeLevel) + stepSize;
 
-						if (m_LastLevel < safetyMin)
-							m_LastLevel = safetyMin.Value;
-						if (m_LastLevel > safetyMax)
-							m_LastLevel = safetyMax.Value;
+						m_LastLevel = MathUtils.Clamp(m_LastLevel.Value, safetyMin.Value, safetyMax.Value);
 
 						volumeControl.SetVolumeLevel(m_LastLevel.Value);
 						break;
