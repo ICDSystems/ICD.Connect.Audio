@@ -276,6 +276,16 @@ namespace ICD.Connect.Audio.Utils
 				VolumeControl.SetIsMuted(mute);
 		}
 
+		/// <summary>
+		/// Returns the given volume level, clamped to the current min/max levels.
+		/// </summary>
+		/// <param name="level"></param>
+		/// <returns></returns>
+		public float GetClampedVolumeLevel(float level)
+		{
+			return MathUtils.Clamp(level, MinLevel, MaxLevel);
+		}
+
 		#endregion
 
 		#region Private Methods
