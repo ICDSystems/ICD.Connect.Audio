@@ -26,6 +26,8 @@ namespace ICD.Connect.Audio.VolumePoints
 		private const string ELEMENT_MUTE_TYPE = "MuteType";
 		private const string ELEMENT_PRIVACY_MUTE_MASK = "PrivacyMuteMask";
 
+		private const string ELEMENT_INHIBIT_AUTO_DEFAULT_VOLUME = "InhibitAutoDefaultVolume";
+
 		#region Properties
 
 		/// <summary>
@@ -83,6 +85,12 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
 
+		/// <summary>
+		/// If enabled, prevents default volume from getting set on the control automatically
+		/// Specific implementaitons may set default volume under other conditions
+		/// </summary>
+		public bool InhibitAutoDefaultVolume { get; set; }
+
 		#endregion
 
 		/// <summary>
@@ -123,6 +131,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			writer.WriteElementString(ELEMENT_CONTEXT, IcdXmlConvert.ToString(Context));
 			writer.WriteElementString(ELEMENT_MUTE_TYPE, IcdXmlConvert.ToString(MuteType));
 			writer.WriteElementString(ELEMENT_PRIVACY_MUTE_MASK, IcdXmlConvert.ToString(PrivacyMuteMask));
+			writer.WriteElementString(ELEMENT_INHIBIT_AUTO_DEFAULT_VOLUME, IcdXmlConvert.ToString(InhibitAutoDefaultVolume));
 		}
 
 		/// <summary>
@@ -155,6 +164,8 @@ namespace ICD.Connect.Audio.VolumePoints
 			PrivacyMuteMask =
 				XmlUtils.TryReadChildElementContentAsEnum<ePrivacyMuteFeedback>(xml, ELEMENT_PRIVACY_MUTE_MASK, true) ??
 				ePrivacyMuteFeedback.Set;
+			InhibitAutoDefaultVolume = XmlUtils.TryReadChildElementContentAsBoolean(xml, ELEMENT_INHIBIT_AUTO_DEFAULT_VOLUME) ??
+			                           false;
 		}
 
 		#endregion

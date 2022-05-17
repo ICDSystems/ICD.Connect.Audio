@@ -58,5 +58,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// Determines if the privacy mute control will be driven by the control system, and/or drive the control system.
 		/// </summary>
 		ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
+
+		/// <summary>
+		/// If enabled, prevents default volume from getting set on the control automatically
+		/// Specific implementaitons may set default volume under other conditions
+		/// </summary>
+		bool InhibitAutoDefaultVolume { get; set; }
 	}
 }

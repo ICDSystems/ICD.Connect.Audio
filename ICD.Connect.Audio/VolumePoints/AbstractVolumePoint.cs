@@ -74,6 +74,12 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		public ePrivacyMuteFeedback PrivacyMuteMask { get; set; }
 
+		/// <summary>
+		/// If enabled, prevents default volume from getting set on the control automatically
+		/// Specific implementaitons may set default volume under other conditions
+		/// </summary>
+		public bool InhibitAutoDefaultVolume { get; set; }
+
 		#endregion
 
 		/// <summary>
@@ -95,7 +101,7 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// Applies the configured default volume to the control.
 		/// Does nothing if no default is specified or the control does not support volume assignment.
 		/// </summary>
-		private void SetDefaultVolume()
+		protected void SetDefaultVolume()
 		{
 			// Point isn't configured for it
 			if (VolumeDefault == null)
@@ -190,9 +196,9 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		/// <param name="sender"></param>
 		/// <param name="eventArgs"></param>
-		private void ControlOnControlAvailableChanged(object sender, DeviceControlAvailableApiEventArgs eventArgs)
+		protected virtual void ControlOnControlAvailableChanged(object sender, DeviceControlAvailableApiEventArgs eventArgs)
 		{
-			if (eventArgs.Data)
+			if (eventArgs.Data && !InhibitAutoDefaultVolume)
 				SetDefaultVolume();
 		}
 
@@ -229,6 +235,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			settings.Context = Context;
 			settings.MuteType = MuteType;
 			settings.PrivacyMuteMask = PrivacyMuteMask;
+			settings.InhibitAutoDefaultVolume = InhibitAutoDefaultVolume;
 		}
 
 		/// <summary>
@@ -249,6 +256,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			Context = default(eVolumePointContext);
 			MuteType = default(eMuteType);
 			PrivacyMuteMask = ePrivacyMuteFeedback.Set;
+			InhibitAutoDefaultVolume = false;
 		}
 
 		/// <summary>
@@ -271,6 +279,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			Context = settings.Context;
 			MuteType = settings.MuteType;
 			PrivacyMuteMask = settings.PrivacyMuteMask;
+			InhibitAutoDefaultVolume = settings.InhibitAutoDefaultVolume;
 		}
 
 		#endregion
@@ -296,6 +305,7 @@ namespace ICD.Connect.Audio.VolumePoints
 			addRow("Context", Context);
 			addRow("Mute Type", MuteType);
 			addRow("Privacy Mute Mask", PrivacyMuteMask);
+			addRow("Inhibit Auto Default", InhibitAutoDefaultVolume);
 		}
 
 		/// <summary>
