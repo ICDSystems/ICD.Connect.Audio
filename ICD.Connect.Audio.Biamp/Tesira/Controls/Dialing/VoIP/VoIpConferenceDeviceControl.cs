@@ -49,7 +49,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.VoIP
 
 			SupportedConferenceControlFeatures |= eConferenceControlFeatures.AutoAnswer;
 			SupportedConferenceControlFeatures |= eConferenceControlFeatures.DoNotDisturb;
-			SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
 			SupportedConferenceControlFeatures |= eConferenceControlFeatures.CanDial;
 			SupportedConferenceControlFeatures |= eConferenceControlFeatures.CanEnd;
 

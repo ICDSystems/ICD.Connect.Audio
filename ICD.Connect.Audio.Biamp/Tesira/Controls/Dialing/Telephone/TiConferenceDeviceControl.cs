@@ -103,9 +103,6 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 			if (m_DoNotDisturbControl != null)
 				SupportedConferenceControlFeatures |= eConferenceControlFeatures.DoNotDisturb;
 
-			if (m_HoldControl != null)
-				SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
-
 			Subscribe(m_TiControl);
 			SubscribeHold(m_HoldControl);
 			SubscribeDoNotDisturb(m_DoNotDisturbControl);
@@ -365,7 +362,10 @@ namespace ICD.Connect.Audio.Biamp.Tesira.Controls.Dialing.Telephone
 
 		private void Subscribe(ThinConference conference)
 		{
-			conference.HoldCallback = HoldCallback;
+			// Only register hold callback if we have a hold control
+			if (m_HoldControl != null)
+				conference.HoldCallback = HoldCallback;
+
 			conference.ResumeCallback = ResumeCallback;
 			conference.SendDtmfCallback = SendDtmfCallback;
 			conference.LeaveConferenceCallback = LeaveCallback;

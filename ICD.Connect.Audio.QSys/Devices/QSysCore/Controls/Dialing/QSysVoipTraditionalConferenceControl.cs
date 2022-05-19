@@ -183,9 +183,6 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			if (m_PrivacyMuteControl != null)
 				SupportedConferenceControlFeatures |= eConferenceControlFeatures.PrivacyMute;
 
-			if (m_HoldControl != null)
-				SupportedConferenceControlFeatures |= eConferenceControlFeatures.Hold;
-
 			CallInInfo =
 				new DialContext
 				{
@@ -596,9 +593,13 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore.Controls.Dialing
 			if (participant == null)
 				return;
 
+			if (m_HoldControl != null)
+			{
+				participant.HoldCallback += ConferenceSourceHoldCallback;
+				participant.ResumeCallback += ConferenceSourceResumeCallback;
+			}
+
 			participant.LeaveConferenceCallback += ConferenceSourceHangupCallback;
-			participant.HoldCallback += ConferenceSourceHoldCallback;
-			participant.ResumeCallback += ConferenceSourceResumeCallback;
 			participant.SendDtmfCallback += ConferenceSourceSendDtmfCallback;
 		}
 
