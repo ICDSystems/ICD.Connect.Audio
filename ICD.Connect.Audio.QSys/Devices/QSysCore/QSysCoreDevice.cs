@@ -111,7 +111,7 @@ namespace ICD.Connect.Audio.QSys.Devices.QSysCore
 
 			m_OnlineNoOpTimer = SafeTimer.Stopped(SendNoOpKeepalive);
 
-			m_SerialBuffer = new JsonSerialBuffer();
+			m_SerialBuffer = new DelimiterSerialBuffer('\x00');
 			Subscribe(m_SerialBuffer);
 
 			m_ConnectionStateManager = new ConnectionStateManager(this) {ConfigurePort = ConfigurePort};
