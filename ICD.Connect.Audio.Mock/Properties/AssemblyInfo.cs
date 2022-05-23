@@ -4,4 +4,4 @@ using System.Reflection;
 [assembly: AssemblyCompany("ICD Systems")]
 [assembly: AssemblyProduct("ICD.Connect.Audio.Mock")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2022")]
-[assembly: AssemblyVersion("16.1.4.0")]
+[assembly: AssemblyVersion("17.0.0.0")]
