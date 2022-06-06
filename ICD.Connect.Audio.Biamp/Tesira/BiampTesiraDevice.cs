@@ -49,14 +49,14 @@ namespace ICD.Connect.Audio.Biamp.Tesira
 		/// Controls how long the biamp should wait before considering a command to have timed out
 		/// </summary>
 		[PublicAPI]
-		public const long TIMEOUT_MS = 20 * 1000;
+		public const long TIMEOUT_MS = 2 * 60 * 1000;
 
 		// How often to re-subscribe to device events
 		private const long SUBSCRIPTION_INTERVAL_MILLISECONDS = 10 * 60 * 1000;
 
 		// Delay after connection before we start initializing
 		// Ensures we catch any login messages
-		private const long INITIALIZATION_DELAY_MILLISECONDS = 3 * 1000;
+		private const long INITIALIZATION_DELAY_MILLISECONDS = 5 * 1000;
 
 		internal const float TESIRA_LEVEL_MINIMUM = -100f;
 		internal const float TESIRA_LEVEL_MAXIMUM = 20f;
