@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - Changed QSys to use delimited serial buffer instead of JSON buffer
+ - VolumeRepeater added ability to do subsequent ramps
+ - Added InhibitDefaultVolume option to VolumePoint
+ - Added GetClampedVolumeLevel to VolumePointHelper
+ - QSys audio swithcer fixed issue of updating incorrectly while muted
 
 ## [17.0.1] - 2022-06-16
 ### Changed
