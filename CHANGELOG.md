@@ -5,12 +5,15 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [17.1.0] - 2022-07-01
 ### Changed
  - Changed QSys to use delimited serial buffer instead of JSON buffer
  - VolumeRepeater added ability to do subsequent ramps
  - Added InhibitDefaultVolume option to VolumePoint
  - Added GetClampedVolumeLevel to VolumePointHelper
  - QSys audio swithcer fixed issue of updating incorrectly while muted
+ - Updated Crestron SDK to 2.18.96
 
 ## [17.0.1] - 2022-06-16
 ### Changed
