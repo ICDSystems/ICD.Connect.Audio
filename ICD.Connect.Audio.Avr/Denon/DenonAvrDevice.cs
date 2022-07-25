@@ -5,7 +5,7 @@ using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
-using ICD.Connect.Audio.Denon.Controls;
+using ICD.Connect.Audio.Avr.Denon.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
@@ -18,7 +18,7 @@ using ICD.Connect.Protocol.SerialBuffers;
 using ICD.Connect.Protocol.Settings;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.Denon.Devices
+namespace ICD.Connect.Audio.Avr.Denon
 {
 	public sealed class DenonAvrDevice : AbstractDevice<DenonAvrDeviceSettings>
 	{

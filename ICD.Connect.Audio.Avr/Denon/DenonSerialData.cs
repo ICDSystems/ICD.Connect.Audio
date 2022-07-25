@@ -2,7 +2,7 @@
 using System.Text.RegularExpressions;
 using ICD.Connect.Protocol.Data;
 
-namespace ICD.Connect.Audio.Denon
+namespace ICD.Connect.Audio.Avr.Denon
 {
 	public sealed class DenonSerialData : ISerialData
 	{

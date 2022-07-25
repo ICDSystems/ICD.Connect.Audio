@@ -1,8 +1,7 @@
 ﻿using ICD.Common.Utils.EventArguments;
-using ICD.Connect.Audio.Denon.Devices;
 using ICD.Connect.Devices.Controls.Power;
 
-namespace ICD.Connect.Audio.Denon.Controls
+namespace ICD.Connect.Audio.Avr.Denon.Controls
 {
     public sealed class DenonAvrPowerControl : AbstractPowerDeviceControl<DenonAvrDevice>
 	{

@@ -5,7 +5,6 @@ using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
-using ICD.Connect.Audio.Denon.Devices;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -14,7 +13,7 @@ using ICD.Connect.Routing.EventArguments;
 using ICD.Connect.Routing.RoutingGraphs;
 using ICD.Connect.Routing.Utils;
 
-namespace ICD.Connect.Audio.Denon.Controls
+namespace ICD.Connect.Audio.Avr.Denon.Controls
 {
     public sealed class DenonAvrSwitcherRoutingControl : AbstractRouteSwitcherControl<DenonAvrDevice>
 	{

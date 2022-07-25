@@ -7,7 +7,7 @@ using ICD.Connect.Protocol.Settings;
 using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Denon.Devices
+namespace ICD.Connect.Audio.Avr.Denon
 {
 	[KrangSettings("DenonAvr", typeof(DenonAvrDevice))]
 	public sealed class DenonAvrDeviceSettings : AbstractDeviceSettings, INetworkSettings, IComSpecSettings

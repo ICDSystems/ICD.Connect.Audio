@@ -4,8 +4,8 @@
   <PropertyGroup>
     <OutputType>Library</OutputType>
     <TargetFrameworks>netstandard2.0;net472</TargetFrameworks>
-	<RootNamespace>ICD.Connect.Audio.Denon</RootNamespace>
-	<AssemblyName>ICD.Connect.Audio.Denon</AssemblyName>
+	<RootNamespace>ICD.Connect.Audio.Avr</RootNamespace>
+	<AssemblyName>ICD.Connect.Audio.Avr</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <Deterministic>true</Deterministic>
     <EazfuscatorIntegration>MSBuild</EazfuscatorIntegration>

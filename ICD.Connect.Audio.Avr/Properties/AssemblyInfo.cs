@@ -1,7 +1,7 @@
 using System.Reflection;
 
-[assembly: AssemblyTitle("ICD.Connect.Audio.Denon")]
+[assembly: AssemblyTitle("ICD.Connect.Audio.Avr")]
 [assembly: AssemblyCompany("ICD Systems")]
-[assembly: AssemblyProduct("ICD.Connect.Audio.Denon")]
+[assembly: AssemblyProduct("ICD.Connect.Audio.Avr")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2022")]
 [assembly: AssemblyVersion("17.2.0.0")]

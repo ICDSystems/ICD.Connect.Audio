@@ -2,9 +2,8 @@
 using ICD.Common.Utils;
 using ICD.Common.Utils.EventArguments;
 using ICD.Connect.Audio.Controls.Volume;
-using ICD.Connect.Audio.Denon.Devices;
 
-namespace ICD.Connect.Audio.Denon.Controls
+namespace ICD.Connect.Audio.Avr.Denon.Controls
 {
     public sealed class DenonAvrVolumeControl : AbstractVolumeDeviceControl<DenonAvrDevice>
 	{
