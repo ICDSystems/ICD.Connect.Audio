@@ -175,7 +175,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         {
             if (string.Equals(responseParameter, OnkyoIscpCommand.ERROR_PARAMETER))
             {
-                Logger.Log(eSeverity.Error, "N/A Response to command {0}",sentData.Serialize());
+                string sentCommand = sentData == null ? "[Unknown Command]" : sentData.Serialize();
+                Logger.Log(eSeverity.Error, "N/A Response to command {0}",sentCommand);
                 return;
             }
             
@@ -186,7 +187,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         {
             if (string.Equals(responseParameter, OnkyoIscpCommand.ERROR_PARAMETER))
             {
-                Logger.Log(eSeverity.Error, "N/A Response to command {0}", sentData.Serialize());
+                string sentCommand = sentData == null ? "[Unknown Command]" : sentData.Serialize();
+                Logger.Log(eSeverity.Error, "N/A Response to command {0}", sentCommand);
                 return;
             }
 

@@ -21,13 +21,16 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 {
 	public sealed class OnkyoAvrRouteSwitcherControl : AbstractRouteSwitcherControl<OnkyoAvrDevice>
 	{
+		private const int PARAMETER_INPUT_MIRROR = 0x80;
+		private const int MAIN_OUTPUT = 1;
+		
 		/// <summary>
 		/// Maps Krang addresses to Onkyo parameter input numbers
 		/// Parameter input numbers are represented in hex to match representations in the Onkyo
 		/// Key: Krang Address
 		/// Value: Onkyo Parameter
 		/// </summary>
-		private static readonly BiDictionary<int, int> s_AddressToParameter = new BiDictionary<int, int>
+		private static readonly BiDictionary<int, int> s_InputAddressToParameter = new BiDictionary<int, int>
 		{
 			{ 01, 0x00 },
 			{ 02, 0x01 },
@@ -70,13 +73,14 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			{ 39, 0x55 },
 			{ 40, 0x56 },
 			{ 41, 0x57 }
+			// Special Cas handled elsewhere: 0x80 - follow main zone
 		};
 
 		/// <summary>
 		/// Maps Krang addresses to logical input names
 		/// May not be correct for all receivers
 		/// </summary>
-		private static readonly Dictionary<int, string> s_AddressToLogicalName = new Dictionary<int, string>
+		private static readonly Dictionary<int, string> s_InputAddressToLogicalName = new Dictionary<int, string>
 		{
 			{ 01, "STB/DVR" },
 			{ 02, "CBL/SAT" },
@@ -121,6 +125,20 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			{ 41, "HDMI 7" }
 		};
 
+		private static readonly BiDictionary<int, eOnkyoCommand> s_OutputAddressToOnkyoCommand =
+			new BiDictionary<int, eOnkyoCommand>
+			{
+				{ 1, eOnkyoCommand.Input },
+				{ 2, eOnkyoCommand.Zone2Input },
+				{3, eOnkyoCommand.Zone3Input}
+			};
+
+		private static readonly Dictionary<int, string> s_OutputAddressToLogicalName = new Dictionary<int, string>
+		{
+			{ 1, "Main Output" },
+			{ 2, "Zone 2 Output" },
+			{ 3, "Zone 3 Output" }
+		};
 
 		/// <summary>
 		/// Raised when an input source status changes.
@@ -147,6 +165,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		private IRoutingGraph m_CachedRoutingGraph;
 
 		/// <summary>
+		/// A collection of outputs that are set to mirror the main output (0x80)
+		/// Contains the output addresses of those outputs, so they will be updated
+		/// when the main zone output changes.
+		/// </summary>
+		private readonly IcdHashSet<int> m_MirrorMainOutputs;
+
+		/// <summary>
 		/// Gets the routing graph.
 		/// </summary>
 		public IRoutingGraph RoutingGraph
@@ -162,6 +187,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		public OnkyoAvrRouteSwitcherControl(OnkyoAvrDevice parent, int id)
 			: base(parent, id)
 		{
+			m_MirrorMainOutputs = new IcdHashSet<int>();
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
 		}
@@ -226,7 +252,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		{
 			return RoutingGraph.Connections
 			                   .GetInputConnections(Parent.Id, Id)
-			                   //.Where(c => s_InputMap.ContainsKey(c.Destination.Address))
+			                   .Where(c => s_InputAddressToParameter.ContainsKey(c.Destination.Address))
 			                   .Select(c => new ConnectorInfo(c.Destination.Address,
 				                   eConnectionType.Audio | eConnectionType.Video));
 		}
@@ -262,6 +288,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		{
 			return RoutingGraph.Connections
 			                   .GetOutputConnections(Parent.Id, Id)
+			                   .Where(c => s_OutputAddressToOnkyoCommand.ContainsKey(c.Source.Address))
 			                   .Select(c =>
 				                   new ConnectorInfo(c.Source.Address, eConnectionType.Audio | eConnectionType.Video));
 		}
@@ -295,7 +322,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			{
 				Address = input.Address,
 				ConnectionType = input.ConnectionType,
-				InputId = s_AddressToLogicalName[input.Address],
+				InputId = s_InputAddressToLogicalName[input.Address],
 				InputIdFeedbackSupported = true
 			};
 		}
@@ -309,7 +336,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			{
 				Address = output.Address,
 				ConnectionType = output.ConnectionType,
-				OutputId = "Onkyo Output",
+				OutputId = s_OutputAddressToLogicalName[output.Address],
 				OutputIdFeedbackSupport = true,
 				VideoOutputSource = supportsVideo ? GetActiveSourceIdName(output, eConnectionType.Video) : null,
 				VideoOutputSourceFeedbackSupport = supportsVideo,
@@ -333,24 +360,33 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 				throw new ArgumentException("Unsupported connection type", "info");
 
 			int input = info.LocalInput;
-			return Route(input);
+			int output = info.LocalOutput;
+			return Route(input, output);
 		}
 
 		/// <summary>
 		/// Routes the given input to the outputs.
 		/// </summary>
 		/// <param name="input"></param>
+		/// <param name="output"></param>
 		/// <returns></returns>
-		private bool Route(int input)
+		private bool Route(int input, int output)
 		{
-			if (!ContainsInput(input))
+			if (!s_InputAddressToParameter.ContainsKey(input))
 				throw new ArgumentOutOfRangeException("input");
 
+			if (!s_OutputAddressToOnkyoCommand.ContainsKey(output))
+				throw new ArgumentOutOfRangeException("output");
+
 			int inputParameter;
-			if (!s_AddressToParameter.TryGetValue(input, out inputParameter))
+			if (!s_InputAddressToParameter.TryGetValue(input, out inputParameter))
 				return false;
 
-			Parent.SendCommand(OnkyoIscpCommand.InputSet(inputParameter));
+			eOnkyoCommand outputCommand;
+			if (!s_OutputAddressToOnkyoCommand.TryGetValue(output, out outputCommand))
+				return false;
+
+			Parent.SendCommand(new OnkyoIscpCommand(outputCommand, inputParameter));
 
 			return true;
 		}
@@ -371,9 +407,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 
 		#region Private Methods
 
-		private void QueryInput()
+		private void QueryInputs()
 		{
-			Parent.SendCommand(OnkyoIscpCommand.InputQuery());
+			foreach (ConnectorInfo output in GetOutputs())
+			{
+				eOnkyoCommand outputCommand = s_OutputAddressToOnkyoCommand.GetValue(output.Address);
+				Parent.SendCommand(OnkyoIscpCommand.GetQuery(outputCommand));
+			}
 		}
 
 		#endregion
@@ -388,11 +428,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		{
 			base.Subscribe(parent);
 
-			parent.RegisterCommandCallback(eOnkyoCommand.Input, InputResponseCallback);
+			foreach(eOnkyoCommand command in s_OutputAddressToOnkyoCommand.Values)
+				parent.RegisterCommandCallback(command, InputResponseCallback);
+			
 			parent.OnIsOnlineStateChanged += ParentOnOnIsOnlineStateChanged;
 
 			if (parent.IsOnline)
-				QueryInput();
+				QueryInputs();
 		}
 
 		/// <summary>
@@ -412,32 +454,60 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		{
 			if (string.Equals(responseParameter, OnkyoIscpCommand.ERROR_PARAMETER))
 			{
-				Logger.Log(eSeverity.Error, "N/A Response to command {0}", sentData.Serialize());
+				// Not all receivers support all zones, so expect to get some N/A responses for zones that
+				// don't exist on a particular model.
+				string sentCommand = sentData == null ? "[Unknown Command]" : sentData.Serialize();
+				Logger.Log(eSeverity.Debug, "N/A Response to command {0}", sentCommand);
 				return;
 			}
 
+			int outputAddress;
+			if (!s_OutputAddressToOnkyoCommand.TryGetKey(responseCommand, out outputAddress))
+				return; //Should never get here??
+
 			int inputParameter = StringUtils.FromIpIdString(responseParameter);
+			if (inputParameter == PARAMETER_INPUT_MIRROR)
+			{
+				//Add to m_MirrorMainsOutputs collection, set output to the main output, and don't continue
+				m_MirrorMainOutputs.Add(outputAddress);
+				int? mainInput = m_Cache.GetInputForOutput(MAIN_OUTPUT, eConnectionType.Video);
+				m_Cache.SetInputForOutput(outputAddress, mainInput, eConnectionType.Audio | eConnectionType.Video);
+				return;
+			}
+			
 			int inputAddress;
 			int? inputAddressToSet;
 
 			// If we can't find the address for corresponding parameter, set the outputs to null
-			if (!s_AddressToParameter.TryGetKey(inputParameter, out inputAddress))
+			if (!s_InputAddressToParameter.TryGetKey(inputParameter, out inputAddress))
 			{
 				inputAddressToSet = null;
 				Logger.Log(eSeverity.Warning, "No input address found for parameter {0:X2}", inputParameter);
 			}
 			else
 				inputAddressToSet = inputAddress;
+			
+			// This output is no longer set to mirror main
+			if (outputAddress != MAIN_OUTPUT)
+				m_MirrorMainOutputs.Remove(outputAddress);
 
-			foreach (ConnectorInfo output in GetOutputs())
-				m_Cache.SetInputForOutput(output.Address, inputAddressToSet,
-					eConnectionType.Audio | eConnectionType.Video);
+			// Set the switcher cache
+			m_Cache.SetInputForOutput(outputAddress, inputAddressToSet,
+				eConnectionType.Audio | eConnectionType.Video);
+			
+			// If this is the main output, update mirrors
+			if (outputAddress == MAIN_OUTPUT)
+			{
+				foreach (var mirroredOutput in m_MirrorMainOutputs)
+					m_Cache.SetInputForOutput(mirroredOutput, inputAddressToSet,
+						eConnectionType.Audio | eConnectionType.Video);
+			}
 		}
 
 		private void ParentOnOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
 		{
 			if (args.Data)
-				QueryInput();
+				QueryInputs();
 		}
 
 		#endregion
@@ -501,9 +571,21 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			foreach (IConsoleCommand command in GetBaseConsoleCommands())
 				yield return command;
 
+			yield return new GenericConsoleCommand<int>("SetOutputToMirror",
+				"Sets the specificed output to mirror the main zone", (o) => SetOutputToMirror(o));
+
 			yield return new ConsoleCommand("PrintAddressMap", "Prints a table of available input addresses",
 				() => GetAvailableInputsTable());
 
+		}
+
+		private void SetOutputToMirror(int output)
+		{
+			eOnkyoCommand command;
+			if (!s_OutputAddressToOnkyoCommand.TryGetValue(output, out command))
+				return;
+			
+			Parent.SendCommand(new OnkyoIscpCommand(command, PARAMETER_INPUT_MIRROR));
 		}
 
 		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
@@ -514,12 +596,12 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		private string GetAvailableInputsTable()
 		{
 			TableBuilder table = new TableBuilder("Address", "Input Name", "Onkyo Parameter");
-			foreach (var kvp in s_AddressToParameter) 
-				table.AddRow(kvp.Key, s_AddressToLogicalName[kvp.Key], string.Format("{0:X2}", kvp.Value));
+			foreach (var kvp in s_InputAddressToParameter) 
+				table.AddRow(kvp.Key, s_InputAddressToLogicalName[kvp.Key], string.Format("{0:X2}", kvp.Value));
 
 			return table.ToString();
 		}
 
 	#endregion
-    }
+	}
 }

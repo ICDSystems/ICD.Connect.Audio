@@ -31,7 +31,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
 
         public bool AddEthernetHeader { get; set; }
 
-        private OnkyoIscpCommand(eOnkyoCommand command, [NotNull] string parameter)
+        public OnkyoIscpCommand(eOnkyoCommand command, [NotNull] string parameter)
         {
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
@@ -40,10 +40,12 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             m_Parameter = parameter;
         }
 
-        private OnkyoIscpCommand(eOnkyoCommand command, bool parameter)
+        public OnkyoIscpCommand(eOnkyoCommand command, bool parameter) : this(command, GetBoolParameter(parameter))
         {
-            m_Command = command;
-            m_Parameter = GetBoolParameter(parameter);
+        }
+
+        public OnkyoIscpCommand(eOnkyoCommand command, int parameter) : this(command, GetAsciiHexParameterString(parameter))
+        {
         }
 
         private string GetStringForCommand()
@@ -72,7 +74,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             return command.ToString();
         }
 
-        public string GetEthernetHeader()
+        private string GetEthernetHeader()
         {
             // Length is parameter length + 6
             uint commandLength = (uint)(6 + m_Parameter.Length);
@@ -100,9 +102,24 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             return state ? "01" : "00";
         }
 
+        /// <summary>
+        /// Converts the least significant byte of the parameter to a two
+        /// character ascii string of it's hex representation
+        /// Ex: 255 would be "FF", and 161 would be A1
+        /// Other Bytes are ignored
+        /// </summary>
+        /// <param name="parameter"></param>
+        /// <returns></returns>
+        private static string GetAsciiHexParameterString(int parameter)
+        {
+            // Take only the first byte;
+            parameter &= 0xFF;
+            return string.Format("{0:X2}", parameter);
+        }
+
         #region Commands
 
-        private static OnkyoIscpCommand GetQuery(eOnkyoCommand command)
+        public static OnkyoIscpCommand GetQuery(eOnkyoCommand command)
         {
             return new OnkyoIscpCommand(command, QUERY_PARAMETER);
         }
