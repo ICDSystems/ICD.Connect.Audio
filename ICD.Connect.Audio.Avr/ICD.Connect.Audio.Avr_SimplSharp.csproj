@@ -79,6 +79,13 @@
     <Compile Include="KrangPlugin.cs" />
     <None Include="Denon\AVR-3808CISerialProtocol_Ver520a.pdf" />
     <Compile Include="ObfuscationSettings.cs" />
+    <Compile Include="Onkyo\Controls\OnkyoAvrPowerControl.cs" />
+    <Compile Include="Onkyo\Controls\OnkyoAvrRouteSwitcherControl.cs" />
+    <Compile Include="Onkyo\Controls\OnkyoAvrVolumeControl.cs" />
+    <Compile Include="Onkyo\eOnkyoCommand.cs" />
+    <Compile Include="Onkyo\OnkyoAvrDevice.cs" />
+    <Compile Include="Onkyo\OnkyoAvrDeviceSettings.cs" />
+    <Compile Include="Onkyo\OnkyoIscpCommand.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
