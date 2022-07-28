@@ -29,6 +29,9 @@ namespace ICD.Connect.Audio.Avr.Onkyo
 
         private readonly string m_Parameter;
 
+        /// <summary>
+        /// If true, will add the ethernet header when serializing the packet.
+        /// </summary>
         public bool AddEthernetHeader { get; set; }
 
         private OnkyoIscpCommand(eOnkyoCommand command, [NotNull] string parameter)
