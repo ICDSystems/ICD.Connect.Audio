@@ -2,7 +2,7 @@
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 {
-    [KrangSettings("OneZoneOnkyoAvr", typeof(OneZoneOnkyoAvrDevice))]
+    [KrangSettings("OnkyoAvr", typeof(OneZoneOnkyoAvrDevice))]
     public sealed class OneZoneOnkyoAvrDeviceSettings : AbstractOnkyoAvrDeviceSettings
     {
         
