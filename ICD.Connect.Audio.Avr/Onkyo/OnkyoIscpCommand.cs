@@ -150,10 +150,5 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         }
 
         #endregion
-
-        /// <summary>
-        /// Delegate for parser callbacks
-        /// </summary>
-        public delegate void ResponseParserCallback(eOnkyoCommand responseCommand, string responseParameter, ISerialData sentData);
     }
 }

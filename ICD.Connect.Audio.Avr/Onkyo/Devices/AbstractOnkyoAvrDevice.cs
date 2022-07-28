@@ -36,7 +36,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
         private readonly NetworkProperties m_NetworkProperties;
         private readonly ComSpecProperties m_ComSpecProperties;
 
-        private readonly Dictionary<eOnkyoCommand, IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>> m_ParserCallbacks;
+        private readonly Dictionary<eOnkyoCommand, IcdHashSet<ResponseParserCallback>> m_ParserCallbacks;
         private readonly SafeCriticalSection m_ParserCallbackSection;
 
         /// <summary>
@@ -59,7 +59,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             m_NetworkProperties = new NetworkProperties();
 			m_ComSpecProperties = new ComSpecProperties();
 
-            m_ParserCallbacks = new Dictionary<eOnkyoCommand, IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>>();
+            m_ParserCallbacks = new Dictionary<eOnkyoCommand, IcdHashSet<ResponseParserCallback>>();
             m_ParserCallbackSection = new SafeCriticalSection();
 
         	m_SerialQueue = new SerialQueue
@@ -148,13 +148,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             m_SerialQueue.Enqueue(command);
         }
 
-        public void RegisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback)
+        public void RegisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback)
         {
             m_ParserCallbackSection.Enter();
 
             try
             {
-                var commandCallbacks = m_ParserCallbacks.GetOrAddNew(command, () => new IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>());
+                var commandCallbacks = m_ParserCallbacks.GetOrAddNew(command, () => new IcdHashSet<ResponseParserCallback>());
                 commandCallbacks.Add(callback);
             }
             finally
@@ -163,12 +163,12 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             }
         }
 
-        public void UnregisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback)
+        public void UnregisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback)
         {
             m_ParserCallbackSection.Enter();
             try
             {
-                IcdHashSet<OnkyoIscpCommand.ResponseParserCallback> commandCallbacks;
+                IcdHashSet<ResponseParserCallback> commandCallbacks;
                 if (m_ParserCallbacks.TryGetValue(command, out commandCallbacks)) 
                     commandCallbacks.Remove(callback);
             }
@@ -224,7 +224,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             if (!OnkyoCommandUtils.TryGetCommandForString(commandString, out command))
                 return;
 
-            IcdHashSet<OnkyoIscpCommand.ResponseParserCallback> commandCallbacks;
+            IcdHashSet<ResponseParserCallback> commandCallbacks;
 
             m_ParserCallbackSection.Enter();
             try

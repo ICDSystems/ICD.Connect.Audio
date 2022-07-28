@@ -1,7 +1,13 @@
 ﻿using ICD.Connect.Devices;
+using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Avr.Onkyo
 {
+    /// <summary>
+    /// Delegate for parser callbacks
+    /// </summary>
+    public delegate void ResponseParserCallback(eOnkyoCommand responseCommand, string responseParameter, ISerialData sentData);
+    
     public interface IOnkyoAvrDevice : IDevice
     {
         /// <summary>
@@ -25,13 +31,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         /// </summary>
         /// <param name="command"></param>
         /// <param name="callback"></param>
-        void RegisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback);
+        void RegisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback);
         
         /// <summary>
         /// Unregisters the callback for feedback of the given command
         /// </summary>
         /// <param name="command"></param>
         /// <param name="callback"></param>
-        void UnregisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback);
+        void UnregisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback);
     }
 }
