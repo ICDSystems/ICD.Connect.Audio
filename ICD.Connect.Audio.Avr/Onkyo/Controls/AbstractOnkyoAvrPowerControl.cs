@@ -4,28 +4,31 @@ using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 {
-    public sealed class OnkyoAvrPowerControl : AbstractPowerDeviceControl<OnkyoAvrDevice>
+    public abstract class AbstractOnkyoAvrPowerControl : AbstractPowerDeviceControl<IOnkyoAvrDevice>
     {
+        
+        protected abstract eOnkyoCommand PowerCommand { get; }
+        
         /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="id"></param>
-        public OnkyoAvrPowerControl(OnkyoAvrDevice parent, int id) : base(parent, id)
+        protected AbstractOnkyoAvrPowerControl(IOnkyoAvrDevice parent, int id) : base(parent, id)
         { }
 
         /// <summary>
         /// Subscribe to the parent events.
         /// </summary>
         /// <param name="parent"></param>
-        protected override void Subscribe(OnkyoAvrDevice parent)
+        protected override void Subscribe(IOnkyoAvrDevice parent)
         {
             base.Subscribe(parent);
 
             if (parent == null)
                 return;
             
-            parent.RegisterCommandCallback(eOnkyoCommand.Power, ParseResponse);
+            parent.RegisterCommandCallback(PowerCommand, ParseResponse);
             
             parent.OnIsOnlineStateChanged += ParentOnOnIsOnlineStateChanged;
 
@@ -39,14 +42,14 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// Unsubscribe from the parent events.
         /// </summary>
         /// <param name="parent"></param>
-        protected override void Unsubscribe(OnkyoAvrDevice parent)
+        protected override void Unsubscribe(IOnkyoAvrDevice parent)
         {
             base.Unsubscribe(parent);
 
             if (parent == null)
                 return;
             
-            parent.UnregisterCommandCallback(eOnkyoCommand.Power, ParseResponse);
+            parent.UnregisterCommandCallback(PowerCommand, ParseResponse);
             
             parent.OnIsOnlineStateChanged -= ParentOnOnIsOnlineStateChanged;
         }
@@ -64,12 +67,12 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         private void ParentOnOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
         {
             if (args.Data)
-                Parent.SendCommand(OnkyoIscpCommand.PowerQuery());
+                Query();
         }
 
         private void Query()
         {
-            Parent.SendCommand(OnkyoIscpCommand.PowerQuery());
+            Parent.SendCommand(GetPowerQueryCommand());
         }
 
         /// <summary>
@@ -77,7 +80,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// </summary>
         protected override void PowerOnFinal()
         {
-            Parent.SendCommand(OnkyoIscpCommand.PowerCommand(true));
+            Parent.SendCommand(GetPowerSetCommand(true));
         }
 
         /// <summary>
@@ -85,7 +88,17 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// </summary>
         protected override void PowerOffFinal()
         {
-            Parent.SendCommand(OnkyoIscpCommand.PowerCommand(false));
+            Parent.SendCommand(GetPowerSetCommand(false));
+        }
+
+        private OnkyoIscpCommand GetPowerQueryCommand()
+        {
+            return OnkyoIscpCommand.GetQueryCommand(PowerCommand);
+        }
+
+        private OnkyoIscpCommand GetPowerSetCommand(bool state)
+        {
+            return OnkyoIscpCommand.GetSetCommand(PowerCommand, state);
         }
     }
 }

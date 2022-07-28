@@ -4,13 +4,11 @@ using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
 using ICD.Connect.Protocol.Settings;
-using ICD.Connect.Settings.Attributes;
 using ICD.Connect.Settings.Attributes.SettingsProperties;
 
-namespace ICD.Connect.Audio.Avr.Onkyo
+namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 {
-    [KrangSettings("OnkyoAvr", typeof(OnkyoAvrDevice))]
-    public sealed class OnkyoAvrDeviceSettings : AbstractDeviceSettings, INetworkProperties, IComSpecProperties
+	public abstract class AbstractOnkyoAvrDeviceSettings : AbstractDeviceSettings, IOnkyoAvrDeviceSettings
     {
         private const string PORT_ELEMENT = "Port";
         private const string MAX_VOLUME_ELEMENT = "MaxVolume";
@@ -145,7 +143,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
 		/// <summary>
 		/// Constructor.
 		/// </summary>
-		public OnkyoAvrDeviceSettings()
+		protected AbstractOnkyoAvrDeviceSettings()
 		{
 			m_ComSpecProperties = new ComSpecProperties();
 			m_NetworkProperties = new NetworkProperties();

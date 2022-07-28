@@ -11,10 +11,7 @@ using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Avr.Onkyo.Controls;
 using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
-using ICD.Connect.Devices.Controls.Power;
-using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol;
-using ICD.Connect.Protocol.Data;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
 using ICD.Connect.Protocol.Network.Ports;
@@ -26,12 +23,11 @@ using ICD.Connect.Protocol.SerialQueues;
 using ICD.Connect.Protocol.Settings;
 using ICD.Connect.Settings;
 
-namespace ICD.Connect.Audio.Avr.Onkyo
+namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 {
-    public sealed class OnkyoAvrDevice : AbstractDevice<OnkyoAvrDeviceSettings>
+    public abstract class AbstractOnkyoAvrDevice<T> : AbstractDevice<T>, IOnkyoAvrDevice
+        where T : IOnkyoAvrDeviceSettings, new()
     {
-        public event EventHandler<PowerDeviceControlPowerStateApiEventArgs> OnPowerStateChange; 
-
         private const long COMMAND_DELAY_MS = 50;
         private readonly ISerialBuffer m_SerialBuffer;
         private readonly SerialQueue m_SerialQueue;
@@ -40,15 +36,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         private readonly NetworkProperties m_NetworkProperties;
         private readonly ComSpecProperties m_ComSpecProperties;
 
-        private readonly Dictionary<eOnkyoCommand, IcdHashSet<ResponseParserCallback>> m_ParserCallbacks;
+        private readonly Dictionary<eOnkyoCommand, IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>> m_ParserCallbacks;
         private readonly SafeCriticalSection m_ParserCallbackSection;
 
-        private ePowerState m_PowerState;
-
         /// <summary>
-        /// Delegate for parser callbacks
+        /// The number of zones supported by the AVR
         /// </summary>
-        public delegate void ResponseParserCallback(eOnkyoCommand responseCommand, string responseParameter, ISerialData sentData);
+        public abstract int Zones { get; }
 
         /// <summary>
         /// Max possible volume. Varies between models
@@ -57,30 +51,15 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         /// </summary>
         public int MaxVolume { get; private set; }
         
-        public ePowerState PowerState
-        {
-            get { return m_PowerState; }
-            private set
-            {
-                if (m_PowerState == value)
-                    return;
-
-                m_PowerState = value;
-
-                OnPowerStateChange.Raise(this, new PowerDeviceControlPowerStateApiEventArgs(value));
-            }
-        }
-        
-        
         /// <summary>
 		/// Constructor.
 		/// </summary>
-		public OnkyoAvrDevice()
+        protected AbstractOnkyoAvrDevice()
         {
             m_NetworkProperties = new NetworkProperties();
 			m_ComSpecProperties = new ComSpecProperties();
 
-            m_ParserCallbacks = new Dictionary<eOnkyoCommand, IcdHashSet<ResponseParserCallback>>();
+            m_ParserCallbacks = new Dictionary<eOnkyoCommand, IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>>();
             m_ParserCallbackSection = new SafeCriticalSection();
 
         	m_SerialQueue = new SerialQueue
@@ -169,13 +148,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             m_SerialQueue.Enqueue(command);
         }
 
-        public void RegisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback)
+        public void RegisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback)
         {
             m_ParserCallbackSection.Enter();
 
             try
             {
-                var commandCallbacks = m_ParserCallbacks.GetOrAddNew(command, () => new IcdHashSet<ResponseParserCallback>());
+                var commandCallbacks = m_ParserCallbacks.GetOrAddNew(command, () => new IcdHashSet<OnkyoIscpCommand.ResponseParserCallback>());
                 commandCallbacks.Add(callback);
             }
             finally
@@ -184,12 +163,12 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             }
         }
 
-        public void UnregisterCommandCallback(eOnkyoCommand command, ResponseParserCallback callback)
+        public void UnregisterCommandCallback(eOnkyoCommand command, OnkyoIscpCommand.ResponseParserCallback callback)
         {
             m_ParserCallbackSection.Enter();
             try
             {
-                IcdHashSet<ResponseParserCallback> commandCallbacks;
+                IcdHashSet<OnkyoIscpCommand.ResponseParserCallback> commandCallbacks;
                 if (m_ParserCallbacks.TryGetValue(command, out commandCallbacks)) 
                     commandCallbacks.Remove(callback);
             }
@@ -245,7 +224,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             if (!OnkyoCommandUtils.TryGetCommandForString(commandString, out command))
                 return;
 
-            IcdHashSet<ResponseParserCallback> commandCallbacks;
+            IcdHashSet<OnkyoIscpCommand.ResponseParserCallback> commandCallbacks;
 
             m_ParserCallbackSection.Enter();
             try
@@ -303,20 +282,6 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         }
 
         #endregion
-        
-        #region PowerControlCallbacks
-
-        private void Subscribe(OnkyoAvrPowerControl control)
-        {
-            control.OnPowerStateChanged += PowerControlOnOnPowerStateChanged;
-        }
-
-        private void PowerControlOnOnPowerStateChanged(object sender, PowerDeviceControlPowerStateApiEventArgs args)
-        {
-            PowerState = args.Data.PowerState;
-        }
-
-        #endregion
 
         #region Settings
 
@@ -326,8 +291,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         protected override void ClearSettingsFinal()
         {
             base.ClearSettingsFinal();
-            
-            MaxVolume = OnkyoAvrDeviceSettings.DEFAULT_MAX_VOLUME;
+
+            MaxVolume = AbstractOnkyoAvrDeviceSettings.DEFAULT_MAX_VOLUME;
 
             m_ComSpecProperties.ClearComSpecProperties();
             m_NetworkProperties.ClearNetworkProperties();
@@ -339,7 +304,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         /// Override to apply properties to the settings instance.
         /// </summary>
         /// <param name="settings"></param>
-        protected override void CopySettingsFinal(OnkyoAvrDeviceSettings settings)
+        protected override void CopySettingsFinal(T settings)
         {
             base.CopySettingsFinal(settings);
 
@@ -355,7 +320,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         /// </summary>
         /// <param name="settings"></param>
         /// <param name="factory"></param>
-        protected override void ApplySettingsFinal(OnkyoAvrDeviceSettings settings, IDeviceFactory factory)
+        protected override void ApplySettingsFinal(T settings, IDeviceFactory factory)
         {
             base.ApplySettingsFinal(settings, factory);
 
@@ -387,18 +352,16 @@ namespace ICD.Connect.Audio.Avr.Onkyo
         /// <param name="settings"></param>
         /// <param name="factory"></param>
         /// <param name="addControl"></param>
-        protected override void AddControls(OnkyoAvrDeviceSettings settings, IDeviceFactory factory,
+        protected override void AddControls(T settings, IDeviceFactory factory,
                                             Action<IDeviceControl> addControl)
         {
             base.AddControls(settings, factory, addControl);
 
             
             addControl(new OnkyoAvrRouteSwitcherControl(this, 0));
-            var powerControl = new OnkyoAvrPowerControl(this, 1);
-            addControl(powerControl);
-            addControl(new OnkyoAvrVolumeControl(this, 2));
-            
-            Subscribe(powerControl);
+            var mainPowerControl = new MainZoneOnkyoAvrPowerControl(this, 10);
+            addControl(mainPowerControl);
+            addControl(new MainZoneOnkyoAvrVolumeControl(this, 11, mainPowerControl));
         }
 
         /// <summary>
@@ -425,14 +388,9 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             foreach (IConsoleCommand command in GetBaseConsoleCommands())
                 yield return command;
 
-            yield return new GenericConsoleCommand<int>("SetMaxVolume", "Sets Max Volume", v => MaxVolume = v);
+            yield return new GenericConsoleCommand<int>("SetMaxVolume", "Sets Max Volume for Main Zone", v => MaxVolume = v);
 
-            yield return new ConsoleCommand("NRI", "NRI", () => SendCommand(OnkyoIscpCommand.ReceiverInformationQuery()));
-
-            yield return new ConsoleCommand("InputQuery", "Input Query",
-                () => SendCommand(OnkyoIscpCommand.InputQuery()));
-
-            yield return new ConsoleCommand("Query", "Query All", () => Query());
+            yield return new ConsoleCommand("NRI", "Query Receiver Information", () => SendCommand(OnkyoIscpCommand.GetQueryCommand(eOnkyoCommand.ReceiverInformation)));
         }
 
         private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
@@ -464,13 +422,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
             base.BuildConsoleStatus(addRow);
 
             addRow("MaxVolume", MaxVolume);
-        }
-
-        private void Query()
-        {
-            SendCommand(OnkyoIscpCommand.PowerQuery());
-            SendCommand(OnkyoIscpCommand.VolumeQuery());
-            SendCommand(OnkyoIscpCommand.MuteQuery());
+            addRow("Zones", Zones);
         }
 
         #endregion

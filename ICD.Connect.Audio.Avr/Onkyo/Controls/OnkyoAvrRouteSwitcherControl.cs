@@ -19,7 +19,13 @@ using ICD.Connect.Routing.Utils;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 {
-	public sealed class OnkyoAvrRouteSwitcherControl : AbstractRouteSwitcherControl<OnkyoAvrDevice>
+	/// <summary>
+	/// Switcher control for Onkyo AVR's
+	/// Supports number of zones specified by Parent's Zone property,
+	/// and based on routing graph connections.
+	/// TODO: Have routing/derouting zones (at least secondary zones) control the power control also
+	/// </summary>
+	public sealed class OnkyoAvrRouteSwitcherControl : AbstractRouteSwitcherControl<IOnkyoAvrDevice>
 	{
 		private const int PARAMETER_INPUT_MIRROR = 0x80;
 		private const int MAIN_OUTPUT = 1;
@@ -171,10 +177,15 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// </summary>
 		private readonly IcdHashSet<int> m_MirrorMainOutputs;
 
+		private int Zones
+		{
+			get { return Parent.Zones; }
+		}
+		
 		/// <summary>
 		/// Gets the routing graph.
 		/// </summary>
-		public IRoutingGraph RoutingGraph
+		private IRoutingGraph RoutingGraph
 		{
 			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
 		}
@@ -184,7 +195,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public OnkyoAvrRouteSwitcherControl(OnkyoAvrDevice parent, int id)
+		public OnkyoAvrRouteSwitcherControl(IOnkyoAvrDevice parent, int id)
 			: base(parent, id)
 		{
 			m_MirrorMainOutputs = new IcdHashSet<int>();
@@ -289,6 +300,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			return RoutingGraph.Connections
 			                   .GetOutputConnections(Parent.Id, Id)
 			                   .Where(c => s_OutputAddressToOnkyoCommand.ContainsKey(c.Source.Address))
+			                   .Where(c => c.Source.Address <= Zones)
 			                   .Select(c =>
 				                   new ConnectorInfo(c.Source.Address, eConnectionType.Audio | eConnectionType.Video));
 		}
@@ -386,7 +398,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			if (!s_OutputAddressToOnkyoCommand.TryGetValue(output, out outputCommand))
 				return false;
 
-			Parent.SendCommand(new OnkyoIscpCommand(outputCommand, inputParameter));
+			Parent.SendCommand(OnkyoIscpCommand.GetSetCommand(outputCommand, inputParameter));
 
 			return true;
 		}
@@ -412,7 +424,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			foreach (ConnectorInfo output in GetOutputs())
 			{
 				eOnkyoCommand outputCommand = s_OutputAddressToOnkyoCommand.GetValue(output.Address);
-				Parent.SendCommand(OnkyoIscpCommand.GetQuery(outputCommand));
+				Parent.SendCommand(OnkyoIscpCommand.GetQueryCommand(outputCommand));
 			}
 		}
 
@@ -424,7 +436,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// Subscribe to the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		protected override void Subscribe(OnkyoAvrDevice parent)
+		protected override void Subscribe(IOnkyoAvrDevice parent)
 		{
 			base.Subscribe(parent);
 
@@ -441,7 +453,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// Unsubscribe from the parent events.
 		/// </summary>
 		/// <param name="parent"></param>
-		protected override void Unsubscribe(OnkyoAvrDevice parent)
+		protected override void Unsubscribe(IOnkyoAvrDevice parent)
 		{
 			base.Unsubscribe(parent);
 
@@ -585,7 +597,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			if (!s_OutputAddressToOnkyoCommand.TryGetValue(output, out command))
 				return;
 			
-			Parent.SendCommand(new OnkyoIscpCommand(command, PARAMETER_INPUT_MIRROR));
+			Parent.SendCommand(OnkyoIscpCommand.GetSetCommand(command, PARAMETER_INPUT_MIRROR));
 		}
 
 		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()

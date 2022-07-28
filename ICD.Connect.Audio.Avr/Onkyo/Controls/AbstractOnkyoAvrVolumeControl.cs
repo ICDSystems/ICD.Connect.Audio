@@ -1,4 +1,5 @@
 ﻿using System;
+using ICD.Common.Properties;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.Audio.Controls.Volume;
@@ -8,8 +9,17 @@ using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 {
-    public sealed class OnkyoAvrVolumeControl : AbstractVolumeDeviceControl<OnkyoAvrDevice>
+    public abstract class AbstractOnkyoAvrVolumeControl : AbstractVolumeDeviceControl<IOnkyoAvrDevice>
     {
+        /// <summary>
+        /// Default volume for zones other than main zone
+        /// </summary>
+        protected const int OTHER_ZONE_DEFAULT_VOLUME = 80;
+        
+        private readonly IPowerDeviceControl m_PowerControl;
+        protected abstract eOnkyoCommand VolumeCommand { get; }
+        protected abstract eOnkyoCommand MuteCommand { get; }
+        
         /// <summary>
         /// Gets the minimum supported volume level.
         /// </summary>
@@ -19,21 +29,20 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         }
 
         /// <summary>
-        /// Gets the maximum supported volume level.
-        /// todo: Might need to have better support of changing max volume
-        /// </summary>
-        public override float VolumeLevelMax
-        {
-            get { return Parent.MaxVolume; }
-        }
-
-        /// <summary>
         /// Constructor.
         /// </summary>
         /// <param name="parent"></param>
         /// <param name="id"></param>
-        public OnkyoAvrVolumeControl(OnkyoAvrDevice parent, int id) : base(parent, id)
+        /// <param name="powerControl"></param>
+        protected AbstractOnkyoAvrVolumeControl(IOnkyoAvrDevice parent, int id, [NotNull] IPowerDeviceControl powerControl) : base(parent, id)
         {
+            if (powerControl == null)
+                throw new ArgumentNullException("powerControl");
+
+            m_PowerControl = powerControl;
+            Subscribe(powerControl);
+            UpdateCachedControlAvailable();
+            
             SupportedVolumeFeatures = eVolumeFeatures.Mute |
                                       eVolumeFeatures.MuteAssignment |
                                       eVolumeFeatures.MuteFeedback |
@@ -42,9 +51,27 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
                                       eVolumeFeatures.VolumeFeedback;
         }
 
+        /// <summary>
+        /// Override to release resources.
+        /// </summary>
+        /// <param name="disposing"></param>
+        protected override void DisposeFinal(bool disposing)
+        {
+            base.DisposeFinal(disposing);
+            Unsubscribe(m_PowerControl);
+        }
+
+
+        protected sealed override void UpdateCachedControlAvailable()
+        {
+            // Sealed method to prevent Virtual Member Call In Constructor warnings
+            base.UpdateCachedControlAvailable();
+        }
+
         protected override bool GetControlAvailable()
         {
-            return Parent.ControlsAvailable && Parent.IsOnline && Parent.PowerState == ePowerState.PowerOn;
+            return Parent.ControlsAvailable && Parent.IsOnline &&
+                   (m_PowerControl == null || m_PowerControl.PowerState == ePowerState.PowerOn);
         }
 
         /// <summary>
@@ -53,7 +80,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// <param name="mute"></param>
         public override void SetIsMuted(bool mute)
         {
-            Parent.SendCommand(OnkyoIscpCommand.MuteCommand(mute));
+            Parent.SendCommand(GetMuteSetCommand(mute));
         }
 
         /// <summary>
@@ -61,7 +88,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// </summary>
         public override void ToggleIsMuted()
         {
-            Parent.SendCommand(OnkyoIscpCommand.MuteToggle());
+            Parent.SendCommand(GetMuteToggleCommand());
         }
 
         /// <summary>
@@ -71,7 +98,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         public override void SetVolumeLevel(float level)
         {
             int levelInt = Convert.ToInt32(MathUtils.Clamp(level, VolumeLevelMin, VolumeLevelMax));
-            Parent.SendCommand(OnkyoIscpCommand.VolumeSet(levelInt));
+            Parent.SendCommand(GetVolumeSetCommand(levelInt));
         }
 
         /// <summary>
@@ -80,7 +107,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// </summary>
         public override void VolumeIncrement()
         {
-            Parent.SendCommand(OnkyoIscpCommand.VolumeIncrement());
+            Parent.SendCommand(GetVolumeIncrementCommand());
         }
 
         /// <summary>
@@ -89,7 +116,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// </summary>
         public override void VolumeDecrement()
         {
-            Parent.SendCommand(OnkyoIscpCommand.VolumeDecrement());
+            Parent.SendCommand(GetVolumeDecrementCommand());
         }
 
         /// <summary>
@@ -113,8 +140,43 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 
         private void Query()
         {
-            Parent.SendCommand(OnkyoIscpCommand.MuteQuery());
-            Parent.SendCommand(OnkyoIscpCommand.VolumeQuery());
+            Parent.SendCommand(GetMuteQueryCommand());
+            Parent.SendCommand(GetVolumeQueryCommand());
+        }
+
+        private OnkyoIscpCommand GetMuteSetCommand(bool mute)
+        {
+            return OnkyoIscpCommand.GetSetCommand(MuteCommand, mute);
+        }
+
+        private OnkyoIscpCommand GetMuteToggleCommand()
+        {
+            return OnkyoIscpCommand.GetToggleCommand(MuteCommand);
+        }
+
+        private OnkyoIscpCommand GetMuteQueryCommand()
+        {
+            return OnkyoIscpCommand.GetQueryCommand(MuteCommand);
+        }
+
+        private OnkyoIscpCommand GetVolumeSetCommand(int volume)
+        {
+            return OnkyoIscpCommand.GetSetCommand(VolumeCommand, volume);
+        }
+
+        private OnkyoIscpCommand GetVolumeQueryCommand()
+        {
+            return OnkyoIscpCommand.GetQueryCommand(VolumeCommand);
+        }
+
+        private OnkyoIscpCommand GetVolumeIncrementCommand()
+        {
+            return OnkyoIscpCommand.GetUpCommand(VolumeCommand);
+        }
+
+        private OnkyoIscpCommand GetVolumeDecrementCommand()
+        {
+            return OnkyoIscpCommand.GetDownCommand(VolumeCommand);
         }
         
         #region Parent Callbacks
@@ -123,17 +185,16 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// Subscribe to the parent events.
         /// </summary>
         /// <param name="parent"></param>
-        protected override void Subscribe(OnkyoAvrDevice parent)
+        protected override void Subscribe(IOnkyoAvrDevice parent)
         {
             base.Subscribe(parent);
             
-            parent.RegisterCommandCallback(eOnkyoCommand.Volume, VolumeResponseCallback);
-            parent.RegisterCommandCallback(eOnkyoCommand.Mute, MuteResponseCallback);
+            parent.RegisterCommandCallback(VolumeCommand, VolumeResponseCallback);
+            parent.RegisterCommandCallback(MuteCommand, MuteResponseCallback);
             
             parent.OnIsOnlineStateChanged += ParentOnIsOnlineStateChanged;
             parent.OnControlsAvailableChanged += ParentOnControlsAvailableChanged;
-            parent.OnPowerStateChange += ParentOnPowerStateChange;
-            
+
             if (parent.IsOnline)
                 Query();
         }
@@ -142,16 +203,15 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
         /// Unsubscribe from the parent events.
         /// </summary>
         /// <param name="parent"></param>
-        protected override void Unsubscribe(OnkyoAvrDevice parent)
+        protected override void Unsubscribe(IOnkyoAvrDevice parent)
         {
             base.Unsubscribe(parent);
             
-            parent.UnregisterCommandCallback(eOnkyoCommand.Volume, VolumeResponseCallback);
-            parent.UnregisterCommandCallback(eOnkyoCommand.Mute, MuteResponseCallback);
+            parent.UnregisterCommandCallback(VolumeCommand, VolumeResponseCallback);
+            parent.UnregisterCommandCallback(MuteCommand, MuteResponseCallback);
             
             parent.OnIsOnlineStateChanged -= ParentOnIsOnlineStateChanged;
             parent.OnControlsAvailableChanged -= ParentOnControlsAvailableChanged;
-            parent.OnPowerStateChange -= ParentOnPowerStateChange;
         }
 
         private void ParentOnIsOnlineStateChanged(object sender, DeviceBaseOnlineStateApiEventArgs args)
@@ -159,11 +219,6 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
             UpdateCachedControlAvailable();
             if (args.Data)
                 Query();
-        }
-        
-        private void ParentOnPowerStateChange(object sender, PowerDeviceControlPowerStateApiEventArgs e)
-        {
-            UpdateCachedControlAvailable();
         }
 
         private void ParentOnControlsAvailableChanged(object sender, DeviceBaseControlsAvailableApiEventArgs e)
@@ -193,6 +248,31 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
             }
 
             IsMuted = string.Equals(responseParameter, "01");
+        }
+
+        #endregion
+
+        #region PowerControl Callbacks
+
+        private void Subscribe(IPowerDeviceControl powerControl)
+        {
+            if (powerControl == null)
+                return;
+
+            powerControl.OnPowerStateChanged += PowerControlOnPowerStateChange;
+        }
+
+        private void Unsubscribe(IPowerDeviceControl powerControl)
+        {
+            if (powerControl == null)
+                return;
+
+            powerControl.OnPowerStateChanged -= PowerControlOnPowerStateChange;
+        }
+        
+        private void PowerControlOnPowerStateChange(object sender, PowerDeviceControlPowerStateApiEventArgs e)
+        {
+            UpdateCachedControlAvailable();
         }
 
         #endregion

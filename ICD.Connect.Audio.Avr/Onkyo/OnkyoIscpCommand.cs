@@ -31,21 +31,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo
 
         public bool AddEthernetHeader { get; set; }
 
-        public OnkyoIscpCommand(eOnkyoCommand command, [NotNull] string parameter)
+        private OnkyoIscpCommand(eOnkyoCommand command, [NotNull] string parameter)
         {
             if (parameter == null)
                 throw new ArgumentNullException("parameter");
 
             m_Command = command;
             m_Parameter = parameter;
-        }
-
-        public OnkyoIscpCommand(eOnkyoCommand command, bool parameter) : this(command, GetBoolParameter(parameter))
-        {
-        }
-
-        public OnkyoIscpCommand(eOnkyoCommand command, int parameter) : this(command, GetAsciiHexParameterString(parameter))
-        {
         }
 
         private string GetStringForCommand()
@@ -119,76 +111,46 @@ namespace ICD.Connect.Audio.Avr.Onkyo
 
         #region Commands
 
-        public static OnkyoIscpCommand GetQuery(eOnkyoCommand command)
+        public static OnkyoIscpCommand GetSetCommand(eOnkyoCommand command, string parameter)
+        {
+            return new OnkyoIscpCommand(command, parameter);
+        }
+
+        public static OnkyoIscpCommand GetSetCommand(eOnkyoCommand command, bool state)
+        {
+            return new OnkyoIscpCommand(command, GetBoolParameter(state));
+        }
+
+        public static OnkyoIscpCommand GetSetCommand(eOnkyoCommand command, int parameter)
+        {
+            return new OnkyoIscpCommand(command, GetAsciiHexParameterString(parameter));
+        }
+
+        public static OnkyoIscpCommand GetQueryCommand(eOnkyoCommand command)
         {
             return new OnkyoIscpCommand(command, QUERY_PARAMETER);
         }
 
-        public static OnkyoIscpCommand PowerCommand(bool power)
+        public static OnkyoIscpCommand GetToggleCommand(eOnkyoCommand command)
         {
-            return new OnkyoIscpCommand(eOnkyoCommand.Power, power);
+            return new OnkyoIscpCommand(command, TOGGLE_PARAMETER);
         }
 
-        public static OnkyoIscpCommand PowerQuery()
+        public static OnkyoIscpCommand GetUpCommand(eOnkyoCommand command)
         {
-            return GetQuery(eOnkyoCommand.Power);
+            return new OnkyoIscpCommand(command, UP_PARAMETER);
         }
 
-        public static OnkyoIscpCommand MuteCommand(bool mute)
+        public static OnkyoIscpCommand GetDownCommand(eOnkyoCommand command)
         {
-            return new OnkyoIscpCommand(eOnkyoCommand.Mute, mute);
-        }
-
-        public static OnkyoIscpCommand MuteToggle()
-        {
-            return new OnkyoIscpCommand(eOnkyoCommand.Mute, TOGGLE_PARAMETER);
-        }
-
-        public static OnkyoIscpCommand MuteQuery()
-        {
-            return GetQuery(eOnkyoCommand.Mute);
-        }
-        
-        private static OnkyoIscpCommand VolumeSet(string volume)
-        {
-            return new OnkyoIscpCommand(eOnkyoCommand.Volume, volume);
-        }
-
-        public static OnkyoIscpCommand VolumeIncrement()
-        {
-            return VolumeSet(UP_PARAMETER);
-        }
-
-        public static OnkyoIscpCommand VolumeDecrement()
-        {
-            return VolumeSet(DOWN_PARAMETER);
-        }
-
-        public static OnkyoIscpCommand VolumeSet(int volume)
-        {
-            return VolumeSet(string.Format("{0:X2}", volume));
-        }
-
-        public static OnkyoIscpCommand VolumeQuery()
-        {
-            return GetQuery(eOnkyoCommand.Volume);
-        }
-
-        public static OnkyoIscpCommand InputSet(int number)
-        {
-            return new OnkyoIscpCommand(eOnkyoCommand.Input, string.Format("{0:X2}", number));
-        }
-
-        public static OnkyoIscpCommand InputQuery()
-        {
-            return GetQuery(eOnkyoCommand.Input);
-        }
-
-        public static OnkyoIscpCommand ReceiverInformationQuery()
-        {
-            return GetQuery(eOnkyoCommand.ReceiverInformation);
+            return new OnkyoIscpCommand(command, DOWN_PARAMETER);
         }
 
         #endregion
+
+        /// <summary>
+        /// Delegate for parser callbacks
+        /// </summary>
+        public delegate void ResponseParserCallback(eOnkyoCommand responseCommand, string responseParameter, ISerialData sentData);
     }
 }
