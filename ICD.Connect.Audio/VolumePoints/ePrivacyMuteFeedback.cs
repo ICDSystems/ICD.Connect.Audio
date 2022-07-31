@@ -17,6 +17,11 @@ namespace ICD.Connect.Audio.VolumePoints
 		/// </summary>
 		Set = 2,
 
+        /// <summary>
+        /// The control can provide get for current muted state, but will not unmute
+        /// </summary>
+        GetMutedOnly = 4,
+
 		GetSet = Get | Set
 	}
 }
