@@ -16,6 +16,23 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp
 #if !NETSTANDARD
     public static class ExpanderTypeExtensions
     {
+        public static int GetZonesForExpander(this eExpanderType extends)
+        {
+            switch (extends)
+            {
+                case eExpanderType.None:
+                    return 0;
+                case eExpanderType.SwampE8:
+                    return 8;
+                case eExpanderType.SwampE4:
+                    return 4;
+                case eExpanderType.Swe8:
+                    return 8;
+                default:
+                    throw new ArgumentOutOfRangeException("extends");
+            }
+        }
+        
         public static eCrestronExpanderType ToCrestron(this eExpanderType extends)
         {
             switch (extends)

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Audio.CrestronPro.Swamp.Controls;
 using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls;
 using ICD.Connect.Settings;
 #if !NETSTANDARD
 using ICD.Common.Properties;
@@ -11,6 +13,7 @@ using ICD.Connect.Misc.CrestronPro.Utils;
 using Crestron.SimplSharpPro.AudioDistribution;
 using Crestron.SimplSharpPro;
 using Crestron.SimplSharpPro.GeneralIO;
+using ICD.Common.Utils.EventArguments;
 #endif
 
 namespace ICD.Connect.Audio.CrestronPro.Swamp
@@ -18,8 +21,22 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp
     public sealed class SwampAdapter : AbstractDevice<SwampAdapterSettings>
     {
 
+        /// <summary>
+        /// What output address offset is for each expander
+        /// </summary>
+        private const int EXPANDER_OUTPUT_ADDRESS_OFFSET = 10;
+
 #if !NETSTANDARD
-        [CanBeNull] private Swamp24x8 m_Swamp;
+        public event EventHandler<GenericEventArgs<Swamp24x8>> OnSwampChanged;
+
+        [CanBeNull] 
+        private Swamp24x8 m_Swamp;
+        
+        [CanBeNull]
+        public Swamp24x8 Swamp
+        {
+            get { return m_Swamp; }
+        }
 #endif
 
         /// <summary>
@@ -58,6 +75,20 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp
 
             Subscribe(m_Swamp);
             UpdateCachedOnlineStatus();
+            
+            OnSwampChanged.Raise(this, device);
+        }
+
+        public eExpanderType GetExpanderType(int expanderNumber)
+        {
+            if (m_Swamp == null)
+                return eExpanderType.None;
+            
+            Expander expander;
+            if (!m_Swamp.Expanders.TryGetValue((uint)expanderNumber, out expander))
+                return eExpanderType.None;
+
+            return expander.ExpanderType.ToIcd();
         }
 
         #region Device Callbacks
@@ -178,6 +209,39 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp
 #endif
         }
 
+        /// <summary>
+        /// Override to add controls to the device.
+        /// </summary>
+        /// <param name="settings"></param>
+        /// <param name="factory"></param>
+        /// <param name="addControl"></param>
+        protected override void AddControls(SwampAdapterSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
+        {
+            base.AddControls(settings, factory, addControl);
+            #if !NETSTANDARD
+
+            addControl(new SwampRouteSwitcherControl(this, 0));
+
+            // Add built-in zone controls
+            for (int i = 1; i <= 8; i++)
+            {
+                addControl(new BuiltInZoneSwampVolumeControl(this, i, i));
+            }
+            
+            // Loop over expanders
+            foreach (var kvp in settings.ExpanderTypes)
+            {
+                // Loop over zones
+                for (int i = 1; i <= kvp.Value.GetZonesForExpander(); i++)
+                {
+                    int controlId = (kvp.Key * 10) + i;
+                    addControl(new ExpanderZoneSwampVolumeControl(this, controlId, kvp.Key, i));
+                }
+            }
+
+#endif
+        }
+
         #endregion
 
         #region Console
@@ -197,6 +261,58 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp
             return base.GetConsoleCommands();
         }
 
+        #endregion
+        
+        #region Static Methods
+
+        /// <summary>
+        /// Gets the expander number for the given output address
+        /// Returns 0 for outputs on the main SWAMP unit
+        /// </summary>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        public static int GetExpanderNumberForOutputAddress(int output)
+        {
+            // Special case - zone 10 on the main unit
+            if (output == 10)
+                return 0;
+            
+            // General case
+            return output / EXPANDER_OUTPUT_ADDRESS_OFFSET;
+        }
+
+        /// <summary>
+        /// Gets the zone number on the expander (or main SWAMP unit)
+        /// </summary>
+        /// <param name="output"></param>
+        /// <returns></returns>
+        public static int GetZoneNumberForOutputAddress(int output)
+        {
+            // Special case - Zone 10 on the main unit
+            if (output == 10)
+                return 10;
+
+            // General case
+            return output % EXPANDER_OUTPUT_ADDRESS_OFFSET;
+        }
+
+        public static int GetOutputAddressForExpanderZonePair(uint expander, uint zone)
+        {
+            return GetOutputAddressForExpanderZonePair((int)expander, (int)zone);
+        }
+        
+        /// <summary>
+        /// Get the output number for a given expander and zone
+        /// </summary>
+        /// <param name="expander"></param>
+        /// <param name="zone"></param>
+        /// <returns></returns>
+        public static int GetOutputAddressForExpanderZonePair(int expander, int zone)
+        {
+            // Expander number * offset + zone number
+            return (expander * EXPANDER_OUTPUT_ADDRESS_OFFSET) + zone;
+        }
+        
         #endregion
     }
 }
