@@ -93,6 +93,13 @@
     <Compile Include="KrangPlugin.cs" />
     <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Swamp\Controls\AbstractZoneSwampVolumeControl.cs" />
+    <Compile Include="Swamp\Controls\BuiltInZoneSwampVolumeControl.cs" />
+    <Compile Include="Swamp\Controls\ExpanderZoneSwampVolumeControl.cs" />
+    <Compile Include="Swamp\Controls\SwampRouteSwitcherControl.cs" />
+    <Compile Include="Swamp\eExpanderType.cs" />
+    <Compile Include="Swamp\SwampAdapter.cs" />
+    <Compile Include="Swamp\SwampAdapterSettings.cs" />
     <None Include="Properties\ControlSystem.cfg" />
   </ItemGroup>
   <ItemGroup>
