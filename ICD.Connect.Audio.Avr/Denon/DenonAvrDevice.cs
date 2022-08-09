@@ -6,7 +6,6 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Avr.Denon.Controls;
-using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.Extensions;
@@ -20,7 +19,7 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Avr.Denon
 {
-	public sealed class DenonAvrDevice : AbstractDevice<DenonAvrDeviceSettings>
+	public sealed class DenonAvrDevice : AbstractAvrDevice<DenonAvrDeviceSettings>
 	{
 		public delegate void ResponseCallback(DenonAvrDevice device, DenonSerialData response);
 

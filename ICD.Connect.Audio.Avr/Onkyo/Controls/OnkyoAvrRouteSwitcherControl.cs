@@ -7,6 +7,7 @@ using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
+using ICD.Connect.Devices.Controls.Power;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Protocol.Data;
 using ICD.Connect.Routing;
@@ -23,7 +24,6 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 	/// Switcher control for Onkyo AVR's
 	/// Supports number of zones specified by Parent's Zone property,
 	/// and based on routing graph connections.
-	/// TODO: Have routing/derouting zones (at least secondary zones) control the power control also
 	/// </summary>
 	public sealed class OnkyoAvrRouteSwitcherControl : AbstractRouteSwitcherControl<IOnkyoAvrDevice>
 	{
@@ -170,6 +170,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 
 		private IRoutingGraph m_CachedRoutingGraph;
 
+		private readonly BiDictionary<int, IPowerDeviceControl> m_ZonePowerControls;
+
 		/// <summary>
 		/// A collection of outputs that are set to mirror the main output (0x80)
 		/// Contains the output addresses of those outputs, so they will be updated
@@ -195,13 +197,31 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public OnkyoAvrRouteSwitcherControl(IOnkyoAvrDevice parent, int id)
+		/// <param name="zonePowerControls"></param>
+		public OnkyoAvrRouteSwitcherControl(IOnkyoAvrDevice parent, int id, params IPowerDeviceControl[] zonePowerControls)
 			: base(parent, id)
 		{
 			m_MirrorMainOutputs = new IcdHashSet<int>();
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
+			
+			// Make zone controls bidictionary, 1-indexed to get matching zone number
+			m_ZonePowerControls = new BiDictionary<int, IPowerDeviceControl>(zonePowerControls
+			                                                                 .Select((c, i) =>
+				                                                                 new KeyValuePair<int,
+					                                                                 IPowerDeviceControl>(i + 1, c))
+			                                                                 .ToDictionary());
+			// Subscribe to all power controls
+			m_ZonePowerControls.Values.ForEach(Subscribe);
+
+			if (Parent.Zones > m_ZonePowerControls.Count)
+				throw new ArgumentException(
+					string.Format("Incorrect number of zone power controls given, got:{0} expected:{1}",
+						m_ZonePowerControls.Count, Parent.Zones), "zonePowerControls");
+
 		}
+
+		
 
 		/// <summary>
 		/// Release resources.
@@ -217,6 +237,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_Cache);
+			m_ZonePowerControls.Values.ForEach(Unsubscribe);
 		}
 
 		#region Methods
@@ -398,6 +419,11 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			if (!s_OutputAddressToOnkyoCommand.TryGetValue(output, out outputCommand))
 				return false;
 
+			// Power on zones when routing, if enabled
+			IPowerDeviceControl powerControl;
+			if (Parent.SetZonePowerWithRouting && m_ZonePowerControls.TryGetValue(output, out powerControl))
+				powerControl.PowerOn();
+
 			Parent.SendCommand(OnkyoIscpCommand.GetSetCommand(outputCommand, inputParameter));
 
 			return true;
@@ -411,8 +437,20 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// <returns>True if successfully cleared.</returns>
 		public override bool ClearOutput(int output, eConnectionType type)
 		{
-			// No way of clearing output
-			return false;
+			if (!ContainsOutput(output))
+				throw new ArgumentOutOfRangeException("output");
+			
+			// If we aren't setting zone power with routing, no way to unroute
+			if (!Parent.SetZonePowerWithRouting)
+				return false;
+
+			// Try to get the power control
+			IPowerDeviceControl control;
+			if (!m_ZonePowerControls.TryGetValue(output, out control))
+				return false;
+			
+			control.PowerOff();
+			return true;
 		}
 
 		#endregion
@@ -421,11 +459,14 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 
 		private void QueryInputs()
 		{
-			foreach (ConnectorInfo output in GetOutputs())
-			{
-				eOnkyoCommand outputCommand = s_OutputAddressToOnkyoCommand.GetValue(output.Address);
-				Parent.SendCommand(OnkyoIscpCommand.GetQueryCommand(outputCommand));
-			}
+			foreach (ConnectorInfo output in GetOutputs()) 
+				QueryInput(output.Address);
+		}
+
+		private void QueryInput(int outputAddress)
+		{
+			eOnkyoCommand outputCommand = s_OutputAddressToOnkyoCommand.GetValue(outputAddress);
+			Parent.SendCommand(OnkyoIscpCommand.GetQueryCommand(outputCommand));
 		}
 
 		#endregion
@@ -476,6 +517,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			int outputAddress;
 			if (!s_OutputAddressToOnkyoCommand.TryGetKey(responseCommand, out outputAddress))
 				return; //Should never get here??
+			
+			// If SetZonePowerWithRouting is on and power is off, don't process feedback
+			IPowerDeviceControl powerControl;
+			if (Parent.SetZonePowerWithRouting &&
+			    m_ZonePowerControls.TryGetValue(outputAddress, out powerControl) &&
+			    powerControl.PowerState == ePowerState.PowerOff)
+				return;
 
 			int inputParameter = StringUtils.FromIpIdString(responseParameter);
 			if (inputParameter == PARAMETER_INPUT_MIRROR)
@@ -522,6 +570,60 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 				QueryInputs();
 		}
 
+		#endregion
+		
+		#region Power Control Callbacks
+		
+		/// <summary>
+		/// Subscribe to power device control (for every zone)
+		/// </summary>
+		/// <param name="powerControl"></param>
+		private void Subscribe(IPowerDeviceControl powerControl)
+		{
+			if (powerControl == null)
+				return;
+			
+			powerControl.OnPowerStateChanged += PowerControlOnOnPowerStateChanged; 
+		}
+		
+		/// <summary>
+		/// Unsubscribe to power device control (for every zone)
+		/// </summary>
+		/// <param name="powerControl"></param>
+		private void Unsubscribe(IPowerDeviceControl powerControl)
+		{
+			if (powerControl == null)
+				return;
+			
+			powerControl.OnPowerStateChanged -= PowerControlOnOnPowerStateChanged; 
+		}
+
+		private void PowerControlOnOnPowerStateChanged(object sender, PowerDeviceControlPowerStateApiEventArgs args)
+		{
+			// Don't do anything if SetZonePowerWithRouting is disabled
+			if (!Parent.SetZonePowerWithRouting)
+				return;
+			
+			// Get the corresponding output for the power control
+			var control = sender as IPowerDeviceControl;
+			int output;
+			if (control == null || !m_ZonePowerControls.TryGetKey(control, out output))
+				return;
+			
+			// Actions based on new power state
+			switch (args.Data.PowerState)
+			{
+				case ePowerState.PowerOn:
+					// Power On queries the input
+					QueryInput(output);
+					break;
+				case ePowerState.PowerOff:
+					// Clear output on power off
+					m_Cache.SetInputForOutput(output, 0, eConnectionType.Audio | eConnectionType.Video);
+					break;
+			}
+		}
+		
 		#endregion
 
 		#region Cache Callbacks

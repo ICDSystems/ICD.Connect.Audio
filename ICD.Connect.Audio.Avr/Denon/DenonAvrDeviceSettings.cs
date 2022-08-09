@@ -1,5 +1,4 @@
 ﻿using ICD.Common.Utils.Xml;
-using ICD.Connect.Devices;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
@@ -10,7 +9,7 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 namespace ICD.Connect.Audio.Avr.Denon
 {
 	[KrangSettings("DenonAvr", typeof(DenonAvrDevice))]
-	public sealed class DenonAvrDeviceSettings : AbstractDeviceSettings, INetworkSettings, IComSpecSettings
+	public sealed class DenonAvrDeviceSettings : AbstractAvrDeviceSettings, INetworkSettings, IComSpecSettings
 	{
 		private const string PORT_ELEMENT = "Port";
 

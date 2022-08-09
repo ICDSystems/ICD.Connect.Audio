@@ -9,8 +9,8 @@ using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.API.Nodes;
 using ICD.Connect.Audio.Avr.Onkyo.Controls;
-using ICD.Connect.Devices;
 using ICD.Connect.Devices.Controls;
+using ICD.Connect.Devices.Controls.Power;
 using ICD.Connect.Protocol;
 using ICD.Connect.Protocol.EventArguments;
 using ICD.Connect.Protocol.Extensions;
@@ -25,7 +25,7 @@ using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 {
-    public abstract class AbstractOnkyoAvrDevice<T> : AbstractDevice<T>, IOnkyoAvrDevice
+    public abstract class AbstractOnkyoAvrDevice<T> : AbstractAvrDevice<T>, IOnkyoAvrDevice
         where T : IOnkyoAvrDeviceSettings, new()
     {
         private const long COMMAND_DELAY_MS = 50;
@@ -39,6 +39,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
         private readonly Dictionary<eOnkyoCommand, IcdHashSet<ResponseParserCallback>> m_ParserCallbacks;
         private readonly SafeCriticalSection m_ParserCallbackSection;
 
+        public eCommunicationsType CommunicationsType { get; private set; }
+
         /// <summary>
         /// The number of zones supported by the AVR
         /// </summary>
@@ -50,6 +52,27 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
         /// I haven't found a reliable way of determining this automatically
         /// </summary>
         public int MaxVolume { get; private set; }
+        
+        /// <summary>
+        /// True if the ethernet header should be added
+        /// </summary>
+        public bool AddEthernetHeader
+        {
+            get
+            {
+                switch (CommunicationsType)
+                {
+                    case eCommunicationsType.Auto:
+                        return m_ConnectionStateManager.Port is INetworkPort;
+                    case eCommunicationsType.Ethernet:
+                        return true;
+                    case eCommunicationsType.Serial:
+                        return false;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+        }
         
         /// <summary>
 		/// Constructor.
@@ -143,7 +166,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 
         public void SendCommand(OnkyoIscpCommand command)
         {
-            command.AddEthernetHeader = (m_ConnectionStateManager.Port is INetworkPort);
+            command.AddEthernetHeader = AddEthernetHeader;
 
             m_SerialQueue.Enqueue(command);
         }
@@ -293,6 +316,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             base.ClearSettingsFinal();
 
             MaxVolume = AbstractOnkyoAvrDeviceSettings.DEFAULT_MAX_VOLUME;
+            CommunicationsType = eCommunicationsType.Auto;
+            
 
             m_ComSpecProperties.ClearComSpecProperties();
             m_NetworkProperties.ClearNetworkProperties();
@@ -310,6 +335,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 
             settings.Port = m_ConnectionStateManager.PortNumber;
             settings.MaxVolume = MaxVolume;
+            settings.CommunicationsType = CommunicationsType;
 
             settings.Copy(m_ComSpecProperties);
             settings.Copy(m_NetworkProperties);
@@ -325,6 +351,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             base.ApplySettingsFinal(settings, factory);
 
             MaxVolume = settings.MaxVolume;
+            CommunicationsType = settings.CommunicationsType;
 
             m_ComSpecProperties.Copy(settings);
             m_NetworkProperties.Copy(settings);
@@ -358,11 +385,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
             base.AddControls(settings, factory, addControl);
 
             
-            addControl(new OnkyoAvrRouteSwitcherControl(this, 0));
             var mainPowerControl = new MainZoneOnkyoAvrPowerControl(this, 10);
+            addControl(GetSwitcherControl(mainPowerControl));
             addControl(mainPowerControl);
             addControl(new MainZoneOnkyoAvrVolumeControl(this, 11, mainPowerControl));
         }
+
+        protected abstract OnkyoAvrRouteSwitcherControl GetSwitcherControl(IPowerDeviceControl zone1Control);
 
         /// <summary>
         /// Override to add actions on StartSettings

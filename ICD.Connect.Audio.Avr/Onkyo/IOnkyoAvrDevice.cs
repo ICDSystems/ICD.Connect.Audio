@@ -1,4 +1,6 @@
-﻿using ICD.Connect.Devices;
+﻿using ICD.Common.Properties;
+using ICD.Connect.Devices;
+using ICD.Connect.Devices.Controls.Power;
 using ICD.Connect.Protocol.Data;
 
 namespace ICD.Connect.Audio.Avr.Onkyo
@@ -8,7 +10,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo
     /// </summary>
     public delegate void ResponseParserCallback(eOnkyoCommand responseCommand, string responseParameter, ISerialData sentData);
     
-    public interface IOnkyoAvrDevice : IDevice
+    public interface IOnkyoAvrDevice : IAvrDevice
     {
         /// <summary>
         /// The number of zones supported by the AVR

@@ -1,5 +1,6 @@
 ﻿using ICD.Common.Utils.Xml;
 using ICD.Connect.Devices;
+using ICD.Connect.Protocol.Network.Ports;
 using ICD.Connect.Protocol.Network.Settings;
 using ICD.Connect.Protocol.Ports;
 using ICD.Connect.Protocol.Ports.ComPort;
@@ -8,10 +9,11 @@ using ICD.Connect.Settings.Attributes.SettingsProperties;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 {
-	public abstract class AbstractOnkyoAvrDeviceSettings : AbstractDeviceSettings, IOnkyoAvrDeviceSettings
+	public abstract class AbstractOnkyoAvrDeviceSettings : AbstractAvrDeviceSettings, IOnkyoAvrDeviceSettings
     {
         private const string PORT_ELEMENT = "Port";
         private const string MAX_VOLUME_ELEMENT = "MaxVolume";
+        private const string COMMUNICATIONS_TYPE_ELEMENT = "CommunicationsType";
 
         public const int DEFAULT_MAX_VOLUME = 80;
 
@@ -25,6 +27,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 		public int? Port { get; set; }
 		
 		public int MaxVolume { get; set; }
+		
+		public eCommunicationsType CommunicationsType { get; set; }
 
 		#region Network
 
@@ -163,6 +167,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 
 			writer.WriteElementString(PORT_ELEMENT, IcdXmlConvert.ToString(Port));
 			writer.WriteElementString(MAX_VOLUME_ELEMENT, IcdXmlConvert.ToString(MaxVolume));
+			writer.WriteElementString(COMMUNICATIONS_TYPE_ELEMENT, IcdXmlConvert.ToString(CommunicationsType));
 
 			m_NetworkProperties.WriteElements(writer);
 			m_ComSpecProperties.WriteElements(writer);
@@ -178,6 +183,8 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
 
 			Port = XmlUtils.TryReadChildElementContentAsInt(xml, PORT_ELEMENT);
 			MaxVolume = XmlUtils.TryReadChildElementContentAsInt(xml, MAX_VOLUME_ELEMENT) ?? DEFAULT_MAX_VOLUME;
+			CommunicationsType = XmlUtils.TryReadChildElementContentAsEnum<eCommunicationsType>(xml, COMMUNICATIONS_TYPE_ELEMENT, true) ??
+			                 eCommunicationsType.Auto;
 
 			m_NetworkProperties.ParseXml(xml);
 			m_ComSpecProperties.ParseXml(xml);
