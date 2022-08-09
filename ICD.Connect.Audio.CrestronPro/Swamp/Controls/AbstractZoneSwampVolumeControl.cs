@@ -48,8 +48,7 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
                     return;
 
                 m_Zone = value;
-
-                UpdateCachedVolumeMinMax();
+                
                 UpdateSupportedFeatures();
                 UpdateVolumeFeedback();
                 UpdateMuteFeedback();
@@ -137,6 +136,14 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
                 case ZoneEventIds.MuteOnFeedbackEventId:
                     UpdateMuteFeedback();
                     break;
+                case ZoneEventIds.SourceFeedbackEventId:
+                    // Volume control doesn't support anything with no source
+                    UpdateSupportedFeatures();
+                    break;
+                case ZoneEventIds.MinVolumeFeedbackEventId:
+                case ZoneEventIds.MaxVolumeFeedbackEventId:
+                    // Todo: Do we need to handle this?
+                    break;
             }
 
 
@@ -152,7 +159,8 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 
         private void UpdateSupportedFeatures()
         {
-            if (Zone == null)
+            // If there is no zone, or the zone is off, no features
+            if (Zone == null || Zone.SourceFeedback.UShortValue == 0)
                 SupportedVolumeFeatures = eVolumeFeatures.None;
             else
             {
@@ -161,20 +169,6 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
                                           eVolumeFeatures.MuteFeedback |
                                           eVolumeFeatures.VolumeAssignment |
                                           eVolumeFeatures.VolumeFeedback;
-            }
-        }
-
-        private void UpdateCachedVolumeMinMax()
-        {
-            if (Zone != null)
-            {
-                m_VolumeLevelMin = Zone.MinVolumeFeedback.UShortValue;
-                m_VolumeLevelMax = Zone.MaxVolumeFeedback.UShortValue;
-            }
-            else
-            {
-                m_VolumeLevelMin = 0;
-                m_VolumeLevelMax = 0;
             }
         }
 
@@ -194,16 +188,13 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 
 #endif
 
-        private float m_VolumeLevelMin;
-
-        private float m_VolumeLevelMax;
-
         /// <summary>
         /// Gets the minimum supported volume level.
         /// </summary>
         public override float VolumeLevelMin
         {
-            get { return m_VolumeLevelMin; }
+            // The SWAMP scales the volume between it's min and max itself
+            get { return ushort.MinValue; }
         }
 
         /// <summary>
@@ -211,7 +202,8 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
         /// </summary>
         public override float VolumeLevelMax
         {
-            get { return m_VolumeLevelMax; }
+            // The SWAMP scales the volume between it's min and max itself
+            get { return ushort.MaxValue; }
         }
 
         /// <summary>

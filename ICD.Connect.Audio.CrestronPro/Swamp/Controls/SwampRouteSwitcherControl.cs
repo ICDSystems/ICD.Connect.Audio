@@ -56,8 +56,8 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
         /// </summary>
         private static readonly BiDictionary<int, uint> s_SpdifAddressToCollectionIndex = new BiDictionary<int, uint>
         {
-            { SPDIF_9_OUTPUT_ADDRESS, 1 },
-            { SPDIF_10_OUTPUT_ADDRESS, 2 }
+            { SPDIF_9_OUTPUT_ADDRESS, 9 },
+            { SPDIF_10_OUTPUT_ADDRESS, 10 }
         };
 
         /// <summary>
@@ -407,7 +407,6 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
                 return;
 
             // Add built-in zones
-            // ReSharper disable once RedundantEnumerableCastCall
             m_OutputAddressToZone.AddRange(swamp.Zones.Cast<Zone>(),
                 z => SwampAdapter.GetOutputAddressForExpanderZonePair(0, z.Number));
 
@@ -432,6 +431,17 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 
             foreach (Expander expander in swamp.Expanders) 
                 expander.ZoneChangeEvent += SwampOnZoneChangeEvent;
+        }
+        
+        private void Unsubscribe(Swamp24x8 swamp)
+        {
+            if (swamp == null)
+                return;
+
+            swamp.ZoneChangeEvent -= SwampOnZoneChangeEvent;
+            swamp.BaseEvent -= SwampOnBaseEvent;
+            foreach (Expander expander in swamp.Expanders) 
+                expander.ZoneChangeEvent -= SwampOnZoneChangeEvent;
         }
 
         private void SwampOnBaseEvent(GenericBase device, BaseEventArgs args)
@@ -484,16 +494,7 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 
         }
 
-        private void Unsubscribe(Swamp24x8 swamp)
-        {
-            if (swamp == null)
-                return;
-
-            swamp.ZoneChangeEvent -= SwampOnZoneChangeEvent;
-
-            foreach (Expander expander in swamp.Expanders) 
-                expander.ZoneChangeEvent -= SwampOnZoneChangeEvent;
-        }
+        
         
 #endif
 
