@@ -68,8 +68,8 @@ namespace ICD.Connect.Audio.Controls.Volume
 			yield return new ConsoleCommand("VolumeDecrement", "Lowers the volume one time", () => instance.VolumeDecrement());
 
 			yield return new GenericConsoleCommand<bool, long>(
+				"VolumeRamp",
 				"VolumeRamp <UP (true/false)> <TIMEOUT (ms)>",
-				"Starts ramping the volume, and continues until stop is called.",
 				(a, c) => instance.VolumeRamp(a, c));
 
 			yield return new ConsoleCommand("VolumeRampStop", "Stops any current ramp up/down in progress.", () => instance.VolumeRampStop());
