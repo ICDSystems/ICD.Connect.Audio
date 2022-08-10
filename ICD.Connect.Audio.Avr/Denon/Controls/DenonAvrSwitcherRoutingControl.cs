@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.API.Commands;
 using ICD.Connect.Devices.Controls.Power;
 using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Routing;
@@ -486,6 +488,37 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		private void CacheOnOnRouteChange(object sender, RouteChangeEventArgs args)
 		{
 			OnRouteChange.Raise(this, new RouteChangeEventArgs(args));
+		}
+
+		#endregion
+		
+		#region Console
+
+		/// <summary>
+		/// Gets the child console commands.
+		/// </summary>
+		/// <returns></returns>
+		public override IEnumerable<IConsoleCommand> GetConsoleCommands()
+		{
+			foreach (IConsoleCommand command in GetBaseConsoleCommands())
+				yield return command;
+			
+			yield return new ConsoleCommand("PrintAddressMap", "Prints a table of available input addresses",
+				() => GetAvailableInputsTable());
+		}
+
+		private IEnumerable<IConsoleCommand> GetBaseConsoleCommands()
+		{
+			return base.GetConsoleCommands();
+		}
+		
+		private string GetAvailableInputsTable()
+		{
+			TableBuilder table = new TableBuilder("Address", "Input Name");
+			foreach (var kvp in s_InputMap) 
+				table.AddRow(kvp.Key, kvp.Value);
+
+			return table.ToString();
 		}
 
 		#endregion
