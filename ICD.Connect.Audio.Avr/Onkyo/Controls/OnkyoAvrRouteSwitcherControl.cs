@@ -686,7 +686,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 				yield return command;
 
 			yield return new GenericConsoleCommand<int>("SetOutputToMirror",
-				"Sets the specificed output to mirror the main zone", (o) => SetOutputToMirror(o));
+				"Sets the specified output to mirror the main zone", o => SetOutputToMirror(o));
 
 			yield return new ConsoleCommand("PrintAddressMap", "Prints a table of available input addresses",
 				() => GetAvailableInputsTable());
