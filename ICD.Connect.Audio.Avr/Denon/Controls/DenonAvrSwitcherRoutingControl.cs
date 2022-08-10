@@ -5,6 +5,8 @@ using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.EventArguments;
 using ICD.Common.Utils.Extensions;
 using ICD.Common.Utils.Services;
+using ICD.Connect.Devices.Controls.Power;
+using ICD.Connect.Devices.EventArguments;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
@@ -81,6 +83,7 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		private readonly SwitcherCache m_Cache;
 
 		private IRoutingGraph m_CachedRoutingGraph;
+		private readonly DenonAvrPowerControl m_PowerControl;
 
 		/// <summary>
 		/// Gets the routing graph.
@@ -95,11 +98,15 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// </summary>
 		/// <param name="parent"></param>
 		/// <param name="id"></param>
-		public DenonAvrSwitcherRoutingControl(DenonAvrDevice parent, int id)
+		/// <param name="powerControl"></param>
+		public DenonAvrSwitcherRoutingControl(DenonAvrDevice parent, int id, DenonAvrPowerControl powerControl)
 			: base(parent, id)
 		{
 			m_Cache = new SwitcherCache();
 			Subscribe(m_Cache);
+
+			m_PowerControl = powerControl;
+			Subscribe(m_PowerControl);
 		}
 
 		/// <summary>
@@ -116,6 +123,7 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 			base.DisposeFinal(disposing);
 
 			Unsubscribe(m_Cache);
+			Unsubscribe(m_PowerControl);
 		}
 
 		#region Methods
@@ -280,12 +288,18 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// </summary>
 		/// <param name="input"></param>
 		/// <returns></returns>
-		public bool Route(int input)
+		private bool Route(int input)
 		{
 			if (!ContainsInput(input))
 				throw new ArgumentOutOfRangeException("input");
 
+			if (Parent.SetZonePowerWithRouting)
+				m_PowerControl.PowerOn();
+
 			string inputName = s_InputMap.GetValue(input);
+			
+			if (Parent.SetZonePowerWithRouting)
+				m_PowerControl.PowerOn();
 
 			DenonSerialData data = DenonSerialData.Command(SELECT_INPUT + inputName);
 			Parent.SendData(data);
@@ -301,8 +315,34 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// <returns>True if successfully cleared.</returns>
 		public override bool ClearOutput(int output, eConnectionType type)
 		{
-			// No way of clearing output
-			return false;
+			// If not SetZonePowerWithRouting, no way to power off
+			if (!Parent.SetZonePowerWithRouting) 
+				return false;
+			
+			// Power off on unroute
+			m_PowerControl.PowerOff();
+			return true;
+
+			
+		}
+		
+		/// <summary>
+		/// Sets input for output on the routing cache for all outputs
+		/// </summary>
+		/// <param name="input"></param>
+		private void SetCacheInputForOutput(int? input)
+		{
+			foreach (ConnectorInfo output in GetOutputs())
+				m_Cache.SetInputForOutput(output.Address, input,
+					eConnectionType.Audio | eConnectionType.Video);
+		}
+
+		/// <summary>
+		/// Queries the receiver for the current input state
+		/// </summary>
+		private void QueryInput()
+		{
+			Parent.SendData(DenonSerialData.Request(SELECT_INPUT));
 		}
 
 		#endregion
@@ -344,14 +384,16 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 
 			if (data.StartsWith(SELECT_INPUT))
 			{
+				if (Parent.SetZonePowerWithRouting && m_PowerControl.PowerState != ePowerState.PowerOn)
+					return;
+				
 				string inputName = data.Substring(SELECT_INPUT.Length);
-
+				
 				int input;
-				bool known = s_InputMap.TryGetKey(inputName, out input) && ContainsInput(input);
-
-				foreach (ConnectorInfo output in GetOutputs())
-					m_Cache.SetInputForOutput(output.Address, known ? input : (int?)null,
-											  eConnectionType.Audio | eConnectionType.Video);
+				if (s_InputMap.TryGetKey(inputName, out input) && ContainsInput(input))
+					SetCacheInputForOutput(input);
+				else
+					SetCacheInputForOutput(null);
 			}
 		}
 
@@ -365,7 +407,37 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 			if (!args.Data)
 				return;
 
-			Parent.SendData(DenonSerialData.Request(SELECT_INPUT));
+			QueryInput();
+		}
+
+		#endregion
+		
+		#region Power Control Callbacks
+		
+		private void Subscribe(DenonAvrPowerControl powerControl)
+		{
+			powerControl.OnPowerStateChanged += PowerControlOnOnPowerStateChanged;
+		}
+		
+		private void Unsubscribe(DenonAvrPowerControl powerControl)
+		{
+			powerControl.OnPowerStateChanged -= PowerControlOnOnPowerStateChanged;
+		}
+
+		private void PowerControlOnOnPowerStateChanged(object sender, PowerDeviceControlPowerStateApiEventArgs e)
+		{
+			if (!Parent.SetZonePowerWithRouting)
+				return;
+
+			switch (e.Data.PowerState)
+			{
+				case ePowerState.PowerOff:
+					SetCacheInputForOutput(null);
+					break;
+				case ePowerState.PowerOn:
+					QueryInput();
+					break;
+			}
 		}
 
 		#endregion

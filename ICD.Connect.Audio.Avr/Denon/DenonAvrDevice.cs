@@ -346,8 +346,10 @@ namespace ICD.Connect.Audio.Avr.Denon
 		{
 			base.AddControls(settings, factory, addControl);
 
-			addControl(new DenonAvrSwitcherRoutingControl(this, 0));
-			addControl(new DenonAvrPowerControl(this, 1));
+			var powerControl = new DenonAvrPowerControl(this, 1);
+			
+			addControl(new DenonAvrSwitcherRoutingControl(this, 0, powerControl));
+			addControl(powerControl);
 			addControl(new DenonAvrVolumeControl(this, 2));
 		}
 
