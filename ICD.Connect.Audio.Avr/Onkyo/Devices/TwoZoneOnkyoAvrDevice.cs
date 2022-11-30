@@ -29,9 +29,13 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Devices
         /// <param name="addControl"></param>
         protected override void AddControls(TwoZoneOnkyoAvrDeviceSettings settings, IDeviceFactory factory, Action<IDeviceControl> addControl)
         {
+            // Create this control before calling the base method
+            // Base calls GetSwitcherControl, which needs this set
+            m_Zone2PowerControl = new Zone2OnkyoAvrPowerControl(this, 20);
+            
             base.AddControls(settings, factory, addControl);
 
-            m_Zone2PowerControl = new Zone2OnkyoAvrPowerControl(this, 20);
+            
             addControl(m_Zone2PowerControl);
             addControl(new Zone2OnkyoAvrVolumeControl(this, 21, m_Zone2PowerControl));
         }

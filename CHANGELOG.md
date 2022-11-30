@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - Fixed SWAMP volume controls to add mute attributes
  - Fixed SWAMP expander zone routing
+ - Fixed Onkyo AVR zone two power control
 
 ## [17.2.0] - 2022-08-04
 ### Changed
