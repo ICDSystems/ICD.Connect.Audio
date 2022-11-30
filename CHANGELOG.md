@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [Unreleased]
 ### Changed
  - Fixed SWAMP volume controls to add mute attributes
+ - Fixed SWAMP expander zone routing
 
 ## [17.2.0] - 2022-08-04
 ### Changed

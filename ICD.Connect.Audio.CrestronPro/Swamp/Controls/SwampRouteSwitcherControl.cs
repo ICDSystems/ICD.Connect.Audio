@@ -182,7 +182,7 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
         public override ConnectorInfo GetOutput(int address)
         {
             if (!ContainsOutput(address))
-                throw new ArgumentOutOfRangeException("address");
+                throw new ArgumentOutOfRangeException("address", string.Format("No output at address {0}", address));
 
             return new ConnectorInfo(address, eConnectionType.Audio);
         }
@@ -207,7 +207,7 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
                 return zone >= 1 && zone <= 10;
 
             // Check the expander type zone count
-            return Parent.GetExpanderType(expander).GetZonesForExpander() <= zone;
+            return zone > 0 && zone <= Parent.GetExpanderType(expander).GetZonesForExpander();
 #else
             throw new NotSupportedException();
 #endif
