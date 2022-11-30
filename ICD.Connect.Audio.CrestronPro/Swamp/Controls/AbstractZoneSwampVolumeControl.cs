@@ -165,6 +165,7 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
             else
             {
                 SupportedVolumeFeatures = eVolumeFeatures.Volume |
+                                          eVolumeFeatures.Mute |
                                           eVolumeFeatures.MuteAssignment |
                                           eVolumeFeatures.MuteFeedback |
                                           eVolumeFeatures.VolumeAssignment |
