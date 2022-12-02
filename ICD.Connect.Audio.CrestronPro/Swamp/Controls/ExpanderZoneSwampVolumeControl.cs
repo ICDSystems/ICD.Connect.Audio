@@ -56,11 +56,6 @@ namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
         
         #if !NETSTANDARD
 
-        protected override bool GetControlAvailable()
-        {
-            return base.GetControlAvailable() && Expander != null && Expander.OnlineFeedback;
-        }
-
         protected override void SetupZoneFromSwamp()
         {
             if (Swamp == null)
