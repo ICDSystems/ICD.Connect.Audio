@@ -5,10 +5,16 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+
+## [18.0.0] - 2022-12-02
+### Added
+ - Crestron SWAMP-24x8 support as a switcher and volume controls, with all expanders
+ - Onkyo AVR support, with one, two, and three zone options
+
 ### Changed
- - Fixed SWAMP volume controls to add mute attributes
- - Fixed SWAMP expander zone routing
- - Fixed Onkyo AVR zone two power control
+ - Changed Denon project to AVR project
+ - Added SetZonePowerWithRouting option to AVRs
+ - Added PrintAddressMap console command to AVR routing controls
 
 ## [17.2.0] - 2022-08-04
 ### Changed
