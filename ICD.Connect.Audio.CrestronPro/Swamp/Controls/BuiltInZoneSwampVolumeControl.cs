@@ -4,7 +4,7 @@ using Crestron.SimplSharpPro.AudioDistribution;
 
 namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 {
-    public class BuiltInZoneSwampVolumeControl : AbstractZoneSwampVolumeControl
+    public sealed class BuiltInZoneSwampVolumeControl : AbstractZoneSwampVolumeControl
     {
         /// <summary>
         /// Gets the human readable name for this control.

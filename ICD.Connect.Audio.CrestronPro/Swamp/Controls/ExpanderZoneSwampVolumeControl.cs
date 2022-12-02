@@ -1,12 +1,11 @@
-﻿
-using ICD.Connect.API.Nodes;
+﻿using ICD.Connect.API.Nodes;
 #if !NETSTANDARD
 using Crestron.SimplSharpPro.AudioDistribution;
 #endif
 
 namespace ICD.Connect.Audio.CrestronPro.Swamp.Controls
 {
-    public class ExpanderZoneSwampVolumeControl : AbstractZoneSwampVolumeControl
+    public sealed class ExpanderZoneSwampVolumeControl : AbstractZoneSwampVolumeControl
     {
         private readonly int m_ExpanderNumber;
         
