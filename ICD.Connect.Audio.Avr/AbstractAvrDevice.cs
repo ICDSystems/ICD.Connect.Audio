@@ -1,4 +1,5 @@
-﻿using ICD.Connect.Devices;
+﻿using ICD.Connect.API.Nodes;
+using ICD.Connect.Devices;
 using ICD.Connect.Settings;
 
 namespace ICD.Connect.Audio.Avr
@@ -42,6 +43,16 @@ namespace ICD.Connect.Audio.Avr
             base.ApplySettingsFinal(settings, factory);
 
             SetZonePowerWithRouting = settings.SetZonePowerWithRouting;
+        }
+
+        /// <summary>
+        /// Calls the delegate for each console status item.
+        /// </summary>
+        /// <param name="addRow"></param>
+        public override void BuildConsoleStatus(AddStatusRowDelegate addRow)
+        {
+            base.BuildConsoleStatus(addRow);
+            addRow("SetZonePowerWithRouting", SetZonePowerWithRouting);
         }
     }
 }
