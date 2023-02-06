@@ -4,7 +4,6 @@ using System.Linq;
 using ICD.Common.Utils;
 using ICD.Common.Utils.Collections;
 using ICD.Common.Utils.Extensions;
-using ICD.Common.Utils.Services;
 using ICD.Common.Utils.Services.Logging;
 using ICD.Connect.API.Commands;
 using ICD.Connect.Devices.Controls.Power;
@@ -13,9 +12,7 @@ using ICD.Connect.Protocol.Data;
 using ICD.Connect.Routing;
 using ICD.Connect.Routing.Connections;
 using ICD.Connect.Routing.Controls;
-using ICD.Connect.Routing.Endpoints;
 using ICD.Connect.Routing.EventArguments;
-using ICD.Connect.Routing.RoutingGraphs;
 using ICD.Connect.Routing.Utils;
 
 namespace ICD.Connect.Audio.Avr.Onkyo.Controls
@@ -79,7 +76,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 			{ 39, 0x55 },
 			{ 40, 0x56 },
 			{ 41, 0x57 }
-			// Special Cas handled elsewhere: 0x80 - follow main zone
+			// Special Case handled elsewhere: 0x80 - follow main zone
 		};
 
 		/// <summary>
@@ -168,8 +165,6 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 
 		private readonly SwitcherCache m_Cache;
 
-		private IRoutingGraph m_CachedRoutingGraph;
-
 		private readonly BiDictionary<int, IPowerDeviceControl> m_ZonePowerControls;
 
 		/// <summary>
@@ -182,14 +177,6 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		private int Zones
 		{
 			get { return Parent.Zones; }
-		}
-		
-		/// <summary>
-		/// Gets the routing graph.
-		/// </summary>
-		private IRoutingGraph RoutingGraph
-		{
-			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
 		}
 
 		/// <summary>
@@ -273,7 +260,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// <returns></returns>
 		public override bool ContainsInput(int input)
 		{
-			return RoutingGraph.Connections.GetInputConnection(new EndpointInfo(Parent.Id, Id, input)) != null;
+		    return s_InputAddressToParameter.ContainsKey(input);
 		}
 
 		/// <summary>
@@ -282,11 +269,9 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
-			return RoutingGraph.Connections
-			                   .GetInputConnections(Parent.Id, Id)
-			                   .Where(c => s_InputAddressToParameter.ContainsKey(c.Destination.Address))
-			                   .Select(c => new ConnectorInfo(c.Destination.Address,
-				                   eConnectionType.Audio | eConnectionType.Video));
+		    return
+                s_InputAddressToParameter.Keys
+                    .Select(i => new ConnectorInfo(i, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>
@@ -309,7 +294,7 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// <returns></returns>
 		public override bool ContainsOutput(int output)
 		{
-			return RoutingGraph.Connections.GetOutputConnection(new EndpointInfo(Parent.Id, Id, output)) != null;
+		    return output <= Zones && s_OutputAddressToOnkyoCommand.ContainsKey(output);
 		}
 
 		/// <summary>
@@ -318,12 +303,9 @@ namespace ICD.Connect.Audio.Avr.Onkyo.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetOutputs()
 		{
-			return RoutingGraph.Connections
-			                   .GetOutputConnections(Parent.Id, Id)
-			                   .Where(c => s_OutputAddressToOnkyoCommand.ContainsKey(c.Source.Address))
-			                   .Where(c => c.Source.Address <= Zones)
-			                   .Select(c =>
-				                   new ConnectorInfo(c.Source.Address, eConnectionType.Audio | eConnectionType.Video));
+		    return
+		        s_OutputAddressToOnkyoCommand.Keys.Where(o => o <= Zones)
+		                                     .Select(o => new ConnectorInfo(o, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>

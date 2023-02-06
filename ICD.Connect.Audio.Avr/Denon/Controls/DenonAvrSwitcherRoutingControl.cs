@@ -82,18 +82,16 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// </summary>
 		public override event EventHandler<RouteChangeEventArgs> OnRouteChange;
 
+        private IRoutingGraph m_CachedRoutingGraph;
+
 		private readonly SwitcherCache m_Cache;
 
-		private IRoutingGraph m_CachedRoutingGraph;
 		private readonly DenonAvrPowerControl m_PowerControl;
 
-		/// <summary>
-		/// Gets the routing graph.
-		/// </summary>
-		public IRoutingGraph RoutingGraph
-		{
-			get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
-		}
+        private IRoutingGraph RoutingGraph
+        {
+            get { return m_CachedRoutingGraph = m_CachedRoutingGraph ?? ServiceProvider.GetService<IRoutingGraph>(); }
+        }
 
 		/// <summary>
 		/// Constructor.
@@ -161,7 +159,7 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// <returns></returns>
 		public override bool ContainsInput(int input)
 		{
-			return RoutingGraph.Connections.GetInputConnection(new EndpointInfo(Parent.Id, Id, input)) != null;
+		    return s_InputMap.ContainsKey(input);
 		}
 
 		/// <summary>
@@ -170,10 +168,7 @@ namespace ICD.Connect.Audio.Avr.Denon.Controls
 		/// <returns></returns>
 		public override IEnumerable<ConnectorInfo> GetInputs()
 		{
-			return RoutingGraph.Connections
-			                   .GetInputConnections(Parent.Id, Id)
-							   .Where(c => s_InputMap.ContainsKey(c.Destination.Address))
-			                   .Select(c => new ConnectorInfo(c.Destination.Address, eConnectionType.Audio | eConnectionType.Video));
+		    return s_InputMap.Keys.Select(i => new ConnectorInfo(i, eConnectionType.Audio | eConnectionType.Video));
 		}
 
 		/// <summary>
