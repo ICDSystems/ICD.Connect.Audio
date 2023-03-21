@@ -86,7 +86,6 @@
     <Compile Include="EventArgs\ControlValueUpdateEventArgs.cs" />
     <Compile Include="EventArgs\SwitcherOutputMuteChangedEventArgs.cs" />
     <Compile Include="EventArgs\SwitcherOutputSelectChangedEventArgs.cs" />
-    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDevice.cs" />
     <Compile Include="Devices\QSysCoreCamera\QSysCoreCameraDeviceSettings.cs" />
     <Compile Include="Devices\QSysCore\Controls\Dialing\QSysPotsTraditionalConferenceControl.cs" />
@@ -202,8 +201,4 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 5.2 --configuration-file="$(ProjectDir)ObfuscationSettings.cs"
-rem S# Pro preparation will execute after these operations</PostBuildEvent>
-  </PropertyGroup>
 </Project>

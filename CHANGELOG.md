@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Changed
  - AVR: Report all inputs, not just ones used by routing graph
  - AVR: Added "SetZonePowerWithRouting" to console status
+ - Removed Obfuscation
 
 ## [18.0.0] - 2022-12-02
 ### Added

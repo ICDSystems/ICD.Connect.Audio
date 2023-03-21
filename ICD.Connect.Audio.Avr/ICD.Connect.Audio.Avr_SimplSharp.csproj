@@ -82,7 +82,6 @@
     <Compile Include="IAvrDeviceSettings.cs" />
     <Compile Include="KrangPlugin.cs" />
     <None Include="Denon\AVR-3808CISerialProtocol_Ver520a.pdf" />
-    <Compile Include="ObfuscationSettings.cs" />
     <Compile Include="Onkyo\Controls\AbstractOnkyoAvrPowerControl.cs" />
     <Compile Include="Onkyo\Controls\AbstractOnkyoAvrVolumeControl.cs" />
     <Compile Include="Onkyo\Controls\MainZoneOnkyoAvrPowerControl.cs" />
@@ -147,8 +146,4 @@
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CompactFramework.CSharp.targets" />
-  <PropertyGroup>
-    <PostBuildEvent>if /I "$(ConfigurationName)" == "Release" Eazfuscator.NET.exe "$(TargetPath)" --msbuild-project-path "$(ProjectPath)" --msbuild-project-configuration "$(ConfigurationName)" --msbuild-project-platform "$(PlatformName)" --msbuild-solution-path "$(SolutionPath)" -n --newline-flush -v 5.2 --configuration-file="$(ProjectDir)ObfuscationSettings.cs"
-rem S# Pro preparation will execute after these operations</PostBuildEvent>
-  </PropertyGroup>
 </Project>
