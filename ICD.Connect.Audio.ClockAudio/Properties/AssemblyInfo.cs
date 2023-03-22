@@ -4,4 +4,4 @@ using System.Reflection;
 [assembly: AssemblyCompany("ICD Systems")]
 [assembly: AssemblyProduct("ICD.Connect.Audio.ClockAudio")]
 [assembly: AssemblyCopyright("Copyright © ICD Systems 2023")]
-[assembly: AssemblyVersion("18.0.0.0")]
+[assembly: AssemblyVersion("18.1.0.0")]
